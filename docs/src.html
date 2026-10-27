@@ -1,0 +1,568 @@
+<title>ADS Next Design System</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/*__ADS_CSS__*/
+
+/* ---- Docs chrome. Layout: fixed left index on desktop, stacked sections, each a heading + live specimen + usage. ---- */
+:root {
+  --doc-bg: var(--ads-background-surface-page);
+  --doc-panel: var(--ads-background-surface-default);
+  --doc-ink: var(--ads-content-text-primary);
+  --doc-muted: var(--ads-content-text-secondary);
+  --doc-rule: var(--ads-border-subtle);
+  --doc-accent: var(--ads-content-text-link);
+  --doc-code-bg: var(--ads-background-surface-sunken);
+  --doc-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+[hidden] { display: none !important; }
+html, body { background: var(--doc-bg); color: var(--doc-ink); }
+body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--doc-panel); }
+.doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--ads-space-48); max-width: 1240px; margin: 0 auto; padding-block: var(--ads-space-24) var(--ads-space-96); }
+.doc-nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 88px); align-self: start; display: flex; flex-direction: column; gap: 2px; font-size: var(--ads-type-body-small-size); }
+.doc-nav a { color: var(--doc-muted); text-decoration: none; padding: 6px 10px; border-radius: var(--ads-radius-4); }
+.doc-nav a:hover { background: var(--ads-background-surface-hover); color: var(--doc-ink); }
+.doc-nav .ads-overline { color: var(--ads-content-text-tertiary); padding: 16px 10px 4px; font-size: 12px; }
+.doc-top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); background: var(--doc-panel); border-bottom: 1px solid var(--doc-rule); }
+.doc-top__inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: var(--ads-space-16); flex-wrap: wrap; }
+.doc-top__brand { display: flex; align-items: center; gap: 12px; color: var(--ads-brand-primary-blue); margin-right: auto; }
+.doc-top__brand b { color: var(--doc-ink); font-size: var(--ads-type-body-small-size); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.seg { display: inline-flex; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); overflow: hidden; }
+.seg button { border: 0; background: none; color: var(--doc-muted); font: inherit; font-size: 13px; padding: 6px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--ads-border-default); }
+.seg button[aria-pressed="true"] { background: var(--ads-background-surface-selected); color: var(--doc-ink); font-weight: 600; }
+.seg-label { font-size: 12px; color: var(--ads-content-text-tertiary); }
+main { min-width: 0; display: flex; flex-direction: column; gap: var(--ads-space-80); }
+section { scroll-margin-top: 96px; display: flex; flex-direction: column; gap: var(--ads-space-24); min-width: 0; }
+section > header { display: flex; flex-direction: column; gap: var(--ads-space-8); max-width: 68ch; }
+section > header p { margin: 0; color: var(--doc-muted); }
+.hero { display: flex; flex-direction: column; gap: var(--ads-space-16); padding-block: var(--ads-space-32) 0; }
+.hero p { max-width: 62ch; margin: 0; color: var(--doc-muted); font-size: 18px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--doc-rule); border: 1px solid var(--doc-rule); border-radius: var(--ads-radius-8); overflow: hidden; }
+.facts div { background: var(--doc-panel); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.facts b { font-size: 28px; font-weight: 300; font-variant-numeric: tabular-nums; }
+.facts span { color: var(--doc-muted); font-size: 13px; }
+.specimen { border: 1px solid var(--doc-rule); border-radius: var(--ads-radius-8); background: var(--doc-panel); padding: var(--ads-space-24); min-width: 0; }
+.specimen--flush { padding: 0; overflow: hidden; }
+.specimen__label { margin: 0 0 12px; }
+.code { position: relative; margin: 0; background: var(--doc-code-bg); border-radius: var(--ads-radius-4); padding: 12px 14px; overflow-x: auto; font: 12.5px/1.55 var(--doc-mono); color: var(--doc-ink); white-space: pre; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ads-space-24); }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ads-space-24); }
+h3.sub { margin: 0; font-size: 16px; font-weight: 600; }
+.note { color: var(--doc-muted); font-size: 14px; margin: 0; }
+code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1px 5px; border-radius: 3px; color: var(--doc-ink); overflow-wrap: anywhere; }
+
+/* swatches */
+.swatch-group { display: flex; flex-direction: column; gap: 12px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.sw { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.sw i { flex: none; width: 40px; height: 40px; border-radius: var(--ads-radius-4); box-shadow: inset 0 0 0 1px var(--ads-border-overlay); }
+.sw div { min-width: 0; display: flex; flex-direction: column; }
+.sw b { font: 12px var(--doc-mono); font-weight: 600; overflow-wrap: anywhere; }
+.sw span { font: 11px var(--doc-mono); color: var(--doc-muted); }
+.ramp { display: grid; grid-template-columns: 70px repeat(11, minmax(0, 1fr)); gap: 4px; align-items: center; }
+.ramp i { height: 36px; border-radius: 3px; box-shadow: inset 0 0 0 1px var(--ads-border-overlay); }
+.ramp span { font: 11px var(--doc-mono); color: var(--doc-muted); }
+.ramp-wrap { overflow-x: auto; }
+.ramp-wrap > .ramp { min-width: 560px; }
+
+/* type */
+.type-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; align-items: baseline; padding-block: 14px; border-bottom: 1px solid var(--doc-rule); }
+.type-row:last-child { border-bottom: 0; }
+.type-row small { font: 11px/1.5 var(--doc-mono); color: var(--doc-muted); }
+.type-row > :last-child { min-width: 0; overflow-wrap: anywhere; }
+
+/* scales */
+.scale { display: flex; flex-direction: column; gap: 6px; }
+.scale-row { display: grid; grid-template-columns: 90px 44px minmax(0, 1fr); gap: 12px; align-items: center; font: 12px var(--doc-mono); }
+.scale-row i { display: block; height: 12px; background: var(--ads-background-interactive-selected); border-radius: 2px; }
+.radii { display: flex; flex-wrap: wrap; gap: 16px; }
+.radii div { display: flex; flex-direction: column; align-items: center; gap: 8px; font: 12px var(--doc-mono); color: var(--doc-muted); }
+.radii i { width: 72px; height: 56px; border: 2px solid var(--ads-border-brand); background: var(--ads-background-surface-selected); }
+.elev { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 24px; }
+.elev div { height: 80px; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-raised); display: grid; place-items: center; font: 12px var(--doc-mono); color: var(--doc-muted); }
+
+/* grid demo */
+.griddemo { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: var(--gut); padding-inline: var(--mar); height: 72px; background: var(--ads-background-surface-sunken); border-radius: var(--ads-radius-4); }
+.griddemo i { background: color-mix(in srgb, var(--ads-background-status-error) 22%, transparent); }
+
+/* icons */
+.icon-tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.icon-tools .ads-field { flex: 1 1 260px; }
+.icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 4px; }
+.icons button { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 6px 10px; border: 0; border-radius: var(--ads-radius-4); background: none; color: var(--ads-content-icon-primary); cursor: pointer; font: 10.5px/1.3 var(--doc-mono); }
+.icons button span:last-child { color: var(--doc-muted); overflow-wrap: anywhere; text-align: center; }
+.icons button:hover { background: var(--ads-background-surface-hover); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 20; }
+
+/* component demos */
+.demo-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.matrix { display: grid; grid-template-columns: 110px repeat(4, max-content); gap: 12px 16px; align-items: center; overflow-x: auto; padding-bottom: 4px; }
+.matrix > span { font: 12px var(--doc-mono); color: var(--doc-muted); }
+.phone { width: 390px; max-width: 100%; margin: 0 auto; border: 1px solid var(--doc-rule); border-radius: 28px; overflow: hidden; background: var(--ads-background-surface-page); display: flex; flex-direction: column; min-height: 600px; }
+.phone__status { display: flex; justify-content: space-between; padding: 14px 28px 6px; font-size: 15px; font-weight: 600; }
+.phone__body { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.trip { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
+.trip strong { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px) {
+  .doc { grid-template-columns: minmax(0, 1fr); gap: var(--ads-space-24); }
+  .doc-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+  .doc-nav .ads-overline { display: none; }
+  .two, .three { grid-template-columns: minmax(0, 1fr); }
+  .type-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+</style>
+
+<div class="ads-root">
+<div class="doc-top">
+  <div class="doc-top__inner">
+    <div class="doc-top__brand"><span>__LOGO_H__</span><b>Design System</b></div>
+    <span class="seg-label" id="lbl-theme">Theme</span>
+    <div class="seg" role="group" aria-labelledby="lbl-theme" id="themeSeg">
+      <button type="button" data-v="system" aria-pressed="true">System</button><button type="button" data-v="light" aria-pressed="false">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button>
+    </div>
+    <span class="seg-label" id="lbl-plat">Platform</span>
+    <div class="seg" role="group" aria-labelledby="lbl-plat" id="platSeg">
+      <button type="button" data-v="web" aria-pressed="true">Web</button><button type="button" data-v="ios" aria-pressed="false">iOS</button><button type="button" data-v="android" aria-pressed="false">Android</button>
+    </div>
+  </div>
+</div>
+
+<div class="doc">
+<nav class="doc-nav" aria-label="Sections">
+  <span class="ads-overline">Start</span>
+  <a href="#start">Getting started</a>
+  <span class="ads-overline">Foundation</span>
+  <a href="#color">Color</a><a href="#type">Typography</a><a href="#space">Space, radius, size</a><a href="#elevation">Elevation</a><a href="#layout">Layout</a><a href="#icons">Iconography</a><a href="#logos">Logos</a>
+  <span class="ads-overline">Components</span>
+  <a href="#button">Button</a><a href="#link">Link</a><a href="#badge">Badge</a><a href="#alert">Alert</a><a href="#forms">Text Input &amp; Select</a><a href="#choice">Checkbox, Radio, Switch</a><a href="#counter">Counter</a><a href="#search">Search &amp; List</a><a href="#accordion">Accordion</a><a href="#tabs">Tabs</a><a href="#card">Card</a><a href="#progress">Progress</a><a href="#tooltip">Tooltip</a><a href="#modal">Modal</a><a href="#date">Date Picker</a>
+  <span class="ads-overline">Mobile</span>
+  <a href="#mobile">App navigation</a>
+</nav>
+
+<main>
+<section id="start">
+  <div class="hero">
+    <p class="ads-overline ads-text-tertiary">ADS Next · web + NextGen mobile</p>
+    <h1 class="ads-display">One system for the website and the app.</h1>
+    <p>Tokens, 20 components and the icon and logo set from the two ADS Figma files, built as plain CSS. Colors switch between light and dark, and the type scale switches between web, iOS and Android, from the toggles above.</p>
+  </div>
+  <div class="facts">
+    <div><b>94</b><span>semantic color tokens, light + dark</span></div>
+    <div><b>14</b><span>text styles × 4 platform tiers</span></div>
+    <div><b>13 · 7 · 8</b><span>space, radius and size steps</span></div>
+    <div><b>20</b><span>components incl. 2 mobile nav</span></div>
+    <div><b>139</b><span>icons as SVG, sprite and CSS</span></div>
+  </div>
+  <div class="two">
+    <div class="specimen">
+      <p class="ads-field-label specimen__label ads-text-secondary">Install</p>
+<pre class="code">&lt;link rel="stylesheet" href="css/ads.css"&gt;
+
+&lt;body class="ads-root"&gt;
+  &lt;button class="ads-btn"&gt;Book now&lt;/button&gt;
+&lt;/body&gt;</pre>
+    </div>
+    <div class="specimen">
+      <p class="ads-field-label specimen__label ads-text-secondary">Switch theme and platform</p>
+<pre class="code">&lt;html data-theme="dark"&gt;        &lt;!-- or light; omit to follow OS --&gt;
+&lt;html data-platform="ios"&gt;      &lt;!-- or android; omit for web --&gt;
+
+/* every value is a CSS variable */
+color: var(--ads-content-text-primary);
+gap: var(--ads-space-16);</pre>
+    </div>
+  </div>
+</section>
+
+<section id="color">
+  <header><h2 class="ads-h2">Color</h2><p>Use the semantic tokens in components. They resolve to the primitive ramps and flip between light and dark. The swatches below show the value for the current theme.</p></header>
+  <div class="specimen ramp-wrap" id="ramps"></div>
+  <div id="semantic" class="ads-stack" style="--ads-stack-gap: 32px"></div>
+</section>
+
+<section id="type">
+  <header><h2 class="ads-h2">Typography</h2><p>Early Sans Variable on the web (Arial while it loads), SF Pro on iOS and Roboto on Android. On the web only Display, H1 and H2 step down below 640px. Use the Platform toggle to see the native tiers.</p></header>
+  <div class="specimen" id="typeSpec"></div>
+</section>
+
+<section id="space">
+  <header><h2 class="ads-h2">Space, radius, size</h2><p>Spacing runs on a 4px base. Radius is set by role. Interactive heights come from one ladder, so a control never sets its own height.</p></header>
+  <div class="three">
+    <div class="specimen"><p class="ads-field-label specimen__label ads-text-secondary">space/*</p><div class="scale" id="spaceScale"></div></div>
+    <div class="specimen"><p class="ads-field-label specimen__label ads-text-secondary">radius/*</p><div class="radii" id="radii"></div></div>
+    <div class="specimen"><p class="ads-field-label specimen__label ads-text-secondary">size/*</p><div class="scale" id="sizeScale"></div></div>
+  </div>
+</section>
+
+<section id="elevation">
+  <header><h2 class="ads-h2">Elevation</h2><p>Five drop shadows. Dark mode uses a stronger, wider shadow so raised surfaces still separate.</p></header>
+  <div class="specimen"><div class="elev">
+    <div style="box-shadow: var(--ads-shadow-elevation-xs)">xs</div><div style="box-shadow: var(--ads-shadow-elevation-sm)">sm · nav</div><div style="box-shadow: var(--ads-shadow-elevation-md)">md · menu</div><div style="box-shadow: var(--ads-shadow-elevation-lg)">lg · modal</div><div style="box-shadow: var(--ads-shadow-elevation-xl)">xl</div>
+  </div></div>
+</section>
+
+<section id="layout">
+  <header><h2 class="ads-h2">Layout</h2><p>Two breakpoints, 640px and 1024px. Content caps at 1200px and running text at 588px. Native screens drop the column grid and use the platform margin.</p></header>
+  <div class="specimen ads-stack">
+    <div class="ads-stack" style="--ads-stack-gap: 8px"><span class="ads-caption ads-text-secondary">Mobile web · 320–639 · 4 columns · gutter 16 · margin 16</span><div class="griddemo" style="--cols:4;--gut:16px;--mar:16px;max-width:390px"><i></i><i></i><i></i><i></i></div></div>
+    <div class="ads-stack" style="--ads-stack-gap: 8px"><span class="ads-caption ads-text-secondary">Tablet · 640–1023 · 8 columns · gutter 24 · margin 32</span><div class="griddemo" style="--cols:8;--gut:24px;--mar:32px;max-width:744px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="ads-stack" style="--ads-stack-gap: 8px"><span class="ads-caption ads-text-secondary">Desktop · 1024+ · 12 columns · gutter 24 · margin 32 · content max 1200</span><div class="griddemo" style="--cols:12;--gut:24px;--mar:32px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="ads-stack" style="--ads-stack-gap: 8px"><span class="ads-caption ads-text-secondary">iOS / Android phone · 1 column · margin 20 · tablets 4 columns, margin 32 portrait / 40 landscape</span><div class="griddemo" style="--cols:1;--gut:0px;--mar:20px;max-width:390px"><i></i></div></div>
+  </div>
+</section>
+
+<section id="icons">
+  <header><h2 class="ads-h2">Iconography</h2><p>24px glyphs on a 2px live area, drawn in <code class="t">currentColor</code>. Use <code class="t">ads-icon--sm</code> for 16px. Select an icon to copy its markup.</p></header>
+  <div class="icon-tools">
+    <div class="ads-field"><label class="ads-field__label" for="iconQ">Filter icons</label><div class="ads-control ads-control--sm"><span class="ads-icon ads-icon--search ads-icon--sm"></span><input id="iconQ" type="search" placeholder="train, seat, payment…"></div></div>
+    <span class="ads-caption ads-text-secondary" id="iconCount"></span>
+  </div>
+  <div class="specimen"><div class="icons" id="iconGrid"></div></div>
+</section>
+
+<section id="logos">
+  <header><h2 class="ads-h2">Logos</h2><p>The Travelmark in horizontal and vertical lockups. It takes <code class="t">currentColor</code>, so it reads Primary Blue on light surfaces and white on inverse ones. Keep clear space and never stretch it.</p></header>
+  <div class="two">
+    <div class="specimen" style="display:grid;place-items:center;gap:24px;color:var(--ads-brand-primary-blue);min-height:180px"><span style="width:240px">__LOGO_H__</span><span style="width:120px">__LOGO_V__</span></div>
+    <div class="specimen" style="display:grid;place-items:center;gap:24px;background:var(--ads-background-surface-inverse);color:var(--ads-content-text-on-inverse);min-height:180px"><span style="width:240px">__LOGO_H__</span><span style="width:120px">__LOGO_V__</span></div>
+  </div>
+</section>
+
+<section id="button">
+  <header><h2 class="ads-h2">Button</h2><p>Four roles, three sizes. Height comes from the interactive ladder: 36, 44, 60. Use one primary per view. Loading swaps the label for the spinner and keeps the width.</p></header>
+  <div class="specimen">
+    <div class="matrix">
+      <span></span><span>Primary</span><span>Secondary</span><span>Tertiary</span><span>Destructive</span>
+      <span>Small · 36</span><button class="ads-btn ads-btn--sm">Book now</button><button class="ads-btn ads-btn--sm ads-btn--secondary">Go back</button><button class="ads-btn ads-btn--sm ads-btn--tertiary">Clear</button><button class="ads-btn ads-btn--sm ads-btn--destructive">Cancel trip</button>
+      <span>Default · 44</span><button class="ads-btn">Book now</button><button class="ads-btn ads-btn--secondary">Go back</button><button class="ads-btn ads-btn--tertiary">Clear</button><button class="ads-btn ads-btn--destructive">Cancel trip</button>
+      <span>Large · 60</span><button class="ads-btn ads-btn--lg">Book now</button><button class="ads-btn ads-btn--lg ads-btn--secondary">Go back</button><button class="ads-btn ads-btn--lg ads-btn--tertiary">Clear</button><button class="ads-btn ads-btn--lg ads-btn--destructive">Cancel trip</button>
+      <span>Icon / state</span><button class="ads-btn">Continue<span class="ads-icon ads-icon--arrow-right"></span></button><button class="ads-btn ads-btn--secondary"><span class="ads-icon ads-icon--download"></span>Download</button><button class="ads-btn ads-btn--icon-only ads-btn--tertiary" aria-label="Share"><span class="ads-icon ads-icon--share"></span></button><button class="ads-btn" aria-busy="true"><span class="ads-icon ads-icon--spinner-static"></span>Booking…</button>
+      <span>Disabled</span><button class="ads-btn" disabled>Book now</button><button class="ads-btn ads-btn--secondary" disabled>Go back</button><button class="ads-btn ads-btn--tertiary" disabled>Clear</button><span></span>
+    </div>
+  </div>
+<pre class="code">&lt;button class="ads-btn ads-btn--secondary ads-btn--sm"&gt;Go back&lt;/button&gt;
+&lt;button class="ads-btn"&gt;Continue &lt;span class="ads-icon ads-icon--arrow-right"&gt;&lt;/span&gt;&lt;/button&gt;
+&lt;button class="ads-icon-btn" aria-label="Close"&gt;&lt;span class="ads-icon ads-icon--close"&gt;&lt;/span&gt;&lt;/button&gt;</pre>
+</section>
+
+<section id="link">
+  <header><h2 class="ads-h2">Link</h2><p>Always underlined so color is never the only cue. Visited is purple, the one link color outside the brand.</p></header>
+  <div class="specimen demo-grid" style="gap:24px"><a class="ads-link" href="#link">Learn more</a><a class="ads-link ads-link--sm" href="#link">Baggage policy</a><a class="ads-link" href="#link">Download timetable<span class="ads-icon ads-icon--download"></span></a><a class="ads-link" href="https://www.amtrak.com" target="_blank" rel="noopener">Amtrak.com<span class="ads-icon ads-icon--external"></span></a></div>
+</section>
+
+<section id="badge">
+  <header><h2 class="ads-h2">Badge</h2><p>A short status on the status ladder. The icon stays on unless the color means nothing, as on a count.</p></header>
+  <div class="specimen demo-grid">
+    <span class="ads-badge">3 travelers</span>
+    <span class="ads-badge ads-badge--info"><span class="ads-icon ads-icon--info-circle"></span>Schedule change</span>
+    <span class="ads-badge ads-badge--success"><span class="ads-icon ads-icon--check-circle"></span>On time</span>
+    <span class="ads-badge ads-badge--warning"><span class="ads-icon ads-icon--alert-triangle"></span>Delayed 12 min</span>
+    <span class="ads-badge ads-badge--error"><span class="ads-icon ads-icon--alert-diamond"></span>Cancelled</span>
+  </div>
+</section>
+
+<section id="alert">
+  <header><h2 class="ads-h2">Alert</h2><p>Something the traveler needs to know now. Never use it for a promotion.</p></header>
+  <div class="ads-stack" style="--ads-stack-gap: 12px">
+    <div class="ads-alert" role="status"><span class="ads-icon ads-icon--info-circle ads-alert__icon"></span><div class="ads-alert__content"><p class="ads-alert__title">Boarding has started</p><p class="ads-alert__description">Train 171 to New York is boarding on Track 7. <a class="ads-link" href="#alert">View train status</a></p></div><button class="ads-icon-btn" aria-label="Dismiss"><span class="ads-icon ads-icon--close"></span></button></div>
+    <div class="ads-alert ads-alert--success" role="status"><span class="ads-icon ads-icon--check-circle ads-alert__icon"></span><div class="ads-alert__content"><p class="ads-alert__title">Your seat is confirmed</p><p class="ads-alert__description">Car 6, seat 14A. We sent the eTicket to your email.</p></div></div>
+    <div class="ads-alert ads-alert--warning" role="status"><span class="ads-icon ads-icon--alert-triangle ads-alert__icon"></span><div class="ads-alert__content"><p class="ads-alert__description">Northeast Regional 95 is running about 20 minutes late.</p></div></div>
+    <div class="ads-alert ads-alert--error" role="alert"><span class="ads-icon ads-icon--alert-diamond ads-alert__icon"></span><div class="ads-alert__content"><p class="ads-alert__title">Card declined</p><p class="ads-alert__description">Your bank declined the payment. Try another card or contact your bank.</p></div></div>
+  </div>
+</section>
+
+<section id="forms">
+  <header><h2 class="ads-h2">Text Input &amp; Select</h2><p>One field anatomy: label with an optional marker, the field at 36, 44 or 60, and one helper line. Focus is a 2px ring on the field itself.</p></header>
+  <div class="specimen two">
+    <div class="ads-field"><label class="ads-field__label" for="f1">Email address <span class="ads-field__marker ads-field__marker--required">*</span></label><div class="ads-control"><input id="f1" type="email" placeholder="name@example.com"></div><div class="ads-helper">We send your eTicket here.</div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f2">Fare</label><div class="ads-control ads-control--select"><select id="f2"><option>Coach</option><option>Business</option><option>First</option></select><span class="ads-icon ads-icon--chevron-down"></span></div><div class="ads-helper">Prices shown per traveler.</div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f3">Guest Rewards number</label><div class="ads-control ads-control--error"><input id="f3" value="7001 2" aria-invalid="true" aria-describedby="f3h"></div><div class="ads-helper ads-helper--error" id="f3h"><span class="ads-icon ads-icon--alert-diamond"></span>Enter all 10 digits.</div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f4">Promo code <span class="ads-field__marker ads-field__marker--optional">(optional)</span></label><div class="ads-control ads-control--success"><input id="f4" value="SPRING25"></div><div class="ads-helper ads-helper--success"><span class="ads-icon ads-icon--check-circle"></span>25% off applied.</div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f5">From</label><div class="ads-control ads-control--lg"><span class="ads-control__station">NYP</span><input id="f5" value="New York, NY – Moynihan Train Hall"></div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f6">Departure date</label><div class="ads-control ads-control--lg"><input id="f6" value="Fri, Nov 14"><span class="ads-icon ads-icon--calendar"></span></div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f7">Accessibility needs</label><div class="ads-control ads-control--textarea"><textarea id="f7" maxlength="250" placeholder="Tell us how we can help"></textarea></div><div class="ads-helper">Shared with the station team.<span class="ads-helper__counter">0 / 250</span></div></div>
+    <div class="ads-field"><label class="ads-field__label" for="f8">Car number</label><div class="ads-control ads-control--sm"><input id="f8" value="6" disabled></div></div>
+  </div>
+</section>
+
+<section id="choice">
+  <header><h2 class="ads-h2">Checkbox, Radio, Switch</h2><p>Every control has a 44px target. A switch acts immediately; inside a form with Save, use a checkbox.</p></header>
+  <div class="specimen three">
+    <fieldset class="ads-fieldset"><legend class="ads-field__label">What should we email you about?</legend><div class="ads-fieldset__options">
+      <label class="ads-choice ads-checkbox"><input type="checkbox" id="c1" checked><span class="ads-choice__control"></span><span class="ads-choice__label">Trip updates<span class="ads-choice__supporting">Delays, track changes, cancellations</span></span></label>
+      <label class="ads-choice ads-checkbox"><input type="checkbox" id="c2"><span class="ads-choice__control"></span><span class="ads-choice__label">Deals</span></label>
+      <label class="ads-choice ads-checkbox"><input type="checkbox" id="c3" disabled><span class="ads-choice__control"></span><span class="ads-choice__label">Partner offers</span></label>
+    </div></fieldset>
+    <fieldset class="ads-fieldset"><legend class="ads-field__label">Choose a fare</legend><div class="ads-fieldset__options">
+      <label class="ads-choice ads-radio"><input type="radio" name="fare" id="r1" checked><span class="ads-choice__control"></span><span class="ads-choice__label">Value · $49</span></label>
+      <label class="ads-choice ads-radio"><input type="radio" name="fare" id="r2"><span class="ads-choice__control"></span><span class="ads-choice__label">Flex · $89</span></label>
+      <label class="ads-choice ads-radio"><input type="radio" name="fare" id="r3" disabled><span class="ads-choice__control"></span><span class="ads-choice__label">Premium · sold out</span></label>
+    </div></fieldset>
+    <div class="ads-stack" style="--ads-stack-gap:0">
+      <label class="ads-switch-row"><span>Push notifications</span><span class="ads-switch"><input type="checkbox" role="switch" id="s1" checked><span class="ads-switch__track"></span></span></label>
+      <label class="ads-switch-row"><span>Location for nearby stations</span><span class="ads-switch"><input type="checkbox" role="switch" id="s2"><span class="ads-switch__track"></span></span></label>
+      <label class="ads-switch-row ads-text-tertiary"><span>Quiet car reminders</span><span class="ads-switch"><input type="checkbox" role="switch" id="s3" disabled><span class="ads-switch__track"></span></span></label>
+    </div>
+  </div>
+<pre class="code">&lt;label class="ads-choice ads-checkbox"&gt;&lt;input type="checkbox"&gt;&lt;span class="ads-choice__control"&gt;&lt;/span&gt;&lt;span class="ads-choice__label"&gt;Deals&lt;/span&gt;&lt;/label&gt;</pre>
+</section>
+
+<section id="counter">
+  <header><h2 class="ads-h2">Counter</h2><p>For a small whole number such as travelers. At the limit only that direction disables.</p></header>
+  <div class="specimen demo-grid" style="gap:32px">
+    <div class="ads-row"><span>Adults</span><div class="ads-counter" data-counter data-min="1" data-max="8"><button class="ads-counter__step" aria-label="Fewer adults"><span class="ads-icon ads-icon--minus"></span></button><output class="ads-counter__value">1</output><button class="ads-counter__step" aria-label="More adults"><span class="ads-icon ads-icon--plus"></span></button></div></div>
+    <div class="ads-row"><span>Bikes</span><div class="ads-counter ads-counter--sm" data-counter data-min="0" data-max="2"><button class="ads-counter__step" aria-label="Fewer bikes"><span class="ads-icon ads-icon--minus"></span></button><output class="ads-counter__value">0</output><button class="ads-counter__step" aria-label="More bikes"><span class="ads-icon ads-icon--plus"></span></button></div></div>
+  </div>
+</section>
+
+<section id="search">
+  <header><h2 class="ads-h2">Search &amp; List</h2><p>The field holds the query; the List below it holds the answers. Rows are always 44px.</p></header>
+  <div class="specimen two">
+    <div class="ads-stack" style="--ads-stack-gap:8px">
+      <div class="ads-control"><span class="ads-icon ads-icon--search"></span><input type="search" id="q1" value="Phil" aria-label="Search stations"><button class="ads-control__clear" aria-label="Clear search"><span class="ads-icon ads-icon--close ads-icon--sm"></span></button></div>
+      <ul class="ads-list" role="listbox" aria-label="Stations">
+        <li class="ads-list__row ads-list__row--header">Stations</li>
+        <li class="ads-list__row" role="option" aria-selected="true"><span class="ads-list__lines"><span>Philadelphia, PA (PHL)</span><span class="ads-list__detail">William H. Gray III 30th Street Station</span></span></li>
+        <li class="ads-list__row" role="option"><span class="ads-list__lines"><span>Philadelphia, PA (PHN)</span><span class="ads-list__detail">North Philadelphia</span></span></li>
+        <li class="ads-list__row" role="option" aria-disabled="true">Phillipsburg, NJ (no service)</li>
+        <li class="ads-list__row ads-list__row--action" role="option">See all results</li>
+      </ul>
+    </div>
+    <div class="ads-stack" style="--ads-stack-gap:8px">
+      <div class="ads-control ads-control--pill"><span class="ads-icon ads-icon--search"></span><input type="search" id="q2" placeholder="Where to?" aria-label="Where to?"></div>
+      <ul class="ads-list" aria-label="Recent">
+        <li class="ads-list__row"><span class="ads-icon ads-icon--history" style="color:var(--ads-content-icon-secondary)"></span>Washington, DC</li>
+        <li class="ads-list__row"><span class="ads-icon ads-icon--history" style="color:var(--ads-content-icon-secondary)"></span>Boston, MA – South Station<span class="ads-icon ads-icon--chevron-right"></span></li>
+        <li class="ads-list__row ads-list__row--message">No other recent searches</li>
+      </ul>
+      <p class="note">The pill field is the mobile app's search bar.</p>
+    </div>
+  </div>
+</section>
+
+<section id="accordion">
+  <header><h2 class="ads-h2">Accordion</h2><p>Built on <code class="t">&lt;details&gt;</code>, so it works without script. The panel never scrolls on its own.</p></header>
+  <div class="specimen specimen--flush">
+    <details class="ads-accordion" open><summary>When can I board the train?<span class="ads-icon ads-icon--chevron-down"></span></summary><div class="ads-accordion__panel">Boarding usually opens 20 minutes before departure at larger stations. Watch the departure board for your track.</div></details>
+    <details class="ads-accordion"><summary>How much luggage can I bring?<span class="ads-icon ads-icon--chevron-down"></span></summary><div class="ads-accordion__panel">Two personal items and two carry-on bags, up to 50 lbs each.</div></details>
+    <details class="ads-accordion ads-accordion--sm"><summary>Can I bring my bike?<span class="ads-icon ads-icon--chevron-down"></span></summary><div class="ads-accordion__panel">Yes, on most routes. Reserve a bike spot when you book.</div></details>
+  </div>
+</section>
+
+<section id="tabs">
+  <header><h2 class="ads-h2">Tabs</h2><p>Views of the same thing, never navigation. Overflow scrolls sideways.</p></header>
+  <div class="specimen ads-stack">
+    <div class="ads-tabs" role="tablist" data-tabs><button class="ads-tab" role="tab" aria-selected="true">Overview</button><button class="ads-tab" role="tab" aria-selected="false">Amenities</button><button class="ads-tab" role="tab" aria-selected="false">Stops</button><button class="ads-tab" role="tab" aria-selected="false">Fares</button></div>
+    <div class="ads-tabs ads-tabs--sm" role="tablist" data-tabs><button class="ads-tab" role="tab" aria-selected="true">Outbound</button><button class="ads-tab" role="tab" aria-selected="false">Return</button><button class="ads-tab ads-tab--icon-only" role="tab" aria-selected="false" aria-label="Map"><span class="ads-icon ads-icon--map ads-icon--sm"></span></button></div>
+  </div>
+</section>
+
+<section id="card">
+  <header><h2 class="ads-h2">Card</h2><p>Image above or beside the copy. With a link as the action the whole card is one target and hover strengthens the border.</p></header>
+  <div class="three">
+    <article class="ads-card ads-card--link"><div class="ads-card__media" style="background:linear-gradient(160deg,var(--ads-color-blue-300),var(--ads-color-blue-800))"></div><div class="ads-card__body"><div class="ads-card__text"><h3 class="ads-h4">Pacific Surfliner</h3><p>Ride the coast from San Diego to San Luis Obispo with ocean views most of the way.</p></div><a class="ads-link ads-card__action" href="#card">See details</a></div></article>
+    <article class="ads-card ads-card--link"><div class="ads-card__media" style="background:linear-gradient(160deg,var(--ads-color-amber-200),var(--ads-color-red-600))"></div><div class="ads-card__body"><div class="ads-card__text"><h3 class="ads-h4">Southwest Chief</h3><p>Chicago to Los Angeles through the high desert in about 43 hours.</p></div><a class="ads-link ads-card__action" href="#card">See details</a></div></article>
+    <article class="ads-card"><div class="ads-card__media" style="background:linear-gradient(160deg,var(--ads-color-green-200),var(--ads-color-green-800))"></div><div class="ads-card__body"><div class="ads-card__text"><h3 class="ads-h4">USA Rail Pass</h3><p>Ten rides in 30 days across the national network.</p></div><button class="ads-btn ads-btn--secondary ads-btn--sm" style="align-self:flex-start">Buy pass</button></div></article>
+  </div>
+  <article class="ads-card ads-card--horizontal ads-card--link"><div class="ads-card__media" style="background:linear-gradient(120deg,var(--ads-color-blue-600),var(--ads-color-blue-950))"></div><div class="ads-card__body"><div class="ads-card__text"><h3 class="ads-h4">Acela between Boston and Washington</h3><p>Business and First Class only, with power at every seat and free Wi‑Fi.</p></div><a class="ads-link ads-card__action" href="#card">Plan a trip</a></div></article>
+</section>
+
+<section id="progress">
+  <header><h2 class="ads-h2">Progress</h2><p>Determinate, indeterminate and segmented. Always state the count in text as well.</p></header>
+  <div class="specimen two">
+    <div class="ads-progress"><div class="ads-progress__head"><span class="ads-progress__label">Uploading your document</span><span class="ads-progress__value">60%</span></div><div class="ads-progress__track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Upload"><div class="ads-progress__fill" style="--value:60%"></div></div></div>
+    <div class="ads-progress ads-progress--indeterminate"><div class="ads-progress__head"><span class="ads-progress__label">Checking availability</span></div><div class="ads-progress__track" role="progressbar" aria-label="Checking availability"><div class="ads-progress__fill"></div></div></div>
+    <div class="ads-progress ads-progress--error"><div class="ads-progress__head"><span class="ads-progress__label">Uploading ID</span><span class="ads-progress__value">35%</span></div><div class="ads-progress__track"><div class="ads-progress__fill" style="--value:35%"></div></div><div class="ads-helper ads-helper--error"><span class="ads-icon ads-icon--alert-diamond"></span>Upload stopped. Try again.</div></div>
+    <div class="ads-progress"><div class="ads-progress__head"><span class="ads-progress__label">Multi-ride pass</span><span class="ads-progress__value">4 used · 1 held · 5 left</span></div><div class="ads-progress__segments"><i class="ads-progress__segment ads-progress__segment--filled"></i><i class="ads-progress__segment ads-progress__segment--filled"></i><i class="ads-progress__segment ads-progress__segment--filled"></i><i class="ads-progress__segment ads-progress__segment--filled"></i><i class="ads-progress__segment ads-progress__segment--pending"></i><i class="ads-progress__segment"></i><i class="ads-progress__segment"></i><i class="ads-progress__segment"></i><i class="ads-progress__segment"></i><i class="ads-progress__segment"></i></div></div>
+  </div>
+</section>
+
+<section id="tooltip">
+  <header><h2 class="ads-h2">Tooltip</h2><p>Shown on hover and focus, up to 280px wide. Never the only place important information lives.</p></header>
+  <div class="specimen demo-grid" style="gap:32px;align-items:flex-start">
+    <div class="ads-tooltip ads-tooltip--top">Real-time seat availability shows how many seats are left at this fare.</div>
+    <div class="ads-tooltip ads-tooltip--bottom ads-tooltip--center">Quiet Car: keep calls and conversation to a minimum.</div>
+    <div class="ads-tooltip ads-tooltip--left">Points post 3–5 days after travel.</div>
+  </div>
+</section>
+
+<section id="modal">
+  <header><h2 class="ads-h2">Modal</h2><p>One decision or a short piece of information. Secondary action first, primary last. Under 640px the buttons stack with the primary on top.</p></header>
+  <div class="specimen" style="background:var(--ads-background-surface-scrim);display:grid;place-items:center;padding-block:40px">
+    <div class="ads-modal" role="dialog" aria-modal="false" aria-labelledby="mt"><div class="ads-modal__header"><h2 class="ads-h4" id="mt">Change your return date?</h2><button class="ads-icon-btn" aria-label="Close"><span class="ads-icon ads-icon--close"></span></button></div><div class="ads-modal__content">Moving the return leg may change your fare. We'll show the new price before you confirm.</div><div class="ads-modal__footer"><button class="ads-btn ads-btn--secondary">Go back</button><button class="ads-btn">Change date</button></div></div>
+  </div>
+</section>
+
+<section id="date">
+  <header><h2 class="ads-h2">Date Picker</h2><p>Two panes for ranges on wide screens, one pane below 640px. Days are 36px cells.</p></header>
+  <div class="specimen" style="overflow-x:auto"><div class="ads-datepicker" id="dp"></div></div>
+</section>
+
+<section id="mobile">
+  <header><h2 class="ads-h2">App navigation</h2><p>From the NextGen Mobile App file. The top bar carries the logo, two icon buttons and the booking search. The bottom bar is a floating dock or a flat bar, four tabs, active tab filled in brand.</p></header>
+  <div class="two">
+    <div class="phone" aria-label="iPhone example">
+      <div class="ads-topnav"><div class="phone__status" style="padding:12px 0 0"><span>9:41</span><span class="ads-caption">●●● ▮</span></div><div class="ads-topnav__row"><span class="ads-topnav__logo" style="width:160px">__LOGO_H__</span><div class="ads-topnav__actions"><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Notifications"><span class="ads-icon ads-icon--bell"></span></button><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Account"><span class="ads-icon ads-icon--person-circle"></span></button></div></div><div class="ads-control ads-control--pill"><span class="ads-icon ads-icon--search"></span><input type="search" id="mq" placeholder="Where to?" aria-label="Where to?"></div></div>
+      <div class="phone__body">
+        <span class="ads-overline ads-text-tertiary">Next trip</span>
+        <div class="trip"><span class="ads-body-small ads-text-secondary">Fri, Nov 14 · Northeast Regional 171</span><strong>NYP 8:05 → WAS 11:32</strong><div class="ads-row" style="--ads-row-gap:8px"><span class="ads-badge ads-badge--success"><span class="ads-icon ads-icon--check-circle"></span>On time</span><span class="ads-caption ads-text-secondary">Track posts 15 min before</span></div></div>
+        <button class="ads-btn ads-btn--block"><span class="ads-icon ads-icon--qr-code"></span>Show eTicket</button>
+      </div>
+      <nav class="ads-bottomnav" aria-label="App"><div class="ads-bottomnav__dock">
+        <a class="ads-navtab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--search"></span>Book</a>
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span>Trips</a>
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--train"></span>Train Status</a>
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span>Support</a>
+      </div></nav>
+    </div>
+    <div class="ads-stack">
+<pre class="code">&lt;html data-platform="ios"&gt;
+
+&lt;header class="ads-topnav"&gt;…&lt;/header&gt;
+
+&lt;nav class="ads-bottomnav"&gt;          &lt;!-- add --bar for the flat variant --&gt;
+  &lt;div class="ads-bottomnav__dock"&gt;
+    &lt;a class="ads-navtab" aria-current="page"&gt;
+      &lt;span class="ads-icon ads-icon--search"&gt;&lt;/span&gt;Book
+    &lt;/a&gt;
+    …
+  &lt;/div&gt;
+&lt;/nav&gt;</pre>
+      <nav class="ads-bottomnav ads-bottomnav--bar specimen" style="padding:0" aria-label="Flat bar example"><div class="ads-bottomnav__dock">
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--search"></span>Book</a>
+        <a class="ads-navtab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--payment-voucher"></span>Trips</a>
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--train"></span>Train Status</a>
+        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span>Support</a>
+      </div></nav>
+      <p class="note">Native layout: iPhone margin 20, safe area 47 top / 34 bottom, nav bar 44, tab bar 49. Android margin 20, status bar 24, top app bar 64, nav bar 80. Tablets use 4 columns with a 24 gutter.</p>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+<div class="toast ads-badge ads-badge--info" id="toast" hidden></div>
+</div>
+
+<script>
+const T = /*__TOKENS__*/null;
+const ICONS = /*__ICONS__*/[];
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+// Theme + platform toggles
+function setSeg(seg, v) { seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
+function applyTheme(v) { const r = document.documentElement; if (v === 'system') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', v); setSeg($('#themeSeg'), v); store.set('ads-theme', v); refreshSwatches(); }
+function applyPlat(v) { const r = document.documentElement; if (v === 'web') r.removeAttribute('data-platform'); else r.setAttribute('data-platform', v); setSeg($('#platSeg'), v); store.set('ads-plat', v); renderType(); }
+$('#themeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) applyTheme(b.dataset.v); });
+$('#platSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) applyPlat(b.dataset.v); });
+
+// Color
+function isDark() { const a = document.documentElement.getAttribute('data-theme'); return a ? a === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+function renderRamps() {
+  const wrap = $('#ramps'); const ramp = el('div', 'ramp');
+  ramp.append(el('span'), ...['50','100','200','300','400','500','600','700','800','900','950'].map(s => el('span', '', s)));
+  for (const g of ['neutral', 'blue', 'red', 'green', 'amber', 'purple']) {
+    ramp.append(el('span', '', g));
+    for (const [s, v] of Object.entries(T.primitive[g])) { const i = el('i'); i.style.background = v; i.title = g + '/' + s + ' ' + v; ramp.append(i); }
+  }
+  wrap.append(ramp);
+}
+function renderSemantic() {
+  const groups = {};
+  for (const name of Object.keys(T.color.light)) { const g = name.split('/')[0]; (groups[g] ||= []).push(name); }
+  const titles = { background: 'Background', content: 'Content: text and icons', border: 'Border', brand: 'Brand' };
+  for (const [g, names] of Object.entries(groups)) {
+    const box = el('div', 'swatch-group'); box.append(el('h3', 'sub', titles[g] || g));
+    const grid = el('div', 'swatches');
+    for (const n of names) {
+      const v = '--ads-' + slug(n);
+      const s = el('div', 'sw', `<i style="background:var(${v})"></i><div><b>${n.split('/')[1]}</b><span data-n="${n}"></span></div>`);
+      grid.append(s);
+    }
+    box.append(grid); $('#semantic').append(box);
+  }
+  refreshSwatches();
+}
+function refreshSwatches() { const mode = isDark() ? 'dark' : 'light'; document.querySelectorAll('.sw span[data-n]').forEach(s => { s.textContent = T.color[mode][s.dataset.n]; }); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refreshSwatches);
+
+// Type
+const TYPE_ROWS = [['display','Display','Every seat, every route'],['h1-headline','H1 Headline','Plan your trip'],['h2-headline','H2 Headline','Deals and destinations'],['h3-headline','H3 Headline','Northeast Regional'],['h4-headline','H4 Headline','Change your return date'],['body','Body','Boarding usually opens 20 minutes before departure.'],['body-emphasis','Body Emphasis','When can I board the train?'],['body-small','Body Small','Prices shown per traveler, including taxes.'],['field-label','Field Label','Email address'],['button','Button','Book now'],['overline','Overline','Next trip'],['caption','Caption','Track posts 15 minutes before departure']];
+function renderType() {
+  const box = $('#typeSpec'); box.innerHTML = '';
+  const cs = getComputedStyle(document.documentElement);
+  for (const [k, label, sample] of TYPE_ROWS) {
+    const g = p => cs.getPropertyValue(`--ads-type-${k}-${p}`).trim();
+    const row = el('div', 'type-row');
+    row.append(el('div', '', `<div class="ads-body-small-emphasis">${label}</div><small>${g('size')} / ${g('line-height')} · ${g('letter-spacing')} · ${cs.getPropertyValue(g('weight').replace(/var\((.*)\)/, '$1')).trim()}</small>`));
+    const s = el('div', '', sample);
+    s.style.cssText = `font-family:var(--ads-font-family);font-size:var(--ads-type-${k}-size);line-height:var(--ads-type-${k}-line-height);letter-spacing:var(--ads-type-${k}-letter-spacing);font-weight:var(--ads-type-${k}-weight)` + (k === 'overline' ? ';text-transform:uppercase' : '');
+    row.append(s); box.append(row);
+  }
+}
+
+// Space, radius, size
+function renderScales() {
+  for (const [k, v] of Object.entries(T.space)) $('#spaceScale').append(el('div', 'scale-row', `<span>space/${k}</span><span>${v}</span><i style="width:${v}px"></i>`));
+  for (const [k, v] of Object.entries(T.radius)) $('#radii').append(el('div', '', `<i style="border-radius:${Math.min(v, 28)}px"></i>radius/${k}`));
+  for (const [k, v] of Object.entries(T.size)) $('#sizeScale').append(el('div', 'scale-row', `<span>${k}</span><span>${v}</span><i style="width:${Math.min(v, 120)}px;height:${Math.min(v, 24)}px"></i>`));
+}
+
+// Icons
+function renderIcons(q = '') {
+  const grid = $('#iconGrid'); grid.innerHTML = '';
+  const list = ICONS.filter(n => n.includes(q.trim().toLowerCase()));
+  for (const n of list) { const b = el('button', '', `<span class="ads-icon ads-icon--${n}"></span><span>${n}</span>`); b.type = 'button'; b.title = 'Copy markup for ' + n; b.dataset.n = n; grid.append(b); }
+  $('#iconCount').textContent = `${list.length} of ${ICONS.length}`;
+}
+$('#iconQ').addEventListener('input', e => renderIcons(e.target.value));
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 1800); }
+$('#iconGrid').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const markup = `<span class="ads-icon ads-icon--${b.dataset.n}"></span>`;
+  Promise.resolve().then(() => navigator.clipboard.writeText(markup)).then(() => toast('Copied ' + b.dataset.n), () => toast(markup));
+});
+
+// Counter, tabs
+document.querySelectorAll('[data-counter]').forEach(c => {
+  const [dec, inc] = c.querySelectorAll('button'); const out = c.querySelector('output'); const min = +c.dataset.min, max = +c.dataset.max;
+  const sync = () => { const v = +out.textContent; dec.disabled = v <= min; inc.disabled = v >= max; };
+  dec.addEventListener('click', () => { out.textContent = Math.max(min, +out.textContent - 1); sync(); });
+  inc.addEventListener('click', () => { out.textContent = Math.min(max, +out.textContent + 1); sync(); });
+  sync();
+});
+document.querySelectorAll('[data-tabs]').forEach(t => t.addEventListener('click', e => { const b = e.target.closest('.ads-tab'); if (!b) return; t.querySelectorAll('.ads-tab').forEach(x => x.setAttribute('aria-selected', String(x === b))); }));
+document.querySelector('#f7').addEventListener('input', e => { e.target.closest('.ads-field').querySelector('.ads-helper__counter').textContent = `${e.target.value.length} / 250`; });
+
+// Date picker: November and December 2026, range Nov 14–18, today Nov 10
+function month(y, m, nav) {
+  const name = new Date(y, m, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const box = el('div', 'ads-datepicker__month');
+  const prev = nav.includes('l') ? '<button class="ads-icon-btn ads-icon-btn--sm" aria-label="Previous month"><span class="ads-icon ads-icon--chevron-left"></span></button>' : '<i style="width:24px"></i>';
+  const next = nav.includes('r') ? '<button class="ads-icon-btn ads-icon-btn--sm" aria-label="Next month"><span class="ads-icon ads-icon--chevron-right"></span></button>' : '<i style="width:24px"></i>';
+  box.append(el('div', 'ads-datepicker__header', `${prev}<span>${name}</span>${next}`));
+  const grid = el('div', 'ads-datepicker__grid');
+  'SMTWTFS'.split('').forEach(d => grid.append(el('span', 'ads-datepicker__weekday', d)));
+  const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+  for (let i = 0; i < first; i++) grid.append(el('span'));
+  for (let d = 1; d <= days; d++) {
+    const b = el('button', 'ads-day', String(d)); b.type = 'button';
+    if (m === 10) { if (d < 10) b.disabled = true; if (d === 10) b.classList.add('ads-day--today'); if (d === 14) { b.classList.add('ads-day--range-start'); b.setAttribute('aria-pressed', 'true'); } if (d > 14 && d < 18) b.classList.add('ads-day--in-range'); if (d === 18) { b.classList.add('ads-day--range-end'); b.setAttribute('aria-pressed', 'true'); } }
+    grid.append(b);
+  }
+  box.append(grid); return box;
+}
+function renderDate() {
+  const dp = $('#dp'); const months = el('div', 'ads-datepicker__months');
+  months.append(month(2026, 10, 'l'), month(2026, 11, 'r')); dp.append(months);
+  dp.append(el('div', 'ads-datepicker__footer', '<button class="ads-btn ads-btn--tertiary ads-btn--sm">Clear</button><button class="ads-btn ads-btn--sm">Done</button>'));
+}
+
+renderRamps(); renderSemantic(); renderScales(); renderIcons(); renderDate();
+applyTheme(store.get('ads-theme') || 'system'); applyPlat(store.get('ads-plat') || 'web');
+</script>
