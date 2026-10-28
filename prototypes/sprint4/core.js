@@ -16,9 +16,7 @@ const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' }
 const TODAY_S = iso(TODAY);
 
 // ---------- Toolbar state (shared) and per-version state ----------
-const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: true, theme: 'light', tab: 'proto', easy: false };
-// Easy Mode is a second presentation of the same data and navigation stack (see easy.js)
-const ez = () => TB.easy;
+const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: true, theme: 'light', tab: 'proto' };
 const blankAssist = () => ({ cat: null, dis: [], wc: null, needs: [] });
 function seed(sc) {
   const intl = sc === 'intl';
@@ -84,7 +82,7 @@ function confirmDiscard(go) {
 function dialog(o) { nav().dialog = o; pendingFocus = '.pdialog [data-dlg]'; render(); }
 function closeDialog(then) { const o = nav().dialog; nav().dialog = null; pendingFocus = o && o.returnFocus || 'title'; render(); if (then) then(); }
 let toastT;
-function toast(msg, kind = 'success') { V().toast = { msg, kind }; render(); clearTimeout(toastT); const v = V(); toastT = setTimeout(() => { v.toast = null; render(); }, ez() ? 6000 : 3200); }
+function toast(msg, kind = 'success') { V().toast = { msg, kind }; render(); clearTimeout(toastT); const v = V(); toastT = setTimeout(() => { v.toast = null; render(); }, 3200); }
 
 // ---------- Location: lets the toolbar keep the same place across versions and devices ----------
 function locOf() {
@@ -94,7 +92,7 @@ function locOf() {
   const sh = n.sheet; if (!sh) return 'tab:' + n.tab;
   const t = sh.stack[sh.stack.length - 1], b = D().booking;
   switch (t.s) {
-    case 'ff': { if (ez()) return 'ez:' + ezStepOf(t); const k = t.u.inline; if (k) { if (k.k === 'stations') return 'stations:' + k.field; if (k.k === 'calendar') return 'calendar:' + k.field; if (k.k === 'travelers') return 'travelers'; if (k.k === 'assist') return 'assist-booking'; } return b.assistDone && b.assistOn && t.u.reviewFocus ? 'assist-review' : (b.trip === 'rt' ? 'ff-rt' : 'ff'); }
+    case 'ff': { const k = t.u.inline; if (k) { if (k.k === 'stations') return 'stations:' + k.field; if (k.k === 'calendar') return 'calendar:' + k.field; if (k.k === 'travelers') return 'travelers'; if (k.k === 'assist') return 'assist-booking'; } return b.assistDone && b.assistOn && t.u.reviewFocus ? 'assist-review' : (b.trip === 'rt' ? 'ff-rt' : 'ff'); }
     case 'stations': return 'stations:' + t.p.field;
     case 'calendar': return 'calendar:' + t.p.field;
     case 'travelers': return 'travelers';
@@ -105,13 +103,12 @@ function locOf() {
     case 'discounts': return 'discounts';
     case 'rules': return 'rules';
     case 'assist-profile': return 'assist-profile';
-    case 'settings': return 'settings';
     case 'inbox': return 'tab:' + n.tab;
     default: return 'account';
   }
 }
 function goLoc(loc) {
-  const v = V(), d = v.data, b = d.booking, ver = ez() ? 2 : TB.v, v3 = ver === 3;
+  const v = V(), d = v.data, b = d.booking, v3 = TB.v === 3;
   v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.toast = null;
   const [k, arg] = loc.split(':');
   const booking = extra => { v.nav.tab = 'book'; v.nav.sheet = { id: 'booking', stack: [R('ff'), ...extra], opener: '[data-a="open-booking"]' }; };
@@ -126,7 +123,7 @@ function goLoc(loc) {
     case 'ff-rt': b.trip = 'rt'; if (!b.ret || b.ret < b.dep) b.ret = b.dep; booking([]); break;
     case 'stations': booking(v3 ? [] : [R('stations', { field: arg })]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'stations', field: arg }; break;
     case 'calendar': booking(v3 ? [] : [R('calendar', { field: arg })]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'calendar', field: arg }; break;
-    case 'travelers': if (ez()) { booking([]); v.nav.sheet.stack[0].u.ez = 'who'; break; } booking(v3 ? [] : [R('travelers')]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'travelers' }; break;
+    case 'travelers': booking(v3 ? [] : [R('travelers')]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'travelers' }; break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
       if (k === 'assist-review') sampleAssist(); else b.assistOn = true;
@@ -135,21 +132,13 @@ function goLoc(loc) {
         booking([]); const ff = v.nav.sheet.stack[0];
         if (k === 'assist-review') { ff.u.reviewFocus = true; if (viaT) ff.u.inline = { k: 'travelers' }; }
         else ff.u.inline = { k: viaT ? 'travelers' : 'assist' };
-      } else if (ver === 1) {
+      } else if (TB.v === 1) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
         else booking(viaT ? [R('travelers'), R('assist')] : [R('assist')]);
       } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking(viaT ? [R('travelers'), a] : [a]); }
       break;
     }
     case 'clear-recents': account([]); v.nav.dialog = clearDialog(); break;
-    case 'settings': account([R('settings')]); break;
-    case 'ez': { if (arg !== 'from') sampleRoute(); if (arg === 'from') { b.from = null; b.to = null; } if (arg === 'to') b.to = null; booking([]); v.nav.sheet.stack[0].u.ez = arg; break; }
-    case 'demo-midway': {
-      Object.assign(b, { trip: 'rt', from: 'NYP', to: 'WAS', dep: addDays(TODAY_S, 7), ret: addDays(TODAY_S, 10), notice: null });
-      booking([]); v.nav.sheet.stack[0].u.ez = 'who';
-      tip('Switch Mode in the toolbar (Standard ↔ Easy). Stations, dates and this step stay as they are. Answer the help question first to see it carried over too.');
-      break;
-    }
     case 'account': account([]); break;
     case 'profile': if (guestBlocked()) break; account([R('profile')]); break;
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
@@ -162,7 +151,7 @@ function goLoc(loc) {
       else { if (guestBlocked()) break; d.verified = false; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = 'phone'; } else account([R('profile'), R('edit', { field: 'phone' })]); }
       break;
   }
-  pendingFocus = k === 'assist-review' && ver !== 2 ? '[data-a="assist-edit"]' : 'title';
+  pendingFocus = k === 'assist-review' && TB.v !== 2 ? '[data-a="assist-edit"]' : 'title';
   // V3 opens editors in place: move focus (and the scroll) into the open panel
   if (v3 && ['stations', 'calendar', 'travelers', 'assist-booking', 'edit'].includes(k)) pendingFocus = k === 'stations' ? '#ss-q' : k === 'edit' ? '.edpane input, .edpane select, .edpane button' : '.inlinepanel input:not(:disabled), .inlinepanel button';
   render();
@@ -240,7 +229,7 @@ var render = function () {
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? (ae.id ? '#' + CSS.escape(ae.id) : ae.dataset.k ? `[data-k="${ae.dataset.k}"]` : null) : null;
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   const scrolls = $$('[data-scroll]', dev).map(e => [e.dataset.scroll, e.scrollTop]);
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${ez() ? ' ez' : ''}${TB.notes ? '' : ' notes-off'}`;
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.notes ? '' : ' notes-off'}`;
   dev.dataset.theme = TB.theme;
   dev.innerHTML = renderDevice();
   dev.style.setProperty('--text-zoom', TB.text / 100);
@@ -256,7 +245,7 @@ var render = function () {
 function renderDevice() {
   const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog);
   let h = `<div class="dev-status" aria-hidden="true"><span>9:41</span><span class="dev-status__right">${ic('wifi', 'ads-icon--sm')}<span class="dev-batt"></span></span></div>`;
-  h += `<div class="app" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : ez() ? ezHeader() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${(ez() ? EZTABS : TABS)[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
+  h += `<div class="app" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
   if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog));
   if (n.cover) h += renderCover(n.cover, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
@@ -295,12 +284,11 @@ function navbar(o, ri, ctx) {
     if (ctx.showClose) trail = close;
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
-  if (o.lead != null && !ctx.cover) lead = o.lead;
   return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title" tabindex="-1" data-title id="t-${ri}">${esc(o.title)}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
 }
 function offlineBanner(what) { return V().net === 'offline' ? `<div class="ads-banner" role="status">${ic('alert-triangle')}<span>You’re offline. ${what}</span></div>` : ''; }
 function paneHtml(r, ri, ctx) {
-  const o = SCRF(r.s)(r, ri);
+  const o = SCR[r.s](r, ri);
   const body = typeof o.body === 'string' ? o.body : '';
   return `<section class="pane${o.wide ? ' pane--wide' : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
 }
@@ -318,7 +306,7 @@ function renderSheet(sh, covered) {
   }
   return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${sh.id === 'booking' ? 'New Booking' : sh.id === 'inbox' ? 'Notification Inbox' : 'Account'}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
-function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCRF(r.s)(r, ri).title; NOTES = save; return t; }
+function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
   return `<div class="cover-layer" ${covered ? 'inert' : ''}><div class="pcover" role="dialog" aria-modal="true" aria-labelledby="t-c">${paneHtml({ s: 'verify', p: {}, u: c.u }, 'c', { cover: true })}</div></div>`;
 }
@@ -397,7 +385,7 @@ A['clear-recents'] = () => dialog(clearDialog());
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbMode', ez() ? 'easy' : 'standard'); setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
   $('#tbText').value = String(TB.text); $('#tbNotes').checked = TB.notes;
   const v = V();
   $('#tbScenario').value = v.sc; $('#tbNet').value = v.net; $('#tbEntry').value = v.entry; $('#tbToken').value = v.token;
@@ -405,7 +393,7 @@ function renderChrome() {
   $('#scDesc').textContent = SCENARIOS.find(s => s[0] === v.sc)[2];
   const notes = $('#notes');
   const qs = [...NOTES.qs].sort((a, b) => a - b);
-  notes.innerHTML = `${ez() ? `<p class="nlabel">Easy Mode</p><p class="nsmall">${EASY_LINE} It shares Version ${TB.v}’s data and progress, so switching modes keeps your place.</p>` : `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>`}
+  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
     <p class="nlabel">Location</p><p class="nsmall">${esc(locLabel())}</p>
     ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
     ${qs.length ? `<p class="nlabel">Open questions here</p><ul class="nlist">${qs.map(n => `<li data-qn="${n}"><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
@@ -429,7 +417,6 @@ function scaleDevice() {
 }
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
-  seg('#tbMode', v => setEasy(v === 'easy'));
   seg('#tbVersion', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });

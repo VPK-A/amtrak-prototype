@@ -1,5 +1,5 @@
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
-const v1 = () => TB.v === 1 && !TB.easy, v2 = () => TB.v === 2 && !TB.easy, v3 = () => TB.v === 3 && !TB.easy;
+const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3;
 
 // ---------- Small renderers ----------
 function fieldHtml(o) {
@@ -39,12 +39,12 @@ const TABS = {
 
 // ---------- Split rules (iPad) ----------
 const SPLIT_PARENT = (parent, child) => {
-  if (v3() || ez()) return false;
+  if (v3()) return false;
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
   const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
-const SPLIT_SELF = r => (ez() && r.s === 'ff') || (v3() && ['ff', 'profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
+const SPLIT_SELF = r => (v3() && ['ff', 'profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
 
 // =====================================================================
 // A. Fare Finder
@@ -230,9 +230,9 @@ A['choose-station'] = (t, ri) => {
 // =====================================================================
 // Calendar (NMA-1060)
 // =====================================================================
-function calendarBody(r, ri, field, inline, single) {
+function calendarBody(r, ri, field, inline) {
   const b = D().booking; r.u.picking = r.u.picking || field;
-  const picking = b.trip === 'ow' ? 'dep' : single ? field : r.u.picking;
+  const picking = b.trip === 'ow' ? 'dep' : r.u.picking;
   ref('1060');
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = addDays(b.dep, WINDOW_DAYS);
   const last = parse(picking === 'ret' ? maxRet : maxDep);
@@ -248,7 +248,7 @@ function calendarBody(r, ri, field, inline, single) {
     return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
   };
   const monthHtml = m => { const y = m.getFullYear(), mo = m.getMonth(), first = m.getDay(), n = new Date(y, mo + 1, 0).getDate(); let g = ''; for (let i = 0; i < first; i++) g += '<span></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd); return `<div class="ads-calendar__month"><h3>${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-label="${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}">${g}</div></div>`; };
-  const pickSeg = b.trip === 'rt' && !single ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShort(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShort(b.ret) : 'not set'}</button></div>` : '';
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShort(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShort(b.ret) : 'not set'}</button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
@@ -266,12 +266,12 @@ A['cal-more'] = (t, ri) => { routeAt(ri).u.allMonths = true; render(); };
 A['cal-done'] = (t, ri) => { popTo(+ri - 1); pendingFocus = '#ff-dep'; render(); };
 A.day = (t, ri) => {
   const r = routeAt(ri), b = D().booking, s = t.dataset.d;
-  const picking = b.trip === 'ow' ? 'dep' : ez() && r.p.field ? r.p.field : (r.u.picking || 'dep');
+  const picking = b.trip === 'ow' ? 'dep' : (r.u.picking || 'dep');
   r.u.calNotice = null;
   if (picking === 'dep') {
     b.dep = s;
     if (b.ret && b.ret < s) { b.ret = null; r.u.calNotice = 'Your return date was cleared because it was before the new departure date. Choose a return date.'; }
-    if (b.trip === 'rt' && !ez()) r.u.picking = 'ret';
+    if (b.trip === 'rt') r.u.picking = 'ret';
   } else b.ret = s;
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
@@ -453,26 +453,22 @@ SCR.account = (r, ri) => {
   ref('1004');
   const clearRow = recCount ? grow({ a: 'clear-recents', label: 'Clear recent stations', value: `${recCount} recent station${recCount > 1 ? 's' : ''}`, cls: 'ads-group__row--action', chev: false })
     : `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Clear recent stations</span><span class="ads-group__value">No recent stations</span></span></div>`;
-  const quick = quickSettings(d, clearRow);
-  const settingsRow = group('', [grow({ a: 'push', data: 'data-s="settings"', icon: 'eye', label: 'Settings', value: `Accessibility · Easy Mode ${ez() ? 'on' : 'off'}`, k: 'row-settings' })]);
+  const quick = group('Quick settings', [
+    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Trip updates</span><span class="ads-group__value">Delays and track changes</span></span><span class="ads-switch"><input type="checkbox" role="switch" checked><span class="ads-switch__track"></span></span></label>`,
+    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Sign in with Face ID</span></span><span class="ads-switch"><input type="checkbox" role="switch" ${d.signedIn ? 'checked' : 'disabled'}><span class="ads-switch__track"></span></span></label>`,
+    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Dark Mode</span></span><span class="ads-switch"><input type="checkbox" role="switch" data-a="dark" ${TB.theme === 'dark' ? 'checked' : ''}><span class="ads-switch__track"></span></span></label>`,
+    clearRow], 'Recent stations are kept on this device for 10 days.');
   if (!d.signedIn) {
-    return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your Profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}${settingsRow}`, banner: false };
+    return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your Profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}`, banner: false };
   }
   const assistVal = d.assist.cat ? (d.assist.cat === 'disability' ? 'I have a disability' : 'Station assistance') : 'Not set';
   const body = `<button class="loyalty" type="button" data-a="push" data-s="profile" aria-label="Profile: Alex Rivera, Guest Rewards 7012 3456 78, Select Plus, 12,450 points">
       <span class="loyalty__top"><span><b>Alex Rivera</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
     ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, passenger discounts' }), grow({ a: 'push', data: 'data-s="assist-profile"', icon: 'assistance', label: 'Assistance', value: assistVal })])}
     ${group('', [grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Points activity"}\'', icon: 'AGR_points-evergreen', label: 'Points activity' }), grow({ a: 'open-inbox-from-account', icon: 'email', label: 'Inbox', value: '2 new' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Travelers"}\'', icon: 'people', label: 'Travelers', value: '3 saved' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Payment"}\'', icon: 'payment-cash', label: 'Payment', value: 'Visa •••• 4821' })])}
-    ${quick}${settingsRow}`;
+    ${quick}`;
   return { title: 'Account', kind: 'root', body, banner: false };
 };
-function quickSettings(d, clearRow) {
-  return group('Quick settings', [
-    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Trip updates</span><span class="ads-group__value">Delays and track changes</span></span><span class="ads-switch"><input type="checkbox" role="switch" checked><span class="ads-switch__track"></span></span></label>`,
-    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Sign in with Face ID</span></span><span class="ads-switch"><input type="checkbox" role="switch" ${d.signedIn ? 'checked' : 'disabled'}><span class="ads-switch__track"></span></span></label>`,
-    `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Dark Mode</span></span><span class="ads-switch"><input type="checkbox" role="switch" data-a="dark" ${TB.theme === 'dark' ? 'checked' : ''}><span class="ads-switch__track"></span></span></label>`,
-    clearRow], 'Recent stations are kept on this device for 10 days.');
-}
 A.dark = t => { TB.theme = t.checked ? 'dark' : 'light'; pendingFocus = '[data-a="dark"]'; render(); };
 A['sign-in'] = () => startVerify('sign-in');
 A['open-inbox-from-account'] = (t, ri) => push('inbox', {}, +ri);
@@ -551,14 +547,14 @@ function afterSave(ri, msg, field) {
 
 // ---------- Editors: each returns { body, saveDisabled, noSaveWhy, saveLabel } ----------
 const EDITORS = {}, SAVE = {};
-const intro = t => v2() || ez() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${t}</span></p>` : '';
+const intro = t => v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${t}</span></p>` : '';
 // Middle initial (NMA-19): one letter, added once, then locked
 EDITORS.mi = (r, ri, inline) => {
   const p = D().profile; r.u.d = r.u.d || { mi: '' }; const e = r.u.err || {};
   ref('19');
   if (p.mi) return { body: `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Middle initial: ${esc(p.mi)}</p><p class="ads-body-small ads-text-secondary">It was added once and is now locked. Call 1-800-307-5000 to change your name.</p></div>${lockChip}</div></div>`, saveDisabled: true, noSaveWhy: 'Your middle initial can’t be changed in the app.' };
-  const preview = (v2() || ez()) && r.u.d.mi ? `<p class="ads-body-small">Your name will show as <b>${esc(p.first)} ${esc(r.u.d.mi)}. ${esc(p.last)}</b></p>` : '';
-  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, opt: true, autocomplete: 'additional-name', help: v2() || ez() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2() || ez(), cls: 'field--narrow' })}${preview}`;
+  const preview = v2() && r.u.d.mi ? `<p class="ads-body-small">Your name will show as <b>${esc(p.first)} ${esc(r.u.d.mi)}. ${esc(p.last)}</b></p>` : '';
+  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, opt: true, autocomplete: 'additional-name', help: v2() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2(), cls: 'field--narrow' })}${preview}`;
   return { body, saveDisabled: !r.u.d.mi, noSaveWhy: 'Enter a letter to save.', saveLabel: 'Save' };
 };
 SAVE.mi = (r, ri) => {
@@ -657,7 +653,7 @@ SCR.discounts = (r, ri) => {
   };
   let cond = '';
   if (x.type === 'rpa') cond = fieldHtml({ id: 'rpa-id', f: 'rpa', label: 'Membership ID', type: 'tel', value: x.rpa, digits: 10, req: true, help: '6 to 10 digits, no spaces.', err: e.rpa });
-  if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete Assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your Assistance says “I have a disability”. ${v2() || ez() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to Assistance</button></div></div></div>`;
+  if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete Assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your Assistance says “I have a disability”. ${v2() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to Assistance</button></div></div></div>`;
   const body = `${intro('Choose one discount. It will be pre-selected when you book. Senior and Youth discounts are chosen when you book.')}${netAlert(r)}
     <fieldset class="ads-fieldset"><legend class="ads-field-label">Discount preference</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa', 'pwd'].map(k => opt(k) + (x.type === k && cond ? `<div class="condfield">${cond}</div>` : '')).join('')}</div></fieldset>
     ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="rules">Passenger types and discount rules</button>`;

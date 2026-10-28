@@ -114,10 +114,6 @@ const QUESTIONS = {
   6: ['Phone types and DOB bounds', 'Are Home/Business/Extension the final phone types? Does changing the country code clear the number (the prototype keeps each region’s number)? DOB only rejects future dates.'],
   7: ['Where booking assistance starts', 'NMA-973 puts the checkbox on Fare Finder; Core Flow puts it in Traveler Selection. Switch between them in Scenario › Assistance entry.'],
   8: ['Verification channel and reauthentication', 'Email only or email and text depends on the trigger, and is still open (NMA-980). The flows here are demonstrations, not approved policy.'],
-  10: ['Where Easy Mode lives', 'The IA puts Quick settings in the Account sheet and has no Settings screen. The prototype adds Account › Settings › Accessibility for the Easy Mode switch. Should Easy Mode also be a Quick setting, or offered at first launch?'],
-  11: ['Easy Mode and the assistance entry point', 'Easy asks about help in its “Travelers and help” step, whichever entry Standard uses (Q7).'],
-  12: ['Price before train selection', 'Fare Finder has no price until a train is chosen (search results are outside Sprint 4). Easy says “Shown when you choose a train”.'],
-  13: ['Easy Mode scope and type scale', 'Saved per device in this prototype. Should it follow the account across devices? Easy body text is 18 pt and scales with Larger Text; confirm the Dynamic Type mapping with iOS engineering.'],
   9: ['Replacing or removing PWD', 'Saving “I have a disability” replaces the current discount with PWD. What happens to PWD when assistance changes to station help, or is cleared, follows the NMA-43 table where it gives an answer and is open otherwise.']
 };
 
@@ -128,6 +124,5 @@ const FLOWS = [
   ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
-  ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]],
-  ['F · Easy Mode', [['settings', 'Account › Settings › Accessibility'], ['demo-midway', 'Partly completed booking (switch modes here)'], ['ez:from', 'Easy booking · Leaving from'], ['ez:when', 'Easy booking · Dates'], ['ez:who', 'Easy booking · Travelers and help'], ['ez:review', 'Easy booking · Check your trip']]]
+  ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
 ];
