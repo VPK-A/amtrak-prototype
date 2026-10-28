@@ -33,7 +33,7 @@ Most of Core Flow is out of Sprint 4 scope: search results, fare families, ancil
 
 Stories with no content: NMA-620 (in-station assistance availability), NMA-621 (about accessible travel), NMA-628 (service animal info), NMA-629 (wheeled mobility device specs). They are shown as labeled placeholders only.
 
-Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. Version 1 doesn't show the code, points, TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.
+Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. All four versions have the coupon or promo code (Version 1 as a row under Travelers). Version 1 doesn't show the TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.
 
 ## IA conflicts and proposed resolutions
 
@@ -56,7 +56,7 @@ Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), 
 | Station search, Favorites, Recents | Book | Fare Finder › From or To | V1 and V2 push it inside the sheet (on iPad, the right-hand pane). V3 opens it as a rounded sheet over the Fare Finder. | Choosing a station or tapping Back returns to Fare Finder with the field filled. |
 | Calendar | Book | Fare Finder › Depart or Return | Same as station search | Done or Back goes to Fare Finder |
 | Traveler Selection, booking discount | Book | Fare Finder › Travelers | Pushed inside the sheet (V3: rounded sheet with traveler types and per-traveler discounts) | Done goes to Fare Finder |
-| Discount code (V3) | Book | Fare Finder › Coupon or promo code | Rounded sheet | Add or choosing a saved code goes back to Fare Finder with a toast |
+| Discount code | Book | Fare Finder › Coupon or promo code (all versions) | Rounded sheet | Add or choosing a saved code goes back to Fare Finder with a toast |
 | Booking assistance | Book | The Fare Finder checkbox (default), or Traveler Selection (scenario toggle) | Pushed inside the sheet | Confirm shows the summary on the Fare Finder |
 | Clear Recents | Account (global header) | Account › Quick settings › Clear recent stations | Confirmation dialog | Back to Account, with a cleared state |
 | Profile details | Account | Account › Profile | Pushed inside the Account sheet | Save goes to Profile with a toast |
@@ -291,7 +291,8 @@ Stations, dates, travelers, discount codes and assistance open as **rounded shee
 Functional differences:
 
 - **Added in all versions:** traveler types and counts, and a discount per traveler, in Traveler Selection (the baseline used a fixed 1 Adult).
-- **Added in V2, V3 and V4:** discount codes, TripLink and Pass Rider, so Version 1 no longer covers the same scope.
+- **Added in all versions:** the coupon or promo code, with the same checks at Find Trains.
+- **Added in V2, V3 and V4:** TripLink and Pass Rider, so Version 1 doesn't cover the same scope.
 - **Core Flow difference:** Core Flow labels Adult as 16–64 and has no Young Adult row; the stories list Young Adult (16–17) separately, and the prototype follows the stories (Q10).
 - **Changed interaction:** V3 no longer edits the Fare Finder in place; each picker opens in a rounded sheet. After choosing From, the To sheet opens straight away (as in V2).
 - **Mode-specific rules:** the Passenger with Disability discount isn't applied for Corporate or Pass Rider bookings, because those modes take no passenger discounts (open, Q12). Auto Train stations are unavailable for Pass Rider travel and cleared when switching to it.
@@ -339,7 +340,7 @@ Stations, dates, traveler details, codes and the assistance questionnaire open a
 | Traveler limits (611 BR3–4) | Done disabled with the reason | Same; closing with an invalid selection asks to keep editing or undo |
 | Assistance, Fare Finder entry (973, 614) | Checkbox; checking opens the questionnaire | *Assistance* row: *Add* (= checking), *Answer* or *Edit* (questionnaire), *Remove* (= unchecking, answers kept) |
 | Assistance, Traveler Selection entry (Core Flow, Q7) | Checkbox in Traveler Selection | Same, in the traveler sheet; the row's *Edit* opens it |
-| Discount code (613) | (not in V1) | *Coupon or promo code* row: *Add* opens the code sheet, *Remove*, information button |
+| Discount code (613) | *Coupon or promo code* row under Travelers | *Coupon or promo code* row: *Add* opens the code sheet, *Remove*, information button |
 | TripLink Corporate / Personal (622) | (not in V1) | *Booking for* pill; Corporate locks travelers to 1 adult |
 | Pass Rider / Personal, travel type, family and companions (623, 1016–1018) | (not in V1) | *Book as* pill, *Travel type* row (required when eligible for both), traveler sheet counters |
 | Find Trains, validation, loading, offline, error (607) | Pinned button; errors beside fields | Same; errors beside the route, dates, travel type, travelers or code |

@@ -52,7 +52,7 @@ function prSummary(b, d) {
 }
 const prCount = b => 1 + b.prPax.fam + b.prPax.dep + b.prPax.comp;
 const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
-const codeApplies = b => TB.v >= 2 && b.code && ['standard', 'personal'].includes(intentOf(b));
+const codeApplies = b => b.code && ['standard', 'personal'].includes(intentOf(b));
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------

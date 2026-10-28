@@ -2014,6 +2014,14 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
 .gs .ads-routefield__code { width: auto; min-width: 48px; }
 .gs .ads-routefield__body { flex: 1 1 130px; }
+/* Version 1: coupon or promo code row, with an information button beside it */
+.v1code { flex-direction: row; align-items: center; }
+.v1code > .ads-group__row { flex: 1; min-width: 0; }
+.v1code__info { margin-right: 6px; color: var(--ads-content-icon-secondary); }
+.v1code__applied { align-items: flex-start; flex-wrap: wrap; }
+.v1code__applied .ads-group__text { flex: 1 1 180px; }
+.v1code__applied > .ads-btn { margin-left: auto; }
+.v1code__applied .ads-helper { margin-top: 4px; font-size: var(--ads-type-body-small-size); align-items: flex-start; }
 
 </style>
 </head>
@@ -2157,7 +2165,8 @@ Finder. Traveler types and counts (NMA-611) and per-traveler discounts
 (NMA-612) are in all three versions' Traveler Selection, following Core
 Flow (node 90:16532): counters per type, <em>Traveling alone?</em> on
 Youth, assistance between travelers and discounts, then one discount per
-traveler. Version 1 doesn't show the code, points, TripLink or Pass
+traveler. All four versions have the coupon or promo code (Version 1 as
+a row under Travelers). Version 1 doesn't show the TripLink or Pass
 Rider variants; Versions 2, 3 and 4 share them.</p>
 <h2 id="ia-conflicts-and-proposed-resolutions">IA conflicts and proposed
 resolutions</h2>
@@ -2273,9 +2282,9 @@ per-traveler discounts)</td>
 <td>Done goes to Fare Finder</td>
 </tr>
 <tr class="odd">
-<td>Discount code (V3)</td>
+<td>Discount code</td>
 <td>Book</td>
-<td>Fare Finder › Coupon or promo code</td>
+<td>Fare Finder › Coupon or promo code (all versions)</td>
 <td>Rounded sheet</td>
 <td>Add or choosing a saved code goes back to Fare Finder with a
 toast</td>
@@ -2990,8 +2999,10 @@ Standards]</label></li>
 <li><strong>Added in all versions:</strong> traveler types and counts,
 and a discount per traveler, in Traveler Selection (the baseline used a
 fixed 1 Adult).</li>
-<li><strong>Added in V2, V3 and V4:</strong> discount codes, TripLink
-and Pass Rider, so Version 1 no longer covers the same scope.</li>
+<li><strong>Added in all versions:</strong> the coupon or promo code,
+with the same checks at Find Trains.</li>
+<li><strong>Added in V2, V3 and V4:</strong> TripLink and Pass Rider, so
+Version 1 doesn't cover the same scope.</li>
 <li><strong>Core Flow difference:</strong> Core Flow labels Adult as
 16–64 and has no Young Adult row; the stories list Young Adult (16–17)
 separately, and the prototype follows the stories (Q10).</li>
@@ -3143,7 +3154,7 @@ kept)</td>
 </tr>
 <tr class="odd">
 <td>Discount code (613)</td>
-<td>(not in V1)</td>
+<td><em>Coupon or promo code</em> row under Travelers</td>
 <td><em>Coupon or promo code</em> row: <em>Add</em> opens the code
 sheet, <em>Remove</em>, information button</td>
 </tr>
@@ -3443,7 +3454,7 @@ const QUESTIONS = {
 // Flow navigator: every entry is reached through its real App Shell path
 const FLOWS = [
   ['App shell', [['tab:book', 'Book (tab)'], ['tab:trips', 'Trips (tab)'], ['tab:train-status', 'Train Status (tab)'], ['tab:support', 'Support (tab)']]],
-  ['A · Booking and stations', [['ff', 'Fare Finder · one-way'], ['ff-rt', 'Fare Finder · round-trip'], ['stations:from', 'Station search · From'], ['stations:to', 'Station search · To'], ['calendar:dep', 'Calendar · Depart'], ['travelers', 'Traveler Selection'], ['handoff', 'Find Trains · prototype handoff'], ['clear-recents', 'Clear recent stations']]],
+  ['A · Booking and stations', [['ff', 'Fare Finder · one-way'], ['ff-rt', 'Fare Finder · round-trip'], ['stations:from', 'Station search · From'], ['stations:to', 'Station search · To'], ['calendar:dep', 'Calendar · Depart'], ['travelers', 'Traveler Selection'], ['code', 'Coupon or promo code'], ['handoff', 'Find Trains · prototype handoff'], ['clear-recents', 'Clear recent stations']]],
   ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
@@ -3974,7 +3985,7 @@ const TABS = {
 const SPLIT_PARENT = (parent, child) => {
   if (v3()) return false;
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
-  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
+  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
 const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
@@ -4004,6 +4015,13 @@ function dateFields(r, opts = {}) {
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+// Version 1: the coupon or promo code as its own grouped row under Travelers (NMA-613), apart from traveler discounts
+function codeRowV1(b) {
+  if (D().coupons.length) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
+  const info = `<button class="ads-icon-btn ads-icon-btn--sm v1code__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
+  if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Add a code', k: 'row-code' })}${info}</div></div>`;
+  return `<div class="ads-group"><div class="ads-group__body"><div class="ads-group__row v1code__applied">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">${esc(b.code.code)} · ${esc(b.code.kind)}${b.code.benefit ? `<br>${esc(b.code.benefit)}` : ''}<br>Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div></div></div>`;
+}
 function travelersRow(r, opts = {}) {
   const b = D().booking;
   return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
@@ -4031,7 +4049,8 @@ SCR.ff = (r, ri) => {
   if (v4()) return ffFlighty(r, ri);
   if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
   if (v2()) return ffGuided(r, ri);
-  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  ref('613');
+  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -4046,7 +4065,7 @@ A['find-trains'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
   if (e.from || e.to || e.ret) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret'; render(); return; }
   r.u.showErr = false;
-  runNet(r, () => {}, () => push('handoff', {}, +ri), { what: 'find trains' });
+  searchWithCode(r, ri);
 };
 A['pick-travelers-done'] = (t, ri) => pop();
 
@@ -4722,7 +4741,7 @@ function prSummary(b, d) {
 }
 const prCount = b => 1 + b.prPax.fam + b.prPax.dep + b.prPax.comp;
 const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
-const codeApplies = b => TB.v >= 2 && b.code && ['standard', 'personal'].includes(intentOf(b));
+const codeApplies = b => b.code && ['standard', 'personal'].includes(intentOf(b));
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------

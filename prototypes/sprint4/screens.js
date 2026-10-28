@@ -43,7 +43,7 @@ const TABS = {
 const SPLIT_PARENT = (parent, child) => {
   if (v3()) return false;
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
-  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
+  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
 const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
@@ -73,6 +73,13 @@ function dateFields(r, opts = {}) {
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+// Version 1: the coupon or promo code as its own grouped row under Travelers (NMA-613), apart from traveler discounts
+function codeRowV1(b) {
+  if (D().coupons.length) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
+  const info = `<button class="ads-icon-btn ads-icon-btn--sm v1code__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
+  if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Add a code', k: 'row-code' })}${info}</div></div>`;
+  return `<div class="ads-group"><div class="ads-group__body"><div class="ads-group__row v1code__applied">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">${esc(b.code.code)} · ${esc(b.code.kind)}${b.code.benefit ? `<br>${esc(b.code.benefit)}` : ''}<br>Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div></div></div>`;
+}
 function travelersRow(r, opts = {}) {
   const b = D().booking;
   return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
@@ -100,7 +107,8 @@ SCR.ff = (r, ri) => {
   if (v4()) return ffFlighty(r, ri);
   if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
   if (v2()) return ffGuided(r, ri);
-  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  ref('613');
+  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -115,7 +123,7 @@ A['find-trains'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
   if (e.from || e.to || e.ret) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret'; render(); return; }
   r.u.showErr = false;
-  runNet(r, () => {}, () => push('handoff', {}, +ri), { what: 'find trains' });
+  searchWithCode(r, ri);
 };
 A['pick-travelers-done'] = (t, ri) => pop();
 

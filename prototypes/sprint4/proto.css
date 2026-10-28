@@ -571,3 +571,11 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
 .gs .ads-routefield__code { width: auto; min-width: 48px; }
 .gs .ads-routefield__body { flex: 1 1 130px; }
+/* Version 1: coupon or promo code row, with an information button beside it */
+.v1code { flex-direction: row; align-items: center; }
+.v1code > .ads-group__row { flex: 1; min-width: 0; }
+.v1code__info { margin-right: 6px; color: var(--ads-content-icon-secondary); }
+.v1code__applied { align-items: flex-start; flex-wrap: wrap; }
+.v1code__applied .ads-group__text { flex: 1 1 180px; }
+.v1code__applied > .ads-btn { margin-left: auto; }
+.v1code__applied .ads-helper { margin-top: 4px; font-size: var(--ads-type-body-small-size); align-items: flex-start; }
