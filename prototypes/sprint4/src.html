@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sprint 4 Exploration</title>
+<style>
+/*__ADS_CSS__*/
+/*__PROTO_CSS__*/
+</style>
+</head>
+<body class="ads-root">
+<div class="top">
+  <h1>Amtrak app · Sprint 4 exploration</h1>
+  <p>Three directions, one scope and one App Shell IA, all built with ADS components. Mock data only: nothing is saved or sent.</p>
+  <div class="viewtabs" role="tablist" aria-label="View" id="viewTabs">
+    <button type="button" role="tab" data-v="proto" aria-selected="true" aria-controls="protoView">Prototype</button>
+    <button type="button" role="tab" data-v="handoff" aria-selected="false" aria-controls="handoffView">Handoff</button>
+  </div>
+</div>
+
+<div id="protoView" role="tabpanel">
+  <section class="toolbar" aria-label="Prototype controls (not part of the app)">
+    <div class="tb"><span id="lbV">Version</span><div class="tbseg" id="tbVersion" role="group" aria-labelledby="lbV"><button type="button" data-v="1" aria-pressed="true">1 · Familiar</button><button type="button" data-v="2" aria-pressed="false">2 · Guided</button><button type="button" data-v="3" aria-pressed="false">3 · Overview</button></div></div>
+    <div class="tb"><span id="lbD">Device</span><div class="tbseg" id="tbDevice" role="group" aria-labelledby="lbD"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
+    <div class="tb"><span id="lbO">Orientation</span><div class="tbseg" id="tbOrient" role="group" aria-labelledby="lbO"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
+    <span class="tbsep" aria-hidden="true"></span>
+    <div class="tb tb--grow"><label for="tbFlow">Flow / screen</label><select id="tbFlow"></select></div>
+    <div class="tb tb--grow"><label for="tbScenario">Scenario</label><select id="tbScenario"></select></div>
+    <div class="tb"><label for="tbNet">Network</label><select id="tbNet"></select></div>
+    <div class="tb"><label for="tbEntry">Assistance entry</label><select id="tbEntry"><option value="ff">Fare Finder (NMA-973)</option><option value="travelers">Traveler Selection (Core Flow)</option></select></div>
+    <div class="tb"><label for="tbToken">Session token</label><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired</option></select></div>
+    <span class="tbsep" aria-hidden="true"></span>
+    <div class="tb"><label for="tbText">Text size</label><select id="tbText"><option value="100">Default</option><option value="120">Larger (120%)</option><option value="140">Largest (140%)</option></select></div>
+    <div class="tb"><span id="lbT">Appearance</span><div class="tbseg" id="tbTheme" role="group" aria-labelledby="lbT"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div></div>
+    <label class="tbcheck"><input type="checkbox" id="tbNotes" checked>Open questions</label>
+    <button class="tbbtn" type="button" id="tbReset">Reset demo</button>
+  </section>
+  <div class="main">
+    <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
+    <aside class="notes" aria-label="Screen notes">
+      <h2>Screen notes</h2>
+      <p class="scdesc" id="scDesc"></p>
+      <div id="notes" aria-live="polite"></div>
+    </aside>
+  </div>
+</div>
+
+<div id="handoffView" role="tabpanel" hidden>
+  <article class="doc">
+<!--__HANDOFF__-->
+  </article>
+</div>
+
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>

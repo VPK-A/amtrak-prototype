@@ -237,7 +237,7 @@
 .ads-control__clear:hover { background: var(--ads-background-surface-hover); }
 .ads-control > input[type="search"]::-webkit-search-cancel-button { display: none; }
 .ads-control__station { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-type-h3-headline-weight); margin-right: var(--ads-space-8); }
-.ads-helper { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 16px; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); }
+.ads-helper { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 16px; margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); }
 .ads-helper .ads-icon { width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); }
 .ads-helper__counter { margin-left: auto; color: var(--ads-content-text-tertiary); }
 .ads-helper--error   { color: var(--ads-content-text-error); }
@@ -356,10 +356,10 @@ dialog.ads-modal { padding: 0; }
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --ads-glass-fill: rgb(44 44 48 / 0.62); --ads-glass-edge: rgb(166 166 166 / 0.45); --ads-glass-sheen: rgb(255 255 255 / 0.14);
-  --ads-glass-selection: rgb(255 255 255 / 0.12); --ads-glass-ink: #f5f5f5; --ads-glass-ink-muted: #8a8a8a; --ads-glass-tint: var(--ads-color-blue-300); } }
+  --ads-glass-selection: rgb(255 255 255 / 0.12); --ads-glass-ink: #f5f5f5; --ads-glass-ink-muted: #8a8a8a; --ads-glass-tint: var(--ads-color-blue-200); } }
 :root[data-theme="dark"], [data-theme="dark"] {
   --ads-glass-fill: rgb(44 44 48 / 0.62); --ads-glass-edge: rgb(166 166 166 / 0.45); --ads-glass-sheen: rgb(255 255 255 / 0.14);
-  --ads-glass-selection: rgb(255 255 255 / 0.12); --ads-glass-ink: #f5f5f5; --ads-glass-ink-muted: #8a8a8a; --ads-glass-tint: var(--ads-color-blue-300); }
+  --ads-glass-selection: rgb(255 255 255 / 0.12); --ads-glass-ink: #f5f5f5; --ads-glass-ink-muted: #8a8a8a; --ads-glass-tint: var(--ads-color-blue-200); }
 .ads-glass {
   background: var(--ads-glass-fill);
   -webkit-backdrop-filter: blur(var(--ads-glass-blur)) saturate(180%);
@@ -454,3 +454,179 @@ dialog.ads-modal { padding: 0; }
 .ads-ticket__status > span:nth-child(2) { flex: 1; min-width: 0; }
 .ads-ticket__status a { color: inherit; font-weight: var(--ads-font-weight-semibold); text-decoration: none; display: inline-flex; align-items: center; }
 .ads-ticket__live { width: 8px; height: 8px; border-radius: 50%; background: var(--ads-color-green-400); flex: none; }
+
+/* ============================================================
+   Sprint 4 additions
+   Added for the Sprint 4 exploration (booking, Profile, discounts, assistance,
+   verification). Each one is documented in README.md and prototypes/sprint4/HANDOFF.md.
+   ============================================================ */
+
+/* ---------- Nav bar ----------
+   Header for sheets and the screens pushed inside them.
+   Root of a sheet: title + Close. Pushed: Back + title + Close. Focused editor: Cancel + title + Save. */
+.ads-navbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--ads-space-8);
+  min-height: 52px; padding: var(--ads-space-4) var(--ads-space-8); background: var(--ads-background-surface-page); }
+.ads-navbar__lead { justify-self: start; display: flex; align-items: center; min-width: 0; }
+.ads-navbar__trail { justify-self: end; display: flex; align-items: center; gap: var(--ads-space-4); min-width: 0; }
+.ads-navbar__title { margin: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;
+  font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.25; }
+.ads-navbar__btn { display: inline-flex; align-items: center; gap: 2px; min-height: var(--ads-size-interactive-md); min-width: var(--ads-size-interactive-md);
+  padding: 0 var(--ads-space-8); border: 0; border-radius: var(--ads-radius-8); background: none; color: var(--ads-content-text-link);
+  font: inherit; font-size: var(--ads-type-body-size); cursor: pointer; white-space: nowrap; }
+.ads-navbar__btn:hover { background: var(--ads-background-surface-hover); }
+.ads-navbar__btn--strong { font-weight: var(--ads-font-weight-semibold); }
+.ads-navbar__btn:disabled { color: var(--ads-content-text-disabled); cursor: not-allowed; background: none; }
+.ads-navbar__btn[aria-busy="true"] { color: var(--ads-content-text-secondary); }
+.ads-navbar__btn[aria-busy="true"] .ads-icon--spinner-static { animation: ads-spin 0.9s linear infinite; }
+.ads-navbar__btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.ads-navbar--large .ads-navbar__title { visibility: hidden; }
+
+/* ---------- Grouped rows ----------
+   Inset groups of rows for Account, Profile and settings. A row can be a button (navigates or edits),
+   a read-only value, or a locked value. Locked shows a "Can't be changed" label, so the state never relies on color. */
+.ads-group { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ads-group__title { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
+.ads-group__body { display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
+.ads-group__foot { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); }
+.ads-group__row { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 52px; padding: var(--ads-space-8) var(--ads-space-16);
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; }
+.ads-group__row + .ads-group__row, .ads-group__row + .ads-group__panel, .ads-group__panel + .ads-group__row { border-top: 1px solid var(--ads-border-subtle); }
+button.ads-group__row, a.ads-group__row, label.ads-group__row { cursor: pointer; }
+button.ads-group__row:hover, a.ads-group__row:hover { background: var(--ads-background-surface-hover); }
+button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-group__row[aria-current="true"] { background: var(--ads-background-surface-selected); }
+.ads-group__lead { flex: none; color: var(--ads-content-icon-brand); }
+.ads-group__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ads-group__label { font-size: var(--ads-type-body-size); line-height: 1.3; }
+.ads-group__value { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; overflow-wrap: anywhere; }
+.ads-group__value--empty { color: var(--ads-content-text-tertiary); font-style: italic; }
+.ads-group__meta { flex: none; display: inline-flex; align-items: center; gap: var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.ads-group__row > .ads-icon--chevron-right { flex: none; color: var(--ads-content-icon-tertiary); }
+.ads-group__row--destructive .ads-group__label { color: var(--ads-content-text-error); }
+.ads-group__row--action .ads-group__label { color: var(--ads-content-text-link); }
+.ads-group__row[aria-disabled="true"] { color: var(--ads-content-text-disabled); cursor: not-allowed; }
+.ads-group__row[aria-disabled="true"] .ads-group__label { color: var(--ads-content-text-disabled); }
+.ads-group__panel { padding: var(--ads-space-16); display: flex; flex-direction: column; gap: var(--ads-space-16); background: var(--ads-background-surface-default); }
+.ads-lock { display: inline-flex; align-items: center; gap: var(--ads-space-4); padding: 2px var(--ads-space-8); border-radius: var(--ads-radius-full); border: 1px solid var(--ads-border-default); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.4; white-space: nowrap; }
+
+/* ---------- Station row ----------
+   Station result: code, city/state, station name, and a 44px star toggle (aria-pressed).
+   Favorite is shown by the filled star AND the toggle's label, not by color alone. */
+.ads-stationrow { display: flex; align-items: stretch; min-height: 60px; border-bottom: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-default); }
+.ads-stationrow__select { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--ads-space-12); padding: var(--ads-space-8) var(--ads-space-4) var(--ads-space-8) var(--ads-space-16);
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ads-stationrow__select:hover { background: var(--ads-background-surface-hover); }
+.ads-stationrow__select:focus-visible, .ads-stationrow__star:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-stationrow__code { flex: none; width: 44px; font-weight: var(--ads-font-weight-semibold); font-size: var(--ads-type-body-size); letter-spacing: 0.02em; }
+.ads-stationrow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ads-stationrow__name { font-size: var(--ads-type-body-size); line-height: 1.3; }
+.ads-stationrow__detail { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.3; }
+.ads-stationrow__tag { align-self: flex-start; margin-top: 2px; }
+.ads-stationrow__star { flex: none; display: grid; place-items: center; width: var(--ads-size-interactive-md); min-height: var(--ads-size-interactive-md); margin: auto var(--ads-space-4); border: 0; border-radius: var(--ads-radius-8); background: none; color: var(--ads-content-icon-secondary); cursor: pointer; }
+.ads-stationrow__star:hover { background: var(--ads-background-surface-hover); }
+.ads-stationrow__star[aria-pressed="true"] { color: var(--ads-content-icon-brand); }
+.ads-stationrow[aria-current="true"] .ads-stationrow__select { background: var(--ads-background-surface-selected); }
+.ads-stationrow__header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-8); min-height: 36px; padding: var(--ads-space-8) var(--ads-space-16);
+  background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--ads-border-subtle); }
+
+/* ---------- Route field ----------
+   From/To pair with a swap button (Core Flow). Each half is a button that opens station search. */
+.ads-routefield { position: relative; display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); }
+.ads-routefield__half { display: flex; align-items: center; gap: var(--ads-space-12); min-height: 68px; padding: var(--ads-space-8) 64px var(--ads-space-8) var(--ads-space-16);
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--ads-radius-12); width: 100%; }
+.ads-routefield__half + .ads-routefield__half { border-top: 1px solid var(--ads-border-subtle); border-radius: 0 0 var(--ads-radius-12) var(--ads-radius-12); }
+.ads-routefield__half:hover { background: var(--ads-background-surface-hover); }
+.ads-routefield__half:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-routefield__half[aria-invalid="true"] { box-shadow: inset 3px 0 0 var(--ads-border-status-error); }
+.ads-routefield__half[aria-expanded="true"] { background: var(--ads-background-surface-selected); }
+.ads-routefield__half[aria-expanded="true"] .ads-routefield__city { color: var(--ads-content-text-primary); }
+.ads-routefield__label { display: block; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
+.ads-routefield__code { flex: none; width: 48px; font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-font-weight-semibold); }
+.ads-routefield__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ads-routefield__city { font-size: var(--ads-type-body-size); color: var(--ads-content-text-link); line-height: 1.25; }
+.ads-routefield__station { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ads-routefield__hint { color: var(--ads-content-text-tertiary); }
+.ads-routefield__swap { position: absolute; right: var(--ads-space-8); top: 50%; transform: translateY(-50%); z-index: 1; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); }
+
+/* ---------- Date field ----------
+   Tappable date: label, day name and full date. Empty shows an "Add" action. */
+.ads-datefields { display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); overflow: hidden; }
+.ads-datefield { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 68px; padding: var(--ads-space-8) var(--ads-space-16); border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.ads-datefield + .ads-datefield { border-left: 1px solid var(--ads-border-subtle); }
+.ads-datefield:hover { background: var(--ads-background-surface-hover); }
+.ads-datefield:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-datefield[aria-expanded="true"], .ads-datefield[aria-current="true"] { background: var(--ads-background-surface-selected); }
+.ads-datefield__label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
+.ads-datefield__value { font-size: var(--ads-type-body-size); line-height: 1.25; }
+.ads-datefield__day { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.ads-datefield__add { display: inline-flex; align-items: center; gap: var(--ads-space-4); color: var(--ads-content-text-link); }
+
+/* ---------- Calendar ----------
+   Vertical month list for phones and sheets. Reuses .ads-day cells from the date picker.
+   The range is marked with aria-pressed plus "Depart"/"Return" in each cell's accessible name. */
+.ads-calendar { display: flex; flex-direction: column; gap: var(--ads-space-16); }
+.ads-calendar__weekdays { position: sticky; top: 0; z-index: 1; display: grid; grid-template-columns: repeat(7, 1fr); padding: var(--ads-space-8) 0; background: var(--ads-background-surface-page); border-bottom: 1px solid var(--ads-border-subtle); }
+.ads-calendar__weekdays span { text-align: center; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); }
+.ads-calendar__month h3 { margin: 0 0 var(--ads-space-8); font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); }
+.ads-calendar__grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+.ads-calendar__grid .ads-day { width: 100%; height: var(--ads-size-interactive-md); isolation: isolate; }
+.ads-calendar__grid .ads-day::before { inset: 0; margin: auto; width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); }
+
+/* ---------- Steps ----------
+   For guided flows. The rail lists the steps with a numbered marker and a state word for screen readers.
+   Done shows a check, current is bold and outlined, skipped is struck through with "Skipped". */
+.ads-steps { display: flex; flex-direction: column; gap: var(--ads-space-4); margin: 0; padding: 0; list-style: none; }
+.ads-steps__item { display: flex; align-items: center; gap: var(--ads-space-12); min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-8); border-radius: var(--ads-radius-8); color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.ads-steps__marker { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--ads-radius-full); border: 1px solid var(--ads-border-default); font-weight: var(--ads-font-weight-semibold); font-size: var(--ads-type-caption-size); background: var(--ads-background-surface-default); }
+.ads-steps__item[aria-current="step"] { color: var(--ads-content-text-primary); font-weight: var(--ads-font-weight-semibold); background: var(--ads-background-surface-selected); }
+.ads-steps__item[aria-current="step"] .ads-steps__marker { border: 2px solid var(--ads-border-brand); color: var(--ads-content-text-link); }
+.ads-steps__item--done .ads-steps__marker { background: var(--ads-background-interactive-selected); border-color: transparent; color: var(--ads-content-text-on-inverse); }
+.ads-steps__item--skipped { text-decoration: line-through; color: var(--ads-content-text-tertiary); }
+.ads-steps__progress { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ads-steps__count { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
+.ads-steps__bar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.ads-steps__bar i { height: 4px; border-radius: var(--ads-radius-full); background: var(--ads-border-subtle); }
+.ads-steps__bar i.is-done { background: var(--ads-background-interactive-selected); }
+
+/* ---------- Summary ----------
+   Saved answers with an Edit action. Used for assistance, the booking review and V3 overview cards. */
+.ads-summary { display: flex; flex-direction: column; gap: var(--ads-space-12); padding: var(--ads-space-16); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
+.ads-summary__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--ads-space-8) var(--ads-space-12); }
+.ads-summary__head > div { flex: 1 1 140px; min-width: 0; overflow-wrap: anywhere; }
+.ads-summary__title { margin: 0; font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.3; }
+.ads-summary__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ads-summary__list li { display: flex; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+.ads-summary__list li > .ads-icon { flex: none; color: var(--ads-content-icon-success); width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); margin-top: 2px; }
+.ads-summary__list dt { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); }
+.ads-summary__list dd { margin: 0 0 var(--ads-space-8); }
+.ads-summary--editing { border: 2px solid var(--ads-border-brand); }
+.ads-summary--empty { border-style: dashed; color: var(--ads-content-text-secondary); }
+
+/* ---------- Code input ----------
+   One field with one-time-code autofill, drawn as six cells. A single input keeps paste, autofill
+   and screen readers simple; the cells are decoration that mirror its value. */
+.ads-codeinput { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--ads-space-8); max-width: 360px; }
+.ads-codeinput__cell { display: grid; place-items: center; height: 56px; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); box-shadow: inset 0 0 0 1px var(--ads-border-default); font-size: var(--ads-type-h3-headline-size); font-variant-numeric: tabular-nums; }
+.ads-codeinput__input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.01; border: 0; font-size: 16px; letter-spacing: 2em; color: transparent; caret-color: transparent; background: none; }
+.ads-codeinput:focus-within .ads-codeinput__cell.is-next { box-shadow: inset 0 0 0 2px var(--ads-border-focus); }
+.ads-codeinput:focus-within { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 4px; border-radius: var(--ads-radius-8); }
+.ads-codeinput--error .ads-codeinput__cell { box-shadow: inset 0 0 0 2px var(--ads-border-status-error); }
+.ads-codeinput--success .ads-codeinput__cell { box-shadow: inset 0 0 0 2px var(--ads-border-status-success); }
+.ads-codeinput[aria-busy="true"] .ads-codeinput__cell { background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); }
+
+/* ---------- Toast ----------
+   Short confirmation after a save, announced through role="status". Shown with an icon and text. */
+.ads-toast { display: inline-flex; align-items: center; gap: var(--ads-space-8); max-width: calc(100% - 32px); padding: var(--ads-space-12) var(--ads-space-16); border-radius: var(--ads-radius-full);
+  background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); box-shadow: var(--ads-shadow-elevation-lg); font-size: var(--ads-type-body-small-size); line-height: 1.35; }
+.ads-toast .ads-icon { flex: none; width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); }
+.ads-toast--success .ads-icon { color: var(--ads-content-icon-on-inverse); }
+
+/* ---------- Banner ----------
+   Full-width notice pinned under a nav bar, e.g. "You're offline". Always icon + text. */
+.ads-banner { display: flex; align-items: flex-start; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-16); background: var(--ads-background-status-warning-subtle); border-bottom: 1px solid var(--ads-border-status-warning-subtle); color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+.ads-banner .ads-icon { flex: none; width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); margin-top: 2px; color: var(--ads-content-icon-warning); }
+.ads-banner--info { background: var(--ads-background-status-info-subtle); border-color: var(--ads-border-status-info-subtle); }
+.ads-banner--info .ads-icon { color: var(--ads-content-icon-info); }
+/* The control draws its own focus border, so the inner field doesn't need a second outline */
+.ads-control > :is(input, select, textarea):focus-visible,
+.ads-root .ads-control > :is(input, select, textarea, [tabindex]):focus-visible { outline: none; }

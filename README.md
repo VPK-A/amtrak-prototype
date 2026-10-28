@@ -108,3 +108,34 @@ From *IA App Shell Overview* (12 slides). Stored as data in `ia/app-shell.json` 
 - **Not in Figma, so filled in here:** tertiary-button hover, progress error/success fill colors, and motion durations.
 - **Tab bars** follow Apple's *iOS and iPadOS 27 (Community)* Figma kit (`S1lxeJUtOI858vSJm5UwQe`, Tab Bars page): sizes, type, selection capsule and glass layering. Two deliberate changes: the selected tint is ADS brand blue instead of system blue, and the GLASS refraction effect is approximated with `backdrop-filter` blur + saturation, since CSS can't refract. The kit's icon-only "Duo" variants weren't brought over. They replace the earlier `.ads-bottomnav`, which has been removed. In a native app, use the system `TabView` with the ADS tint; these classes are for web views and prototypes.
 - **Mobile file** pages marked 🚧 (Top/Bottom Navigation) were still in progress; the viewport variants there are named "Viewport3/4/5".
+
+
+## Sprint 4 additions
+
+New components in `css/components.css`, added for the Sprint 4 exploration. The full rationale and states are in `prototypes/sprint4/HANDOFF.md`.
+
+| Class | Use |
+|---|---|
+| `ads-navbar` | Sheet and pushed-screen header: root (Close), pushed (Back + Close), editor (Cancel + Save) |
+| `ads-group`, `ads-group__row`, `ads-lock` | Inset grouped rows with value, read-only and locked ("Can't be changed") states |
+| `ads-stationrow` | Station result with a 44px favorite star (`aria-pressed`) and sticky state headers |
+| `ads-routefield` | From/To pair with a swap button |
+| `ads-datefields`, `ads-datefield` | Tappable date values with day name, or an empty "Add" state |
+| `ads-calendar` | Vertical month list for phones; reuses `.ads-day` |
+| `ads-steps` | Step rail and "Step n of N" progress bar |
+| `ads-summary` | Saved-answer summary with Edit, editing and empty states |
+| `ads-codeinput` | 6-digit one-time-code entry (a single input drawn as cells) |
+| `ads-toast`, `ads-banner` | Save confirmation; offline banner |
+| `ads-icon--star`, `ads-icon--star-filled` | Favorites |
+
+Fixes found while building the exploration:
+
+- `.ads-helper` had no margin reset.
+- The inner field of `.ads-control` drew a second focus ring.
+- The dark tab-bar tint (`--ads-glass-tint`) was raised to blue-200 for 4.5:1 contrast.
+
+On phones and tablets, keep `.ads-btn--sm` and `.ads-icon-btn--sm` at a 44pt touch target. The prototype does this inside its device frame.
+
+### Prototype
+
+`prototypes/sprint4/` holds the three-direction prototype (`index.html`, built by `python3 -I scripts/build-sprint4.py` from `src.html`, `proto.css` and the `*.js` files) and the handoff document (`HANDOFF.md`, also shown in the prototype's Handoff tab).
