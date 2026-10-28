@@ -69,12 +69,11 @@ function dateFields(r, opts = {}) {
   return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
 }
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
-function discLabel(b) { if (pwdApplies(b)) return 'Passenger with Disability'; return b.disc === 'none' ? 'No discount' : DISCOUNTS[b.disc].label; }
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
-const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && (!b.intent || b.intent === 'standard' || b.intent === 'personal');
+const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
 function travelersRow(r, opts = {}) {
   const b = D().booking;
-  return group('', [grow({ a: 'pick-travelers', icon: 'person', label: '1 Adult', value: `Traveler 1 · ${discLabel(b)}`, current: opts.open })]);
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
 }
 function assistBlock(r, ri, host) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -258,16 +257,7 @@ A.day = (t, ri) => {
 // =====================================================================
 // Traveler Selection (fixed sample traveler; discount NMA-612)
 // =====================================================================
-function travelersBody(r, ri) {
-  const d = D(), b = d.booking, pwd = pwdApplies(b);
-  ref('612');
-  prov('Traveler type and number (NMA-611) isn’t in this exploration: the sample traveler is 1 Adult. Age bands are not finalized.');
-  const fromProfile = d.signedIn && d.discount.type !== 'none' && d.discount.type !== 'pwd' && b.disc === d.discount.type;
-  const disc = pwd ? `<div class="ads-summary"><p class="ads-summary__title">Passenger with Disability</p><p class="ads-body-small">Applied because Traveler 1 has a disability in Assistance. It replaces any other traveler discount for this booking.</p>${q(9)}</div>`
-    : `<fieldset class="ads-fieldset"><legend class="ads-field-label">Discount for Traveler 1</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa'].map(k => `<label class="ads-choice ads-radio"><input type="radio" name="bkdisc" value="${k}" data-a="bk-disc" ${b.disc === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${k === 'none' ? 'No discount' : DISCOUNTS[k].label}${fromProfile && b.disc === k ? ' <span class="ads-lock">From your Profile</span>' : ''}</span><span class="ads-choice__supporting">${k === 'none' ? 'Adult fare.' : DISCOUNTS[k].info}</span></span></label>`).join('')}</div></fieldset><p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Adults don’t get a passenger-type discount. Eligibility information doesn’t block your choice. Changing it here doesn’t change your Profile.</span></p>`;
-  return `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Traveler 1 · Adult</p><p class="ads-body-small ads-text-secondary">${d.signedIn ? 'Alex Rivera (sample traveler)' : 'Sample traveler'}</p></div></div></div>${disc}${assistBlock(r, ri, 'travelers')}`;
-}
-SCR.travelers = (r, ri) => v3() ? travelersClear(r, ri) : ({ title: 'Traveler Selection', kind: 'push', body: travelersBody(r, ri), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done">Done</button>`, banner: false });
+SCR.travelers = (r, ri) => travelersClear(r, ri, !v3());
 A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-disc"][value="${t.value}"]`; render(); };
 
 // =====================================================================

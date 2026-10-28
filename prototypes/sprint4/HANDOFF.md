@@ -33,7 +33,7 @@ Most of Core Flow is out of Sprint 4 scope: search results, fare families, ancil
 
 Stories with no content: NMA-620 (in-station assistance availability), NMA-621 (about accessible travel), NMA-628 (service animal info), NMA-629 (wheeled mobility device specs). They are shown as labeled placeholders only.
 
-Fare Finder stories in Version 3 only: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Versions 1 and 2 still use the fixed sample traveler (1 Adult) and don't show these variants.
+Fare Finder stories in Version 3 only: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. Versions 1 and 2 don't show the code, points, TripLink or Pass Rider variants.
 
 ## IA conflicts and proposed resolutions
 
@@ -163,7 +163,7 @@ Not finalized, and not invented: infant seat options ("Lap infant", "Ask for a s
 ## Assumptions
 
 - Today's date is fixed at **Wed, Oct 28, 2026**, so the calendar is deterministic.
-- The sample traveler is Alex Rivera, AGR 7012 3456 78, Select Plus, 1 Adult.
+- The account holder is Alex Rivera, AGR 7012 3456 78, Select Plus. Bookings start with 1 Adult (NMA-611 BR2) and travelers can be added in Traveler Selection.
 - Verification codes have 6 digits. **123456** works, **000000** is expired, anything else is invalid. A resend has a 30-second cooldown, shortened to 10 seconds in the demo.
 - The 120-second spinner timeout is shortened to 6 seconds in the *Slow connection* scenario.
 - Messages use the story copy where it exists. Otherwise the copy is marked provisional.
@@ -286,7 +286,9 @@ Stations, dates, travelers, discount codes and assistance open as **rounded shee
 
 Functional differences:
 
-- **Added in V3 only:** traveler types and counts, per-traveler discounts, discount codes, Use Points, TripLink and Pass Rider. The baseline (V1, V2 and the earlier V3) used a fixed 1 Adult and didn't build these stories, so the three versions no longer cover the same scope.
+- **Added in all versions:** traveler types and counts, and a discount per traveler, in Traveler Selection (the baseline used a fixed 1 Adult).
+- **Added in V3 only:** discount codes, Use Points, TripLink and Pass Rider, so the three versions no longer cover the same scope.
+- **Core Flow difference:** Core Flow labels Adult as 16–64 and has no Young Adult row; the stories list Young Adult (16–17) separately, and the prototype follows the stories (Q10).
 - **Changed interaction:** V3 no longer edits the Fare Finder in place; each picker opens in a rounded sheet. After choosing From, the To sheet opens straight away (as in V2).
 - **Mode-specific rules:** the Passenger with Disability discount isn't applied for Corporate or Pass Rider bookings, because those modes take no passenger discounts (open, Q12). Auto Train stations are unavailable for Pass Rider travel and cleared when switching to it.
 - **Unchanged:** station search and ranking, Favorites and Recents, the same-station dialog, Auto Train pairing, the calendar rules, the assistance questionnaire (the one-page form, as in V1), Profile pre-fill (NMA-614), network states and the booking handoff, which now also lists the mode, payment, each traveler's discount and the code.

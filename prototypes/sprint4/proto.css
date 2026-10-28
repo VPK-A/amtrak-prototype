@@ -405,3 +405,9 @@ button.ffc-row:hover, .ffc-row__main:hover { background: var(--ads-background-su
 .device .ads-calendar__grid .ads-day::before { width: min(44px, 100%); height: auto; aspect-ratio: 1; }
 .edpane .ads-btn--sm { white-space: normal; height: auto; min-height: 44px; text-align: left; }
 .ads-root .ffc-title[tabindex]:focus-visible, .ads-root .ffc-sheettitle[tabindex]:focus-visible { outline: none; box-shadow: none; }
+/* Traveler Selection in Versions 1 and 2 reuses the Version 3 traveler editor */
+.travsel { display: flex; flex-direction: column; gap: 18px; }
+.travsel section { display: flex; flex-direction: column; gap: 4px; }
+.ffc-inlinelink { position: relative; display: inline; min-height: 0; padding: 0; border: 0; background: none; font: inherit; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
+.ffc-inlinelink::after { content: ""; position: absolute; inset: -12px 0; }
+

@@ -1847,6 +1847,12 @@ button.ffc-row:hover, .ffc-row__main:hover { background: var(--ads-background-su
 .device .ads-calendar__grid .ads-day::before { width: min(44px, 100%); height: auto; aspect-ratio: 1; }
 .edpane .ads-btn--sm { white-space: normal; height: auto; min-height: 44px; text-align: left; }
 .ads-root .ffc-title[tabindex]:focus-visible, .ads-root .ffc-sheettitle[tabindex]:focus-visible { outline: none; box-shadow: none; }
+/* Traveler Selection in Versions 1 and 2 reuses the Version 3 traveler editor */
+.travsel { display: flex; flex-direction: column; gap: 18px; }
+.travsel section { display: flex; flex-direction: column; gap: 4px; }
+.ffc-inlinelink { position: relative; display: inline; min-height: 0; padding: 0; border: 0; background: none; font: inherit; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
+.ffc-inlinelink::after { content: ""; position: absolute; inset: -12px 0; }
+
 
 </style>
 </head>
@@ -1986,8 +1992,12 @@ labeled placeholders only.</p>
 <p>Fare Finder stories in Version 3 only: NMA-611 (traveler type and
 number), NMA-613 (coupon and promo codes), NMA-624 (Use Points), NMA-622
 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the
-Version 3 Fare Finder. Versions 1 and 2 still use the fixed sample
-traveler (1 Adult) and don't show these variants.</p>
+Version 3 Fare Finder. Traveler types and counts (NMA-611) and
+per-traveler discounts (NMA-612) are in all three versions' Traveler
+Selection, following Core Flow (node 90:16532): counters per type,
+<em>Traveling alone?</em> on Youth, assistance between travelers and
+discounts, then one discount per traveler. Versions 1 and 2 don't show
+the code, points, TripLink or Pass Rider variants.</p>
 <h2 id="ia-conflicts-and-proposed-resolutions">IA conflicts and proposed
 resolutions</h2>
 <table>
@@ -2389,8 +2399,9 @@ availability.</p>
 <ul>
 <li>Today's date is fixed at <strong>Wed, Oct 28, 2026</strong>, so the
 calendar is deterministic.</li>
-<li>The sample traveler is Alex Rivera, AGR 7012 3456 78, Select Plus, 1
-Adult.</li>
+<li>The account holder is Alex Rivera, AGR 7012 3456 78, Select Plus.
+Bookings start with 1 Adult (NMA-611 BR2) and travelers can be added in
+Traveler Selection.</li>
 <li>Verification codes have 6 digits. <strong>123456</strong> works,
 <strong>000000</strong> is expired, anything else is invalid. A resend
 has a 30-second cooldown, shortened to 10 seconds in the demo.</li>
@@ -2794,11 +2805,15 @@ Standards]</label></li>
 <p><strong>Compared with the Sprint 4 baseline</strong></p>
 <p>Functional differences:</p>
 <ul>
-<li><strong>Added in V3 only:</strong> traveler types and counts,
-per-traveler discounts, discount codes, Use Points, TripLink and Pass
-Rider. The baseline (V1, V2 and the earlier V3) used a fixed 1 Adult and
-didn't build these stories, so the three versions no longer cover the
-same scope.</li>
+<li><strong>Added in all versions:</strong> traveler types and counts,
+and a discount per traveler, in Traveler Selection (the baseline used a
+fixed 1 Adult).</li>
+<li><strong>Added in V3 only:</strong> discount codes, Use Points,
+TripLink and Pass Rider, so the three versions no longer cover the same
+scope.</li>
+<li><strong>Core Flow difference:</strong> Core Flow labels Adult as
+16–64 and has no Young Adult row; the stories list Young Adult (16–17)
+separately, and the prototype follows the stories (Q10).</li>
 <li><strong>Changed interaction:</strong> V3 no longer edits the Fare
 Finder in place; each picker opens in a rounded sheet. After choosing
 From, the To sheet opens straight away (as in V2).</li>
@@ -3528,12 +3543,11 @@ function dateFields(r, opts = {}) {
   return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
 }
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
-function discLabel(b) { if (pwdApplies(b)) return 'Passenger with Disability'; return b.disc === 'none' ? 'No discount' : DISCOUNTS[b.disc].label; }
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
-const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && (!b.intent || b.intent === 'standard' || b.intent === 'personal');
+const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
 function travelersRow(r, opts = {}) {
   const b = D().booking;
-  return group('', [grow({ a: 'pick-travelers', icon: 'person', label: '1 Adult', value: `Traveler 1 · ${discLabel(b)}`, current: opts.open })]);
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
 }
 function assistBlock(r, ri, host) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -3717,16 +3731,7 @@ A.day = (t, ri) => {
 // =====================================================================
 // Traveler Selection (fixed sample traveler; discount NMA-612)
 // =====================================================================
-function travelersBody(r, ri) {
-  const d = D(), b = d.booking, pwd = pwdApplies(b);
-  ref('612');
-  prov('Traveler type and number (NMA-611) isn’t in this exploration: the sample traveler is 1 Adult. Age bands are not finalized.');
-  const fromProfile = d.signedIn && d.discount.type !== 'none' && d.discount.type !== 'pwd' && b.disc === d.discount.type;
-  const disc = pwd ? `<div class="ads-summary"><p class="ads-summary__title">Passenger with Disability</p><p class="ads-body-small">Applied because Traveler 1 has a disability in Assistance. It replaces any other traveler discount for this booking.</p>${q(9)}</div>`
-    : `<fieldset class="ads-fieldset"><legend class="ads-field-label">Discount for Traveler 1</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa'].map(k => `<label class="ads-choice ads-radio"><input type="radio" name="bkdisc" value="${k}" data-a="bk-disc" ${b.disc === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${k === 'none' ? 'No discount' : DISCOUNTS[k].label}${fromProfile && b.disc === k ? ' <span class="ads-lock">From your Profile</span>' : ''}</span><span class="ads-choice__supporting">${k === 'none' ? 'Adult fare.' : DISCOUNTS[k].info}</span></span></label>`).join('')}</div></fieldset><p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Adults don’t get a passenger-type discount. Eligibility information doesn’t block your choice. Changing it here doesn’t change your Profile.</span></p>`;
-  return `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Traveler 1 · Adult</p><p class="ads-body-small ads-text-secondary">${d.signedIn ? 'Alex Rivera (sample traveler)' : 'Sample traveler'}</p></div></div></div>${disc}${assistBlock(r, ri, 'travelers')}`;
-}
-SCR.travelers = (r, ri) => v3() ? travelersClear(r, ri) : ({ title: 'Traveler Selection', kind: 'push', body: travelersBody(r, ri), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done">Done</button>`, banner: false });
+SCR.travelers = (r, ri) => travelersClear(r, ri, !v3());
 A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-disc"][value="${t.value}"]`; render(); };
 
 // =====================================================================
@@ -4226,7 +4231,9 @@ A['vf-finish'] = () => endVerify(true);
    discount codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019). */
 
 // ---------- Rules ----------
-const autoTrainBlocked = () => TB.v === 3 && D().booking.intent === 'pr'; // NMA-623: Auto Train isn't offered
+// Booking modes (TripLink, Pass Rider) are designed in Version 3 only; Versions 1 and 2 always book as standard
+const intentOf = b => TB.v === 3 ? (b.intent || 'standard') : 'standard';
+const autoTrainBlocked = () => intentOf(D().booking) === 'pr'; // NMA-623: Auto Train isn't offered
 const PAX_PLURAL = { adult: 'Adults', senior: 'Seniors', ya: 'Young Adults', youth: 'Youths', child: 'Children', infant: 'Infants' };
 const paxSeated = p => p.adult + p.senior + p.ya + p.youth + p.child; // infants don't count toward 8 (NMA-611 BR3)
 const paxAll = p => paxSeated(p) + p.infant;
@@ -4269,8 +4276,8 @@ function prSummary(b, d) {
   return parts.join(', ');
 }
 const prCount = b => 1 + b.prPax.fam + b.prPax.dep + b.prPax.comp;
-const travelerCount = b => b.intent === 'corporate' ? 1 : b.intent === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
-const codeApplies = b => b.code && (b.intent === 'standard' || b.intent === 'personal') && b.pay === 'cash';
+const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
+const codeApplies = b => TB.v === 3 && b.code && ['standard', 'personal'].includes(intentOf(b)) && b.pay === 'cash';
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
@@ -4396,12 +4403,12 @@ function stationsClear(r, ri) {
 }
 
 // ---------- Travelers sheet ----------
-function counter(k, label, sub, val, minusOk, plusOk, group, why) {
+function counter(k, label, sub, val, minusOk, plusOk, group, why, extra = '') {
   const lab = esc(label);
-  return `<div class="ffc-count${!plusOk && !minusOk ? ' is-disabled' : ''}"><div class="ffc-count__text"><span class="ffc-count__label" id="cl-${group}-${k}">${lab}</span>${sub ? `<span class="ffc-count__sub">${sub}</span>` : ''}${why ? `<span class="ffc-count__why">${why}</span>` : ''}</div><div class="ads-counter" role="group" aria-labelledby="cl-${group}-${k}"><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="-1" aria-label="Remove one: ${lab}" ${minusOk ? '' : 'disabled'}>${ic('minus')}</button><span class="ads-counter__value" aria-live="polite">${val}</span><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="1" aria-label="Add one: ${lab}" ${plusOk ? '' : 'disabled'}>${ic('plus')}</button></div></div>`;
+  return `<div class="ffc-count${!plusOk && !minusOk ? ' is-disabled' : ''}"><div class="ffc-count__text"><span class="ffc-count__label" id="cl-${group}-${k}">${lab}</span>${sub ? `<span class="ffc-count__sub">${sub}${extra}</span>` : ''}${why ? `<span class="ffc-count__why">${why}</span>` : ''}</div><div class="ads-counter" role="group" aria-labelledby="cl-${group}-${k}"><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="-1" aria-label="Remove one: ${lab}" ${minusOk ? '' : 'disabled'}>${ic('minus')}</button><span class="ads-counter__value" aria-live="polite">${val}</span><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="1" aria-label="Add one: ${lab}" ${plusOk ? '' : 'disabled'}>${ic('plus')}</button></div></div>`;
 }
-function travelersClear(r, ri) {
-  const d = D(), b = d.booking, corp = b.intent === 'corporate', pr = b.intent === 'pr';
+function travelersClear(r, ri, std) {
+  const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
@@ -4420,7 +4427,7 @@ function travelersClear(r, ri) {
   } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const counts = PAX.map(([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, k === 'infant' ? p.infant < MAX_PAX : seated < MAX_PAX, 'std')).join('');
+    const counts = PAX.map(([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, k === 'infant' ? p.infant < MAX_PAX : seated < MAX_PAX, 'std', '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '')).join('');
     const limit = seated >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app; infants don’t count. For larger groups, call 1-800-USA-RAIL (1-800-872-7245).</span></p>` : '';
     const ratio = p.infant > p.adult + p.senior && !probs.length ? '<p class="ss-note">There are more infants than adults and seniors, so each extra infant needs a seat and pays the child fare.</p>' : '';
     why = probs.join(' ');
@@ -4431,11 +4438,16 @@ function travelersClear(r, ri) {
       const ctl = opts && x !== 'pwd' ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && x !== 'pwd' ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
+    // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h4 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h4><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+      ${assistBlock(r, ri, 'travelers')}
       ${paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
   }
-  body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling and any discounts.'}</p></div>` + body + assistBlock(r, ri, 'travelers');
+  if (corp || pr) body += assistBlock(r, ri, 'travelers');
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
+  // Versions 1 and 2: a pushed Traveler Selection screen with the same content
+  if (std) return { title: 'Traveler Selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
+  body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling and any discounts.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
 A.pax = t => {
@@ -4444,18 +4456,20 @@ A.pax = t => {
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
   pendingFocus = `[data-a="pax"][data-g="${g}"][data-k="${k}"][data-d="${dlt}"]:not(:disabled), [data-a="pax"][data-g="${g}"][data-k="${k}"]:not(:disabled)`; render();
 };
+// Core Flow links Youth to the unaccompanied-minor rules; the content comes from AEM (NMA-611 BR3)
+A['youth-alone'] = () => dialog({ title: 'Traveling alone?', returnFocus: '[data-a="youth-alone"]', actions: [['Close', 'primary', null]],
+  body: 'The rules for youths traveling without an adult (unaccompanied minors) will come from AEM; they aren’t in this prototype. In the app, a youth needs an adult or senior on the same booking.' });
 HOOKS.tdisc = (r, t) => { setTdisc(D().booking, t.dataset.key, t.value); pendingFocus = '#' + CSS.escape(t.id); };
 
 // ---------- Handoff ----------
 function handoffExtra(b) {
-  if (TB.v !== 3) return `<dt>Travelers</dt><dd>1 Adult · ${discLabel(b)}</dd>`;
-  const d = D(), rows = [];
-  if (b.intent === 'corporate') rows.push(['Booking', 'Corporate (TripLink)']);
-  else if (b.intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
-  else if (b.intent === 'personal') rows.push(['Booking', 'Personal']);
-  if (d.signedIn && (b.intent === 'standard' || b.intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
-  if (b.intent === 'pr') rows.push(['Travelers', esc(prSummary(b, d))]);
-  else if (b.intent === 'corporate') rows.push(['Travelers', '1 Adult · You']);
+  const d = D(), rows = [], intent = intentOf(b);
+  if (intent === 'corporate') rows.push(['Booking', 'Corporate (TripLink)']);
+  else if (intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
+  else if (intent === 'personal') rows.push(['Booking', 'Personal']);
+  if (TB.v === 3 && d.signedIn && (intent === 'standard' || intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
+  if (intent === 'pr') rows.push(['Travelers', esc(prSummary(b, d))]);
+  else if (intent === 'corporate') rows.push(['Travelers', '1 Adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => `Traveler ${t.n} · ${PAX_LABEL[t.type]} · ${TDISC_LABEL[tdiscOf(b, t)]}`).join('<br>')]);
   if (codeApplies(b)) rows.push(['Discount code', `${esc(b.code.code)} (${esc(b.code.kind)})`]);
   return rows.map(([k, val]) => `<dt>${k}</dt><dd>${val}</dd>`).join('');
