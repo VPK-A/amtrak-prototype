@@ -55,7 +55,7 @@ function freshBooking(d) {
   };
 }
 const makeVS = (sc = 'returning') => ({ sc, net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
-let VS = { 1: makeVS(), 2: makeVS(), 3: makeVS() };
+let VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() };
 const V = () => VS[TB.v];
 const D = () => V().data;
 const nav = () => V().nav;
@@ -152,12 +152,12 @@ function goLoc(loc) {
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v3': {
-      // Version 3 demo entries: "v3:<scenario>:<place>"
-      const [, sc, place] = loc.split(':');
-      TB.v = 3; store.set('s4-v', '3');
-      const keep = { net: VS[3].net, entry: VS[3].entry, token: VS[3].token };
-      VS[3] = Object.assign(makeVS(sc), keep);
+    case 'v3': case 'v4': {
+      // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
+      const [, sc, place] = loc.split(':'), n = +k[1];
+      TB.v = n; store.set('s4-v', String(n));
+      const keep = { net: 'online', entry: VS[n].entry, token: VS[n].token };
+      VS[n] = Object.assign(makeVS(sc), keep);
       goLoc('ff'); (V3_PLACES[place] || V3_PLACES.ff)();
       return;
     }
@@ -245,7 +245,7 @@ var render = function () {
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? (ae.id ? '#' + CSS.escape(ae.id) : ae.dataset.k ? `[data-k="${ae.dataset.k}"]` : null) : null;
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   const scrolls = $$('[data-scroll]', dev).map(e => [e.dataset.scroll, e.scrollTop]);
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.notes ? '' : ' notes-off'}`;
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
   dev.dataset.theme = TB.theme;
   dev.innerHTML = renderDevice();
   dev.style.setProperty('--text-zoom', TB.text / 100);
@@ -313,11 +313,11 @@ function renderSheet(sh, covered) {
   const splitOK = ipad && n >= 2 && SPLIT_PARENT(st[n - 2], st[n - 1]);
   let panes = '', cls = 'psheet';
   // V3 booking: the Fare Finder stays underneath and each picker opens as a rounded sheet over it
-  if (TB.v === 3 && sh.id === 'booking') {
+  if (TB.v >= 3 && sh.id === 'booking') {
     const top = st[n - 1], nested = n > 1;
     const base = paneHtml(st[0], 0, { showClose: true });
     const nest = nested ? `<div class="nest-layer"><div class="nest-scrim" data-a="back" aria-hidden="true"></div><div class="psheet-nest" role="dialog" aria-modal="true" aria-labelledby="t-${n - 1}">${paneHtml(top, n - 1, { nested: true, showClose: true, hideBack: n === 2, parentTitle: titleOf(st[n - 2], n - 2) })}</div></div>` : '';
-    return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="psheet psheet--clear" role="dialog" aria-modal="true" aria-label="New Booking" ${nested ? 'inert' : ''}>${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${base}</div></div>${nest}</div>`;
+    return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="psheet ${TB.v === 3 ? 'psheet--clear' : 'psheet--fl'}" role="dialog" aria-modal="true" aria-label="New Booking" ${nested ? 'inert' : ''}>${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${base}</div></div>${nest}</div>`;
   }
   if (splitOK) {
     cls += ' psheet--split';
@@ -425,8 +425,8 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing' };
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.' };
+const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;
@@ -451,7 +451,7 @@ function wireToolbar() {
   $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
   $('#tbEntry').addEventListener('change', e => { V().entry = e.target.value; const loc = locOf(); goLoc(loc); });
   $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
-  $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS() }; goLoc('tab:book'); toast('Demo reset: all three versions are back to the default scenario', 'info'); });
+  $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
   $$('#viewTabs button').forEach(b => b.addEventListener('click', () => { TB.tab = b.dataset.v; $$('#viewTabs button').forEach(x => x.setAttribute('aria-selected', String(x === b))); $('#protoView').hidden = TB.tab !== 'proto'; $('#handoffView').hidden = TB.tab !== 'handoff'; if (TB.tab === 'proto') scaleDevice(); }));
   window.addEventListener('resize', scaleDevice);
   // Fill selects

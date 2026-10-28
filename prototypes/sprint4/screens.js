@@ -1,5 +1,7 @@
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
-const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3;
+const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
+// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
+const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
 function fieldHtml(o) {
@@ -95,7 +97,8 @@ SCR.ff = (r, ri) => {
   ref('607', '608', '1060');
   if (b.trip === 'rt') ref('608');
   if (v3()) return ffClear(r, ri);
-  if (D().signedIn && (D().triplink || D().passrider)) tip('Versions 1 and 2 show the standard Fare Finder. The TripLink and Pass Rider variants are designed in Version 3.');
+  if (v4()) return ffFlighty(r, ri);
+  if (D().signedIn && (D().triplink || D().passrider)) tip('Versions 1 and 2 show the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 3 and 4.');
   if (v2()) return ffV2(r, ri);
   const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
@@ -182,7 +185,7 @@ function stationSearch(r, ri, field, inline) {
   return h;
 }
 SCR.stations = (r, ri) => {
-  if (v3()) return stationsClear(r, ri);
+  if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
@@ -205,7 +208,7 @@ A['choose-station'] = (t, ri) => {
   else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
   if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
   // V2 and V3 keep going: after From, they open To straight away (no needless return to the form)
-  if ((v2() || v3()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  if ((v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
   popTo(+ri - 1); pendingFocus = `#ff-${f}`; render();
 };
 
@@ -257,7 +260,7 @@ A.day = (t, ri) => {
 // =====================================================================
 // Traveler Selection (fixed sample traveler; discount NMA-612)
 // =====================================================================
-SCR.travelers = (r, ri) => travelersClear(r, ri, !v3());
+SCR.travelers = (r, ri) => travelersClear(r, ri, !rich());
 A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-disc"][value="${t.value}"]`; render(); };
 
 // =====================================================================
