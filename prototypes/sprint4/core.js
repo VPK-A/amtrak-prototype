@@ -48,7 +48,7 @@ function freshBooking(d) {
     assistOn: d.signedIn && (has || d.discount.type === 'pwd'),
     assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
     // Version 3 Fare Finder fields
-    pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
+    pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {},
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
     code: null, codeTries: 0, codeErr: '', modeNote: null
@@ -427,7 +427,7 @@ function renderChrome() {
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
 const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;

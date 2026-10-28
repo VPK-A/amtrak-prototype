@@ -2150,15 +2150,14 @@ availability), NMA-621 (about accessible travel), NMA-628 (service
 animal info), NMA-629 (wheeled mobility device specs). They are shown as
 labeled placeholders only.</p>
 <p>Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type
-and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points),
-NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built
-in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and
-per-traveler discounts (NMA-612) are in all three versions' Traveler
-Selection, following Core Flow (node 90:16532): counters per type,
-<em>Traveling alone?</em> on Youth, assistance between travelers and
-discounts, then one discount per traveler. Version 1 doesn't show the
-code, points, TripLink or Pass Rider variants; Versions 2, 3 and 4 share
-them.</p>
+and number), NMA-613 (coupon and promo codes), NMA-622 (TripLink) and
+NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare
+Finder. Traveler types and counts (NMA-611) and per-traveler discounts
+(NMA-612) are in all three versions' Traveler Selection, following Core
+Flow (node 90:16532): counters per type, <em>Traveling alone?</em> on
+Youth, assistance between travelers and discounts, then one discount per
+traveler. Version 1 doesn't show the code, points, TripLink or Pass
+Rider variants; Versions 2, 3 and 4 share them.</p>
 <h2 id="ia-conflicts-and-proposed-resolutions">IA conflicts and proposed
 resolutions</h2>
 <table>
@@ -2549,8 +2548,6 @@ minors [611] (Q10)</p></li>
 Rider travel [622, 623, 612] (Q12)</p></li>
 <li><p>Pass Rider traveler counts and family combinations [1017]
 (Q13)</p></li>
-<li><p>Whether traveler discounts apply to points searches [624, 612]
-(Q14)</p></li>
 </ol>
 <p>Not finalized, and not invented: infant seat options ("Lap infant",
 "Ask for a seat"), companion assistance and the Companion discount,
@@ -2752,8 +2749,8 @@ goes straight to To.</td>
 <td>Booking: a calm, branded first screen with the mode controls up
 front; the Fare Finder stays visible behind each sheet, so context is
 never lost. It's the only version that shows the variants (traveler
-types, codes, points, TripLink, Pass Rider). Profile: everything stays
-in view while you edit one part.</td>
+types, codes, TripLink, Pass Rider). Profile: everything stays in view
+while you edit one part.</td>
 </tr>
 <tr class="even">
 <td><strong>Drawbacks</strong></td>
@@ -2841,21 +2838,21 @@ three versions and are flagged in Screen notes.</li>
 entry; 23 scripted checks, all passing (defaults, errors opening the
 right section, quick picks, station search moving on to When, round trip
 and return clearing, reopening without losing answers, Next, travelers
-and discounts, the assistance questionnaire, codes and points, collapsed
-summaries, handoff, Pass Rider travel type, offline and loading); 280
-screens in all four versions with no horizontal overflow at 140% text;
-axe-core finds no violations on the Version 2 entries in light and dark,
-iPhone and iPad.</p></li>
+and discounts, the assistance questionnaire, codes, collapsed summaries,
+handoff, Pass Rider travel type, offline and loading); 280 screens in
+all four versions with no horizontal overflow at 140% text; axe-core
+finds no violations on the Version 2 entries in light and dark, iPhone
+and iPad.</p></li>
 <li><p><strong>Version 4 Fare Finder:</strong> every Flow › H entry; 18
 scripted checks (From then To in sheets, swap, same-station dialog, Add
 Return, return cleared after a later departure, return-date error,
 traveler close guard and undo, travelers kept after Done, assistance
 add/answer/remove/re-add, typed code kept after closing, invalid and
-valid codes, points hiding codes, handoff, Pass Rider travel type
-required, TripLink Personal showing Pay with), all passing; 264 screens
-in all four versions with no horizontal overflow at 140% text; axe-core
-finds no violations on the Version 4 entries in light and dark, iPhone
-and iPad.</p></li>
+valid codes, handoff, Pass Rider travel type required, TripLink Personal
+restoring the standard options), all passing; 264 screens in all four
+versions with no horizontal overflow at 140% text; axe-core finds no
+violations on the Version 4 entries in light and dark, iPhone and
+iPad.</p></li>
 <li><p><strong>Version 3 Fare Finder:</strong> every Flow › G entry,
 plus scripted interactions (station sheets, traveler rules, discounts,
 codes, companion coupon, TripLink switching, Pass Rider validation and
@@ -2910,8 +2907,7 @@ ADS blue 900).</p>
 <li><strong>Heading and booking-mode controls</strong> on navy: <em>New
 Booking</em>, one line of context, and only the controls that apply:
 <em>Booking for</em> Corporate / Personal (TripLink members), <em>Book
-as</em> Pass Rider / Personal (Pass Riders), <em>Pay with</em> Cash /
-Points (signed-in members on a standard or personal booking).</li>
+as</em> Pass Rider / Personal (Pass Riders).</li>
 <li><strong>Rounded surface:</strong> One-way / Round-trip, From / To
 with swap, Depart / Return (or Add Return), Travel type for Pass Riders,
 and Travelers.</li>
@@ -2931,10 +2927,10 @@ name), the favorite star, Favorites first, then Recents (10 days), then
 "Popular" section was added.</p>
 <p><strong>Demo:</strong> Flow › <em>G · Version 3 Fare Finder</em>
 lists the default screen, the station sheet, dates, travelers, discount
-code, assistance, points, validation errors, Auto Train pairing,
-TripLink and the Pass Rider variants. Codes to try: V123 (promo), a
-14-character coupon, the saved companion coupon with one traveler, EXP1
-(rejected), DATE (wrong date range).</p>
+code, assistance, validation errors, Auto Train pairing, TripLink and
+the Pass Rider variants. Codes to try: V123 (promo), a 14-character
+coupon, the saved companion coupon with one traveler, EXP1 (rejected),
+DATE (wrong date range).</p>
 <p><strong>Rules built (Version 3)</strong></p>
 <ul class="task-list">
 <li><label><input type="checkbox" checked="" />One-way default, Add
@@ -2958,22 +2954,19 @@ BR1–BR6]</label></li>
 <li><label><input type="checkbox" checked="" />Passenger with Disability
 replaces Traveler 1's discount when Assistance says "I have a
 disability" [612 BR8 AC1]</label></li>
-<li><label><input type="checkbox" checked="" />One discount code field
-for cash searches, hidden for points; 4 or 14 letters and numbers;
-"Please enter a valid discount code"; saved profile codes sorted by
-expiry, with type, benefit and expiry; toast on selection; information
-pop-up; Remove; two failed attempts lead to the call center
-[613]</label></li>
+<li><label><input type="checkbox" checked="" />One discount code field;
+4 or 14 letters and numbers; "Please enter a valid discount code"; saved
+profile codes sorted by expiry, with type, benefit and expiry; toast on
+selection; information pop-up; Remove; two failed attempts lead to the
+call center [613]</label></li>
 <li><label><input type="checkbox" checked="" />Code checks at Find
 Trains (mocked): companion coupon needs two travelers, rejected code,
 invalid date range with Enter New Code / Continue without Discount /
 Close [613]</label></li>
-<li><label><input type="checkbox" checked="" />Use Points only for
-signed-in members, Cash by default [624]</label></li>
 <li><label><input type="checkbox" checked="" />TripLink: Corporate by
-default; Corporate means 1 adult, no discounts, codes or points,
-assistance allowed; Personal restores the standard options and any
-travelers set aside [622]</label></li>
+default; Corporate means 1 adult, no discounts or codes, assistance
+allowed; Personal restores the standard options and any travelers set
+aside [622]</label></li>
 <li><label><input type="checkbox" checked="" />Pass Rider: Pass Rider by
 default with a Personal option; Business or Leisure is required when the
 employee has a Business Pass; Leisure only for employees without one and
@@ -2992,9 +2985,8 @@ Standards]</label></li>
 <li><strong>Added in all versions:</strong> traveler types and counts,
 and a discount per traveler, in Traveler Selection (the baseline used a
 fixed 1 Adult).</li>
-<li><strong>Added in V2, V3 and V4:</strong> discount codes, Use Points,
-TripLink and Pass Rider, so Version 1 no longer covers the same
-scope.</li>
+<li><strong>Added in V2, V3 and V4:</strong> discount codes, TripLink
+and Pass Rider, so Version 1 no longer covers the same scope.</li>
 <li><strong>Core Flow difference:</strong> Core Flow labels Adult as
 16–64 and has no Young Adult row; the stories list Young Adult (16–17)
 separately, and the prototype follows the stories (Q10).</li>
@@ -3024,9 +3016,8 @@ companion rules aren't final.</li>
 <li>Age bands and who can accompany minors (Q10); infant seat
 options.</li>
 <li>Code eligibility for a specific train, live revalidation after a
-change, and points balance rules happen after search results, which are
-outside Sprint 4 (Q11, Q14). The prototype checks codes again on every
-Find Trains.</li>
+change happen after search results, which are outside Sprint 4 (Q11).
+The prototype checks codes again on every Find Trains.</li>
 <li>Senior eligibility by route or train (612 BR7) isn't known before
 search; the senior discount is shown as automatic.</li>
 <li>Pass Rider type comes from the Profile; the prototype simulates
@@ -3052,8 +3043,7 @@ its Profile and Account work as in Version 1.</p>
 <li><strong>"Find a train"</strong> heading. The booking modes that
 apply sit right under it as labeled pill menus: <em>Booking for</em>
 Corporate / Personal (TripLink), <em>Book as</em> Pass Rider / Personal
-(Pass Rider), <em>Pay with</em> Cash / Points (signed-in members on a
-standard or personal booking). One line of context follows.</li>
+(Pass Rider). One line of context follows.</li>
 <li><strong>Route:</strong> two compact controls, <em>From</em> and
 <em>To</em>, each with the station code, city and state, and station
 name, so the code is never the only identification. A swap button sits
@@ -3153,29 +3143,24 @@ kept)</td>
 sheet, <em>Remove</em>, information button</td>
 </tr>
 <tr class="even">
-<td>Use Points (624)</td>
-<td>(not in V1)</td>
-<td><em>Pay with</em> pill; codes become unavailable with points</td>
-</tr>
-<tr class="odd">
 <td>TripLink Corporate / Personal (622)</td>
 <td>(not in V1)</td>
 <td><em>Booking for</em> pill; Corporate locks travelers to 1 adult</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Pass Rider / Personal, travel type, family and companions (623,
 1016–1018)</td>
 <td>(not in V1)</td>
 <td><em>Book as</em> pill, <em>Travel type</em> row (required when
 eligible for both), traveler sheet counters</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Find Trains, validation, loading, offline, error (607)</td>
 <td>Pinned button; errors beside fields</td>
 <td>Same; errors beside the route, dates, travel type, travelers or
 code</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Search handoff</td>
 <td>Prototype handoff screen</td>
 <td>Same screen</td>
@@ -3193,8 +3178,8 @@ unadded discount code stays in its field.</p>
 <p><strong>States in Flow › H:</strong> default, populated (round trip,
 3 travelers, assistance and a code), validation errors, loading (slow
 connection), offline, guest, station sheet, dates sheet, traveler sheet,
-discount code sheet, paying with points, Auto Train pairing, TripLink
-Corporate, Pass Rider with a Business Pass, and Pass Rider spouse.</p>
+discount code sheet, Auto Train pairing, TripLink Corporate, Pass Rider
+with a Business Pass, and Pass Rider spouse.</p>
 <p><strong>Compared with Versions 1–3:</strong> Version 4 shows every
 booking choice on one screen without scrolling past a header, and each
 row says what's set and how to change it. The tradeoffs: compact
@@ -3218,8 +3203,7 @@ its pet control are <strong>not</strong> used.</p>
 <li><strong>Top:</strong> the booking modes that apply, as segmented
 controls (like Airbnb's top tabs): <em>Booking for</em> Corporate /
 Personal (TripLink), <em>Book as</em> Pass Rider / Personal (Pass
-Rider), <em>Pay with</em> Cash / Points (signed-in members on a standard
-or personal booking).</li>
+Rider).</li>
 <li><strong>1. Where are you traveling?</strong> The From / To route
 field with swap, the Auto Train notice, and quick picks for the empty
 field: favorites first, then recent stations (10 days). Tapping From or
@@ -3233,8 +3217,8 @@ options.</li>
 categories, not Airbnb's), the assistance checkbox and summary, and each
 traveler's discount.</li>
 <li><strong>Code card:</strong> coupon or promo code, separate from
-passenger discounts (NMA-613). Hidden behind a note for points,
-Corporate and Pass Rider.</li>
+passenger discounts (NMA-613). Replaced by a note for Corporate and Pass
+Rider.</li>
 <li><strong>Bottom bar:</strong> <em>Next</em> (opens the next section)
 and <em>Find Trains</em>, always available.</li>
 </ul>
@@ -3262,9 +3246,9 @@ summary.</li>
 completed (stations chosen, When open), fully populated (all collapsed),
 reopened section (Where reopened, answers kept), errors (no stations; a
 child without an adult), station search, Who with assistance and
-discounts, the assistance questionnaire, the discount code, paying with
-points, Auto Train pairing, guest, TripLink Corporate, Pass Rider
-Leisure travelers, and Pass Rider spouse.</p>
+discounts, the assistance questionnaire, the discount code, Auto Train
+pairing, guest, TripLink Corporate, Pass Rider Leisure travelers, and
+Pass Rider spouse.</p>
 <p><strong>Mapping from the previous Version 2</strong></p>
 <table>
 <thead>
@@ -3302,13 +3286,22 @@ in Version 2</td>
 </tr>
 <tr class="even">
 <td>(not in the previous Version 2)</td>
-<td>Code card, Use Points, TripLink and Pass Rider, shared with Versions
-3 and 4</td>
+<td>Code card, TripLink and Pass Rider, shared with Versions 3 and
+4</td>
 </tr>
 </tbody>
 </table>
 <p>The assistance questionnaire keeps Version 2's wizard (one question
 per step, review at the end), opened from <em>Who</em>.</p>
+<h2 id="use-points-removed-from-fare-finder">Use Points removed from
+Fare Finder</h2>
+<p>The <em>Pay with</em> Cash / Points control (NMA-624) has been
+removed from every Fare Finder version. All searches are cash searches,
+as in Version 1, so the discount code is always available on standard
+and personal bookings. TripLink Corporate and Pass Rider still use no
+discounts or codes. Points remain visible in Account (balance and Points
+activity). If searching with points comes back, it needs a placement
+decision outside the Fare Finder.</p>
 
   </article>
 </div>
@@ -3438,7 +3431,6 @@ const QUESTIONS = {
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
   12: ['Corporate and Pass Rider restrictions not yet confirmed', 'Whether TripLink Corporate allows Auto Train, and whether the Passenger with Disability discount applies to Corporate or Pass Rider travel, are still open. The prototype allows Auto Train for Corporate, blocks it for Pass Rider, and applies no PWD discount in either.'],
   13: ['Pass Rider travelers', 'NMA-1017 lists family combinations but not the counts. The prototype allows one spouse (or employee), up to 6 dependents and, for employees, companions, up to 8 travelers in all. Business travel is the employee alone.'],
-  14: ['Points and other options', 'NMA-624 only adds the Use Points choice. Whether traveler discounts apply to points searches isn’t defined; the prototype keeps them and hides discount codes, as NMA-613 requires.'],
   9: ['Replacing or removing PWD', 'Saving “I have a disability” replaces the current discount with PWD. What happens to PWD when assistance changes to station help, or is cleared, follows the NMA-43 table where it gives an answer and is open otherwise.']
 };
 
@@ -3449,9 +3441,9 @@ const FLOWS = [
   ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
-  ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['H · Version 4 Fare Finder (Flighty-inspired)', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['I · Version 2 guided Fare Finder (Airbnb-inspired)', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find Trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['H · Version 4 Fare Finder (Flighty-inspired)', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['I · Version 2 guided Fare Finder (Airbnb-inspired)', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find Trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
 ];
 
@@ -3518,7 +3510,7 @@ function freshBooking(d) {
     assistOn: d.signedIn && (has || d.discount.type === 'pwd'),
     assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
     // Version 3 Fare Finder fields
-    pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
+    pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {},
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
     code: null, codeTries: 0, codeErr: '', modeNote: null
@@ -3897,7 +3889,7 @@ function renderChrome() {
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
 const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;
@@ -3933,7 +3925,7 @@ function wireToolbar() {
 
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
 const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
-// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
+// Versions 3 and 4 share the booking sheets; Versions 2–4 share the Fare Finder variants (codes, TripLink, Pass Rider)
 const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
@@ -4675,7 +4667,7 @@ A['vf-finish'] = () => endVerify(true);
    travelers), a labeled list for discounts, codes and assistance, and a pinned Find Trains button.
    Stations, dates, travelers, codes and assistance open as rounded sheets over the Fare Finder.
    It also carries the Sprint 4 Fare Finder variants: traveler types (NMA-611), per-traveler discounts (612),
-   discount codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019). */
+   discount codes (613), TripLink (622) and Pass Rider (623, 1016–1019). The Use Points choice (624) isn't shown at Fare Finder level. */
 
 // ---------- Rules ----------
 // Booking modes (TripLink, Pass Rider) are designed in Versions 2–4; Version 1 always books as standard
@@ -4724,7 +4716,7 @@ function prSummary(b, d) {
 }
 const prCount = b => 1 + b.prPax.fam + b.prPax.dep + b.prPax.comp;
 const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
-const codeApplies = b => TB.v >= 2 && b.code && ['standard', 'personal'].includes(intentOf(b)) && b.pay === 'cash';
+const codeApplies = b => TB.v >= 2 && b.code && ['standard', 'personal'].includes(intentOf(b));
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
@@ -4740,8 +4732,7 @@ function ffClear(r, ri) {
   let modes = '';
   if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
   if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent');
-  if (member && std) modes += ffcSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points']], b.pay, 'pay');
-  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : 'One way or round trip, up to 8 travelers.';
+  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : 'One way or round trip, up to 8 travelers.';
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
   const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New Booking</h3><p class="ffc-sub">${sub}</p>${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
   // 2. Rounded primary surface
@@ -4760,30 +4751,28 @@ function ffClear(r, ri) {
   const rows = [];
   if (std) {
     rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Traveler discounts</span><span class="ffc-row__val">${esc(discSummary(b))}</span></span>${ic('chevron-right')}</button>`);
-    if (b.pay === 'cash') {
+    { // Coupon or promo code (NMA-613), kept apart from traveler discounts
       const info = `<button class="ads-icon-btn ads-icon-btn--sm ffc-row__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       if (b.code) rows.push(`<div class="ffc-row ffc-row--static">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discount code</span><span class="ffc-row__val">${esc(b.code.code)} · ${esc(b.code.kind)}</span><span class="ffc-row__sub">${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div>`);
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
-    } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
-  } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
+    }
+  } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts and codes</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
   if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
   const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Discounts, codes and assistance' : 'Assistance and discounts'}</h4><div class="ffc-list">${rows.join('')}</div>${v.entry === 'ff' ? assistBlock(r, ri, 'ff') : ''}</section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
-// Mode controls: TripLink Corporate/Personal, Pass Rider/Personal, Cash/Points
+// Mode controls: TripLink Corporate/Personal, Pass Rider/Personal
 A['ffc-set'] = t => {
   const d = D(), b = d.booking, k = t.dataset.key, val = t.dataset.v; b.modeNote = null;
-  if (k === 'pay') { b.pay = val; }
   if (k === 'intent' && b.intent !== val) {
     const was = b.intent; b.intent = val;
-    if (val === 'corporate') { // NMA-622 AC3: 1 adult, no points, discounts or codes
+    if (val === 'corporate') { // NMA-622 AC3: 1 adult, no discounts or codes
       if (paxAll(b.pax) > 1 || b.pax.adult !== 1) { b.paxSaved = clone(b.pax); b.modeNote = 'Corporate bookings are for you only, so the other travelers were set aside. Switch to Personal to bring them back.'; }
-      b.pax = { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }; b.pay = 'cash';
+      b.pax = { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 };
     }
     if (was === 'corporate' && b.paxSaved) { b.pax = b.paxSaved; b.paxSaved = null; b.modeNote = 'Your other travelers are back.'; }
     if (val === 'pr') {
-      b.pay = 'cash';
       if (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to]) { b.from = AUTO_TRAIN[b.from] ? null : b.from; b.to = AUTO_TRAIN[b.to] ? null : b.to; b.notice = 'Auto Train isn’t offered for Pass Rider travel, so Lorton and Sanford were cleared. Choose your stations.'; }
     }
   }
@@ -4847,7 +4836,7 @@ A['code-add'] = (t, ri) => {
 A['code-pick'] = (t, ri) => { const b = D().booking; b.code = clone(D().coupons.find(x => x.code === t.dataset.code)); b.codeErr = ''; popTo(+ri - 1); pendingFocus = '[data-a="code-remove"]'; toast(`${b.code.kind} added`); };
 A['code-remove'] = () => { const b = D().booking, c = b.code.code; b.code = null; b.codeErr = ''; pendingFocus = '[data-s="code"]'; toast(`Code ${c} removed`, 'info'); };
 A['code-info'] = t => dialog({ title: 'About discount codes', returnFocus: t.dataset.a === 'code-info' && t.closest('.psheet-nest') ? '.psheet-nest [data-a="code-info"]' : '[data-a="code-info"]',
-  body: 'Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion. Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains. Codes can’t be used when you pay with points.', actions: [['Close', 'primary', null]] });
+  body: 'Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion. Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains.', actions: [['Close', 'primary', null]] });
 
 // ---------- Stations sheet ----------
 function stationsClear(r, ri) {
@@ -4868,7 +4857,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   ref('611', '612');
   if (!r.u.snap) r.u.snap = clone({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax });
   let body = '', ok = true, why = '';
-  if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
+  if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts and codes aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018');
     const f = b.prPax, room = prCount(b) < MAX_PAX, emp = d.passrider.role === 'employee', left = d.passrider.compLeft;
@@ -4935,7 +4924,6 @@ function handoffExtra(b) {
   if (intent === 'corporate') rows.push(['Booking', 'Corporate (TripLink)']);
   else if (intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
   else if (intent === 'personal') rows.push(['Booking', 'Personal']);
-  if (TB.v >= 2 && d.signedIn && (intent === 'standard' || intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
   if (intent === 'pr') rows.push(['Travelers', esc(prSummary(b, d))]);
   else if (intent === 'corporate') rows.push(['Travelers', '1 Adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => `Traveler ${t.n} · ${PAX_LABEL[t.type]} · ${TDISC_LABEL[tdiscOf(b, t)]}`).join('<br>')]);
@@ -4951,7 +4939,6 @@ const V3_PLACES = {
   travelers: () => { const b = D().booking; if (b.intent === 'pr') b.prType = 'leisure'; goLoc('travelers'); },
   code: () => goLoc('code'),
   assist: () => goLoc('assist-booking'),
-  points: () => { D().booking.pay = 'points'; render(); },
   errors: () => { sheet().stack[0].u.showErr = true; pendingFocus = '#ff-from'; render(); },
   autotrain: () => { const b = D().booking; b.from = 'LOR'; b.to = 'SFA'; b.notice = 'Lorton is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so Sanford was added as your arrival station.'; render(); }
 };
@@ -4976,7 +4963,7 @@ SCR.assist = (r, ri) => {
    its own Edit action. Stations, dates and traveler details open in focused sheets (shared with Version 3).
    Every action is an existing Fare Finder action; see HANDOFF.md › Version 4 for the mapping. */
 
-// Inline mode control: a labeled native select styled as a pill (TripLink, Pass Rider, Cash/Points)
+// Inline mode control: a labeled native select styled as a pill (TripLink, Pass Rider)
 function flPill(key, label, opts, cur) {
   const id = `fl-${key}`;
   return `<span class="fl-pill"><label class="fl-pill__label" for="${id}">${label}</label><span class="fl-pill__ctl"><select id="${id}" data-f="flmode" data-nodirty data-hook="flmode" data-key="${key}">${opts.map(([v, l]) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${ic('chevron-down', 'ads-icon--sm')}</span></span>`;
@@ -5009,8 +4996,7 @@ function ffFlighty(r, ri) {
   const ctx = [];
   if (member && d.triplink) ctx.push(flPill('intent', 'Booking for', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent));
   if (member && d.passrider) ctx.push(flPill('intent', 'Book as', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent));
-  if (member && std) ctx.push(flPill('pay', 'Pay with', [['cash', 'Cash'], ['points', 'Points']], b.pay));
-  const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? '12,450 points available.' : 'One way or round trip, up to 8 travelers.';
+  const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : 'One way or round trip, up to 8 travelers.';
   const head = `<div class="fl-head"><h3 class="fl-title" tabindex="-1" data-title>Find a train</h3>${ctx.length ? `<div class="fl-ctx">${ctx.join('')}</div>` : ''}<p class="fl-sub">${sub}${corp ? ' ' + q(12) : ''}</p>${b.modeNote ? `<p class="fl-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
   // Route, then trip type and dates
   const errs = ['from', 'to'].filter(f => e[f]).map(f => `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>`).join('');
@@ -5037,12 +5023,12 @@ function ffFlighty(r, ri) {
   } else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Not requested', sub: 'Set in Travelers.', actions: flAct('pick-travelers', 'Edit', 'Edit assistance in Travelers') }));
   if (std) {
     rows.push(flRow({ icon: 'discount', label: 'Discounts', value: esc(discSummary(b)), sub: 'One per traveler.', actions: flAct('pick-travelers', 'Edit', 'Edit traveler discounts') }));
-    if (b.pay === 'cash') {
+    { // Coupon or promo code (NMA-613), kept apart from traveler discounts
       const info = `<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       rows.push(b.code ? flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: `${esc(b.code.code)} · ${esc(b.code.kind)}`, sub: `${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.`, err: b.codeErr, errId: 'ffc-code-err', actions: info + flAct('code-remove', 'Remove', `Remove code ${esc(b.code.code)}`) })
         : flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'None', actions: info + flAct('push', 'Add', 'Add a coupon or promo code', 'data-s="code"') }));
-    } else rows.push(flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Not available when paying with points', sub: b.code ? `Your code ${esc(b.code.code)} is kept for a cash search.` : '', muted: true }));
-  } else rows.push(flRow({ icon: 'discount', label: 'Discounts, codes and points', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
+    }
+  } else rows.push(flRow({ icon: 'discount', label: 'Discounts and codes', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const offline = v.net === 'offline' ? `<div class="ads-banner fl-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;
@@ -5066,8 +5052,8 @@ Object.assign(V3_PLACES, {
 
 /* Sprint 4 prototype: Version 2 Fare Finder, Airbnb-inspired guided search.
    Three stacked rounded sections (Where, When, Who), one expanded at a time. Completed sections
-   collapse into short, editable summaries and can be reopened without restarting. Booking intent and
-   Cash/Points sit at the top; coupon and promo codes have their own card, apart from passenger
+   collapse into short, editable summaries and can be reopened without restarting. Booking intent sits
+   at the top; coupon and promo codes have their own card, apart from passenger
    discounts. A persistent bottom bar holds Next and Find Trains. All rules come from the shared code. */
 
 const GS = ['where', 'when', 'who'];
@@ -5116,11 +5102,10 @@ function ffGuided(r, ri) {
   if (r.u.open === undefined) r.u.open = st.where ? null : 'where';
   ref('607', '608', '1060', '611', '612'); if (std) ref('613'); if (member) ref('624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
-  // Booking intent and payment, at the top like Airbnb's tabs
+  // Booking intent (TripLink, Pass Rider), at the top like Airbnb's tabs
   const modes = [];
   if (member && d.triplink) modes.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent'));
   if (member && d.passrider) modes.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent'));
-  if (member && std) modes.push(gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay'));
   const top = modes.length || b.modeNote ? `<div class="gs-top">${modes.join('')}${b.modeNote ? `<p class="gs-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${corp ? q(12) : ''}</div>` : '';
   const content = {
     where: () => {
@@ -5149,11 +5134,10 @@ function ffGuided(r, ri) {
   }).join('');
   // Coupon and promo codes: a separate card, apart from passenger discounts (NMA-613)
   let code = '';
-  if (std && b.pay === 'cash') code = b.code
+  if (std) code = b.code
     ? `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">${esc(b.code.code)} · ${esc(b.code.kind)}<small>${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.</small></span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div>${b.codeErr ? `<p class="gs__err" id="ffc-code-err" role="alert">${b.codeErr}</p>` : ''}</section>`
     : `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--split"><button class="gs__sumbtn" type="button" data-a="push" data-s="code"><span class="gs__label">Coupon or promo code</span><span class="gs__val">Add</span>${ic('chevron-right', 'gs__chev')}</button><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div></section>`;
-  else if (std) code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">Not available when paying with points${b.code ? `<small>Your code ${esc(b.code.code)} is kept for a cash search.</small>` : ''}</span></div></section>`;
-  else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts, codes and points aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
+  else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts and codes aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   tip('Open any section to change it; the others keep their answers. Find Trains works at any point and opens the first section that needs attention.');
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';

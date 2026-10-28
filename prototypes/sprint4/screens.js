@@ -1,6 +1,6 @@
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
 const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
-// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
+// Versions 3 and 4 share the booking sheets; Versions 2–4 share the Fare Finder variants (codes, TripLink, Pass Rider)
 const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
