@@ -35,7 +35,7 @@ Open `docs/index.html` for the live reference of every token and component.
 | `css/icons.css` | Every icon as a CSS mask class (`ads-icon--name`) |
 | `css/ads.css` | Single entry point |
 | `dist/tokens.js`, `dist/tokens.resolved.json` | Tokens with colors resolved to hex, for JS/native use |
-| `icons/svg/*.svg`, `icons/sprite.svg` | 139 icons, 24px, `currentColor` |
+| `icons/svg/*.svg`, `icons/sprite.svg` | 140 icons (139 from ADS + a `sidebar` toggle glyph), 24px, `currentColor` |
 | `logos/` | Travelmark horizontal + vertical, `currentColor` |
 | `docs/` | Documentation page (`src.html` → built `index.html`) |
 | `scripts/` | Build scripts |
@@ -79,7 +79,9 @@ Text styles → `--ads-type-{style}-{size|line-height|letter-spacing|weight}` an
 | Tooltip | `.ads-tooltip` | `--top --bottom --left --right --none`, `--center --end` |
 | Date Picker | `.ads-datepicker`, `.ads-day` | range start/in/end, today, disabled; one pane under 640px |
 | Top Navigation (mobile) | `.ads-topnav` | |
-| Bottom Navigation (mobile) | `.ads-bottomnav`, `.ads-navtab` | floating dock (default), `--bar` |
+| Tab Bar - iPhone (Apple iOS 27 kit) | `.ads-tabbar`, `.ads-tabbar__tabs`, `.ads-tabbar__tab`, `.ads-tabbar__action` | 2–5 tabs, Search Role, `--prominent` action, `--minimized`, `__accessory` |
+| Tab Bar - iPad (Apple iPadOS 27 kit) | `.ads-tabbar-ipad`, `__tab`, `__button`, `.ads-ipad-nav` | sidebar toggle, text tabs, search |
+| Liquid Glass material | `.ads-glass` | light / dark |
 
 ## Notes and gaps
 
@@ -88,4 +90,5 @@ Text styles → `--ads-type-{style}-{size|line-height|letter-spacing|weight}` an
 - **iOS emphasis/button styles** are set to Regular in the mobile Figma file, which looks unfinished; the CSS uses semibold to match the semantic weight variables. Check with the design team.
 - **Icons not exported (17):** trip-multiple-acela, ticket-sales, comfort-kit, route-acela, bicycle, motorcycle, golf-bag, attendant, clock-boarding, clock-deboarding, train-clock, wheelchair-off, ear, cafe-menu, shower, smoking-off, social-threads, plus the 16px "Small" drawings (the 24px glyphs scale down). Payment-brand marks (Visa, Mastercard…) and the Guest Rewards logo were also left in Figma.
 - **Not in Figma, so filled in here:** tertiary-button hover, progress error/success fill colors, and motion durations.
+- **Tab bars** follow Apple's *iOS and iPadOS 27 (Community)* Figma kit (`S1lxeJUtOI858vSJm5UwQe`, Tab Bars page): sizes, type, selection capsule and glass layering. Two deliberate changes: the selected tint is ADS brand blue instead of system blue, and the GLASS refraction effect is approximated with `backdrop-filter` blur + saturation, since CSS can't refract. The kit's icon-only "Duo" variants weren't brought over. They replace the earlier `.ads-bottomnav`, which has been removed. In a native app, use the system `TabView` with the ADS tint; these classes are for web views and prototypes.
 - **Mobile file** pages marked 🚧 (Top/Bottom Navigation) were still in progress; the viewport variants there are named "Viewport3/4/5".

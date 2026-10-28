@@ -105,6 +105,17 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
 .trip { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
 .trip strong { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 
+.phone { position: relative; }
+.phone__body { padding-bottom: 120px; }
+.phone__hero { flex: 1; min-height: 220px; border-radius: var(--ads-radius-12); background: linear-gradient(150deg, var(--ads-color-blue-300), var(--ads-color-blue-700) 55%, var(--ads-color-amber-400)); }
+.phone__tabbar { position: absolute; inset: auto 0 0; }
+.glass-stage { display: flex; flex-direction: column; gap: 4px; padding: 16px 0 4px; border-radius: var(--ads-radius-12); background: linear-gradient(120deg, var(--ads-color-amber-200), var(--ads-color-blue-400) 60%, var(--ads-color-blue-800)); overflow: hidden; }
+.glass-stage > .ads-caption { padding: 0 25px; color: #fff; text-shadow: 0 1px 2px rgb(0 0 0 / 0.4); }
+.glass-stage .ads-tabbar { padding-block: 8px 16px; }
+.ipad { border: 1px solid var(--doc-rule); border-radius: 24px; overflow: hidden; background: var(--ads-background-surface-page); max-width: 100%; }
+.ipad__body { display: flex; flex-direction: column; gap: var(--ads-space-24); padding: var(--ads-space-24) var(--ads-space-32) var(--ads-space-32); }
+.ipad__search { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--ads-space-16); align-items: end; }
+@media (max-width: 900px) { .ipad__search { grid-template-columns: minmax(0, 1fr); } .ads-ipad-nav { grid-template-columns: minmax(0, 1fr); justify-items: center; } .ads-ipad-nav > :first-child, .ads-ipad-nav > :last-child { display: none; } }
 @media (max-width: 900px) {
   .doc { grid-template-columns: minmax(0, 1fr); gap: var(--ads-space-24); }
   .doc-nav { position: static; flex-direction: row; flex-wrap: wrap; }
@@ -138,7 +149,7 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
   <span class="ads-overline">Components</span>
   <a href="#button">Button</a><a href="#link">Link</a><a href="#badge">Badge</a><a href="#alert">Alert</a><a href="#forms">Text Input &amp; Select</a><a href="#choice">Checkbox, Radio, Switch</a><a href="#counter">Counter</a><a href="#search">Search &amp; List</a><a href="#accordion">Accordion</a><a href="#tabs">Tabs</a><a href="#card">Card</a><a href="#progress">Progress</a><a href="#tooltip">Tooltip</a><a href="#modal">Modal</a><a href="#date">Date Picker</a>
   <span class="ads-overline">Mobile</span>
-  <a href="#mobile">App navigation</a>
+  <a href="#mobile">App navigation &amp; tab bars</a>
 </nav>
 
 <main>
@@ -152,8 +163,8 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
     <div><b>94</b><span>semantic color tokens, light + dark</span></div>
     <div><b>14</b><span>text styles × 4 platform tiers</span></div>
     <div><b>13 · 7 · 8</b><span>space, radius and size steps</span></div>
-    <div><b>20</b><span>components incl. 2 mobile nav</span></div>
-    <div><b>139</b><span>icons as SVG, sprite and CSS</span></div>
+    <div><b>21</b><span>components incl. iPhone + iPad tab bars</span></div>
+    <div><b>140</b><span>icons as SVG, sprite and CSS</span></div>
   </div>
   <div class="two">
     <div class="specimen">
@@ -401,44 +412,97 @@ gap: var(--ads-space-16);</pre>
 </section>
 
 <section id="mobile">
-  <header><h2 class="ads-h2">App navigation</h2><p>From the NextGen Mobile App file. The top bar carries the logo, two icon buttons and the booking search. The bottom bar is a floating dock or a flat bar, four tabs, active tab filled in brand.</p></header>
+  <header><h2 class="ads-h2">App navigation</h2><p>Tab bars follow Apple's iOS &amp; iPadOS 27 kit: a floating Liquid Glass capsule at the bottom on iPhone and a glass bar centered at the top on iPad. Sizes, type and states match the kit; the selected tint is ADS brand blue. The top bar with the logo and booking search comes from the NextGen Mobile App file.</p></header>
   <div class="two">
     <div class="phone" aria-label="iPhone example">
       <div class="ads-topnav"><div class="phone__status" style="padding:12px 0 0"><span>9:41</span><span class="ads-caption">●●● ▮</span></div><div class="ads-topnav__row"><span class="ads-topnav__logo" style="width:160px">__LOGO_H__</span><div class="ads-topnav__actions"><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Notifications"><span class="ads-icon ads-icon--bell"></span></button><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Account"><span class="ads-icon ads-icon--person-circle"></span></button></div></div><div class="ads-control ads-control--pill"><span class="ads-icon ads-icon--search"></span><input type="search" id="mq" placeholder="Where to?" aria-label="Where to?"></div></div>
       <div class="phone__body">
         <span class="ads-overline ads-text-tertiary">Next trip</span>
         <div class="trip"><span class="ads-body-small ads-text-secondary">Fri, Nov 14 · Northeast Regional 171</span><strong>NYP 8:05 → WAS 11:32</strong><div class="ads-row" style="--ads-row-gap:8px"><span class="ads-badge ads-badge--success"><span class="ads-icon ads-icon--check-circle"></span>On time</span><span class="ads-caption ads-text-secondary">Track posts 15 min before</span></div></div>
-        <button class="ads-btn ads-btn--block"><span class="ads-icon ads-icon--qr-code"></span>Show eTicket</button>
+        <div class="phone__hero" role="img" aria-label="Route map placeholder"></div>
       </div>
-      <nav class="ads-bottomnav" aria-label="App"><div class="ads-bottomnav__dock">
-        <a class="ads-navtab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--search"></span>Book</a>
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span>Trips</a>
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--train"></span>Train Status</a>
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span>Support</a>
-      </div></nav>
+      <nav class="ads-tabbar phone__tabbar" aria-label="App" data-tabbar>
+        <div class="ads-tabbar__tabs ads-glass">
+          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--train"></span><span>Status</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--person-circle"></span><span>Account</span></a>
+        </div>
+        <button class="ads-tabbar__action ads-glass" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button>
+      </nav>
     </div>
-    <div class="ads-stack">
-<pre class="code">&lt;html data-platform="ios"&gt;
-
-&lt;header class="ads-topnav"&gt;…&lt;/header&gt;
-
-&lt;nav class="ads-bottomnav"&gt;          &lt;!-- add --bar for the flat variant --&gt;
-  &lt;div class="ads-bottomnav__dock"&gt;
-    &lt;a class="ads-navtab" aria-current="page"&gt;
-      &lt;span class="ads-icon ads-icon--search"&gt;&lt;/span&gt;Book
+    <div class="ads-stack" style="--ads-stack-gap:16px">
+      <p class="ads-field-label ads-text-secondary" style="margin:0">iPhone variants</p>
+      <div class="glass-stage">
+        <span class="ads-caption">Default · 3 tabs</span>
+        <nav class="ads-tabbar" aria-label="Default example"><div class="ads-tabbar__tabs ads-glass">
+          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--search"></span><span>Book</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span><span>Support</span></a>
+        </div></nav>
+        <span class="ads-caption">Prominent tab · filled action for the main task</span>
+        <nav class="ads-tabbar" aria-label="Prominent example"><div class="ads-tabbar__tabs ads-glass">
+          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--train"></span><span>Status</span></a>
+        </div><button class="ads-tabbar__action ads-tabbar__action--prominent ads-glass" type="button" aria-label="Show eTicket"><span class="ads-icon ads-icon--qr-code"></span></button></nav>
+        <span class="ads-caption">Minimized · while content scrolls, with an accessory</span>
+        <nav class="ads-tabbar ads-tabbar--minimized" aria-label="Minimized example"><div class="ads-tabbar__tabs ads-glass">
+          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
+          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+        </div><div class="ads-tabbar__accessory ads-glass"><span class="ads-icon ads-icon--train ads-icon--sm"></span><span>Train 171 boarding · Track 7</span></div><button class="ads-tabbar__action ads-glass" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button></nav>
+      </div>
+<pre class="code">&lt;nav class="ads-tabbar" aria-label="App"&gt;     &lt;!-- add --minimized on scroll --&gt;
+  &lt;div class="ads-tabbar__tabs ads-glass"&gt;
+    &lt;a class="ads-tabbar__tab" aria-current="page"&gt;
+      &lt;span class="ads-icon ads-icon--home"&gt;&lt;/span&gt;&lt;span&gt;Home&lt;/span&gt;
     &lt;/a&gt;
-    …
+    …                                        &lt;!-- 2 to 5 tabs --&gt;
   &lt;/div&gt;
+  &lt;button class="ads-tabbar__action ads-glass" aria-label="Search"&gt;…&lt;/button&gt;
 &lt;/nav&gt;</pre>
-      <nav class="ads-bottomnav ads-bottomnav--bar specimen" style="padding:0" aria-label="Flat bar example"><div class="ads-bottomnav__dock">
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--search"></span>Book</a>
-        <a class="ads-navtab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--payment-voucher"></span>Trips</a>
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--train"></span>Train Status</a>
-        <a class="ads-navtab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span>Support</a>
-      </div></nav>
-      <p class="note">Native layout: iPhone margin 20, safe area 47 top / 34 bottom, nav bar 44, tab bar 49. Android margin 20, status bar 24, top app bar 64, nav bar 80. Tablets use 4 columns with a 24 gutter.</p>
     </div>
   </div>
+
+  <h3 class="sub">iPad</h3>
+  <div class="ipad" aria-label="iPad example">
+    <div class="ads-ipad-nav">
+      <span class="ads-topnav__logo" style="width:120px;color:var(--ads-brand-primary-blue)">__LOGO_H__</span>
+      <nav class="ads-tabbar-ipad ads-glass" aria-label="App" data-tabbar>
+        <button class="ads-tabbar-ipad__button" type="button" aria-label="Show sidebar" aria-pressed="false"><span class="ads-icon ads-icon--sidebar"></span></button>
+        <div class="ads-tabbar-ipad__tabs">
+          <a class="ads-tabbar-ipad__tab" href="#mobile" aria-current="page">Book</a>
+          <a class="ads-tabbar-ipad__tab" href="#mobile">Trips</a>
+          <a class="ads-tabbar-ipad__tab" href="#mobile">Train Status</a>
+          <a class="ads-tabbar-ipad__tab" href="#mobile">Deals</a>
+          <a class="ads-tabbar-ipad__tab" href="#mobile">Account</a>
+        </div>
+        <button class="ads-tabbar-ipad__button" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button>
+      </nav>
+      <button class="ads-icon-btn" aria-label="Notifications"><span class="ads-icon ads-icon--bell"></span></button>
+    </div>
+    <div class="ipad__body">
+      <div class="ads-stack" style="--ads-stack-gap:8px"><span class="ads-overline ads-text-tertiary">Plan a trip</span><h3 class="ads-h2" style="margin:0">Where are you headed?</h3></div>
+      <div class="ipad__search">
+        <div class="ads-field"><label class="ads-field__label" for="ip1">From</label><div class="ads-control ads-control--lg"><span class="ads-control__station">NYP</span><input id="ip1" value="New York, NY"></div></div>
+        <div class="ads-field"><label class="ads-field__label" for="ip2">To</label><div class="ads-control ads-control--lg"><span class="ads-control__station">WAS</span><input id="ip2" value="Washington, DC"></div></div>
+        <button class="ads-btn ads-btn--lg" style="align-self:end">Find trains</button>
+      </div>
+      <div class="phone__hero" style="min-height:160px" role="img" aria-label="Destination imagery placeholder"></div>
+    </div>
+  </div>
+<pre class="code">&lt;header class="ads-ipad-nav"&gt;
+  &lt;span&gt;…logo…&lt;/span&gt;
+  &lt;nav class="ads-tabbar-ipad ads-glass" aria-label="App"&gt;
+    &lt;button class="ads-tabbar-ipad__button" aria-label="Show sidebar"&gt;&lt;span class="ads-icon ads-icon--sidebar"&gt;&lt;/span&gt;&lt;/button&gt;
+    &lt;div class="ads-tabbar-ipad__tabs"&gt;
+      &lt;a class="ads-tabbar-ipad__tab" aria-current="page"&gt;Book&lt;/a&gt; …
+    &lt;/div&gt;
+    &lt;button class="ads-tabbar-ipad__button" aria-label="Search"&gt;…&lt;/button&gt;
+  &lt;/nav&gt;
+  &lt;button class="ads-icon-btn"&gt;…&lt;/button&gt;
+&lt;/header&gt;</pre>
+  <p class="note">Native layout: iPhone tab bar sits 25px from the sides and bottom (32px minimized), safe area 47 top / 34 bottom. iPad tab bar is 44px tall and centered in the top bar. On a real device, use the system tab bar (SwiftUI <code class="t">TabView</code>) with ADS brand blue as the tint; these CSS versions are for web views and prototypes.</p>
 </section>
 </main>
 </div>
@@ -536,6 +600,7 @@ document.querySelectorAll('[data-counter]').forEach(c => {
   inc.addEventListener('click', () => { out.textContent = Math.min(max, +out.textContent + 1); sync(); });
   sync();
 });
+document.querySelectorAll('.ads-tabbar__tabs, .ads-tabbar-ipad__tabs').forEach(g => g.addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); g.querySelectorAll('a').forEach(x => x.toggleAttribute('aria-current', x === a)); g.querySelectorAll('a[aria-current]').forEach(x => x.setAttribute('aria-current', 'page')); }));
 document.querySelectorAll('[data-tabs]').forEach(t => t.addEventListener('click', e => { const b = e.target.closest('.ads-tab'); if (!b) return; t.querySelectorAll('.ads-tab').forEach(x => x.setAttribute('aria-selected', String(x === b))); }));
 document.querySelector('#f7').addEventListener('input', e => { e.target.closest('.ads-field').querySelector('.ads-helper__counter').textContent = `${e.target.value.length} / 250`; });
 
