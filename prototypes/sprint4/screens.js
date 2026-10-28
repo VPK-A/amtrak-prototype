@@ -141,7 +141,7 @@ function stationRow(s, field, sec) {
   const rec = d.rec.find(x => x.c === s.code);
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
   const blocked = s.tag && autoTrainBlocked();
-  return `<li class="ads-stationrow" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${cur ? '<span class="ads-sr-only">, currently selected</span>' : ''}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'star-filled' : 'star')}</button></li>`;
+  return `<li class="ads-stationrow" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${cur ? '<span class="ads-sr-only">, currently selected</span>' : ''}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
@@ -165,7 +165,7 @@ function stationSearch(r, ri, field, inline) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   } else h += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>`;
-  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Star a station to keep it in Favorites.</p>`;
+  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Bookmark a station to keep it in Favorites.</p>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }

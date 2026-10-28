@@ -87,7 +87,7 @@ Key: **S** = state shown. Story IDs are in brackets.
 - [x] Ranking order and pseudo-stations are marked **unresolved** [600 S3]
 - [x] Full list grouped under state headers, alphabetical by state name; shown directly when there are no favorites or recents [600 S1]
 - [x] Search works offline [600]
-- [x] Add or remove a favorite with the star, in every list; favorites come before recents; a favorite leaves Recents [118 S1–S11]
+- [x] Add or remove a favorite with the bookmark, in every list; favorites come before recents; a favorite leaves Recents [118 S1–S11]
 - [x] Unfavoriting puts the station back in Recents [118 S11]
 - [x] Recents cover the last 10 days and never repeat a station [984 S1, 1A]
 - [x] Clear Recents: confirmation "All Recent Stations will be removed." with Cancel and Confirm; afterward the Recents section is hidden; new selections add to Recents again [1004 S1–S5]
@@ -179,7 +179,7 @@ New, added to `css/components.css` under *Sprint 4 additions*:
 |---|---|---|
 | `ads-navbar` | Sheets and pushed screens need a consistent Back / Close / Cancel / Save bar. The existing `ads-sheet__bar` only had a close button. | Root (Close), pushed (Back + Close), editor (Cancel + Save, Save disabled or busy) |
 | `ads-group` + `ads-group__row` | iOS-style grouped rows for Profile, Account and settings. The docs prototype had page-only `.panel` styles. | Default, value, read-only, locked, chevron, destructive, focus |
-| `ads-stationrow` | Station result with code, name, facility and a star toggle. The star needs its own 44px target. | Default, selected, favorite on/off (icon plus label), focus |
+| `ads-stationrow` | Station result with code, name, facility and a bookmark toggle for Favorites. The bookmark needs its own 44px target. | Default, selected, favorite on/off (icon plus label), focus |
 | `ads-routefield` | From/To pair with a swap button, as in Core Flow. | Empty (hint), filled, error, swap disabled |
 | `ads-datefield` | A tappable date value showing day name and full date | Default, empty (Return not set), active |
 | `ads-calendar` | Vertical, scrollable month list for choosing a date range on a phone. `ads-datepicker` is sized for a desktop popover. | Today, disabled (past or beyond the window), start, end, in-range, focus |
@@ -188,7 +188,7 @@ New, added to `css/components.css` under *Sprint 4 additions*:
 | `ads-codeinput` | 6-digit verification code entry with one-time-code autofill | Empty, filled, verifying, invalid, expired, success |
 | `ads-toast` | Short confirmation after a save. The docs prototype had a page-only toast. | Success, info |
 | `ads-banner` | Full-width offline banner inside a screen | Offline, info |
-| `ads-icon--star`, `ads-icon--star-filled` | Favorites (NMA-118). The icon set had no star. | Outline, filled |
+| `ads-icon--bookmark-filled` (with the existing `ads-icon--bookmark`) | Favorites (NMA-118): the outline bookmark means not saved, the filled one means a favorite. The icon set only had the outline. `ads-icon--star` and `ads-icon--star-filled` remain in the library but aren't used. | Outline, filled |
 
 ## How the versions differ
 
@@ -268,7 +268,7 @@ Replaces the earlier V3 Fare Finder (inline panels). The look follows two CLEAR 
 3. **Discounts, codes and assistance:** labeled rows for Traveler discounts and Coupon or promo code (with an information button), and the assistance checkbox and summary (NMA-973). When assistance starts in Traveler Selection, a row points there.
 4. **Find Trains** is pinned at the bottom of the sheet, so it stays reachable while the content scrolls or the keyboard is open.
 
-Stations, dates, travelers, discount codes and assistance open as **rounded sheets** over the Fare Finder. The station sheet keeps the station identification fields (code, city and state, station name), the favorite star, Favorites first, then Recents (10 days), then *View full list* by state, and the same search ranking. No "Popular" section was added.
+Stations, dates, travelers, discount codes and assistance open as **rounded sheets** over the Fare Finder. The station sheet keeps the station identification fields (code, city and state, station name), the favorite bookmark, Favorites first, then Recents (10 days), then *View full list* by state, and the same search ranking. No "Popular" section was added.
 
 **Demo:** Flow › *G · Version 3 Fare Finder* lists the default screen, the station sheet, dates, travelers, discount code, assistance, validation errors, Auto Train pairing, TripLink and the Pass Rider variants. Codes to try: V123 (promo), a 14-character coupon, the saved companion coupon with one traveler, EXP1 (rejected), DATE (wrong date range).
 
@@ -359,7 +359,7 @@ Replaces the earlier V2 Fare Finder (numbered steps revealed in order). The look
 **Layout**
 
 - **Top:** the booking modes that apply, as segmented controls (like Airbnb's top tabs): *Booking for* Corporate / Personal (TripLink), *Book as* Pass Rider / Personal (Pass Rider).
-- **1. Where are you traveling?** The From / To route field with swap, the Auto Train notice, and quick picks for the empty field: favorites first, then recent stations (10 days). Tapping From or To opens the full station search (Favorites, Recents, View full list, every search field). Once both stations are set, When opens.
+- **1. Where are you traveling?** The From / To route field with swap, the Auto Train notice, and two quick picks for the empty field: favorites first, then the most recent station (10 days). Tapping From or To opens the full station search (Favorites, Recents, View full list, every search field). Once both stations are set, When opens.
 - **2. When are you traveling?** One-way / Round-trip and the calendar for exact dates (Depart, then Return). No flexible-date options.
 - **3. Who’s traveling?** Travel type for Pass Riders (required when eligible for both), the traveler counters (the story's categories, not Airbnb's), the assistance checkbox and summary, and each traveler's discount.
 - **Code card:** coupon or promo code, separate from passenger discounts (NMA-613). Replaced by a note for Corporate and Pass Rider.
@@ -378,7 +378,7 @@ Replaces the earlier V2 Fare Finder (numbered steps revealed in order). The look
 
 | Before | Now |
 |---|---|
-| Step 1 "Where are you going?" (route) | *Where* section, plus favorite and recent quick picks |
+| Step 1 "Where are you going?" (route) | *Where* section, plus two favorite or recent quick picks |
 | Step 2 "When are you leaving?", locked until stations were chosen; pushed calendar | *When* section, never locked (dates don't depend on the route), calendar inside the section |
 | Step 3 "Who's traveling?", travelers row pushing Traveler Selection | *Who* section with the traveler counters, assistance and discounts inside it |
 | "Still needed" line above Find Trains | Error outline and message on the section, which opens on Find Trains |

@@ -118,7 +118,7 @@ New components in `css/components.css`, added for the Sprint 4 exploration. The 
 |---|---|
 | `ads-navbar` | Sheet and pushed-screen header: root (Close), pushed (Back + Close), editor (Cancel + Save) |
 | `ads-group`, `ads-group__row`, `ads-lock` | Inset grouped rows with value, read-only and locked ("Can't be changed") states |
-| `ads-stationrow` | Station result with a 44px favorite star (`aria-pressed`) and sticky state headers |
+| `ads-stationrow` | Station result with a 44px favorite bookmark (`aria-pressed`) and sticky state headers |
 | `ads-routefield` | From/To pair with a swap button |
 | `ads-datefields`, `ads-datefield` | Tappable date values with day name, or an empty "Add" state |
 | `ads-calendar` | Vertical month list for phones; reuses `.ads-day` |
@@ -126,7 +126,7 @@ New components in `css/components.css`, added for the Sprint 4 exploration. The 
 | `ads-summary` | Saved-answer summary with Edit, editing and empty states |
 | `ads-codeinput` | 6-digit one-time-code entry (a single input drawn as cells) |
 | `ads-toast`, `ads-banner` | Save confirmation; offline banner |
-| `ads-icon--star`, `ads-icon--star-filled` | Favorites |
+| `ads-icon--bookmark-filled` (with `ads-icon--bookmark`) | Favorites: outline = not saved, filled = favorite. `ads-icon--star` and `ads-icon--star-filled` remain but aren't used |
 
 Fixes found while building the exploration:
 
