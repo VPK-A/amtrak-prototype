@@ -44,7 +44,7 @@ const SPLIT_PARENT = (parent, child) => {
   const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
-const SPLIT_SELF = r => (v3() && ['ff', 'profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
+const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
 
 // =====================================================================
 // A. Fare Finder
@@ -53,8 +53,8 @@ function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '
 function routeField(r, ri, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
   const half = (f, label) => {
-    const c = b[f], s = c && ST[c], open = opts.open === f;
-    return `<button class="ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} ${v3() ? `aria-expanded="${open}"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body"><span class="ads-routefield__label">${label}</span>${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>`;
+    const c = b[f], s = c && ST[c];
+    return `<button class="ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body"><span class="ads-routefield__label">${label}</span>${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>`;
   };
   const errs = ['from', 'to'].filter(f => e[f]).map(f => `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>`).join('');
   return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-icon-btn ads-routefield__swap" type="button" data-a="swap" aria-label="Swap From and To" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
@@ -62,15 +62,16 @@ function routeField(r, ri, opts = {}) {
 function dateFields(r, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
   const df = (f, label) => {
-    const val = b[f], open = opts.open === f;
+    const val = b[f];
     if (f === 'ret' && b.trip === 'ow') return `<button class="ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__label">Return</span><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add Return</span></button>`;
-    return `<button class="ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${v3() ? `aria-expanded="${open}"` : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__label">${label}</span>${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-datefield__add">${ic('calendar', 'ads-icon--sm')}Choose date</span>`}</button>`;
+    return `<button class="ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__label">${label}</span>${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-datefield__add">${ic('calendar', 'ads-icon--sm')}Choose date</span>`}</button>`;
   };
   return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
 }
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
 function discLabel(b) { if (pwdApplies(b)) return 'Passenger with Disability'; return b.disc === 'none' ? 'No discount' : DISCOUNTS[b.disc].label; }
-const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability';
+// PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
+const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && (!b.intent || b.intent === 'standard' || b.intent === 'personal');
 function travelersRow(r, opts = {}) {
   const b = D().booking;
   return group('', [grow({ a: 'pick-travelers', icon: 'person', label: '1 Adult', value: `Traveler 1 · ${discLabel(b)}`, current: opts.open })]);
@@ -81,8 +82,8 @@ function assistBlock(r, ri, host) {
   const intro = 'Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. One traveler with a disability may bring one personal companion.';
   let h = `<div class="assistbox"><label class="ads-choice ads-checkbox"><input type="checkbox" id="assist-on-${host}" data-a="assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="assist-intro-${host}"><span class="ads-choice__control"></span><span class="ads-choice__label"><span><b>Traveler with disability or need help?</b></span><span class="ads-choice__supporting" id="assist-intro-${host}">${intro}</span></span></label>`;
   if (b.assistOn) {
-    if (b.assistDone) h += assistSummaryCard(b.assist, { title: 'Traveler 1 · Adult', edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true, editing: v3() && r.u.inline && r.u.inline.k === 'assist' });
-    else if (!(v3() && r.u.inline && r.u.inline.k === 'assist')) h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" style="align-self:flex-start">Answer for Traveler 1</button>`;
+    if (b.assistDone) h += assistSummaryCard(b.assist, { title: 'Traveler 1 · Adult', edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true });
+    else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" style="align-self:flex-start">Answer for Traveler 1</button>`;
   }
   h += q(7) + '</div>';
   return h;
@@ -94,7 +95,8 @@ SCR.ff = (r, ri) => {
   const b = D().booking, v = V();
   ref('607', '608', '1060');
   if (b.trip === 'rt') ref('608');
-  if (v3()) return ffV3(r, ri);
+  if (v3()) return ffClear(r, ri);
+  if (D().signedIn && (D().triplink || D().passrider)) tip('Versions 1 and 2 show the standard Fare Finder. The TripLink and Pass Rider variants are designed in Version 3.');
   if (v2()) return ffV2(r, ri);
   const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
@@ -114,34 +116,14 @@ function ffV2(r, ri) {
   const status = left.length ? `<p class="gleft" id="ff-left">${ic('info-circle', 'ads-icon--sm')}<span>Still needed: ${left.join(', ')}.</span></p>` : `<p class="gleft is-ready" id="ff-left">${ic('check-circle', 'ads-icon--sm')}<span>Ready to search.</span></p>`;
   return { title: 'New Booking', kind: 'root', body, foot: status + findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 }
-function ffV3(r, ri) {
-  const b = D().booking, inl = r.u.inline;
-  const panel = inl ? inlinePanel(r, ri, inl) : '';
-  const ipad = IPAD();
-  const summary = `${tripSeg()}${ffNotice(b)}${routeField(r, ri, { open: inl && inl.k === 'stations' ? inl.field : '' })}${!ipad && inl && inl.k === 'stations' ? panel : ''}${dateFields(r, { open: inl && inl.k === 'calendar' ? inl.field : '' })}${!ipad && inl && inl.k === 'calendar' ? panel : ''}${travelersRow(r, { open: inl && inl.k === 'travelers' })}${!ipad && inl && inl.k === 'travelers' ? panel : ''}${V().entry === 'ff' ? assistBlock(r, ri, 'ff') : ''}${!ipad && inl && inl.k === 'assist' ? panel : ''}${netAlert(r)}`;
-  if (!ipad) return { title: 'New Booking', kind: 'root', body: summary, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
-  const right = inl ? panel : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">Choose a field to edit it here</p><p class="ads-body-small">Stations, dates, travelers and assistance open in this panel, so the trip summary stays in view.</p></div>`;
-  return { title: 'New Booking', kind: 'root', wide: true, body: `<div class="split2"><div class="split2__main">${summary}</div><div class="split2__side" aria-label="Editor">${right}</div></div>`, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
-}
-function inlinePanel(r, ri, inl) {
-  const close = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="inline-close">Close</button>`;
-  if (inl.k === 'stations') return `<div class="inlinepanel" role="region" aria-label="${inl.field === 'from' ? 'Departure' : 'Arrival'} station search"><div class="inlinepanel__head"><b>${inl.field === 'from' ? 'From' : 'To'}</b>${close}</div>${stationSearch(r, ri, inl.field, true)}</div>`;
-  if (inl.k === 'calendar') return `<div class="inlinepanel" role="region" aria-label="Calendar"><div class="inlinepanel__head"><b>Dates</b>${close}</div>${calendarBody(r, ri, inl.field, true)}</div>`;
-  if (inl.k === 'travelers') return `<div class="inlinepanel" role="region" aria-label="Travelers"><div class="inlinepanel__head"><b>Travelers</b>${close}</div>${travelersBody(r, ri)}</div>`;
-  if (inl.k === 'assist') return `<div class="inlinepanel" role="region" aria-label="Assistance for Traveler 1"><div class="inlinepanel__head"><b>Assistance · Traveler 1</b></div>${assistForm(r, ri, { mode: 'booking', idp: 'ia' })}<div class="inlinepanel__actions"><button class="ads-btn ads-btn--tertiary" type="button" data-a="assist-inline-cancel">Cancel</button><button class="ads-btn" type="button" data-a="assist-confirm">Confirm</button></div></div>`;
-  return '';
-}
-
 // Fare Finder actions
 A.trip = t => { const b = D().booking; b.trip = t.dataset.v; if (b.trip === 'rt') { if (!b.ret) b.ret = b.dep; } else b.ret = null; pendingFocus = `[data-a="trip"][data-v="${t.dataset.v}"]`; render(); };
 A['add-return'] = (t, ri) => { const b = D().booking; b.trip = 'rt'; b.ret = b.dep; pendingFocus = '#ff-ret'; render(); };
 A.swap = () => { const b = D().booking; [b.from, b.to] = [b.to, b.from]; pendingFocus = '[data-a="swap"]'; render(); };
 A['dismiss-notice'] = () => { D().booking.notice = null; pendingFocus = 'title'; render(); };
-A['pick-station'] = (t, ri) => { const f = t.dataset.field; if (v3()) return toggleInline(ri, { k: 'stations', field: f }); push('stations', { field: f }, +ri); };
-A['pick-date'] = (t, ri) => { const f = t.dataset.field; if (v3()) return toggleInline(ri, { k: 'calendar', field: f }); push('calendar', { field: f }, +ri); };
-A['pick-travelers'] = (t, ri) => { if (v3()) return toggleInline(ri, { k: 'travelers' }); push('travelers', {}, +ri); };
-A['inline-close'] = (t, ri) => { const r = routeAt(ri); const k = r.u.inline; r.u.inline = null; r.u.d = {}; pendingFocus = k && k.k === 'stations' ? `#ff-${k.field}` : k && k.k === 'calendar' ? `#ff-${k.field}` : '[data-a="pick-travelers"]'; render(); };
-function toggleInline(ri, k) { const r = routeAt(ri); const same = r.u.inline && r.u.inline.k === k.k && r.u.inline.field === k.field; r.u.inline = same ? null : k; r.u.d = {}; if (k.k === 'calendar') r.u.picking = k.field; pendingFocus = same ? null : k.k === 'stations' ? '#ss-q' : k.k === 'calendar' ? '.inlinepanel .ads-day[aria-pressed="true"], .inlinepanel .ads-day:not(:disabled)' : '.inlinepanel input, .inlinepanel button'; render(); }
+A['pick-station'] = (t, ri) => push('stations', { field: t.dataset.field }, +ri);
+A['pick-date'] = (t, ri) => push('calendar', { field: t.dataset.field }, +ri);
+A['pick-travelers'] = (t, ri) => push('travelers', {}, +ri);
 A['find-trains'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
   if (e.from || e.to || e.ret) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret'; render(); return; }
@@ -171,7 +153,8 @@ function stationRow(s, field, sec) {
   const d = D(), fav = d.fav.includes(s.code), cur = d.booking[field] === s.code;
   const rec = d.rec.find(x => x.c === s.code);
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
-  return `<li class="ads-stationrow" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${cur ? '<span class="ads-sr-only">, currently selected</span>' : ''}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'star-filled' : 'star')}</button></li>`;
+  const blocked = s.tag && autoTrainBlocked();
+  return `<li class="ads-stationrow" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${cur ? '<span class="ads-sr-only">, currently selected</span>' : ''}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'star-filled' : 'star')}</button></li>`;
 }
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
@@ -200,6 +183,7 @@ function stationSearch(r, ri, field, inline) {
   return h;
 }
 SCR.stations = (r, ri) => {
+  if (v3()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
@@ -215,22 +199,21 @@ A.fav = t => {
 };
 A['choose-station'] = (t, ri) => {
   const d = D(), b = d.booking, f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
+  if (autoTrainBlocked() && AUTO_TRAIN[c]) return;
   if (b[other] === c) { dialog({ title: 'Select a different station', body: 'Select different origin and destination stations.', actions: [['OK', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
   b[f] = c; b.notice = null;
   if (AUTO_TRAIN[c]) { b[other] = AUTO_TRAIN[c]; b.notice = `${ST[c].city} is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so ${ST[AUTO_TRAIN[c]].city} was added as your ${other === 'to' ? 'arrival' : 'departure'} station.`; }
   else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
   if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
-  const r = routeAt(ri);
-  if (r.s === 'ff') { r.u.inline = null; r.u.d = {}; if (v3() && !b[other]) { r.u.inline = { k: 'stations', field: other }; pendingFocus = '#ss-q'; } else pendingFocus = `#ff-${f}`; render(); return; }
-  // V2 keeps going: after From, it opens To straight away (no needless return to the form)
-  if (v2() && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  // V2 and V3 keep going: after From, they open To straight away (no needless return to the form)
+  if ((v2() || v3()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
   popTo(+ri - 1); pendingFocus = `#ff-${f}`; render();
 };
 
 // =====================================================================
 // Calendar (NMA-1060)
 // =====================================================================
-function calendarBody(r, ri, field, inline) {
+function calendarBody(r, ri, field) {
   const b = D().booking; r.u.picking = r.u.picking || field;
   const picking = b.trip === 'ow' ? 'dep' : r.u.picking;
   ref('1060');
@@ -238,7 +221,6 @@ function calendarBody(r, ri, field, inline) {
   const last = parse(picking === 'ret' ? maxRet : maxDep);
   const months = [];
   for (let d = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); d <= last; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) months.push(new Date(d));
-  const shown = inline && !r.u.allMonths ? months.slice(0, 3) : months;
   const day = (y, m, dd) => {
     const s = iso(new Date(y, m, dd));
     const disabled = s < TODAY_S || (picking === 'dep' && s > maxDep) || (picking === 'ret' && (s < b.dep || s > maxRet));
@@ -252,17 +234,14 @@ function calendarBody(r, ri, field, inline) {
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
-  const more = inline && !r.u.allMonths && months.length > 3 ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm ads-btn--block" type="button" data-a="cal-more">Show later months</button>` : '';
-  const done = inline ? `<div class="inlinepanel__actions"><button class="ads-btn" type="button" data-a="inline-close">Done</button></div>` : '';
-  return `${pickSeg}${prompt}${notice}<div class="ads-calendar${inline ? ' ads-calendar--inline' : ''}" ${inline ? 'data-scroll="cal-inline"' : ''}><div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div>${shown.map(monthHtml).join('')}${more}</div>${limit}${done}`;
+  return `${pickSeg}${prompt}${notice}<div class="ads-calendar"><div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div>${months.map(monthHtml).join('')}</div>${limit}`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShort(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShort(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
-  return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field, false), foot, banner: false };
+  return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
 };
 A.picking = (t, ri) => { routeAt(ri).u.picking = t.dataset.v; pendingFocus = `[data-a="picking"][data-v="${t.dataset.v}"]`; render(); };
-A['cal-more'] = (t, ri) => { routeAt(ri).u.allMonths = true; render(); };
 A['cal-done'] = (t, ri) => { popTo(+ri - 1); pendingFocus = '#ff-dep'; render(); };
 A.day = (t, ri) => {
   const r = routeAt(ri), b = D().booking, s = t.dataset.d;
@@ -288,7 +267,7 @@ function travelersBody(r, ri) {
     : `<fieldset class="ads-fieldset"><legend class="ads-field-label">Discount for Traveler 1</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa'].map(k => `<label class="ads-choice ads-radio"><input type="radio" name="bkdisc" value="${k}" data-a="bk-disc" ${b.disc === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${k === 'none' ? 'No discount' : DISCOUNTS[k].label}${fromProfile && b.disc === k ? ' <span class="ads-lock">From your Profile</span>' : ''}</span><span class="ads-choice__supporting">${k === 'none' ? 'Adult fare.' : DISCOUNTS[k].info}</span></span></label>`).join('')}</div></fieldset><p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Adults don’t get a passenger-type discount. Eligibility information doesn’t block your choice. Changing it here doesn’t change your Profile.</span></p>`;
   return `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Traveler 1 · Adult</p><p class="ads-body-small ads-text-secondary">${d.signedIn ? 'Alex Rivera (sample traveler)' : 'Sample traveler'}</p></div></div></div>${disc}${assistBlock(r, ri, 'travelers')}`;
 }
-SCR.travelers = (r, ri) => ({ title: 'Traveler Selection', kind: 'push', body: travelersBody(r, ri), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done">Done</button>`, banner: false });
+SCR.travelers = (r, ri) => v3() ? travelersClear(r, ri) : ({ title: 'Traveler Selection', kind: 'push', body: travelersBody(r, ri), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done">Done</button>`, banner: false });
 A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-disc"][value="${t.value}"]`; render(); };
 
 // =====================================================================
@@ -337,7 +316,7 @@ function disBlock(r, x, idp, e) {
 function wcBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
 }
-// One-page form (V1 everywhere, V3 inline)
+// One-page form (V1 and V3)
 function assistForm(r, ri, o) {
   const src = o.mode === 'booking' ? D().booking.assist : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
@@ -360,7 +339,7 @@ function assistSummaryItems(m) {
   return out;
 }
 function assistSummaryCard(m, o) {
-  return `<div class="ads-summary${o.editing ? ' ads-summary--editing' : ''}"><div class="ads-summary__head"><div><p class="ads-summary__title">${o.title}</p>${o.fromProfile ? '<span class="ads-lock">From your Profile</span>' : ''}</div>${o.edit ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${o.edit}">Edit</button>` : ''}</div><ul class="ads-summary__list">${assistSummaryItems(m).map(t => `<li>${ic('check')}<span>${esc(t)}</span></li>`).join('')}</ul>${o.booking && m.cat === 'disability' ? '<p class="ads-body-small ads-text-secondary">Passenger with Disability discount applies to this booking.</p>' : ''}</div>`;
+  return `<div class="ads-summary${o.editing ? ' ads-summary--editing' : ''}"><div class="ads-summary__head"><div><p class="ads-summary__title">${o.title}</p>${o.fromProfile ? '<span class="ads-lock">From your Profile</span>' : ''}</div>${o.edit ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${o.edit}">Edit</button>` : ''}</div><ul class="ads-summary__list">${assistSummaryItems(m).map(t => `<li>${ic('check')}<span>${esc(t)}</span></li>`).join('')}</ul>${o.booking && m.cat === 'disability' ? `<p class="ads-body-small ads-text-secondary">${pwdApplies(D().booking) ? 'Passenger with Disability discount applies to this booking.' : 'Passenger discounts aren’t used for this kind of booking, so the Passenger with Disability discount doesn’t apply.'}</p>` : ''}</div>`;
 }
 
 // ---- Wizard (V2) ----
@@ -420,16 +399,14 @@ SCR.assist = (r, ri) => {
 };
 A['assist-toggle'] = (t, ri) => {
   const b = D().booking; b.assistOn = t.checked;
-  if (b.assistOn && !b.assistDone) { if (v3()) { routeAt(ri).u.inline = { k: 'assist' }; routeAt(ri).u.d = undefined; pendingFocus = '.inlinepanel input'; render(); return; } push('assist', {}, +ri); return; }
+  if (b.assistOn && !b.assistDone) { push('assist', {}, +ri); return; }
   pendingFocus = `#${t.id}`; render();
 };
-A['assist-edit'] = (t, ri) => { if (v3()) { const r = routeAt(ri); r.u.inline = { k: 'assist' }; r.u.d = undefined; r.u.err = null; pendingFocus = '.inlinepanel input'; render(); return; } push('assist', {}, +ri); };
-A['assist-inline-cancel'] = (t, ri) => { const r = routeAt(ri); r.u.inline = null; r.u.d = {}; const b = D().booking; if (!b.assistDone) b.assistOn = false; pendingFocus = '[data-a="assist-toggle"]'; render(); };
+A['assist-edit'] = (t, ri) => push('assist', {}, +ri);
 A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'booking');
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   const b = D().booking; b.assist = fromDraft(x); b.assistDone = true; b.assistOn = b.assist.cat !== 'none' || true; b.assistFromProfile = false;
-  if (r.s === 'ff') { r.u.inline = null; r.u.d = {}; r.u.reviewFocus = true; pendingFocus = '[data-a="assist-edit"]'; render(); return; }
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-a="assist-edit"]'; render();
 };
 
@@ -439,7 +416,7 @@ A['assist-confirm'] = (t, ri) => {
 SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
-    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}<dt>Travelers</dt><dd>1 Adult · ${discLabel(b)}</dd><dt>Assistance</dt><dd>${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist).join(' · ')) : 'None requested'}</dd></dl>
+    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist).join(' · ')) : 'None requested'}</dd></dl>
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
 

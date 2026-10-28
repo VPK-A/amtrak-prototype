@@ -31,6 +31,10 @@ function seed(sc) {
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
+    // Fare Finder variants (Version 3): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613)
+    triplink: sc === 'triplink',
+    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
+    coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
   d.booking = freshBooking(d);
@@ -42,7 +46,12 @@ function freshBooking(d) {
     trip: 'ow', from: null, to: null, dep: TODAY_S, ret: null,
     disc: d.signedIn && ['military', 'rpa'].includes(d.discount.type) ? d.discount.type : 'none',
     assistOn: d.signedIn && (has || d.discount.type === 'pwd'),
-    assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null
+    assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
+    // Version 3 Fare Finder fields
+    pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
+    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider ? 'pr' : 'standard',
+    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
+    code: null, codeTries: 0, codeErr: '', modeNote: null
   };
 }
 const makeVS = (sc = 'returning') => ({ sc, net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
@@ -92,7 +101,8 @@ function locOf() {
   const sh = n.sheet; if (!sh) return 'tab:' + n.tab;
   const t = sh.stack[sh.stack.length - 1], b = D().booking;
   switch (t.s) {
-    case 'ff': { const k = t.u.inline; if (k) { if (k.k === 'stations') return 'stations:' + k.field; if (k.k === 'calendar') return 'calendar:' + k.field; if (k.k === 'travelers') return 'travelers'; if (k.k === 'assist') return 'assist-booking'; } return b.assistDone && b.assistOn && t.u.reviewFocus ? 'assist-review' : (b.trip === 'rt' ? 'ff-rt' : 'ff'); }
+    case 'ff': return b.assistDone && b.assistOn && t.u.reviewFocus ? 'assist-review' : (b.trip === 'rt' ? 'ff-rt' : 'ff');
+    case 'code': return 'code';
     case 'stations': return 'stations:' + t.p.field;
     case 'calendar': return 'calendar:' + t.p.field;
     case 'travelers': return 'travelers';
@@ -108,7 +118,7 @@ function locOf() {
   }
 }
 function goLoc(loc) {
-  const v = V(), d = v.data, b = d.booking, v3 = TB.v === 3;
+  const v = V(), d = v.data, b = d.booking, v3 = TB.v === 3; // V3 edits Profile in place; its booking uses sheets like V1
   v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.toast = null;
   const [k, arg] = loc.split(':');
   const booking = extra => { v.nav.tab = 'book'; v.nav.sheet = { id: 'booking', stack: [R('ff'), ...extra], opener: '[data-a="open-booking"]' }; };
@@ -121,18 +131,15 @@ function goLoc(loc) {
     case 'tab': v.nav.tab = arg; break;
     case 'ff': b.trip = 'ow'; booking([]); break;
     case 'ff-rt': b.trip = 'rt'; if (!b.ret || b.ret < b.dep) b.ret = b.dep; booking([]); break;
-    case 'stations': booking(v3 ? [] : [R('stations', { field: arg })]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'stations', field: arg }; break;
-    case 'calendar': booking(v3 ? [] : [R('calendar', { field: arg })]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'calendar', field: arg }; break;
-    case 'travelers': booking(v3 ? [] : [R('travelers')]); if (v3) v.nav.sheet.stack[0].u.inline = { k: 'travelers' }; break;
+    case 'stations': booking([R('stations', { field: arg })]); break;
+    case 'calendar': booking([R('calendar', { field: arg })]); break;
+    case 'travelers': booking([R('travelers')]); break;
+    case 'code': booking([R('code')]); break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
       if (k === 'assist-review') sampleAssist(); else b.assistOn = true;
       const viaT = v.entry === 'travelers';
-      if (v3) {
-        booking([]); const ff = v.nav.sheet.stack[0];
-        if (k === 'assist-review') { ff.u.reviewFocus = true; if (viaT) ff.u.inline = { k: 'travelers' }; }
-        else ff.u.inline = { k: viaT ? 'travelers' : 'assist' };
-      } else if (TB.v === 1) {
+      if (TB.v !== 2) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
         else booking(viaT ? [R('travelers'), R('assist')] : [R('assist')]);
       } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking(viaT ? [R('travelers'), a] : [a]); }
@@ -145,6 +152,15 @@ function goLoc(loc) {
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
+    case 'v3': {
+      // Version 3 demo entries: "v3:<scenario>:<place>"
+      const [, sc, place] = loc.split(':');
+      TB.v = 3; store.set('s4-v', '3');
+      const keep = { net: VS[3].net, entry: VS[3].entry, token: VS[3].token };
+      VS[3] = Object.assign(makeVS(sc), keep);
+      goLoc('ff'); (V3_PLACES[place] || V3_PLACES.ff)();
+      return;
+    }
     case 'verify':
       if (arg === 'sign-in') { d.signedIn = false; account([]); startVerify('sign-in', {}, true); }
       else if (arg === 'change-email') { if (guestBlocked()) break; account([R('profile')]); startVerify('change-email', {}, true); }
@@ -152,8 +168,8 @@ function goLoc(loc) {
       break;
   }
   pendingFocus = k === 'assist-review' && TB.v !== 2 ? '[data-a="assist-edit"]' : 'title';
-  // V3 opens editors in place: move focus (and the scroll) into the open panel
-  if (v3 && ['stations', 'calendar', 'travelers', 'assist-booking', 'edit'].includes(k)) pendingFocus = k === 'stations' ? '#ss-q' : k === 'edit' ? '.edpane input, .edpane select, .edpane button' : '.inlinepanel input:not(:disabled), .inlinepanel button';
+  // V3 edits Profile in place: move focus (and the scroll) into the open panel
+  if (v3 && k === 'edit') pendingFocus = '.edpane input, .edpane select, .edpane button';
   render();
 }
 
@@ -275,7 +291,7 @@ function ipadNav() {
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
   let lead = '', trail = '';
-  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : 'close'}" aria-label="Close">${ic('close', 'ads-icon--sm')}</button>`;
+  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
     if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
@@ -284,18 +300,25 @@ function navbar(o, ri, ctx) {
     if (ctx.showClose) trail = close;
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
-  return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title" tabindex="-1" data-title id="t-${ri}">${esc(o.title)}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
+  return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
 }
 function offlineBanner(what) { return V().net === 'offline' ? `<div class="ads-banner" role="status">${ic('alert-triangle')}<span>You’re offline. ${what}</span></div>` : ''; }
 function paneHtml(r, ri, ctx) {
   const o = SCR[r.s](r, ri);
   const body = typeof o.body === 'string' ? o.body : '';
-  return `<section class="pane${o.wide ? ' pane--wide' : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
+  return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
 }
 function renderSheet(sh, covered) {
   const st = sh.stack, n = st.length, ipad = IPAD();
   const splitOK = ipad && n >= 2 && SPLIT_PARENT(st[n - 2], st[n - 1]);
   let panes = '', cls = 'psheet';
+  // V3 booking: the Fare Finder stays underneath and each picker opens as a rounded sheet over it
+  if (TB.v === 3 && sh.id === 'booking') {
+    const top = st[n - 1], nested = n > 1;
+    const base = paneHtml(st[0], 0, { showClose: true });
+    const nest = nested ? `<div class="nest-layer"><div class="nest-scrim" data-a="back" aria-hidden="true"></div><div class="psheet-nest" role="dialog" aria-modal="true" aria-labelledby="t-${n - 1}">${paneHtml(top, n - 1, { nested: true, showClose: true, hideBack: n === 2, parentTitle: titleOf(st[n - 2], n - 2) })}</div></div>` : '';
+    return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="psheet psheet--clear" role="dialog" aria-modal="true" aria-label="New Booking" ${nested ? 'inert' : ''}>${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${base}</div></div>${nest}</div>`;
+  }
   if (splitOK) {
     cls += ' psheet--split';
     panes = paneHtml(st[n - 2], n - 2, { showClose: true, hideBack: n - 2 === 0, parentTitle: n > 2 ? titleOf(st[n - 3], n - 3) : '' }) + paneHtml(st[n - 1], n - 1, { hideBack: true, parentTitle: titleOf(st[n - 2], n - 2) });
@@ -402,8 +425,8 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'Overview & quick editing' };
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Summaries you edit in place, with fewer screen changes. On iPad the overview and the editor are side by side.' };
+const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;

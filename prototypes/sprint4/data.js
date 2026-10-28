@@ -100,6 +100,10 @@ const SCENARIOS = [
   ['mi', 'Middle initial already added', 'The one-time middle initial is saved and locked (NMA-19).'],
   ['intl', 'International member', 'International phone number and a UK billing address.'],
   ['unverified', 'Unverified account', 'Saving a Profile change asks for verification first, then finishes the save (NMA-980 scenario 6).'],
+  ['triplink', 'TripLink member (Version 3)', 'Signed in with an account connected to Concur TripLink. Version 3 shows Corporate or Personal booking; Corporate is the default (NMA-622).'],
+  ['passrider', 'Pass Rider employee, Business Pass (Version 3)', 'Employee Pass Rider with an active Business Pass and 5 of 8 companion passes left (NMA-623, 1016–1019).'],
+  ['passrider-nopass', 'Pass Rider employee, no Business Pass (Version 3)', 'Employee without a Business Pass, so Leisure only, and no companion passes left (NMA-1016 AC4, NMA-1018 AC7).'],
+  ['passrider-spouse', 'Pass Rider spouse (Version 3)', 'Spouse Pass Rider: Leisure only, no companion passes (NMA-1016 AC5, NMA-1018 AC2).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
 const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection'], ['error', 'Server error']];
@@ -114,6 +118,11 @@ const QUESTIONS = {
   6: ['Phone types and DOB bounds', 'Are Home/Business/Extension the final phone types? Does changing the country code clear the number (the prototype keeps each region’s number)? DOB only rejects future dates.'],
   7: ['Where booking assistance starts', 'NMA-973 puts the checkbox on Fare Finder; Core Flow puts it in Traveler Selection. Switch between them in Scenario › Assistance entry.'],
   8: ['Verification channel and reauthentication', 'Email only or email and text depends on the trigger, and is still open (NMA-980). The flows here are demonstrations, not approved policy.'],
+  10: ['Traveler age bands and who can accompany minors', 'Age ranges aren’t final (Young Adult changed to 16–17). NMA-611 lets Adult, Senior or Young Adult accompany youths, children and infants, but a note says only adults 18+ can. The prototype follows the business rule and flags the note.'],
+  11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
+  12: ['Corporate and Pass Rider restrictions not yet confirmed', 'Whether TripLink Corporate allows Auto Train, and whether the Passenger with Disability discount applies to Corporate or Pass Rider travel, are still open. The prototype allows Auto Train for Corporate, blocks it for Pass Rider, and applies no PWD discount in either.'],
+  13: ['Pass Rider travelers', 'NMA-1017 lists family combinations but not the counts. The prototype allows one spouse (or employee), up to 6 dependents and, for employees, companions, up to 8 travelers in all. Business travel is the employee alone.'],
+  14: ['Points and other options', 'NMA-624 only adds the Use Points choice. Whether traveler discounts apply to points searches isn’t defined; the prototype keeps them and hides discount codes, as NMA-613 requires.'],
   9: ['Replacing or removing PWD', 'Saving “I have a disability” replaces the current discount with PWD. What happens to PWD when assistance changes to station help, or is cleared, follows the NMA-43 table where it gives an answer and is open otherwise.']
 };
 
@@ -124,5 +133,19 @@ const FLOWS = [
   ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
+  ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
+];
+
+// Traveler types (NMA-611). Age bands aren't final (Q10).
+const PAX = [['adult', 'Adult', 'Ages 18 to 64'], ['senior', 'Senior', 'Ages 65 and over'], ['ya', 'Young Adult', 'Ages 16 and 17'], ['youth', 'Youth', 'Ages 13 to 15'], ['child', 'Child', 'Ages 2 to 12'], ['infant', 'Infant', 'Under 2']];
+const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
+// Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
+const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };
+const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with Disability' };
+// Codes saved to the signed-in member's profile (NMA-613 scenarios 5 and 6; NMA-697)
+const PROFILE_CODES = [
+  { code: 'V123', kind: 'Promo code', benefit: '20% off Northeast Regional Coach', exp: '2026-11-30' },
+  { code: '60412233445566', kind: 'Companion coupon', benefit: 'A companion travels free', exp: '2027-01-15', companion: true },
+  { code: '60998877665544', kind: 'Dollar-off coupon', benefit: '$25 off one trip', exp: '2027-03-31' }
 ];
