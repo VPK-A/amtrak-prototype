@@ -132,8 +132,9 @@ function goLoc(loc) {
     case 'ff': b.trip = 'ow'; booking([]); break;
     case 'ff-rt': b.trip = 'rt'; if (!b.ret || b.ret < b.dep) b.ret = b.dep; booking([]); break;
     case 'stations': booking([R('stations', { field: arg })]); break;
-    case 'calendar': booking([R('calendar', { field: arg })]); break;
-    case 'travelers': booking([R('travelers')]); break;
+    // Version 2 answers dates and travelers inside its guided sections
+    case 'calendar': if (TB.v === 2) { if (arg === 'ret' && b.trip === 'ow') { b.trip = 'rt'; b.ret = b.dep; } booking([]); Object.assign(v.nav.sheet.stack[0].u, { open: 'when', picking: arg }); break; } booking([R('calendar', { field: arg })]); break;
+    case 'travelers': if (TB.v === 2) { booking([]); v.nav.sheet.stack[0].u.open = 'who'; break; } booking([R('travelers')]); break;
     case 'code': booking([R('code')]); break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
@@ -142,7 +143,7 @@ function goLoc(loc) {
       if (TB.v !== 2) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
         else booking(viaT ? [R('travelers'), R('assist')] : [R('assist')]);
-      } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking(viaT ? [R('travelers'), a] : [a]); }
+      } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking([a]); v.nav.sheet.stack[0].u.open = 'who'; }
       break;
     }
     case 'clear-recents': account([]); v.nav.dialog = clearDialog(); break;
@@ -152,7 +153,7 @@ function goLoc(loc) {
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v3': case 'v4': {
+    case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));

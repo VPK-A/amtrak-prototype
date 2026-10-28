@@ -1940,6 +1940,80 @@ button.ffc-row:hover, .ffc-row__main:hover { background: var(--ads-background-su
 .text-large .fl-row__acts { grid-column: 2; margin: 2px 0 -8px -8px; flex-wrap: wrap; }
 .text-large .busyrow { flex-wrap: wrap; }
 
+/* =====================================================================
+   Version 2 Fare Finder, Airbnb-inspired guided search: stacked rounded
+   sections, one open at a time, collapsed summaries, persistent bottom bar.
+   ===================================================================== */
+.pane--gs .pane__scroll { background: var(--ads-background-surface-sunken); }
+.pane--gs .ads-navbar { background: var(--ads-background-surface-sunken); border: 0; }
+.pane--gs .pane__body { gap: 14px; padding: 4px 14px 28px; }
+.gs-top { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+.gs-mode { display: flex; flex-direction: column; gap: 6px; }
+.gs-mode__label { color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 600; }
+.gs-mode .ads-segmented { background: var(--ads-background-surface-default); box-shadow: inset 0 0 0 1px var(--ads-border-subtle); }
+.gs-note { display: flex; gap: 8px; margin: 0; font-size: 14px; color: var(--ads-content-text-secondary); }
+.gs-note .ads-icon { flex: none; margin-top: 2px; color: var(--ads-content-icon-info); }
+.gs-stack { display: flex; flex-direction: column; gap: 12px; }
+.gs { border-radius: 24px; background: var(--ads-background-surface-default); box-shadow: 0 1px 2px rgb(5 18 49 / 0.06), 0 4px 16px rgb(5 18 49 / 0.06); }
+.gs.is-open { box-shadow: 0 2px 6px rgb(5 18 49 / 0.08), 0 12px 32px rgb(5 18 49 / 0.10); }
+.gs.has-error:not(.is-open) { box-shadow: inset 0 0 0 2px var(--ads-border-status-error); }
+.gs__sum { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 16px 20px; border: 0; border-radius: 24px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surface-hover); }
+.gs__sum:focus-visible, .gs__sumbtn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.gs__sum--static { cursor: default; flex-wrap: wrap; }
+.gs__sum--split { padding: 0 12px 0 0; gap: 4px; }
+.gs__sumbtn { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 16px 8px 16px 20px; border: 0; border-radius: 24px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.gs__label { flex: none; color: var(--ads-content-text-secondary); font-size: 15px; }
+.gs__val { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-size: 15px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.gs__val small { color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 400; }
+.gs__chev { flex: none; color: var(--ads-content-icon-tertiary); }
+.gs.has-error .gs__chev { color: var(--ads-content-icon-error); }
+.gs__err { margin: -6px 20px 0; padding-bottom: 14px; color: var(--ads-content-text-error); font-size: 14px; line-height: 1.4; }
+.gs--muted .gs__val { color: var(--ads-content-text-secondary); font-weight: 400; }
+.gs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 24px 20px 0; }
+.gs__q { margin: 0; font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.ads-root .gs__q[tabindex]:focus-visible { outline: none; }
+.gs__step { flex: none; color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 600; }
+.gs__body { display: flex; flex-direction: column; gap: 16px; padding: 18px 20px 22px; }
+.gs__body .ffc-h { margin: 6px 0 0; }
+.gs-field { display: flex; flex-direction: column; gap: 8px; }
+.gs-field__label { font-weight: 600; }
+.gs-chosen { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--ads-background-surface-sunken); }
+.gs-chosen span { color: var(--ads-content-text-secondary); }
+.gs-quick { display: flex; flex-direction: column; gap: 8px; }
+.gs-quick__label { margin: 0; color: var(--ads-content-text-secondary); font-size: 14px; font-weight: 600; }
+.gs-quick__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.gs-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid var(--ads-border-default); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+.gs-chip .ads-icon { color: var(--ads-content-icon-brand); }
+.gs-chip:hover { background: var(--ads-background-surface-hover); }
+.gs-chip:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.gs-cal { max-height: 360px; overflow-y: auto; margin: 0 -20px; padding: 0 20px; border-top: 1px solid var(--ads-border-subtle); }
+.gs-cal .ads-calendar__weekdays { background: var(--ads-background-surface-default); }
+.gs-cal > .ads-segmented, .gs-cal > .ghint { margin-top: 12px; }
+.gs-cal .ads-calendar { margin-top: 8px; }
+.gs-cal .ads-day:disabled { text-decoration: line-through; }
+.gs-cal .ads-day--range-start, .gs-cal .ads-day--range-end, .gs-cal .ads-day--in-range { background-color: transparent; }
+.gs-cal .ads-day--in-range { background: var(--ads-background-surface-sunken); }
+.gs-cal .ads-day--range-start { background: linear-gradient(90deg, transparent 50%, var(--ads-background-surface-sunken) 50%); }
+.gs-cal .ads-day--range-end { background: linear-gradient(90deg, var(--ads-background-surface-sunken) 50%, transparent 50%); }
+.gs-cal .ads-day[aria-pressed="true"]::before { background: var(--ads-content-text-primary); }
+.gs-cal .ads-day[aria-pressed="true"] { color: var(--ads-background-surface-default); }
+.gs .assistbox { border-radius: 18px; }
+.pane--gs .pane__foot { background: var(--ads-background-surface-default); }
+.gs-foot { display: flex; gap: 10px; align-items: center; }
+.gs-foot > .ads-btn--block, .gs-foot > .busyrow { flex: 1; }
+.gs-foot .ads-btn .ads-icon { margin-right: 6px; }
+.gs-banner { margin: 0 -14px; }
+.text-large button.gs__sum, .text-large .gs__sumbtn { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+.text-large button.gs__sum .gs__chev, .text-large .gs__sumbtn .gs__chev { grid-column: 2; grid-row: 1; }
+.text-large button.gs__sum .gs__val, .text-large .gs__sumbtn .gs__val { grid-column: 1 / -1; align-items: flex-start; text-align: left; }
+.text-large .gs__sum--static .gs__val { flex-basis: 100%; align-items: flex-start; text-align: left; }
+.gs--code .gs__val { align-items: flex-start; text-align: left; }
+.text-large .gs-foot { flex-wrap: wrap; }
+.gs .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
+.gs .ads-routefield__code { width: auto; min-width: 48px; }
+.gs .ads-routefield__body { flex: 1 1 130px; }
+
 </style>
 </head>
 <body class="ads-root">
@@ -2075,16 +2149,16 @@ these parts were used: the App PWD flow, <em>Book</em> and
 availability), NMA-621 (about accessible travel), NMA-628 (service
 animal info), NMA-629 (wheeled mobility device specs). They are shown as
 labeled placeholders only.</p>
-<p>Fare Finder stories in Versions 3 and 4 only: NMA-611 (traveler type
+<p>Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type
 and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points),
 NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built
 in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and
 per-traveler discounts (NMA-612) are in all three versions' Traveler
 Selection, following Core Flow (node 90:16532): counters per type,
 <em>Traveling alone?</em> on Youth, assistance between travelers and
-discounts, then one discount per traveler. Versions 1 and 2 don't show
-the code, points, TripLink or Pass Rider variants; Versions 3 and 4
-share them.</p>
+discounts, then one discount per traveler. Version 1 doesn't show the
+code, points, TripLink or Pass Rider variants; Versions 2, 3 and 4 share
+them.</p>
 <h2 id="ia-conflicts-and-proposed-resolutions">IA conflicts and proposed
 resolutions</h2>
 <table>
@@ -2604,8 +2678,10 @@ Version 1. See <em>Version 4 Fare Finder</em> below.</p>
 <tr class="odd">
 <td>Fare Finder</td>
 <td>Core Flow layout: route card, dates, travelers, Find Trains</td>
-<td>The same fields revealed in order, with inline explanations of
-dependencies (Auto Train, return date, what's missing)</td>
+<td>Airbnb-style guided search: Where, When and Who as stacked rounded
+sections, one open at a time, with editable summaries; a separate code
+card; Next and Find Trains in a persistent bottom bar. Includes the
+code, points, TripLink and Pass Rider variants</td>
 <td>Navy header with the booking-mode controls, a rounded surface for
 trip type, route, dates and travelers, a labeled list for discounts,
 codes and assistance, and a pinned Find Trains. Includes the traveler,
@@ -2614,14 +2690,15 @@ code, points, TripLink and Pass Rider variants</td>
 <tr class="even">
 <td>Station search</td>
 <td>Pushed full screen</td>
-<td>Pushed, with the goal in the title ("Choose departure station")</td>
+<td>Pushed from the Where section, with the goal in the title; favorite
+and recent stations also appear as quick picks in Where</td>
 <td>Rounded sheet with a large search field; From goes straight to
 To</td>
 </tr>
 <tr class="odd">
 <td>Calendar</td>
 <td>Pushed full screen, Depart and Return tabs</td>
-<td>Pushed, prompts for Depart then Return</td>
+<td>Inside the When section, prompts for Depart then Return</td>
 <td>Rounded sheet, Depart and Return tabs</td>
 </tr>
 <tr class="even">
@@ -2721,12 +2798,12 @@ a focused editor with Cancel/Save in the nav bar, because editing is a
 mode; a confirmation dialog for the one-time middle initial, because it
 can't be undone; iPad master/detail with the parent list kept on the
 left.</li>
-<li><strong>V2:</strong> progressive disclosure on Fare Finder (numbered
-steps, later steps explain why they're locked); a wizard with a "Step n
-of N" header and an iPad step rail; inline "why" hints before inputs; a
-review step with Edit per section; the middle initial shows a name
-preview instead of a confirmation dialog, because the one-time rule was
-explained up front.</li>
+<li><strong>V2:</strong> Airbnb-style guided search on Fare Finder (one
+expanded section, collapsed editable summaries, a persistent bottom
+bar); a wizard with a "Step n of N" header and an iPad step rail; inline
+"why" hints before inputs; a review step with Edit per section; the
+middle initial shows a name preview instead of a confirmation dialog,
+because the one-time rule was explained up front.</li>
 <li><strong>V3:</strong> a CLEAR-style composition for booking (dark
 header with a large heading, light rounded surface, large pill search
 fields, restrained separators, rounded sheets over the Fare Finder);
@@ -2760,6 +2837,15 @@ three versions and are flagged in Screen notes.</li>
 </ul>
 <h2 id="checks-run">Checks run</h2>
 <ul>
+<li><p><strong>Version 2 guided Fare Finder:</strong> every Flow › I
+entry; 23 scripted checks, all passing (defaults, errors opening the
+right section, quick picks, station search moving on to When, round trip
+and return clearing, reopening without losing answers, Next, travelers
+and discounts, the assistance questionnaire, codes and points, collapsed
+summaries, handoff, Pass Rider travel type, offline and loading); 280
+screens in all four versions with no horizontal overflow at 140% text;
+axe-core finds no violations on the Version 2 entries in light and dark,
+iPhone and iPad.</p></li>
 <li><p><strong>Version 4 Fare Finder:</strong> every Flow › H entry; 18
 scripted checks (From then To in sheets, swap, same-station dialog, Add
 Return, return cleared after a later departure, return-date error,
@@ -2906,9 +2992,9 @@ Standards]</label></li>
 <li><strong>Added in all versions:</strong> traveler types and counts,
 and a discount per traveler, in Traveler Selection (the baseline used a
 fixed 1 Adult).</li>
-<li><strong>Added in V3 and V4 only:</strong> discount codes, Use
-Points, TripLink and Pass Rider, so the versions no longer cover the
-same scope.</li>
+<li><strong>Added in V2, V3 and V4:</strong> discount codes, Use Points,
+TripLink and Pass Rider, so Version 1 no longer covers the same
+scope.</li>
 <li><strong>Core Flow difference:</strong> Core Flow labels Adult as
 16–64 and has no Young Adult row; the stories list Young Adult (16–17)
 separately, and the prototype follows the stories (Q10).</li>
@@ -3117,6 +3203,112 @@ accessible label and in the station sheet); the rows rely on short text
 actions (<em>Edit</em>, <em>Add</em>, <em>Remove</em>), which need to
 stay at least 44 pt; and assistance is shown as Add/Remove instead of a
 checkbox, which changes the control but not the rule.</p>
+<h2 id="version-2-fare-finder-airbnb-inspired-guided-search">Version 2
+Fare Finder (Airbnb-inspired guided search)</h2>
+<p>Replaces the earlier V2 Fare Finder (numbered steps revealed in
+order). The look and behavior follow Airbnb's guided search: stacked
+rounded sections on a soft background, one section expanded at a time
+with a bold question, completed sections collapsed into one-line
+summaries, past dates struck through, and a persistent bottom action
+area. Amtrak tokens, type, icons and components are kept. Airbnb's
+Months, Flexible, weekend and nearby-day options, its age categories and
+its pet control are <strong>not</strong> used.</p>
+<p><strong>Layout</strong></p>
+<ul>
+<li><strong>Top:</strong> the booking modes that apply, as segmented
+controls (like Airbnb's top tabs): <em>Booking for</em> Corporate /
+Personal (TripLink), <em>Book as</em> Pass Rider / Personal (Pass
+Rider), <em>Pay with</em> Cash / Points (signed-in members on a standard
+or personal booking).</li>
+<li><strong>1. Where are you traveling?</strong> The From / To route
+field with swap, the Auto Train notice, and quick picks for the empty
+field: favorites first, then recent stations (10 days). Tapping From or
+To opens the full station search (Favorites, Recents, View full list,
+every search field). Once both stations are set, When opens.</li>
+<li><strong>2. When are you traveling?</strong> One-way / Round-trip and
+the calendar for exact dates (Depart, then Return). No flexible-date
+options.</li>
+<li><strong>3. Who’s traveling?</strong> Travel type for Pass Riders
+(required when eligible for both), the traveler counters (the story's
+categories, not Airbnb's), the assistance checkbox and summary, and each
+traveler's discount.</li>
+<li><strong>Code card:</strong> coupon or promo code, separate from
+passenger discounts (NMA-613). Hidden behind a note for points,
+Corporate and Pass Rider.</li>
+<li><strong>Bottom bar:</strong> <em>Next</em> (opens the next section)
+and <em>Find Trains</em>, always available.</li>
+</ul>
+<p><strong>Behavior</strong></p>
+<ul>
+<li><strong>Defaults count as answers:</strong> One-way, today's date
+and 1 Adult are already filled in. When and Who don't have to be opened,
+and nothing asks you to confirm unchanged defaults.</li>
+<li><strong>Reopening:</strong> tap a collapsed summary to reopen its
+section. The other sections keep their answers, and nothing
+restarts.</li>
+<li><strong>Dependent validation:</strong> choosing a later departure
+clears an earlier return (1060), with the existing notice. Changing
+travelers re-applies the traveler rules (limits, accompanied minors,
+infant ratio), PWD for Traveler 1, and the code checks at Find Trains
+(for example, a companion coupon needs two travelers).</li>
+<li><strong>Nothing required stays hidden:</strong> Find Trains checks
+Where, When and Who in order, opens the first section that needs
+attention and moves focus to the problem. A collapsed section with a
+problem shows a red outline and the message under its summary. Every
+required control is either in the open section or one tap away on its
+summary.</li>
+</ul>
+<p><strong>States in Flow › I:</strong> initial (Where open), partly
+completed (stations chosen, When open), fully populated (all collapsed),
+reopened section (Where reopened, answers kept), errors (no stations; a
+child without an adult), station search, Who with assistance and
+discounts, the assistance questionnaire, the discount code, paying with
+points, Auto Train pairing, guest, TripLink Corporate, Pass Rider
+Leisure travelers, and Pass Rider spouse.</p>
+<p><strong>Mapping from the previous Version 2</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Before</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Step 1 "Where are you going?" (route)</td>
+<td><em>Where</em> section, plus favorite and recent quick picks</td>
+</tr>
+<tr class="even">
+<td>Step 2 "When are you leaving?", locked until stations were chosen;
+pushed calendar</td>
+<td><em>When</em> section, never locked (dates don't depend on the
+route), calendar inside the section</td>
+</tr>
+<tr class="odd">
+<td>Step 3 "Who's traveling?", travelers row pushing Traveler
+Selection</td>
+<td><em>Who</em> section with the traveler counters, assistance and
+discounts inside it</td>
+</tr>
+<tr class="even">
+<td>"Still needed" line above Find Trains</td>
+<td>Error outline and message on the section, which opens on Find
+Trains</td>
+</tr>
+<tr class="odd">
+<td>Assistance entry: Fare Finder or Traveler Selection (Q7)</td>
+<td>In <em>Who</em> either way; the setting no longer changes the layout
+in Version 2</td>
+</tr>
+<tr class="even">
+<td>(not in the previous Version 2)</td>
+<td>Code card, Use Points, TripLink and Pass Rider, shared with Versions
+3 and 4</td>
+</tr>
+</tbody>
+</table>
+<p>The assistance questionnaire keeps Version 2's wizard (one question
+per step, review at the end), opened from <em>Who</em>.</p>
 
   </article>
 </div>
@@ -3259,6 +3451,7 @@ const FLOWS = [
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
   ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['H · Version 4 Fare Finder (Flighty-inspired)', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['I · Version 2 guided Fare Finder (Airbnb-inspired)', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find Trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
 ];
 
@@ -3409,8 +3602,9 @@ function goLoc(loc) {
     case 'ff': b.trip = 'ow'; booking([]); break;
     case 'ff-rt': b.trip = 'rt'; if (!b.ret || b.ret < b.dep) b.ret = b.dep; booking([]); break;
     case 'stations': booking([R('stations', { field: arg })]); break;
-    case 'calendar': booking([R('calendar', { field: arg })]); break;
-    case 'travelers': booking([R('travelers')]); break;
+    // Version 2 answers dates and travelers inside its guided sections
+    case 'calendar': if (TB.v === 2) { if (arg === 'ret' && b.trip === 'ow') { b.trip = 'rt'; b.ret = b.dep; } booking([]); Object.assign(v.nav.sheet.stack[0].u, { open: 'when', picking: arg }); break; } booking([R('calendar', { field: arg })]); break;
+    case 'travelers': if (TB.v === 2) { booking([]); v.nav.sheet.stack[0].u.open = 'who'; break; } booking([R('travelers')]); break;
     case 'code': booking([R('code')]); break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
@@ -3419,7 +3613,7 @@ function goLoc(loc) {
       if (TB.v !== 2) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
         else booking(viaT ? [R('travelers'), R('assist')] : [R('assist')]);
-      } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking(viaT ? [R('travelers'), a] : [a]); }
+      } else { const a = R('assist'); if (k === 'assist-review') a.u.step = 'review'; booking([a]); v.nav.sheet.stack[0].u.open = 'who'; }
       break;
     }
     case 'clear-recents': account([]); v.nav.dialog = clearDialog(); break;
@@ -3429,7 +3623,7 @@ function goLoc(loc) {
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v3': case 'v4': {
+    case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));
@@ -3837,26 +4031,11 @@ SCR.ff = (r, ri) => {
   if (b.trip === 'rt') ref('608');
   if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
-  if (D().signedIn && (D().triplink || D().passrider)) tip('Versions 1 and 2 show the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 3 and 4.');
-  if (v2()) return ffV2(r, ri);
+  if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
+  if (v2()) return ffGuided(r, ri);
   const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
-function ffV2(r, ri) {
-  const b = D().booking, e = ffErrors(b);
-  const stepsDone = [!!(b.from && b.to), !!(b.dep && (b.trip === 'ow' || b.ret))];
-  const step = (n, title, done, open, content, locked) => `<section class="gstep${open ? ' is-open' : ''}${locked ? ' is-locked' : ''}" aria-labelledby="gs-${n}"><div class="gstep__head"><span class="ads-steps__marker${done ? ' is-done' : ''}" aria-hidden="true">${done ? ic('check', 'ads-icon--sm') : n}</span><h3 id="gs-${n}" class="gstep__title">${title}<span class="ads-sr-only">${done ? ', done' : locked ? ', available after the step above' : ''}</span></h3></div>${locked ? `<p class="gstep__locked">${locked}</p>` : content}</section>`;
-  const left = [];
-  if (!b.from) left.push('a departure station'); if (!b.to) left.push('an arrival station'); if (b.trip === 'rt' && !b.ret) left.push('a return date');
-  const autoNote = (b.from === 'LOR' || b.from === 'SFA') ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Lorton and Sanford are Auto Train stations. They only connect to each other, so the other end was filled in for you.</span></p>` : '';
-  const body = `${tripSeg()}<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${b.trip === 'ow' ? 'One-way trip. You can add a return at any time.' : 'Round trip. You’ll choose both dates in one calendar.'}</span></p>${ffNotice(b)}
-    ${step(1, 'Where are you going?', stepsDone[0], true, routeField(r, ri) + autoNote)}
-    ${step(2, 'When are you leaving?', stepsDone[1] && stepsDone[0], stepsDone[0], dateFields(r) + `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Departure starts as today. ${b.trip === 'rt' ? 'The return can’t be before the departure.' : ''}</span></p>`, stepsDone[0] ? '' : 'Choose both stations first. Dates depend on the route.')}
-    ${step(3, 'Who’s traveling?', stepsDone[0], stepsDone[0], travelersRow(r) + assistBlock(r, ri, 'ff'), stepsDone[0] ? '' : 'Available after you choose stations.')}
-    ${netAlert(r)}`;
-  const status = left.length ? `<p class="gleft" id="ff-left">${ic('info-circle', 'ads-icon--sm')}<span>Still needed: ${left.join(', ')}.</span></p>` : `<p class="gleft is-ready" id="ff-left">${ic('check-circle', 'ads-icon--sm')}<span>Ready to search.</span></p>`;
-  return { title: 'New Booking', kind: 'root', body, foot: status + findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
-}
 // Fare Finder actions
 A.trip = t => { const b = D().booking; b.trip = t.dataset.v; if (b.trip === 'rt') { if (!b.ret) b.ret = b.dep; } else b.ret = null; pendingFocus = `[data-a="trip"][data-v="${t.dataset.v}"]`; render(); };
 A['add-return'] = (t, ri) => { const b = D().booking; b.trip = 'rt'; b.ret = b.dep; pendingFocus = '#ff-ret'; render(); };
@@ -4499,8 +4678,8 @@ A['vf-finish'] = () => endVerify(true);
    discount codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019). */
 
 // ---------- Rules ----------
-// Booking modes (TripLink, Pass Rider) are designed in Versions 3 and 4; Versions 1 and 2 always book as standard
-const intentOf = b => TB.v >= 3 ? (b.intent || 'standard') : 'standard';
+// Booking modes (TripLink, Pass Rider) are designed in Versions 2–4; Version 1 always books as standard
+const intentOf = b => TB.v >= 2 ? (b.intent || 'standard') : 'standard';
 const autoTrainBlocked = () => intentOf(D().booking) === 'pr'; // NMA-623: Auto Train isn't offered
 const PAX_PLURAL = { adult: 'Adults', senior: 'Seniors', ya: 'Young Adults', youth: 'Youths', child: 'Children', infant: 'Infants' };
 const paxSeated = p => p.adult + p.senior + p.ya + p.youth + p.child; // infants don't count toward 8 (NMA-611 BR3)
@@ -4545,7 +4724,7 @@ function prSummary(b, d) {
 }
 const prCount = b => 1 + b.prPax.fam + b.prPax.dep + b.prPax.comp;
 const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? (b.prType === 'business' ? 1 : prCount(b)) : paxAll(b.pax);
-const codeApplies = b => TB.v >= 3 && b.code && ['standard', 'personal'].includes(intentOf(b)) && b.pay === 'cash';
+const codeApplies = b => TB.v >= 2 && b.code && ['standard', 'personal'].includes(intentOf(b)) && b.pay === 'cash';
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
@@ -4615,11 +4794,16 @@ A['pr-type'] = t => { D().booking.prType = t.dataset.v; pendingFocus = `[data-a=
 // Find Trains: the shared checks, then Travel type and the discount code (format and rules the app can know; the rest is the back end's)
 const findTrainsBase = A['find-trains'];
 A['find-trains'] = (t, ri) => {
-  if (!rich()) return findTrainsBase(t, ri);
+  if (TB.v === 1) return findTrainsBase(t, ri);
+  if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b), prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
   if (paxBad) { r.u.showErr = true; pendingFocus = '#ff-trav, [data-a="pick-travelers"]'; render(); return; }
   if (e.from || e.to || e.ret || prMissing) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : e.ret ? '#ff-ret' : '[data-a="pr-type"], #fl-prtype'; render(); return; }
-  r.u.showErr = false; b.codeErr = '';
+  r.u.showErr = false; searchWithCode(r, ri);
+};
+// Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
+function searchWithCode(r, ri) {
+  const b = D().booking; b.codeErr = '';
   runNet(r, () => codeApplies(b) ? checkCode(b) : null, res => {
     if (res && res.err) { b.codeErr = res.err; pendingFocus = '#ffc-code-err'; render(); return; }
     if (res && res.range) {
@@ -4629,7 +4813,7 @@ A['find-trains'] = (t, ri) => {
     }
     push('handoff', {}, +ri);
   }, { what: 'find trains' });
-};
+}
 // Mock back end (NMA-613): EXP1 counts as expired or used, DATE is outside its date range, a companion coupon needs two travelers
 function checkCode(b) {
   const c = b.code.code;
@@ -4678,7 +4862,8 @@ function counter(k, label, sub, val, minusOk, plusOk, group, why, extra = '') {
   const lab = esc(label);
   return `<div class="ffc-count${!plusOk && !minusOk ? ' is-disabled' : ''}"><div class="ffc-count__text"><span class="ffc-count__label" id="cl-${group}-${k}">${lab}</span>${sub ? `<span class="ffc-count__sub">${sub}${extra}</span>` : ''}${why ? `<span class="ffc-count__why">${why}</span>` : ''}</div><div class="ads-counter" role="group" aria-labelledby="cl-${group}-${k}"><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="-1" aria-label="Remove one: ${lab}" ${minusOk ? '' : 'disabled'}>${ic('minus')}</button><span class="ads-counter__value" aria-live="polite">${val}</span><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="1" aria-label="Add one: ${lab}" ${plusOk ? '' : 'disabled'}>${ic('plus')}</button></div></div>`;
 }
-function travelersClear(r, ri, std) {
+// std: true = Versions 1 pushed screen, 'parts' = content only (Version 2's Who section); aHost = where the assistance block lives
+function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   if (!r.u.snap) r.u.snap = clone({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax });
@@ -4712,12 +4897,13 @@ function travelersClear(r, ri, std) {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h4 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h4><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${assistBlock(r, ri, 'travelers')}
+      ${assistBlock(r, ri, aHost)}
       ${paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += assistBlock(r, ri, 'travelers');
+  if (corp || pr) body += assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
-  // Versions 1 and 2: a pushed Traveler Selection screen with the same content
+  if (std === 'parts') return { body, ok, why };
+  // Version 1 (and a pushed Version 2 screen): Traveler Selection with the same content
   if (std) return { title: 'Traveler Selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling and any discounts.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
@@ -4749,7 +4935,7 @@ function handoffExtra(b) {
   if (intent === 'corporate') rows.push(['Booking', 'Corporate (TripLink)']);
   else if (intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
   else if (intent === 'personal') rows.push(['Booking', 'Personal']);
-  if (TB.v >= 3 && d.signedIn && (intent === 'standard' || intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
+  if (TB.v >= 2 && d.signedIn && (intent === 'standard' || intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
   if (intent === 'pr') rows.push(['Travelers', esc(prSummary(b, d))]);
   else if (intent === 'corporate') rows.push(['Travelers', '1 Adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => `Traveler ${t.n} · ${PAX_LABEL[t.type]} · ${TDISC_LABEL[tdiscOf(b, t)]}`).join('<br>')]);
@@ -4876,6 +5062,144 @@ Object.assign(V3_PLACES, {
   },
   loading: () => { V3_PLACES.populated(); V().net = 'slow'; A['find-trains'](null, '0'); },
   offline: () => { V3_PLACES.populated(); V().net = 'offline'; A['find-trains'](null, '0'); }
+});
+
+/* Sprint 4 prototype: Version 2 Fare Finder, Airbnb-inspired guided search.
+   Three stacked rounded sections (Where, When, Who), one expanded at a time. Completed sections
+   collapse into short, editable summaries and can be reopened without restarting. Booking intent and
+   Cash/Points sit at the top; coupon and promo codes have their own card, apart from passenger
+   discounts. A persistent bottom bar holds Next and Find Trains. All rules come from the shared code. */
+
+const GS = ['where', 'when', 'who'];
+const GS_Q = { where: 'Where are you traveling?', when: 'When are you traveling?', who: 'Who’s traveling?' };
+const GS_LABEL = { where: 'Where', when: 'When', who: 'Who' };
+function gsState(b) {
+  const intent = intentOf(b);
+  return {
+    where: !!(b.from && b.to),
+    when: b.trip === 'ow' || !!b.ret,
+    who: intent === 'corporate' ? true : intent === 'pr' ? !!b.prType : !paxProblems(b.pax).length
+  };
+}
+function gsErrors(r, b) {
+  if (!r.u.showErr) return {};
+  const e = ffErrors(b), st = gsState(b), out = {};
+  if (e.from || e.to) out.where = e.from && e.to ? 'Choose a departure and an arrival station.' : e.from ? 'Choose a departure station.' : 'Choose an arrival station.';
+  if (e.ret) out.when = 'Choose a return date, or switch to One-way.';
+  if (!st.who) out.who = intentOf(b) === 'pr' ? 'Choose Business or Leisure travel.' : paxProblems(b.pax)[0];
+  return out;
+}
+function gsSummary(k, b, d) {
+  const intent = intentOf(b);
+  if (k === 'where') return b.from || b.to ? `${b.from ? `${b.from} · ${ST[b.from].city}` : 'Choose departure'} → ${b.to ? `${b.to} · ${ST[b.to].city}` : 'choose arrival'}` : 'Choose stations';
+  if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShort(b.dep)}` : `Round-trip · ${fmtShort(b.dep)} – ${b.ret ? fmtShort(b.ret) : 'choose return'}`;
+  if (intent === 'corporate') return `1 Adult · Corporate${b.assistOn && b.assistDone ? ' · Assistance' : ''}`;
+  if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}`;
+  const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', b.assistOn ? 'Assistance' : ''].filter(Boolean);
+  return [paxSummary(b), ...extras].join(' · ');
+}
+function gsSeg(label, key, opts, cur, id) {
+  return `<div class="gs-mode"><span class="gs-mode__label" id="gs-${id}">${label}</span><div class="ads-segmented" role="group" aria-labelledby="gs-${id}">${opts.map(([v, l]) => `<button type="button" data-a="ffc-set" data-key="${key}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div></div>`;
+}
+// Favorites first, then recent stations (last 10 days), as quick picks for the empty field
+function gsQuick(b, d) {
+  const f = !b.from ? 'from' : !b.to ? 'to' : null; if (!f) return '';
+  const other = f === 'from' ? 'to' : 'from';
+  const list = [...d.fav, ...d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, c) => a.d - c.d).map(x => x.c)].filter(c => c !== b[other] && !(AUTO_TRAIN[c] && autoTrainBlocked())).slice(0, 6);
+  if (!list.length) return '';
+  return `<div class="gs-quick"><p class="gs-quick__label" id="gs-ql">${f === 'from' ? 'Leave from' : 'Go to'} a favorite or recent station</p><div class="gs-quick__list" role="group" aria-labelledby="gs-ql">${list.map(c => `<button class="gs-chip" type="button" data-a="gs-quick" data-field="${f}" data-code="${c}">${d.fav.includes(c) ? ic('star-filled', 'ads-icon--sm') : ic('history', 'ads-icon--sm')}<span><b>${c}</b> ${ST[c].city}, ${ST[c].st}</span></button>`).join('')}</div></div>`;
+}
+function ffGuided(r, ri) {
+  const d = D(), b = d.booking, v = V(), member = d.signedIn, intent = intentOf(b);
+  const corp = intent === 'corporate', pr = intent === 'pr', std = !corp && !pr;
+  const st = gsState(b), errs = gsErrors(r, b);
+  if (r.u.open === undefined) r.u.open = st.where ? null : 'where';
+  ref('607', '608', '1060', '611', '612'); if (std) ref('613'); if (member) ref('624');
+  if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
+  // Booking intent and payment, at the top like Airbnb's tabs
+  const modes = [];
+  if (member && d.triplink) modes.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent'));
+  if (member && d.passrider) modes.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent'));
+  if (member && std) modes.push(gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay'));
+  const top = modes.length || b.modeNote ? `<div class="gs-top">${modes.join('')}${b.modeNote ? `<p class="gs-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${corp ? q(12) : ''}</div>` : '';
+  const content = {
+    where: () => {
+      const e = r.u.showErr ? ffErrors(b) : {};
+      return `${ffNotice(b)}${routeField(r, ri)}${gsQuick(b, d)}<p class="ss-note">Choose a field to search every station by city, name, code or ZIP. Favorites and recent stations come first. ${q(1)}</p>`;
+    },
+    when: () => {
+      const e = r.u.showErr ? ffErrors(b) : {};
+      const field = b.trip === 'ow' ? 'dep' : (r.u.picking || 'dep');
+      return `${tripSeg()}${b.trip === 'ow' ? `<p class="gs-chosen"><span>Depart</span><b>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</b></p>` : ''}${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}<div class="gs-cal" data-scroll="gs-cal">${calendarBody(r, ri, field)}</div>`;
+    },
+    who: () => {
+      let h = '';
+      if (pr) {
+        const elig = d.passrider.role === 'employee' && d.passrider.business, miss = r.u.showErr && !b.prType;
+        h += elig ? `<div class="gs-field"><span class="gs-field__label" id="gs-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="gs-prt" ${miss ? 'aria-describedby="gs-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="gs-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone. Family and companions travel as Leisure.</p>'}</div>`
+          : `<p class="gs-chosen"><span>Travel type</span><b>Leisure</b></p><p class="ads-helper">${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</p>`;
+      }
+      return h + travelersClear(r, ri, 'parts', v.entry).body;
+    }
+  };
+  const sections = GS.map((k, i) => {
+    const open = r.u.open === k, err = errs[k];
+    if (!open) return `<section class="gs${err ? ' has-error' : ''}" id="gs-${k}"><button class="gs__sum" type="button" data-a="gs-open" data-k="${k}" aria-expanded="false" aria-controls="gs-${k}-body" ${err ? `aria-describedby="gs-${k}-err"` : ''}><span class="gs__label">${GS_LABEL[k]}</span><span class="gs__val">${esc(gsSummary(k, b, d))}</span>${ic(err ? 'alert-diamond' : 'chevron-down', 'gs__chev')}</button>${err ? `<p class="gs__err" id="gs-${k}-err">${err}</p>` : ''}<div id="gs-${k}-body" hidden></div></section>`;
+    return `<section class="gs is-open${err ? ' has-error' : ''}" id="gs-${k}" aria-labelledby="gs-${k}-q"><div class="gs__head"><h3 class="gs__q" id="gs-${k}-q" tabindex="-1">${GS_Q[k]}</h3><span class="gs__step">${i + 1} of 3</span></div><div class="gs__body" id="gs-${k}-body">${content[k]()}</div></section>`;
+  }).join('');
+  // Coupon and promo codes: a separate card, apart from passenger discounts (NMA-613)
+  let code = '';
+  if (std && b.pay === 'cash') code = b.code
+    ? `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">${esc(b.code.code)} · ${esc(b.code.kind)}<small>${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.</small></span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div>${b.codeErr ? `<p class="gs__err" id="ffc-code-err" role="alert">${b.codeErr}</p>` : ''}</section>`
+    : `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--split"><button class="gs__sumbtn" type="button" data-a="push" data-s="code"><span class="gs__label">Coupon or promo code</span><span class="gs__val">Add</span>${ic('chevron-right', 'gs__chev')}</button><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div></section>`;
+  else if (std) code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">Not available when paying with points${b.code ? `<small>Your code ${esc(b.code.code)} is kept for a cash search.</small>` : ''}</span></div></section>`;
+  else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts, codes and points aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
+  if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
+  tip('Open any section to change it; the others keep their answers. Find Trains works at any point and opens the first section that needs attention.');
+  const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
+  const nextK = r.u.open && GS[GS.indexOf(r.u.open) + 1];
+  const foot = `<div class="gs-foot">${nextK ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="gs-next" aria-label="Next: ${GS_LABEL[nextK]}">Next</button>` : ''}${r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block" type="button" data-a="find-trains">${ic('search')}Find Trains</button>`}</div>`;
+  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}</div>${netAlert(r)}`, foot };
+}
+A['gs-open'] = (t, ri) => { const r = routeAt(ri); r.u.open = t.dataset.k; pendingFocus = `#gs-${t.dataset.k}-q`; render(); };
+A['gs-next'] = (t, ri) => { const r = routeAt(ri), n = GS[GS.indexOf(r.u.open) + 1]; if (n) { r.u.open = n; pendingFocus = `#gs-${n}-q`; render(); } };
+// A favorite or recent station chip: same rules as choosing it in station search
+A['gs-quick'] = (t, ri) => {
+  const r = routeAt(ri), d = D(), b = d.booking, f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
+  if (b[other] === c) { dialog({ title: 'Select a different station', body: 'Select different origin and destination stations.', actions: [['OK', 'primary', null]], returnFocus: `[data-a="gs-quick"][data-code="${c}"]` }); return; }
+  b[f] = c; b.notice = null;
+  if (AUTO_TRAIN[c]) { b[other] = AUTO_TRAIN[c]; b.notice = `${ST[c].city} is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so ${ST[AUTO_TRAIN[c]].city} was added as your ${other === 'to' ? 'arrival' : 'departure'} station.`; }
+  else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
+  if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
+  if (b.from && b.to) { r.u.open = 'when'; pendingFocus = '#gs-when-q'; } else pendingFocus = `#ff-${other}`;
+  render();
+};
+// After station search returns with both stations, the guided flow moves on to When
+const chooseStationBase = A['choose-station'];
+A['choose-station'] = (t, ri) => {
+  chooseStationBase(t, ri);
+  if (!v2() || nav().dialog) return;
+  const sh = sheet(), b = D().booking;
+  if (sh && sh.stack.length === 1 && sh.stack[0].s === 'ff' && b.from && b.to && sh.stack[0].u.open === 'where') { sh.stack[0].u.open = 'when'; pendingFocus = '#gs-when-q'; render(); }
+};
+// Find Trains: open the first section that needs attention, so nothing required stays hidden
+function findGuided(t, ri) {
+  const r = routeAt(ri), b = D().booking;
+  r.u.showErr = true;
+  const errs = gsErrors(r, b), first = GS.find(k => errs[k]);
+  if (first) { r.u.open = first; pendingFocus = first === 'where' ? (b.from ? '#ff-to' : '#ff-from') : first === 'when' ? '#ff-ret-err' : '#gs-who .ads-helper--error, #gs-who-q'; render(); return; }
+  r.u.showErr = false; searchWithCode(r, ri);
+}
+
+// Version 2 demo states (Flow menu › I)
+const populatedBase = V3_PLACES.populated;
+Object.assign(V3_PLACES, {
+  populated: () => { populatedBase(); if (v2()) { sheet().stack[0].u.open = null; render(); } },
+  partial: () => { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; sheet().stack[0].u.open = 'when'; pendingFocus = '#gs-when-q'; render(); },
+  reopened: () => { V3_PLACES.populated(); sheet().stack[0].u.open = 'where'; pendingFocus = '#gs-where-q'; render(); },
+  validate: () => A['find-trains'](null, '0'),
+  whoerror: () => { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.pax = { adult: 0, senior: 0, ya: 0, youth: 0, child: 1, infant: 0 }; sheet().stack[0].u.open = null; A['find-trains'](null, '0'); },
+  who: () => { const b = D().booking; if (b.intent === 'pr') b.prType = 'leisure'; sheet().stack[0].u.open = 'who'; render(); }
 });
 
 /* Sprint 4 prototype: start-up */

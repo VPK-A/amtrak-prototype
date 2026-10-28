@@ -98,26 +98,11 @@ SCR.ff = (r, ri) => {
   if (b.trip === 'rt') ref('608');
   if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
-  if (D().signedIn && (D().triplink || D().passrider)) tip('Versions 1 and 2 show the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 3 and 4.');
-  if (v2()) return ffV2(r, ri);
+  if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
+  if (v2()) return ffGuided(r, ri);
   const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
-function ffV2(r, ri) {
-  const b = D().booking, e = ffErrors(b);
-  const stepsDone = [!!(b.from && b.to), !!(b.dep && (b.trip === 'ow' || b.ret))];
-  const step = (n, title, done, open, content, locked) => `<section class="gstep${open ? ' is-open' : ''}${locked ? ' is-locked' : ''}" aria-labelledby="gs-${n}"><div class="gstep__head"><span class="ads-steps__marker${done ? ' is-done' : ''}" aria-hidden="true">${done ? ic('check', 'ads-icon--sm') : n}</span><h3 id="gs-${n}" class="gstep__title">${title}<span class="ads-sr-only">${done ? ', done' : locked ? ', available after the step above' : ''}</span></h3></div>${locked ? `<p class="gstep__locked">${locked}</p>` : content}</section>`;
-  const left = [];
-  if (!b.from) left.push('a departure station'); if (!b.to) left.push('an arrival station'); if (b.trip === 'rt' && !b.ret) left.push('a return date');
-  const autoNote = (b.from === 'LOR' || b.from === 'SFA') ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Lorton and Sanford are Auto Train stations. They only connect to each other, so the other end was filled in for you.</span></p>` : '';
-  const body = `${tripSeg()}<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${b.trip === 'ow' ? 'One-way trip. You can add a return at any time.' : 'Round trip. You’ll choose both dates in one calendar.'}</span></p>${ffNotice(b)}
-    ${step(1, 'Where are you going?', stepsDone[0], true, routeField(r, ri) + autoNote)}
-    ${step(2, 'When are you leaving?', stepsDone[1] && stepsDone[0], stepsDone[0], dateFields(r) + `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>Departure starts as today. ${b.trip === 'rt' ? 'The return can’t be before the departure.' : ''}</span></p>`, stepsDone[0] ? '' : 'Choose both stations first. Dates depend on the route.')}
-    ${step(3, 'Who’s traveling?', stepsDone[0], stepsDone[0], travelersRow(r) + assistBlock(r, ri, 'ff'), stepsDone[0] ? '' : 'Available after you choose stations.')}
-    ${netAlert(r)}`;
-  const status = left.length ? `<p class="gleft" id="ff-left">${ic('info-circle', 'ads-icon--sm')}<span>Still needed: ${left.join(', ')}.</span></p>` : `<p class="gleft is-ready" id="ff-left">${ic('check-circle', 'ads-icon--sm')}<span>Ready to search.</span></p>`;
-  return { title: 'New Booking', kind: 'root', body, foot: status + findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
-}
 // Fare Finder actions
 A.trip = t => { const b = D().booking; b.trip = t.dataset.v; if (b.trip === 'rt') { if (!b.ret) b.ret = b.dep; } else b.ret = null; pendingFocus = `[data-a="trip"][data-v="${t.dataset.v}"]`; render(); };
 A['add-return'] = (t, ri) => { const b = D().booking; b.trip = 'rt'; b.ret = b.dep; pendingFocus = '#ff-ret'; render(); };

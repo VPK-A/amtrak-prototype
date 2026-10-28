@@ -497,3 +497,77 @@ button.ffc-row:hover, .ffc-row__main:hover { background: var(--ads-background-su
 .text-large .fl-row { grid-template-columns: 28px minmax(0, 1fr); }
 .text-large .fl-row__acts { grid-column: 2; margin: 2px 0 -8px -8px; flex-wrap: wrap; }
 .text-large .busyrow { flex-wrap: wrap; }
+
+/* =====================================================================
+   Version 2 Fare Finder, Airbnb-inspired guided search: stacked rounded
+   sections, one open at a time, collapsed summaries, persistent bottom bar.
+   ===================================================================== */
+.pane--gs .pane__scroll { background: var(--ads-background-surface-sunken); }
+.pane--gs .ads-navbar { background: var(--ads-background-surface-sunken); border: 0; }
+.pane--gs .pane__body { gap: 14px; padding: 4px 14px 28px; }
+.gs-top { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+.gs-mode { display: flex; flex-direction: column; gap: 6px; }
+.gs-mode__label { color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 600; }
+.gs-mode .ads-segmented { background: var(--ads-background-surface-default); box-shadow: inset 0 0 0 1px var(--ads-border-subtle); }
+.gs-note { display: flex; gap: 8px; margin: 0; font-size: 14px; color: var(--ads-content-text-secondary); }
+.gs-note .ads-icon { flex: none; margin-top: 2px; color: var(--ads-content-icon-info); }
+.gs-stack { display: flex; flex-direction: column; gap: 12px; }
+.gs { border-radius: 24px; background: var(--ads-background-surface-default); box-shadow: 0 1px 2px rgb(5 18 49 / 0.06), 0 4px 16px rgb(5 18 49 / 0.06); }
+.gs.is-open { box-shadow: 0 2px 6px rgb(5 18 49 / 0.08), 0 12px 32px rgb(5 18 49 / 0.10); }
+.gs.has-error:not(.is-open) { box-shadow: inset 0 0 0 2px var(--ads-border-status-error); }
+.gs__sum { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 16px 20px; border: 0; border-radius: 24px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surface-hover); }
+.gs__sum:focus-visible, .gs__sumbtn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.gs__sum--static { cursor: default; flex-wrap: wrap; }
+.gs__sum--split { padding: 0 12px 0 0; gap: 4px; }
+.gs__sumbtn { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 16px 8px 16px 20px; border: 0; border-radius: 24px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.gs__label { flex: none; color: var(--ads-content-text-secondary); font-size: 15px; }
+.gs__val { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-size: 15px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.gs__val small { color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 400; }
+.gs__chev { flex: none; color: var(--ads-content-icon-tertiary); }
+.gs.has-error .gs__chev { color: var(--ads-content-icon-error); }
+.gs__err { margin: -6px 20px 0; padding-bottom: 14px; color: var(--ads-content-text-error); font-size: 14px; line-height: 1.4; }
+.gs--muted .gs__val { color: var(--ads-content-text-secondary); font-weight: 400; }
+.gs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 24px 20px 0; }
+.gs__q { margin: 0; font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.ads-root .gs__q[tabindex]:focus-visible { outline: none; }
+.gs__step { flex: none; color: var(--ads-content-text-secondary); font-size: 13px; font-weight: 600; }
+.gs__body { display: flex; flex-direction: column; gap: 16px; padding: 18px 20px 22px; }
+.gs__body .ffc-h { margin: 6px 0 0; }
+.gs-field { display: flex; flex-direction: column; gap: 8px; }
+.gs-field__label { font-weight: 600; }
+.gs-chosen { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--ads-background-surface-sunken); }
+.gs-chosen span { color: var(--ads-content-text-secondary); }
+.gs-quick { display: flex; flex-direction: column; gap: 8px; }
+.gs-quick__label { margin: 0; color: var(--ads-content-text-secondary); font-size: 14px; font-weight: 600; }
+.gs-quick__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.gs-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid var(--ads-border-default); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+.gs-chip .ads-icon { color: var(--ads-content-icon-brand); }
+.gs-chip:hover { background: var(--ads-background-surface-hover); }
+.gs-chip:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.gs-cal { max-height: 360px; overflow-y: auto; margin: 0 -20px; padding: 0 20px; border-top: 1px solid var(--ads-border-subtle); }
+.gs-cal .ads-calendar__weekdays { background: var(--ads-background-surface-default); }
+.gs-cal > .ads-segmented, .gs-cal > .ghint { margin-top: 12px; }
+.gs-cal .ads-calendar { margin-top: 8px; }
+.gs-cal .ads-day:disabled { text-decoration: line-through; }
+.gs-cal .ads-day--range-start, .gs-cal .ads-day--range-end, .gs-cal .ads-day--in-range { background-color: transparent; }
+.gs-cal .ads-day--in-range { background: var(--ads-background-surface-sunken); }
+.gs-cal .ads-day--range-start { background: linear-gradient(90deg, transparent 50%, var(--ads-background-surface-sunken) 50%); }
+.gs-cal .ads-day--range-end { background: linear-gradient(90deg, var(--ads-background-surface-sunken) 50%, transparent 50%); }
+.gs-cal .ads-day[aria-pressed="true"]::before { background: var(--ads-content-text-primary); }
+.gs-cal .ads-day[aria-pressed="true"] { color: var(--ads-background-surface-default); }
+.gs .assistbox { border-radius: 18px; }
+.pane--gs .pane__foot { background: var(--ads-background-surface-default); }
+.gs-foot { display: flex; gap: 10px; align-items: center; }
+.gs-foot > .ads-btn--block, .gs-foot > .busyrow { flex: 1; }
+.gs-foot .ads-btn .ads-icon { margin-right: 6px; }
+.gs-banner { margin: 0 -14px; }
+.text-large button.gs__sum, .text-large .gs__sumbtn { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+.text-large button.gs__sum .gs__chev, .text-large .gs__sumbtn .gs__chev { grid-column: 2; grid-row: 1; }
+.text-large button.gs__sum .gs__val, .text-large .gs__sumbtn .gs__val { grid-column: 1 / -1; align-items: flex-start; text-align: left; }
+.text-large .gs__sum--static .gs__val { flex-basis: 100%; align-items: flex-start; text-align: left; }
+.gs--code .gs__val { align-items: flex-start; text-align: left; }
+.text-large .gs-foot { flex-wrap: wrap; }
+.gs .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
+.gs .ads-routefield__code { width: auto; min-width: 48px; }
+.gs .ads-routefield__body { flex: 1 1 130px; }
