@@ -37,6 +37,7 @@ Open `docs/index.html` for the live reference of every token and component.
 | `dist/tokens.js`, `dist/tokens.resolved.json` | Tokens with colors resolved to hex, for JS/native use |
 | `icons/svg/*.svg`, `icons/sprite.svg` | 140 icons (139 from ADS + a `sidebar` toggle glyph), 24px, `currentColor` |
 | `logos/` | Travelmark horizontal + vertical, `currentColor` |
+| `ia/app-shell.json` | App structure from the IA App Shell Overview: global header, 4 tabs, landing rules, journey stages |
 | `docs/` | Documentation page (`src.html` → built `index.html`) |
 | `scripts/` | Build scripts |
 
@@ -82,6 +83,21 @@ Text styles → `--ads-type-{style}-{size|line-height|letter-spacing|weight}` an
 | Tab Bar - iPhone (Apple iOS 27 kit) | `.ads-tabbar`, `.ads-tabbar__tabs`, `.ads-tabbar__tab`, `.ads-tabbar__action` | 2–5 tabs, Search Role, `--prominent` action, `--minimized`, `__accessory` |
 | Tab Bar - iPad (Apple iPadOS 27 kit) | `.ads-tabbar-ipad`, `__tab`, `__button`, `.ads-ipad-nav` | sidebar toggle, text tabs, search |
 | Liquid Glass material | `.ads-glass` | light / dark |
+| Global Header (IA) | `.ads-appheader`, `.ads-avatar`, `.ads-icon-btn__dot` | Account + Notification Inbox |
+| Segmented control (IA) | `.ads-segmented` | One-way/Round-trip, Active/Upcoming/Past, Train number/Route |
+| Sheet (IA) | `.ads-sheet` | Account, Inbox, New Booking |
+| eTicket card (IA) | `.ads-ticket` | QR, seat, Add to Wallet, live status |
+
+## App shell (IA)
+
+From *IA App Shell Overview* (12 slides). Stored as data in `ia/app-shell.json` and shown in the docs' App shell section with a working prototype.
+
+- **Tab bar:** Book · Trips · Train Status · Support. Same four on iPhone (bottom glass bar, Type=Default) and iPad (top glass bar).
+- **Global header:** Account (avatar, greeting, tier · points) and Notification Inbox (unread dot). Both open as sheets.
+- **Where the app opens:** no current trip → Book; upcoming trip → Trips · Upcoming; active trip → Trips · Active.
+- **Trips · Active** adapts across Pre-departure, Station, Onboard and Arrival. The eTicket stays on top; the stage card below it changes.
+- Search lives inside Book ("New Booking · Where to?" opens the booking sheet), so the tab bar has no separate search button.
+- Segmented control, sheet and eTicket card appear in the IA screens but not in the ADS Figma library; they were built here from ADS tokens and should be added to Figma.
 
 ## Notes and gaps
 

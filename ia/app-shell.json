@@ -1,0 +1,42 @@
+{
+  "$source": "Amtrak IA App Shell Overview (PDF, 12 slides)",
+  "principle": "One structure for the whole journey. Four primary destinations give features clear homes; the experience adapts to where the traveler is in their journey. The starting destination changes while the navigation stays the same.",
+  "shell": {
+    "globalHeader": {
+      "purpose": "Access to personal information and messages, on every tab.",
+      "items": [
+        { "id": "account", "label": "Account", "presentation": "sheet",
+          "content": ["Profile + Guest Rewards card (tier, points, $ value, progress)", "Points activity", "Add card to Wallet", "Inbox", "Travelers", "Payment", "Assistance", "Quick settings: Trip updates, Sign in with Face ID, Dark Mode"],
+          "children": [{ "id": "guest-rewards", "label": "Guest Rewards", "content": ["Points balance", "Tier progress", "Milestones", "Tier benefits"] }] },
+        { "id": "inbox", "label": "Notification Inbox", "presentation": "sheet",
+          "content": ["Unread count + Mark all as read", "Service messages and travel alerts", "Communication preferences"],
+          "note": "Trip-relevant updates also appear alongside the trip they affect." }
+      ]
+    },
+    "primaryNavigation": [
+      { "id": "book", "label": "Book", "icon": "search", "job": "A clear place to plan and purchase",
+        "content": ["Prominent 'New Booking · Where to?' entry → focused booking sheet (One-way/Round-trip, From/To, Popular stations, Depart, Travelers, Search trains, Recent)", "Explore destinations: Recommended trips, Routes near me / favorite stations", "Quick Rebook", "Plan your trip: Explore, Passes, Gift cards", "Offers, coupons and points pricing while planning"] },
+      { "id": "trips", "label": "Trips", "icon": "payment-voucher", "job": "Everything connected to a booked journey",
+        "content": ["Segments: Active · Upcoming · Past", "eTicket (QR, car/seat, Add to Wallet, live status, Track)", "Stage card (see journeyStages)", "This trip: boarding, changes, rebook, onboard info, disruption guidance, trip-specific support"] },
+      { "id": "train-status", "label": "Train Status", "icon": "train", "job": "Travel information beyond a reservation",
+        "content": ["Look up by Train number or Route", "Your train (from eTicket)", "Popular trains today", "Station-to-station progress and service updates", "Stations, maps, Timetables"] },
+      { "id": "support", "label": "Support", "icon": "question-circle", "job": "A clear route to help and recovery",
+        "content": ["Issue with your trip? (disruptions, cancellations)", "Lost items and baggage (claim entry)", "Guidance for you: Know-before-booking, Your station", "Rail travel guide", "Contact Amtrak: Text, Call, Email, Live Chat", "Refund and recovery information"] }
+    ]
+  },
+  "landing": [
+    { "situation": "no-trip", "label": "No current trip", "start": "book", "priority": "Planning and purchase first" },
+    { "situation": "upcoming", "label": "Upcoming trip", "start": "trips", "segment": "upcoming", "priority": "Preparation and trip management" },
+    { "situation": "active", "label": "Active trip", "start": "trips", "segment": "active", "priority": "Ticket, live information and immediate actions" }
+  ],
+  "journeyStages": [
+    { "id": "pre-departure", "label": "Pre-departure", "section": "Before you leave", "focus": "Prepare, review trip details, get ready to leave for the station", "card": ["Departs", "Boarding", "Track"], "link": "View trip prep" },
+    { "id": "station", "label": "Station", "section": "Station mode", "focus": "Ticket, station information and boarding guidance", "card": ["Track", "Boarding", "Departs"], "link": "View station details" },
+    { "id": "onboard", "label": "Onboard", "section": "Onboard mode", "focus": "Train progress, onboard details and services", "card": ["Next stop", "Progress", "Time remaining"], "link": "View onboard details" },
+    { "id": "arrival", "label": "Arrival", "section": "Arrival mode", "focus": "Arrival information and the transition out of the journey", "card": ["Arrives", "Track", "Weather"], "link": "View arrival details" }
+  ],
+  "platforms": {
+    "iphone": "Global header at top; Liquid Glass tab bar at bottom with the four destinations, Type=Default (no separate search: search lives in Book).",
+    "ipad": "Glass tab bar centered at top with sidebar toggle and the four destinations; Account and Inbox at the trailing edge."
+  }
+}

@@ -116,6 +116,61 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
 .ipad__body { display: flex; flex-direction: column; gap: var(--ads-space-24); padding: var(--ads-space-24) var(--ads-space-32) var(--ads-space-32); }
 .ipad__search { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--ads-space-16); align-items: end; }
 @media (max-width: 900px) { .ipad__search { grid-template-columns: minmax(0, 1fr); } .ads-ipad-nav { grid-template-columns: minmax(0, 1fr); justify-items: center; } .ads-ipad-nav > :first-child, .ads-ipad-nav > :last-child { display: none; } }
+.shellmap { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.shellmap__header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; padding: 12px; border: 1px dashed var(--ads-border-default); border-radius: var(--ads-radius-8); }
+.shellmap__header > .ads-caption { flex-basis: 100%; color: var(--doc-muted); }
+.shellmap__node { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: var(--ads-radius-8); background: var(--doc-panel); border: 1px solid var(--doc-rule); }
+.shellmap__node h4 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.shellmap__node p { margin: 0; color: var(--doc-muted); font-size: 13px; }
+.shellmap__node ul { margin: 4px 0 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.shellmap__node--tab { border-top: 3px solid var(--ads-border-brand); }
+.shellmap__foot { grid-column: 1 / -1; font-size: 12px; color: var(--doc-muted); text-align: center; padding-top: 2px; }
+.landing { display: flex; flex-direction: column; }
+.landing__row { display: grid; grid-template-columns: 130px 24px 96px minmax(0, 1fr); gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--doc-rule); }
+.landing__row:last-child { border-bottom: 0; }
+.landing__row b { font-size: 14px; }
+.landing__row span { color: var(--doc-muted); font-size: 13px; }
+.landing__dest { justify-self: start; padding: 3px 10px; border-radius: var(--ads-radius-2); background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.landing__dest--book { background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; counter-reset: st; }
+.stages li { display: flex; flex-direction: column; gap: 4px; padding-top: 10px; border-top: 2px solid var(--doc-rule); counter-increment: st; }
+.stages li b::before { content: counter(st) "  "; color: var(--ads-content-text-tertiary); font-variant-numeric: tabular-nums; }
+.stages li span { color: var(--doc-muted); font-size: 13px; }
+.proto { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: var(--ads-space-32); align-items: start; }
+.proto__controls { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 110px; }
+.proto__phone { min-height: 780px; height: 780px; position: relative; }
+.proto__screen { flex: 1; overflow-y: auto; padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 14px; }
+.proto__screen h2 { margin: 4px 0 0; }
+.proto__screen > *, .proto__sheet > * { flex: none; }
+.stagecard .ads-progress__head { white-space: nowrap; font-size: 12px; }
+.stagecard__top .ads-badge { text-transform: none; letter-spacing: 0; }
+.proto__scrim { position: absolute; inset: 0; z-index: 3; display: flex; align-items: flex-end; background: var(--ads-background-surface-scrim); }
+.proto__sheet { width: 100%; max-height: 88%; overflow-y: auto; }
+.sec { margin: 6px 0 -4px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ads-content-text-tertiary); }
+.panel { display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
+.panel > .row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; }
+.panel > .row + .row { border-top: 1px solid var(--ads-border-subtle); }
+.panel > .row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.panel > .row small { color: var(--ads-content-text-secondary); font-size: 12px; line-height: 1.35; }
+.panel > .row > .ads-icon { color: var(--ads-content-icon-tertiary); }
+.stagecard { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.stagecard__top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ads-content-text-secondary); }
+.stagecard h3 { margin: 0; font-size: 20px; }
+.stagecard__facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-variant-numeric: tabular-nums; }
+.stagecard__facts span { display: block; font-size: 12px; color: var(--ads-content-text-secondary); }
+.stagecard__facts b { font-size: 18px; }
+.stagecard p { margin: 0; font-size: 13px; color: var(--ads-content-text-secondary); }
+.newbooking { display: flex; align-items: center; gap: 10px; width: 100%; height: 48px; padding: 0 16px; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-full); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; cursor: pointer; }
+.newbooking b { flex: 1; text-align: left; font-weight: 600; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); font-size: 13px; }
+.tile small { color: var(--ads-content-text-secondary); }
+.loyalty { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); }
+.loyalty strong { font-size: 30px; font-weight: 300; font-variant-numeric: tabular-nums; }
+.loyalty .ads-progress__track { border-color: transparent; background: rgb(255 255 255 / 0.2); }
+.unread { width: 8px; height: 8px; border-radius: 50%; background: var(--ads-content-icon-brand); flex: none; align-self: flex-start; margin-top: 7px; }
+@media (max-width: 1100px) { .proto { grid-template-columns: minmax(0, 1fr); } .proto__controls { position: static; } .shellmap { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .shellmap { grid-template-columns: minmax(0, 1fr); } .stages { grid-template-columns: minmax(0, 1fr); } .landing__row { grid-template-columns: minmax(0, 1fr) auto; } .landing__row > :nth-child(2) { display: none; } .landing__row > :last-child { grid-column: 1 / -1; } }
 @media (max-width: 900px) {
   .doc { grid-template-columns: minmax(0, 1fr); gap: var(--ads-space-24); }
   .doc-nav { position: static; flex-direction: row; flex-wrap: wrap; }
@@ -149,7 +204,7 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
   <span class="ads-overline">Components</span>
   <a href="#button">Button</a><a href="#link">Link</a><a href="#badge">Badge</a><a href="#alert">Alert</a><a href="#forms">Text Input &amp; Select</a><a href="#choice">Checkbox, Radio, Switch</a><a href="#counter">Counter</a><a href="#search">Search &amp; List</a><a href="#accordion">Accordion</a><a href="#tabs">Tabs</a><a href="#card">Card</a><a href="#progress">Progress</a><a href="#tooltip">Tooltip</a><a href="#modal">Modal</a><a href="#date">Date Picker</a>
   <span class="ads-overline">Mobile</span>
-  <a href="#mobile">App navigation &amp; tab bars</a>
+  <a href="#mobile">App shell &amp; tab bars</a>
 </nav>
 
 <main>
@@ -412,97 +467,101 @@ gap: var(--ads-space-16);</pre>
 </section>
 
 <section id="mobile">
-  <header><h2 class="ads-h2">App navigation</h2><p>Tab bars follow Apple's iOS &amp; iPadOS 27 kit: a floating Liquid Glass capsule at the bottom on iPhone and a glass bar centered at the top on iPad. Sizes, type and states match the kit; the selected tint is ADS brand blue. The top bar with the logo and booking search comes from the NextGen Mobile App file.</p></header>
+  <header><h2 class="ads-h2">App shell</h2><p>From the IA App Shell Overview: one structure for the whole journey. Four destinations sit in the tab bar, Account and Notification Inbox sit in the global header, and the app opens where the traveler needs to be next. The starting tab changes; the navigation never does.</p></header>
+
+  <div class="shellmap" id="shellMap" aria-label="App structure"></div>
+
   <div class="two">
-    <div class="phone" aria-label="iPhone example">
-      <div class="ads-topnav"><div class="phone__status" style="padding:12px 0 0"><span>9:41</span><span class="ads-caption">●●● ▮</span></div><div class="ads-topnav__row"><span class="ads-topnav__logo" style="width:160px">__LOGO_H__</span><div class="ads-topnav__actions"><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Notifications"><span class="ads-icon ads-icon--bell"></span></button><button class="ads-icon-btn ads-icon-btn--sm" aria-label="Account"><span class="ads-icon ads-icon--person-circle"></span></button></div></div><div class="ads-control ads-control--pill"><span class="ads-icon ads-icon--search"></span><input type="search" id="mq" placeholder="Where to?" aria-label="Where to?"></div></div>
-      <div class="phone__body">
-        <span class="ads-overline ads-text-tertiary">Next trip</span>
-        <div class="trip"><span class="ads-body-small ads-text-secondary">Fri, Nov 14 · Northeast Regional 171</span><strong>NYP 8:05 → WAS 11:32</strong><div class="ads-row" style="--ads-row-gap:8px"><span class="ads-badge ads-badge--success"><span class="ads-icon ads-icon--check-circle"></span>On time</span><span class="ads-caption ads-text-secondary">Track posts 15 min before</span></div></div>
-        <div class="phone__hero" role="img" aria-label="Route map placeholder"></div>
-      </div>
-      <nav class="ads-tabbar phone__tabbar" aria-label="App" data-tabbar>
-        <div class="ads-tabbar__tabs ads-glass">
-          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--train"></span><span>Status</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--person-circle"></span><span>Account</span></a>
-        </div>
-        <button class="ads-tabbar__action ads-glass" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button>
-      </nav>
+    <div class="specimen">
+      <p class="ads-field-label specimen__label ads-text-secondary">Where the app opens</p>
+      <div class="landing" id="landing"></div>
     </div>
-    <div class="ads-stack" style="--ads-stack-gap:16px">
-      <p class="ads-field-label ads-text-secondary" style="margin:0">iPhone variants</p>
-      <div class="glass-stage">
-        <span class="ads-caption">Default · 3 tabs</span>
-        <nav class="ads-tabbar" aria-label="Default example"><div class="ads-tabbar__tabs ads-glass">
-          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--search"></span><span>Book</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span><span>Support</span></a>
-        </div></nav>
-        <span class="ads-caption">Prominent tab · filled action for the main task</span>
-        <nav class="ads-tabbar" aria-label="Prominent example"><div class="ads-tabbar__tabs ads-glass">
-          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--train"></span><span>Status</span></a>
-        </div><button class="ads-tabbar__action ads-tabbar__action--prominent ads-glass" type="button" aria-label="Show eTicket"><span class="ads-icon ads-icon--qr-code"></span></button></nav>
-        <span class="ads-caption">Minimized · while content scrolls, with an accessory</span>
-        <nav class="ads-tabbar ads-tabbar--minimized" aria-label="Minimized example"><div class="ads-tabbar__tabs ads-glass">
-          <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--home"></span><span>Home</span></a>
-          <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
-        </div><div class="ads-tabbar__accessory ads-glass"><span class="ads-icon ads-icon--train ads-icon--sm"></span><span>Train 171 boarding · Track 7</span></div><button class="ads-tabbar__action ads-glass" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button></nav>
-      </div>
-<pre class="code">&lt;nav class="ads-tabbar" aria-label="App"&gt;     &lt;!-- add --minimized on scroll --&gt;
-  &lt;div class="ads-tabbar__tabs ads-glass"&gt;
-    &lt;a class="ads-tabbar__tab" aria-current="page"&gt;
-      &lt;span class="ads-icon ads-icon--home"&gt;&lt;/span&gt;&lt;span&gt;Home&lt;/span&gt;
-    &lt;/a&gt;
-    …                                        &lt;!-- 2 to 5 tabs --&gt;
-  &lt;/div&gt;
-  &lt;button class="ads-tabbar__action ads-glass" aria-label="Search"&gt;…&lt;/button&gt;
-&lt;/nav&gt;</pre>
+    <div class="specimen">
+      <p class="ads-field-label specimen__label ads-text-secondary">Trips · Active adapts to four journey stages</p>
+      <ol class="stages" id="stages"></ol>
     </div>
   </div>
 
-  <h3 class="sub">iPad</h3>
+  <h3 class="sub">Prototype</h3>
+  <p class="note">Use the switcher to set the traveler's situation. The app opens on the matching tab, and the Active trip card follows the journey stage. Tap the avatar or the inbox for their sheets, and New Booking for the booking sheet.</p>
+  <div class="proto">
+    <div class="proto__controls">
+      <div class="ads-field"><span class="ads-field__label" id="sw1">Traveler situation</span><div class="ads-segmented" role="group" aria-labelledby="sw1" id="swSituation"><button type="button" data-v="no-trip" aria-pressed="false">No trip</button><button type="button" data-v="upcoming" aria-pressed="false">Upcoming</button><button type="button" data-v="active" aria-pressed="true">Active</button></div></div>
+      <div class="ads-field" id="stageField"><span class="ads-field__label" id="sw2">Journey stage</span><div class="ads-segmented" role="group" aria-labelledby="sw2" id="swStage"><button type="button" data-v="pre-departure" aria-pressed="false">Pre-departure</button><button type="button" data-v="station" aria-pressed="false">Station</button><button type="button" data-v="onboard" aria-pressed="true">Onboard</button><button type="button" data-v="arrival" aria-pressed="false">Arrival</button></div></div>
+      <p class="note" id="protoWhy"></p>
+    </div>
+    <div class="phone proto__phone" aria-label="iPhone prototype">
+      <div class="phone__status"><span>9:41</span><span class="ads-caption">●●● ▮</span></div>
+      <header class="ads-appheader">
+        <button class="ads-appheader__account" type="button" data-sheet="account" aria-label="Account: Alex Rivera"><span class="ads-avatar">AR</span><span><span class="ads-appheader__name">Hi, Alex</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span></button>
+        <button class="ads-icon-btn ads-icon-btn--round" type="button" data-sheet="inbox" aria-label="Notification Inbox, 6 unread"><span class="ads-icon ads-icon--email"></span><span class="ads-icon-btn__dot"></span></button>
+      </header>
+      <div class="proto__screen" id="screen"></div>
+      <nav class="ads-tabbar phone__tabbar" aria-label="App">
+        <div class="ads-tabbar__tabs ads-glass" id="protoTabs">
+          <a class="ads-tabbar__tab" href="#mobile" data-tab="book"><span class="ads-icon ads-icon--search"></span><span>Book</span></a>
+          <a class="ads-tabbar__tab" href="#mobile" data-tab="trips"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+          <a class="ads-tabbar__tab" href="#mobile" data-tab="train-status"><span class="ads-icon ads-icon--train"></span><span>Train Status</span></a>
+          <a class="ads-tabbar__tab" href="#mobile" data-tab="support"><span class="ads-icon ads-icon--question-circle"></span><span>Support</span></a>
+        </div>
+      </nav>
+      <div class="proto__scrim" id="sheetScrim" hidden><div class="ads-sheet proto__sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+    </div>
+  </div>
+
+  <h3 class="sub">Tab bar · iPhone</h3>
+  <div class="two">
+    <div class="glass-stage">
+      <span class="ads-caption">Default · the four destinations</span>
+      <nav class="ads-tabbar" aria-label="Default example"><div class="ads-tabbar__tabs ads-glass">
+        <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--search"></span><span>Book</span></a>
+        <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+        <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--train"></span><span>Train Status</span></a>
+        <a class="ads-tabbar__tab" href="#mobile"><span class="ads-icon ads-icon--question-circle"></span><span>Support</span></a>
+      </div></nav>
+      <span class="ads-caption">Minimized · while a trip scrolls, live status as the accessory</span>
+      <nav class="ads-tabbar ads-tabbar--minimized" aria-label="Minimized example"><div class="ads-tabbar__tabs ads-glass">
+        <a class="ads-tabbar__tab" href="#mobile" aria-current="page"><span class="ads-icon ads-icon--payment-voucher"></span><span>Trips</span></a>
+      </div><div class="ads-tabbar__accessory ads-glass"><span class="ads-icon ads-icon--train ads-icon--sm"></span><span>Train 171 · Next stop Wilmington, 22 min</span></div></nav>
+    </div>
+<pre class="code">&lt;nav class="ads-tabbar" aria-label="App"&gt;     &lt;!-- add --minimized on scroll --&gt;
+  &lt;div class="ads-tabbar__tabs ads-glass"&gt;
+    &lt;a class="ads-tabbar__tab"&gt;…Book&lt;/a&gt;
+    &lt;a class="ads-tabbar__tab" aria-current="page"&gt;…Trips&lt;/a&gt;
+    &lt;a class="ads-tabbar__tab"&gt;…Train Status&lt;/a&gt;
+    &lt;a class="ads-tabbar__tab"&gt;…Support&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+&lt;!-- The kit's Search Role and Prominent Tab variants
+     (.ads-tabbar__action) stay available, but the IA keeps
+     search inside Book, so the app uses Type=Default. --&gt;</pre>
+  </div>
+
+  <h3 class="sub">Tab bar · iPad</h3>
   <div class="ipad" aria-label="iPad example">
     <div class="ads-ipad-nav">
       <span class="ads-topnav__logo" style="width:120px;color:var(--ads-brand-primary-blue)">__LOGO_H__</span>
-      <nav class="ads-tabbar-ipad ads-glass" aria-label="App" data-tabbar>
+      <nav class="ads-tabbar-ipad ads-glass" aria-label="App">
         <button class="ads-tabbar-ipad__button" type="button" aria-label="Show sidebar" aria-pressed="false"><span class="ads-icon ads-icon--sidebar"></span></button>
         <div class="ads-tabbar-ipad__tabs">
           <a class="ads-tabbar-ipad__tab" href="#mobile" aria-current="page">Book</a>
           <a class="ads-tabbar-ipad__tab" href="#mobile">Trips</a>
           <a class="ads-tabbar-ipad__tab" href="#mobile">Train Status</a>
-          <a class="ads-tabbar-ipad__tab" href="#mobile">Deals</a>
-          <a class="ads-tabbar-ipad__tab" href="#mobile">Account</a>
+          <a class="ads-tabbar-ipad__tab" href="#mobile">Support</a>
         </div>
-        <button class="ads-tabbar-ipad__button" type="button" aria-label="Search"><span class="ads-icon ads-icon--search"></span></button>
       </nav>
-      <button class="ads-icon-btn" aria-label="Notifications"><span class="ads-icon ads-icon--bell"></span></button>
+      <div class="ads-row" style="--ads-row-gap:8px"><button class="ads-icon-btn ads-icon-btn--round" aria-label="Notification Inbox, 6 unread"><span class="ads-icon ads-icon--email"></span><span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" aria-label="Account"><span class="ads-avatar">AR</span></button></div>
     </div>
     <div class="ipad__body">
-      <div class="ads-stack" style="--ads-stack-gap:8px"><span class="ads-overline ads-text-tertiary">Plan a trip</span><h3 class="ads-h2" style="margin:0">Where are you headed?</h3></div>
+      <button class="newbooking" type="button"><span class="ads-icon ads-icon--search"></span><b>New Booking</b><span class="ads-text-tertiary">Where to?</span></button>
       <div class="ipad__search">
         <div class="ads-field"><label class="ads-field__label" for="ip1">From</label><div class="ads-control ads-control--lg"><span class="ads-control__station">NYP</span><input id="ip1" value="New York, NY"></div></div>
         <div class="ads-field"><label class="ads-field__label" for="ip2">To</label><div class="ads-control ads-control--lg"><span class="ads-control__station">WAS</span><input id="ip2" value="Washington, DC"></div></div>
-        <button class="ads-btn ads-btn--lg" style="align-self:end">Find trains</button>
+        <button class="ads-btn ads-btn--lg" style="align-self:end">Search trains</button>
       </div>
-      <div class="phone__hero" style="min-height:160px" role="img" aria-label="Destination imagery placeholder"></div>
     </div>
   </div>
-<pre class="code">&lt;header class="ads-ipad-nav"&gt;
-  &lt;span&gt;…logo…&lt;/span&gt;
-  &lt;nav class="ads-tabbar-ipad ads-glass" aria-label="App"&gt;
-    &lt;button class="ads-tabbar-ipad__button" aria-label="Show sidebar"&gt;&lt;span class="ads-icon ads-icon--sidebar"&gt;&lt;/span&gt;&lt;/button&gt;
-    &lt;div class="ads-tabbar-ipad__tabs"&gt;
-      &lt;a class="ads-tabbar-ipad__tab" aria-current="page"&gt;Book&lt;/a&gt; …
-    &lt;/div&gt;
-    &lt;button class="ads-tabbar-ipad__button" aria-label="Search"&gt;…&lt;/button&gt;
-  &lt;/nav&gt;
-  &lt;button class="ads-icon-btn"&gt;…&lt;/button&gt;
-&lt;/header&gt;</pre>
-  <p class="note">Native layout: iPhone tab bar sits 25px from the sides and bottom (32px minimized), safe area 47 top / 34 bottom. iPad tab bar is 44px tall and centered in the top bar. On a real device, use the system tab bar (SwiftUI <code class="t">TabView</code>) with ADS brand blue as the tint; these CSS versions are for web views and prototypes.</p>
+  <p class="note">On iPad the four destinations move into the glass bar at the top, and Account and Inbox sit at the trailing edge, so the header stays a single row. On a device, use the system <code class="t">TabView</code> with ADS brand blue as the tint; these CSS versions are for web views and prototypes.</p>
 </section>
 </main>
 </div>
@@ -512,6 +571,7 @@ gap: var(--ads-space-16);</pre>
 <script>
 const T = /*__TOKENS__*/null;
 const ICONS = /*__ICONS__*/[];
+const IA = /*__IA__*/null;
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -627,6 +687,124 @@ function renderDate() {
   months.append(month(2026, 10, 'l'), month(2026, 11, 'r')); dp.append(months);
   dp.append(el('div', 'ads-datepicker__footer', '<button class="ads-btn ads-btn--tertiary ads-btn--sm">Clear</button><button class="ads-btn ads-btn--sm">Done</button>'));
 }
+
+// ---- App shell (IA) ----
+const ICON_FOR = { book: 'search', trips: 'payment-voucher', 'train-status': 'train', support: 'question-circle', account: 'person-circle', inbox: 'email' };
+function renderShellMap() {
+  const m = $('#shellMap');
+  const head = el('div', 'shellmap__header', '<span class="ads-caption">Global header · on every tab · opens as a sheet</span>');
+  for (const it of IA.shell.globalHeader.items) head.append(el('div', 'shellmap__node', `<h4><span class="ads-icon ads-icon--${ICON_FOR[it.id]} ads-icon--sm"></span>${it.label}</h4><ul>${it.content.slice(0, 4).map(c => `<li>${c}</li>`).join('')}</ul>`));
+  m.append(head);
+  for (const d of IA.shell.primaryNavigation) m.append(el('div', 'shellmap__node shellmap__node--tab', `<h4><span class="ads-icon ads-icon--${d.icon} ads-icon--sm"></span>${d.label}</h4><p>${d.job}</p><ul>${d.content.slice(0, 4).map(c => `<li>${c.replace(/ → .*$/, '')}</li>`).join('')}</ul>`));
+  m.append(el('div', 'shellmap__foot', 'Tab bar · Book · Trips · Train Status · Support'));
+  for (const r of IA.landing) $('#landing').append(el('div', 'landing__row', `<b>${r.label}</b><span>→</span><span class="landing__dest ${r.start === 'book' ? 'landing__dest--book' : ''}">${r.start === 'book' ? 'Book' : 'Trips'}</span><span>${r.priority}</span>`));
+  for (const s of IA.journeyStages) $('#stages').append(el('li', '', `<b>${s.label}</b><span>${s.focus}.</span>`));
+}
+
+const STAGE = {
+  'pre-departure': { sec: 'Before you leave', top: 'Getting ready · Train 171', title: 'New York to Washington', facts: [['Departs', '2:05 PM'], ['Boarding', '1:50 PM'], ['Track', 'TBA']], note: 'Today from New York Penn · 64° Partly cloudy. Track posts about 15 minutes before departure.', link: 'View trip prep', status: 'Departs New York Penn at 2:05 PM' },
+  station: { sec: 'Station mode', top: 'Departing · Train 171', title: 'New York Penn', facts: [['Track', '12W'], ['Boarding', '1:50 PM'], ['Departs', '2:05 PM']], note: 'Boarding starts in 22 min. Have your eTicket ready at the gate.', link: 'View station details', status: 'Boarding soon · Track 12W' },
+  onboard: { sec: 'Onboard mode', top: 'Northeast Regional 171', title: 'Wilmington', pre: 'Next stop', sub: '3:46 PM · in 22 min', progress: 40, ends: ['NYP 2:05 PM', '1h 58m remaining', 'WAS 5:22 PM'], link: 'View onboard details', status: 'Near Philadelphia 30th St · Next Wilmington' },
+  arrival: { sec: 'Arrival mode', top: 'Arriving · Train 171', title: 'Washington Union Station', facts: [['Arrives', '5:22 PM'], ['Track', '1'], ['Weather', '68° Clear']], note: 'Exit toward the Main Hall for taxis, Metro and rideshare pickup.', link: 'View arrival details', status: 'Arriving at Washington Union now' }
+};
+const P = { situation: 'active', stage: 'onboard', tab: 'trips', tripSeg: 'active' };
+const chev = '<span class="ads-icon ads-icon--chevron-right ads-icon--sm"></span>';
+const row = (t, s, tag = 'button') => `<${tag} class="row" ${tag === 'button' ? 'type="button"' : ''}><div><span>${t}</span>${s ? `<small>${s}</small>` : ''}</div>${chev}</${tag}>`;
+const seg = (id, opts, cur) => `<div class="ads-segmented" role="tablist" data-seg="${id}">${opts.map(([v, l]) => `<button type="button" role="tab" data-v="${v}" aria-selected="${v === cur}">${l}</button>`).join('')}</div>`;
+function ticket(s) {
+  return `<div class="ads-ticket"><div class="ads-ticket__head"><span class="ads-ticket__route">NYP → WAS</span><span class="ads-ticket__date">Oct 13 · 2:05 PM</span></div>
+  <div class="ads-ticket__pass"><span class="ads-icon ads-icon--qr-code"></span><span class="ads-ticket__seat">Car 5 · Seat 12A<small>A1B2C0</small></span><button class="ads-ticket__wallet" type="button"><span class="ads-icon ads-icon--payment-gift-card ads-icon--sm"></span>Add to Wallet</button></div>
+  <div class="ads-ticket__status"><span class="ads-ticket__live"></span><span><b>On time · Train 171</b>${s.status}</span><a href="#mobile">Track${chev}</a></div></div>`;
+}
+function stageCard(s) {
+  const body = s.progress != null
+    ? `<div><span class="ads-caption ads-text-secondary">${s.pre}</span><h3>${s.title}</h3><span class="ads-body-small">${s.sub}</span></div><div class="ads-progress"><div class="ads-progress__track"><div class="ads-progress__fill" style="--value:${s.progress}%"></div></div><div class="ads-progress__head"><span class="ads-progress__label">${s.ends[0]}</span><span class="ads-progress__label">${s.ends[1]}</span><span class="ads-progress__label">${s.ends[2]}</span></div></div>`
+    : `<h3>${s.title}</h3><div class="stagecard__facts">${s.facts.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div><p>${s.note}</p>`;
+  return `<p class="sec">${s.sec}</p><div class="panel"><div class="stagecard"><div class="stagecard__top"><span>${s.top}</span><span class="ads-badge ads-badge--success"><span class="ads-icon ads-icon--check-circle"></span>On time</span></div>${body}</div>${row(s.link, '')}</div>`;
+}
+const SCREENS = {
+  book: () => `<h2 class="ads-h3">Book</h2>
+    <button class="newbooking" type="button" data-sheet="booking"><span class="ads-icon ads-icon--search"></span><b>New Booking</b><span class="ads-text-tertiary">Where to?</span></button>
+    <p class="sec">Explore destinations</p><div class="tiles"><div class="tile"><b>Recommended trips</b><small>Pacific Surfliner, Adirondack</small></div><div class="tile"><b>Routes near me</b><small>Favorite stations</small></div></div>
+    <p class="sec">Quick Rebook</p><div class="panel"><div class="row"><div><span>New York (NYP) → Washington (WAS)</span><small>Today · Train 171</small></div><button class="ads-btn ads-btn--sm" type="button">Rebook</button></div><div class="row"><div><span>Boston (BOS) → New York (NYP)</span><small>Sep 14 · Train 2150</small></div><button class="ads-btn ads-btn--sm" type="button">Rebook</button></div></div>
+    <p class="sec">Plan your trip</p><div class="panel">${row('Explore', 'Amtrak offers · Points-based upgrades · Destination map')}${row('Passes', 'Buy · Personalized pass recommendations')}${row('Gift cards', 'Buy or redeem')}</div>`,
+  trips: () => {
+    let body = '';
+    if (P.tripSeg === 'active') body = P.situation === 'active' ? ticket(STAGE[P.stage]) + stageCard(STAGE[P.stage]) + `<p class="sec">This trip</p><div class="panel">${row('Boarding', 'Personalized boarding reminders')}${row('Change trip', 'Change, cancel or rebook')}${row('Onboard', 'Café car, Wi‑Fi, Quiet Car')}${row('Help with this trip', 'Disruptions and refunds')}</div>`
+      : `<div class="panel"><div class="stagecard"><h3>No active trip</h3><p>Your ticket and live train information appear here on travel day.</p><button class="ads-btn ads-btn--secondary ads-btn--sm" style="align-self:flex-start" type="button" data-go="book">Plan a trip</button></div></div>`;
+    if (P.tripSeg === 'upcoming') body = P.situation === 'no-trip' ? `<div class="panel"><div class="stagecard"><h3>No upcoming trips</h3><p>Trips you book show up here.</p></div></div>`
+      : stageCard(STAGE['pre-departure']).replace('Before you leave', 'Next up · Tue, Oct 13') + `<div class="panel">${row('Boston (BOS) → New York (NYP)', 'Fri, Nov 14 · Acela 2150 · 2 travelers')}</div>`;
+    if (P.tripSeg === 'past') body = `<div class="panel">${row('Boston (BOS) → New York (NYP)', 'Sep 14 · Train 2150 · 1,580 points earned')}${row('New York (NYP) → Albany (ALB)', 'Aug 2 · Empire Service 233')}</div>`;
+    return `<h2 class="ads-h3">Trips</h2>${seg('trips', [['active', 'Active'], ['upcoming', 'Upcoming'], ['past', 'Past']], P.tripSeg)}${body}`;
+  },
+  'train-status': () => `<h2 class="ads-h3">Train Status</h2>
+    <div class="panel"><div class="stagecard">${seg('ts', [['num', 'Train number'], ['route', 'Route']], 'num')}<div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div><button class="ads-btn ads-btn--block" type="button">Check status</button></div></div>
+    ${P.situation === 'no-trip' ? '' : `<div class="panel"><div class="row"><span class="ads-icon ads-icon--train" style="color:var(--ads-content-icon-primary)"></span><div><small>YOUR TRAIN · TUE, OCT 13</small><span><b>171 · NYP → WAS</b></span><small>${STAGE[P.situation === 'active' ? P.stage : 'pre-departure'].status}</small></div><span class="ads-badge ads-badge--success">On time</span></div></div>`}
+    <p class="sec">Popular trains today</p><div class="panel"><div class="row"><b>171</b><div><span>NYP → WAS</span><small>Northeast Regional · Departs 2:05 PM</small></div><span class="ads-badge ads-badge--success">On time</span></div><div class="row"><b>2163</b><div><span>BOS → WAS</span><small>Acela · Departs 11:00 AM</small></div><span class="ads-badge ads-badge--warning">+12 min</span></div><div class="row"><b>95</b><div><span>NYP → BOS</span><small>Northeast Regional · Departs 4:10 PM</small></div><span class="ads-badge">Scheduled</span></div></div>
+    <div class="panel">${row('Stations and maps', '')}${row('Timetables', '')}</div>`,
+  support: () => `<h2 class="ads-h3">Support</h2>
+    <p class="sec">Issue with your trip?</p><div class="panel">${row('Issue with your trip?', 'Support for disruptions or cancellations')}</div>
+    <p class="sec">Lost items and baggage</p><div class="panel">${row('Lost-item and baggage help', 'Start a claim · Onboard service')}</div>
+    <p class="sec">Guidance for you</p><div class="panel">${row('Know before booking', 'Onboard help · Departure station · Boarding')}${row('Your station', 'Help for the station on your current journey')}</div>
+    <p class="sec">Rail travel guide</p><div class="panel">${row('Rail experience and self-help', 'Family travel guide')}</div>
+    <p class="sec">Contact Amtrak</p><div class="panel">${row('Text · Call · Email · Live Chat', '')}</div>`
+};
+const SHEETS = {
+  account: () => `<span class="ads-sheet__grabber"></span><div class="ads-sheet__bar"><span></span><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-close aria-label="Close"><span class="ads-icon ads-icon--close ads-icon--sm"></span></button></div>
+    <h2 class="ads-h3 ads-sheet__title" id="sheetTitle">Profile</h2>
+    <div class="loyalty"><div class="ads-row" style="justify-content:space-between"><div><b>Alex Rivera</b><div class="ads-caption" style="opacity:.8">Guest Rewards · 7012 3456 78</div></div><span class="ads-badge">Select Plus</span></div><div><strong>12,450</strong> points · ≈ $360</div><div class="ads-progress__track"><div class="ads-progress__fill" style="--value:84%"></div></div><span class="ads-caption" style="opacity:.8">800 TQP to a Business upgrade · status through Dec 31, 2026</span></div>
+    <div class="tiles"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button">Points activity</button><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button">Add card to Wallet</button><div class="tile"><b>Inbox</b><small>6 new</small></div><div class="tile"><b>Travelers</b><small>3 saved</small></div><div class="tile"><b>Payment</b><small>Visa •••• 4821</small></div><div class="tile"><b>Assistance</b><small>Extra boarding time</small></div></div>
+    <p class="sec">Quick settings</p><div class="panel" style="padding:0 14px">
+      <label class="ads-switch-row"><span>Trip updates<br><small class="ads-text-secondary">Delays and track changes · text &amp; push</small></span><span class="ads-switch"><input type="checkbox" role="switch" id="qs1" checked><span class="ads-switch__track"></span></span></label>
+      <label class="ads-switch-row"><span>Sign in with Face ID</span><span class="ads-switch"><input type="checkbox" role="switch" id="qs2" checked><span class="ads-switch__track"></span></span></label>
+      <label class="ads-switch-row"><span>Dark Mode</span><span class="ads-switch"><input type="checkbox" role="switch" id="qs3"><span class="ads-switch__track"></span></span></label></div>`,
+  inbox: () => `<span class="ads-sheet__grabber"></span><div class="ads-sheet__bar"><span></span><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-close aria-label="Close"><span class="ads-icon ads-icon--close ads-icon--sm"></span></button></div>
+    <h2 class="ads-h3 ads-sheet__title" id="sheetTitle">Notification Inbox</h2>
+    <div class="ads-row" style="justify-content:space-between"><span class="ads-body-small ads-text-secondary">6 unread</span><a class="ads-link ads-link--sm" href="#mobile">Mark all as read</a></div>
+    <div class="panel">${[['Boarding soon · Train 171', '12 min ago', 'Track 12W assigned at New York Penn. Boarding begins 1:50 PM.'], ['Schedule change · Train 2150', '25 min ago', 'Your Acela departs Boston 10 minutes earlier on Oct 12. No action needed.'], ['Seat confirmed', '1 hr ago', 'Car 5, Seat 12A for your trip to Washington · Tue, Oct 13.'], ['Fall fares are here', '2 hr ago', 'Save up to 25% on Northeast Regional trips booked by Oct 31.'], ["You're close to Select Executive", '5 hr ago', 'Earn 2,550 more tier qualifying points this year to reach the next tier.']].map(([t, w, d]) => `<div class="row"><span class="unread"></span><div><span class="ads-row" style="justify-content:space-between;flex-wrap:nowrap"><b class="ads-body-small-emphasis">${t}</b><small>${w}</small></span><small>${d}</small></div></div>`).join('')}<div class="row"><div><span class="ads-row" style="justify-content:space-between"><span class="ads-body-small">Points posted</span><small>Sep 16</small></span><small>1,580 points from your Sep 14 trip were added to your balance.</small></div></div></div>`,
+  booking: () => `<span class="ads-sheet__grabber"></span><div class="ads-sheet__bar"><span></span><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-close aria-label="Close"><span class="ads-icon ads-icon--close ads-icon--sm"></span></button></div>
+    <h2 class="ads-h3 ads-sheet__title" id="sheetTitle">New Booking</h2>
+    ${seg('bk', [['ow', 'One-way'], ['rt', 'Round-trip']], 'ow')}
+    <div class="ads-field"><label class="ads-field__label" for="bf">From</label><div class="ads-control"><input id="bf" placeholder="City, station or code"></div></div>
+    <div class="ads-field"><label class="ads-field__label" for="bt">To</label><div class="ads-control"><input id="bt" placeholder="City, station or code"></div></div>
+    <div class="ads-row" style="--ads-row-gap:8px"><span class="ads-caption ads-text-secondary">Popular</span><button class="ads-badge" type="button" style="border:0">New York (NYP)</button><button class="ads-badge" type="button" style="border:0">Boston (BOS)</button><button class="ads-badge" type="button" style="border:0">Washington (WAS)</button></div>
+    <div class="ads-field"><label class="ads-field__label" for="bd">Depart</label><div class="ads-control"><input id="bd" value="Tue, Oct 13"><span class="ads-icon ads-icon--calendar"></span></div></div>
+    <div class="ads-switch-row"><span>Travelers</span><div class="ads-counter" data-counter data-min="1" data-max="8"><button class="ads-counter__step" type="button" aria-label="Fewer travelers"><span class="ads-icon ads-icon--minus"></span></button><output class="ads-counter__value">1</output><button class="ads-counter__step" type="button" aria-label="More travelers"><span class="ads-icon ads-icon--plus"></span></button></div></div>
+    <button class="ads-btn ads-btn--block ads-btn--lg" type="button"><span class="ads-icon ads-icon--search"></span>Search trains</button>
+    <p class="sec">Recent</p><div class="panel">${row('New York (NYP) → Washington (WAS)', 'Today · Train 171')}${row('Boston (BOS) → New York (NYP)', 'Sep 14 · Train 2150')}</div>`
+};
+function protoRender() {
+  $('#screen').innerHTML = SCREENS[P.tab]();
+  $('#screen').scrollTop = 0;
+  document.querySelectorAll('#protoTabs a').forEach(a => a.dataset.tab === P.tab ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  setSeg($('#swSituation'), P.situation); setSeg($('#swStage'), P.stage);
+  $('#stageField').hidden = P.situation !== 'active';
+  const L = IA.landing.find(l => l.situation === P.situation);
+  $('#protoWhy').textContent = `${L.label} → opens ${L.start === 'book' ? 'Book' : 'Trips'}: ${L.priority.toLowerCase()}.` + (P.situation === 'active' ? ` Stage: ${IA.journeyStages.find(s => s.id === P.stage).focus.toLowerCase()}.` : '');
+}
+function land() { const L = IA.landing.find(l => l.situation === P.situation); P.tab = L.start; P.tripSeg = L.segment || 'active'; protoRender(); }
+$('#swSituation').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { P.situation = b.dataset.v; land(); } });
+$('#swStage').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { P.stage = b.dataset.v; P.tab = 'trips'; P.tripSeg = 'active'; protoRender(); } });
+$('#protoTabs').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); P.tab = a.dataset.tab; protoRender(); });
+function openSheet(k) { $('#sheet').innerHTML = SHEETS[k](); $('#sheetScrim').hidden = false; wireCounters($('#sheet')); $('#sheet [data-close]').focus(); }
+function closeSheet() { $('#sheetScrim').hidden = true; }
+$('.proto__phone').addEventListener('click', e => {
+  const s = e.target.closest('[data-sheet]'); if (s) { openSheet(s.dataset.sheet); return; }
+  if (e.target.closest('[data-close]') || e.target.id === 'sheetScrim') { closeSheet(); return; }
+  const g = e.target.closest('[data-go]'); if (g) { P.tab = g.dataset.go; protoRender(); return; }
+  const sb = e.target.closest('.ads-segmented > button'); if (sb) { const grp = sb.parentElement; if (grp.dataset.seg === 'trips') { P.tripSeg = sb.dataset.v; protoRender(); } else grp.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === sb))); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheetScrim').hidden) closeSheet(); });
+function wireCounters(root) {
+  root.querySelectorAll('[data-counter]').forEach(c => {
+    const [dec, inc] = c.querySelectorAll('button'); const out = c.querySelector('output'); const min = +c.dataset.min, max = +c.dataset.max;
+    const sync = () => { const v = +out.textContent; dec.disabled = v <= min; inc.disabled = v >= max; };
+    dec.addEventListener('click', () => { out.textContent = Math.max(min, +out.textContent - 1); sync(); });
+    inc.addEventListener('click', () => { out.textContent = Math.min(max, +out.textContent + 1); sync(); });
+    sync();
+  });
+}
+renderShellMap(); land();
 
 renderRamps(); renderSemantic(); renderScales(); renderIcons(); renderDate();
 applyTheme(store.get('ads-theme') || 'system'); applyPlat(store.get('ads-plat') || 'web');

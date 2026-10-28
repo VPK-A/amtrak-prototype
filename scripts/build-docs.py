@@ -11,6 +11,7 @@ def logo(name):
 out = (src.replace("/*__ADS_CSS__*/", css)
           .replace("/*__TOKENS__*/null", json.dumps(tokens, separators=(",", ":")))
           .replace("/*__ICONS__*/[]", json.dumps(icons))
+          .replace("/*__IA__*/null", (root / "ia/app-shell.json").read_text())
           .replace("__LOGO_H__", logo("travelmark-horizontal"))
           .replace("__LOGO_V__", logo("travelmark-vertical")))
 (root / "docs/index.html").write_text(out)
