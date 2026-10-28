@@ -1883,6 +1883,11 @@ button, input, select, textarea { font-family: inherit; }
 .ez .ads-calendar__grid .ads-day::before { width: min(46px, 100%); height: min(46px, 100%); aspect-ratio: 1; }
 .ez .ads-calendar__weekdays { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .ez .ads-segmented > button { flex: 1 1 auto; }
+/* iPhone: the app header runs up behind the status bar, so the top of the screen is one surface */
+.device--iphone .app { top: 0; }
+.device--iphone.device--portrait .ads-appheader { padding-top: calc((50px / var(--text-zoom, 1)) + var(--ads-space-8)); }
+.device--iphone.device--landscape .ads-appheader { padding-top: calc((26px / var(--text-zoom, 1)) + var(--ads-space-8)); }
+.device--iphone.device--landscape .ads-appheader { margin-inline: calc(-44px / var(--text-zoom, 1)); padding-inline: calc((44px / var(--text-zoom, 1)) + var(--ads-grid-margin)); }
 
 </style>
 </head>
