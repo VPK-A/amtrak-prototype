@@ -268,6 +268,7 @@ var render = function () {
   const dev = $('#device'); if (!dev) return;
   resetNotes();
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
+  const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
@@ -278,6 +279,7 @@ var render = function () {
   const n0 = nav(); for (const k of Object.keys(SCROLL_MEM)) if ((!n0.sheet && /^p\d/.test(k)) || (!n0.info && k.startsWith('info-'))) delete SCROLL_MEM[k];
   $$('[data-scroll]', dev).forEach(e => { const t = SCROLL_MEM[e.dataset.scroll]; if (t != null) e.scrollTop = t; });
   let target = null;
+  if (!pendingFocus && keepTitle) pendingFocus = 'title'; // focus was on a screen title: keep it on the (new) title
   if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
   else if (keep) target = $(keep, dev);

@@ -163,24 +163,32 @@ A['assist-remove'] = t => {
   toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
-function assistOffline(returnFocus) {
-  if (V().net !== 'offline') return false;
-  dialog({ title: 'You’re offline', body: 'Connect to the internet to answer the assistance questions. Your trip details are kept.', actions: [['OK', 'primary', null]], returnFocus });
+// Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
+// for the first time needs a connection; questions already opened in this booking can be finished or
+// reviewed offline. b.taSeen remembers which travelers' questions were opened.
+const assistSeen = (b, key) => !!(b.taSeen && b.taSeen[key]);
+function assistOffline(returnFocus, key) {
+  const b = D().booking; key = key || firstKey(b);
+  if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.assistOffline = null; return false; }
+  if (assistSeen(b, key)) return false;
+  if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the Assistance row
+  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['OK', 'primary', null]], returnFocus });
   return true;
 }
 A['assist-edit'] = (t, ri) => {
   const key = (t && t.dataset && t.dataset.t) || firstKey(D().booking);
-  if (assistOffline(`[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`)) return;
+  if (assistOffline(`[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`, key)) return;
   push('assist', { t: key }, +ri);
 };
+A['assist-offline-ok'] = () => { D().booking.assistOffline = null; pendingFocus = '[data-a="fl-assist-off"], [data-a="fl-assist-on"]'; render(); };
 A['assist-toggle'] = (t, ri) => {
   const b = D().booking; b.assistOn = t.checked;
-  if (b.assistOn && !b.assistDone) { /* as before: checking it starts with Traveler 1's questions */ if (assistOffline(`#${t.id}`)) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  if (b.assistOn && !b.assistDone) { /* as before: checking it starts with Traveler 1's questions */ if (assistOffline(`#${t.id}`, firstKey(b))) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
   pendingFocus = `#${t.id}`; render();
 };
 A['fl-assist-on'] = (t, ri) => {
   const b = D().booking; b.assistOn = true;
-  if (!b.assistDone) { if (assistOffline('[data-a="fl-assist-on"]')) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  if (!b.assistDone) { if (assistOffline('[data-a="fl-assist-on"]', firstKey(b))) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
   pendingFocus = '[data-a="assist-edit"]'; render();
 };
 A['assist-confirm'] = (t, ri) => {

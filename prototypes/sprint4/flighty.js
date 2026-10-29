@@ -19,7 +19,7 @@ function flStation(b, f, err) {
 function flDate(b, f, err) {
   if (f === 'ret' && b.trip === 'ow') return `<button class="fl-chip fl-chip--date fl-chip--add" type="button" data-a="add-return"><span class="fl-chip__label">Return</span><span class="fl-chip__val">${ic('plus-circle', 'ads-icon--sm')}Add Return</span></button>`;
   const val = b[f], label = f === 'dep' ? 'Depart' : 'Return';
-  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? `${parse(val).getFullYear()}${val === TODAY_S ? ' · Today' : ''}` : '&nbsp;'}</span></button>`;
+  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShortY(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? (val === TODAY_S ? 'Today' : '&nbsp;') : '&nbsp;'}</span></button>`;
 }
 // Aligned information row: icon column, label, summary, optional detail, actions
 function flRow(o) {
@@ -53,20 +53,20 @@ function ffFlighty(r, ri) {
       sub: elig ? 'Required. Business travel is for you alone.' : d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.', err: miss ? 'Choose Business or Leisure travel.' : '', errId: 'fl-prt-err' }));
   }
   const paxErr = r.u.showErr && std && paxProblems(b.pax).length ? paxProblems(b.pax)[0] : '';
-  rows.push(flRow({ id: 'ff-trav', icon: 'people', label: 'Travelers', value: esc(corp ? '1 Adult · You' : pr ? prSummary(b, d) : paxSummary(b)), sub: corp ? 'Corporate bookings are for you only.' : '', err: paxErr, actions: flAct('pick-travelers', 'Edit', 'Edit travelers') }));
+  rows.push(flRow({ id: 'ff-trav', icon: 'people', label: 'Travelers', value: esc(corp ? '1 Adult · You' : pr ? prSummary(b, d) : paxSummary(b)), sub: corp ? 'Corporate bookings are for you only.' : '', err: paxErr, extra: flTravelerTags(b), actions: flAct('pick-travelers', 'Edit', 'Edit travelers') }));
   // Assistance (NMA-973): Add sets the same "Traveler with disability or need help?" answer the checkbox sets elsewhere
   if (v.entry === 'ff') {
     ref('973', '614');
     const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [], many = travelerList(b).length > 1;
-    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
-      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + (on ? `<div class="fl-assistlist">${assistTravelerList(b)}</div>` : ''));
-    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
+    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="info" data-topic="assistance" aria-label="About assistance">${ic('info-circle', 'ads-icon--sm')}</button>`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
+      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + flOfflineNote(b) + (on ? flAssistLines(b) : ''));
+    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="info" data-topic="assistance" aria-label="About assistance">${ic('info-circle', 'ads-icon--sm')}</button>`,
       value: on && done ? esc(items[0]) : on ? 'Questions not answered yet' : 'Not requested',
       sub: on && done ? `${esc(items.slice(1).join(' · '))}${items.length > 1 ? '<br>' : ''}<span class="fl-tag">${b.assistFromProfile ? 'From your Profile' : 'This trip only'}</span>${b.assist.cat === 'disability' ? (pwdApplies(b) ? ' Passenger with Disability discount applies.' : ' Passenger discounts aren’t used for this booking.') : ''}` : on ? '' : 'Traveler with disability or need help? For example a mobility device, a service animal, hearing loss or station help. One traveler with a disability may bring one personal companion.',
-      actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }));
+      actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }) + flOfflineNote(b));
   } else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Not requested', sub: 'Set in Travelers.', actions: flAct('pick-travelers', 'Edit', 'Edit assistance in Travelers') }));
   if (std) {
-    rows.push(flRow({ icon: 'discount', label: 'Discounts', value: esc(discSummary(b)), sub: 'One per traveler.', actions: flAct('pick-travelers', 'Edit', 'Edit traveler discounts') }));
+    // Each traveler's discount shows on their tag in the Travelers row (compact.js), so there's no separate Discounts row
     if (b.pay === 'cash') {
       const info = `<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       rows.push(b.code ? flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: `${esc(b.code.code)} · ${esc(b.code.kind)}`, sub: `${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.`, err: b.codeErr, errId: 'ffc-code-err', actions: info + flAct('code-remove', 'Remove', `Remove code ${esc(b.code.code)}`) })

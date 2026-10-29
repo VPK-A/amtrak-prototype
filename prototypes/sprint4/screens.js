@@ -277,7 +277,7 @@ function calendarBody(r, ri, field) {
     return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
   };
   const monthHtml = m => { const y = m.getFullYear(), mo = m.getMonth(), first = m.getDay(), n = new Date(y, mo + 1, 0).getDate(); let g = ''; for (let i = 0; i < first; i++) g += '<span></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd); return `<div class="ads-calendar__month"><h3>${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-label="${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}">${g}</div></div>`; };
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShort(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShort(b.ret) : 'not set'}</button></div>` : '';
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShortY(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShortY(b.ret) : 'not set'}</button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
@@ -285,7 +285,7 @@ function calendarBody(r, ri, field) {
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
-  const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShort(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShort(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
+  const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
 };
 A.picking = (t, ri) => { routeAt(ri).u.picking = t.dataset.v; pendingFocus = `[data-a="picking"][data-v="${t.dataset.v}"]`; render(); };

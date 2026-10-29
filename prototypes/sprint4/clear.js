@@ -45,7 +45,7 @@ const prRoleLabel = d => ({ employee: 'Employee', spouse: 'Spouse', dependent: '
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
   const f = b.prPax, parts = ['You'];
-  if (f.fam) parts.push(d.passrider.role === 'employee' ? 'spouse' : 'employee (your spouse)');
+  if (f.fam) parts.push(d.passrider.role === 'employee' ? 'spouse' : d.passrider.role === 'dependent' ? (f.fam > 1 ? 'employee and spouse' : 'employee or spouse') : 'employee (your spouse)');
   if (f.dep) parts.push(`${f.dep} dependent${f.dep > 1 ? 's' : ''}`);
   if (f.comp) parts.push(`${f.comp} companion${f.comp > 1 ? 's' : ''}`);
   return parts.join(', ');

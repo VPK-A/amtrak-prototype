@@ -2216,6 +2216,35 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-edit { margin-top: 4px; }
 .pane--clear .ffc-sheet { flex: 1 0 auto; } /* the light surface reaches the bottom when scrolled to the end */
 
+/* ---------- Version 4 compact traveler tags and assistance lines (compact.js) ---------- */
+.fl-tvs { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.fl-tv { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 9px; border: 1px solid var(--ads-border-subtle); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 13px; cursor: pointer; }
+.fl-tv:hover { background: var(--ads-background-surface-hover); }
+.fl-tv.is-error { border-color: var(--ads-border-error, #c0262d); }
+.fl-tv__type { color: var(--ads-content-text-secondary); }
+.fl-tv__disc { font-weight: 600; }
+.fl-tv__as { display: inline-flex; color: var(--ads-content-icon-brand, var(--ads-content-icon-primary)); }
+.fl-tv__pair { font-weight: 600; }
+.fl-tv__err { color: var(--ads-content-icon-error, #c0262d); }
+.fl-als { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ads-border-subtle); }
+.fl-al { display: grid; grid-template-columns: minmax(72px, auto) 1fr auto; align-items: baseline; gap: 4px 10px; padding: 8px 0; border-bottom: 1px solid var(--ads-border-subtle); font-size: 14px; }
+.fl-al.is-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); padding-left: 8px; }
+.fl-al__who { font-weight: 600; color: var(--ads-content-text-primary); }
+.fl-al__what { color: var(--ads-content-text-primary); display: flex; flex-direction: column; }
+.fl-al__what small { color: var(--ads-content-text-secondary); font-size: 12px; }
+.fl-al__what .fl-al__err { color: var(--ads-content-text-error, #b20609); display: flex; gap: 4px; }
+[data-theme="dark"] .fl-al__what .fl-al__err { color: var(--ads-color-red-300); }
+.fl-al__acts { display: flex; gap: 2px; }
+.text-large .fl-al { grid-template-columns: 1fr; }
+.fl-offline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 10px 36px; padding: 6px 8px; border-radius: 8px; background: var(--ads-background-surface-sunken); font-size: 13px; color: var(--ads-content-text-primary); }
+.fl-offline span { flex: 1 1 160px; }
+.fl-chip--date .fl-chip__val { font-size: 15px; letter-spacing: -0.2px; white-space: nowrap; }
+.fl-info { vertical-align: middle; margin-left: 2px; }
+.fl-offline { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; }
+.fl-offline span { min-width: 0; }
+.text-large .fl-offline { grid-template-columns: auto 1fr; }
+.text-large .fl-banner { margin: 0; border-radius: 12px; } /* text zoom scales the bleed margin past the edge */
+
 </style>
 </head>
 <body class="ads-root">
@@ -3978,6 +4007,76 @@ employee, TripLink, Profile coupon into booking.</li>
 on iPhone and iPad.</li>
 </ul></li>
 </ul>
+<h2 id="version-4-compact-refinement">Version 4 (Compact)
+refinement</h2>
+<p>The densest of the four, without hiding anything required
+(<code>compact.js</code>).</p>
+<ul>
+<li><strong>Dates:</strong>
+<ul>
+<li>The chips show weekday, month, day and year on one line ("Wed, Oct
+28, 2026"), with tighter type and <em>Today</em> underneath when it
+applies.</li>
+<li>The calendar's Depart and Return toggle and its footer also show the
+year, in every version (NMA-1060 AC8).</li>
+</ul></li>
+<li><strong>Traveler tags:</strong>
+<ul>
+<li>The Travelers row has one small tag per traveler: <em>T1 Adult PWD
+(assistance icon) ↔︎ T2</em>. It shows the discount (PWD, Companion,
+Military, RPA, Senior, Child fare, Lap infant), an assistance icon when
+there's a request, and the companion pairing.</li>
+<li>Each tag's spoken label gives the full wording. Tapping a tag opens
+that traveler's short edit sheet: discount, assistance and personal
+companion.</li>
+<li>Problems mark the tag.</li>
+</ul></li>
+<li><strong>Assistance row:</strong>
+<ul>
+<li>Booking-level Add and Remove stay, with an <em>About assistance</em>
+explanation.</li>
+<li>With several travelers, every traveler gets one line with their own
+Add, Edit or Remove, and errors appear on the line they belong to.</li>
+</ul></li>
+<li><strong>Separate Discounts row removed:</strong> each traveler's
+discount is now on their tag.</li>
+<li><strong>Offline (NMA-973, 995–997), in every version:</strong>
+<ul>
+<li>Turning assistance on or off works offline.</li>
+<li>Opening a traveler's questions for the first time needs a
+connection.</li>
+<li>Questions already opened in this booking can be finished or reviewed
+offline.</li>
+<li>Compact explains a blocked first opening in one line in the
+Assistance row, with <em>Try again</em> and <em>OK</em>. The other
+versions use a short dialog.</li>
+<li>Find Trains still needs a connection.</li>
+</ul></li>
+<li><strong>Pass Rider dependent:</strong>
+<ul>
+<li>Uses the same compact controls: Leisure only, tags for each
+traveler, and assistance per traveler.</li>
+<li>The traveler summary now reads "employee or spouse" ("employee and
+spouse" for both) for a dependent's family.</li>
+</ul></li>
+<li><strong>Fixed for every version:</strong>
+<ul>
+<li>Focus stays on a screen's title after its slide-in finishes; it used
+to drop to the page.</li>
+<li>The offline banner fits at 140% text.</li>
+</ul></li>
+<li><strong>Checks:</strong>
+<ul>
+<li>Compact acceptance run on iPhone and iPad (23 each): full dates, a
+4-traveler booking with three distinct requests, a companion set from a
+tag, removing one request, the three offline cases, the Find Trains
+handoff, a dependent Pass Rider with two travelers' assistance, and
+Profile.</li>
+<li>A density check: the same booking is shortest in Compact.</li>
+<li>All earlier suites, and accessibility checks in light and dark mode
+at 100% and 140% text.</li>
+</ul></li>
+</ul>
 
   </article>
 </div>
@@ -4421,6 +4520,7 @@ var render = function () {
   const dev = $('#device'); if (!dev) return;
   resetNotes();
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
+  const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
@@ -4431,6 +4531,7 @@ var render = function () {
   const n0 = nav(); for (const k of Object.keys(SCROLL_MEM)) if ((!n0.sheet && /^p\d/.test(k)) || (!n0.info && k.startsWith('info-'))) delete SCROLL_MEM[k];
   $$('[data-scroll]', dev).forEach(e => { const t = SCROLL_MEM[e.dataset.scroll]; if (t != null) e.scrollTop = t; });
   let target = null;
+  if (!pendingFocus && keepTitle) pendingFocus = 'title'; // focus was on a screen title: keep it on the (new) title
   if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
   else if (keep) target = $(keep, dev);
@@ -4938,7 +5039,7 @@ function calendarBody(r, ri, field) {
     return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
   };
   const monthHtml = m => { const y = m.getFullYear(), mo = m.getMonth(), first = m.getDay(), n = new Date(y, mo + 1, 0).getDate(); let g = ''; for (let i = 0; i < first; i++) g += '<span></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd); return `<div class="ads-calendar__month"><h3>${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-label="${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}">${g}</div></div>`; };
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShort(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShort(b.ret) : 'not set'}</button></div>` : '';
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShortY(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShortY(b.ret) : 'not set'}</button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
@@ -4946,7 +5047,7 @@ function calendarBody(r, ri, field) {
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
-  const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShort(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShort(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
+  const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
 };
 A.picking = (t, ri) => { routeAt(ri).u.picking = t.dataset.v; pendingFocus = `[data-a="picking"][data-v="${t.dataset.v}"]`; render(); };
@@ -5505,7 +5606,7 @@ const prRoleLabel = d => ({ employee: 'Employee', spouse: 'Spouse', dependent: '
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
   const f = b.prPax, parts = ['You'];
-  if (f.fam) parts.push(d.passrider.role === 'employee' ? 'spouse' : 'employee (your spouse)');
+  if (f.fam) parts.push(d.passrider.role === 'employee' ? 'spouse' : d.passrider.role === 'dependent' ? (f.fam > 1 ? 'employee and spouse' : 'employee or spouse') : 'employee (your spouse)');
   if (f.dep) parts.push(`${f.dep} dependent${f.dep > 1 ? 's' : ''}`);
   if (f.comp) parts.push(`${f.comp} companion${f.comp > 1 ? 's' : ''}`);
   return parts.join(', ');
@@ -5801,7 +5902,7 @@ function flStation(b, f, err) {
 function flDate(b, f, err) {
   if (f === 'ret' && b.trip === 'ow') return `<button class="fl-chip fl-chip--date fl-chip--add" type="button" data-a="add-return"><span class="fl-chip__label">Return</span><span class="fl-chip__val">${ic('plus-circle', 'ads-icon--sm')}Add Return</span></button>`;
   const val = b[f], label = f === 'dep' ? 'Depart' : 'Return';
-  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? `${parse(val).getFullYear()}${val === TODAY_S ? ' · Today' : ''}` : '&nbsp;'}</span></button>`;
+  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShortY(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? (val === TODAY_S ? 'Today' : '&nbsp;') : '&nbsp;'}</span></button>`;
 }
 // Aligned information row: icon column, label, summary, optional detail, actions
 function flRow(o) {
@@ -5835,20 +5936,20 @@ function ffFlighty(r, ri) {
       sub: elig ? 'Required. Business travel is for you alone.' : d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.', err: miss ? 'Choose Business or Leisure travel.' : '', errId: 'fl-prt-err' }));
   }
   const paxErr = r.u.showErr && std && paxProblems(b.pax).length ? paxProblems(b.pax)[0] : '';
-  rows.push(flRow({ id: 'ff-trav', icon: 'people', label: 'Travelers', value: esc(corp ? '1 Adult · You' : pr ? prSummary(b, d) : paxSummary(b)), sub: corp ? 'Corporate bookings are for you only.' : '', err: paxErr, actions: flAct('pick-travelers', 'Edit', 'Edit travelers') }));
+  rows.push(flRow({ id: 'ff-trav', icon: 'people', label: 'Travelers', value: esc(corp ? '1 Adult · You' : pr ? prSummary(b, d) : paxSummary(b)), sub: corp ? 'Corporate bookings are for you only.' : '', err: paxErr, extra: flTravelerTags(b), actions: flAct('pick-travelers', 'Edit', 'Edit travelers') }));
   // Assistance (NMA-973): Add sets the same "Traveler with disability or need help?" answer the checkbox sets elsewhere
   if (v.entry === 'ff') {
     ref('973', '614');
     const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [], many = travelerList(b).length > 1;
-    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
-      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + (on ? `<div class="fl-assistlist">${assistTravelerList(b)}</div>` : ''));
-    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
+    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="info" data-topic="assistance" aria-label="About assistance">${ic('info-circle', 'ads-icon--sm')}</button>`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
+      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + flOfflineNote(b) + (on ? flAssistLines(b) : ''));
+    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="info" data-topic="assistance" aria-label="About assistance">${ic('info-circle', 'ads-icon--sm')}</button>`,
       value: on && done ? esc(items[0]) : on ? 'Questions not answered yet' : 'Not requested',
       sub: on && done ? `${esc(items.slice(1).join(' · '))}${items.length > 1 ? '<br>' : ''}<span class="fl-tag">${b.assistFromProfile ? 'From your Profile' : 'This trip only'}</span>${b.assist.cat === 'disability' ? (pwdApplies(b) ? ' Passenger with Disability discount applies.' : ' Passenger discounts aren’t used for this booking.') : ''}` : on ? '' : 'Traveler with disability or need help? For example a mobility device, a service animal, hearing loss or station help. One traveler with a disability may bring one personal companion.',
-      actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }));
+      actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }) + flOfflineNote(b));
   } else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Not requested', sub: 'Set in Travelers.', actions: flAct('pick-travelers', 'Edit', 'Edit assistance in Travelers') }));
   if (std) {
-    rows.push(flRow({ icon: 'discount', label: 'Discounts', value: esc(discSummary(b)), sub: 'One per traveler.', actions: flAct('pick-travelers', 'Edit', 'Edit traveler discounts') }));
+    // Each traveler's discount shows on their tag in the Travelers row (compact.js), so there's no separate Discounts row
     if (b.pay === 'cash') {
       const info = `<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       rows.push(b.code ? flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: `${esc(b.code.code)} · ${esc(b.code.kind)}`, sub: `${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.`, err: b.codeErr, errId: 'ffc-code-err', actions: info + flAct('code-remove', 'Remove', `Remove code ${esc(b.code.code)}`) })
@@ -6179,24 +6280,32 @@ A['assist-remove'] = t => {
   toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
-function assistOffline(returnFocus) {
-  if (V().net !== 'offline') return false;
-  dialog({ title: 'You’re offline', body: 'Connect to the internet to answer the assistance questions. Your trip details are kept.', actions: [['OK', 'primary', null]], returnFocus });
+// Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
+// for the first time needs a connection; questions already opened in this booking can be finished or
+// reviewed offline. b.taSeen remembers which travelers' questions were opened.
+const assistSeen = (b, key) => !!(b.taSeen && b.taSeen[key]);
+function assistOffline(returnFocus, key) {
+  const b = D().booking; key = key || firstKey(b);
+  if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.assistOffline = null; return false; }
+  if (assistSeen(b, key)) return false;
+  if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the Assistance row
+  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['OK', 'primary', null]], returnFocus });
   return true;
 }
 A['assist-edit'] = (t, ri) => {
   const key = (t && t.dataset && t.dataset.t) || firstKey(D().booking);
-  if (assistOffline(`[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`)) return;
+  if (assistOffline(`[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`, key)) return;
   push('assist', { t: key }, +ri);
 };
+A['assist-offline-ok'] = () => { D().booking.assistOffline = null; pendingFocus = '[data-a="fl-assist-off"], [data-a="fl-assist-on"]'; render(); };
 A['assist-toggle'] = (t, ri) => {
   const b = D().booking; b.assistOn = t.checked;
-  if (b.assistOn && !b.assistDone) { /* as before: checking it starts with Traveler 1's questions */ if (assistOffline(`#${t.id}`)) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  if (b.assistOn && !b.assistDone) { /* as before: checking it starts with Traveler 1's questions */ if (assistOffline(`#${t.id}`, firstKey(b))) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
   pendingFocus = `#${t.id}`; render();
 };
 A['fl-assist-on'] = (t, ri) => {
   const b = D().booking; b.assistOn = true;
-  if (!b.assistDone) { if (assistOffline('[data-a="fl-assist-on"]')) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  if (!b.assistDone) { if (assistOffline('[data-a="fl-assist-on"]', firstKey(b))) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
   pendingFocus = '[data-a="assist-edit"]'; render();
 };
 A['assist-confirm'] = (t, ri) => {
@@ -6807,6 +6916,53 @@ A.close = A.scrim = (t, ri) => {
   const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1];
   if (top && cancelActionFor(top) && top.u.snap && !(top.s === 'travelers' && paxProblems(D().booking.pax).length)) Object.assign(D().booking, clone(top.u.snap));
   return closeBeforeCancel(t, ri);
+};
+
+/* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:
+   - the Travelers row carries one small tag per traveler with their discount, assistance and companion
+     pairing; a tag opens that traveler's short edit sheet (shared with Overview);
+   - the Assistance row keeps Add and Remove for the whole booking and gives every traveler one line with
+     their own Add, Edit or Remove;
+   - when offline, a first-time questionnaire can't open (NMA-973); the row says so in one line with Try again. */
+
+const DISC_TAG = { pwd: 'PWD', companion: 'Companion', military: 'Military', rpa: 'RPA', senior: 'Senior', childfare: 'Child fare', infant: 'Lap infant', infantchild: 'Child fare', none: '' };
+const tShort = t => `T${t.n}`;
+function flTravelerTags(b) {
+  const list = travelerList(b), std = ['standard', 'personal'].includes(intentOf(b));
+  if (!list.length) return '';
+  const tags = list.map(t => {
+    const a = assistRec(b, t.key), c = assistCat(b, t.key), x = std ? tdiscOf(b, t) : null, err = travelerError(b, t);
+    const parts = [], say = [];
+    if (x && DISC_TAG[x]) { parts.push(`<span class="fl-tv__disc">${DISC_TAG[x]}</span>`); say.push(`${TDISC_LABEL[x]} discount`); }
+    if (c && c !== 'none') { parts.push(`<span class="fl-tv__as">${ic('assistance', 'ads-icon--sm')}</span>`); say.push(`assistance: ${c === 'companion' ? 'personal companion' : CATS[c]}`); }
+    else say.push('no assistance');
+    if (c === 'companion') { const f = travelerList(b).find(z => z.key === a.m.for); parts.push(`<span class="fl-tv__pair">↔ ${f ? tShort(f) : '?'}</span>`); say.push(`personal companion to ${f ? f.label : 'no one'}`); }
+    if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) { parts.push(`<span class="fl-tv__pair">↔ ${tShort(comp)}</span>`); say.push(`personal companion: ${comp.label}`); } }
+    return `<li><button class="fl-tv${err ? ' is-error' : ''}" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="${esc(t.label)}: ${esc(say.join(', '))}${err ? '. Needs a change' : ''}. Edit"><b>${tShort(t)}</b><span class="fl-tv__type">${esc(t.short.replace(/^You · /, 'You, '))}</span>${parts.join('')}${err ? ic('alert-diamond', 'ads-icon--sm fl-tv__err') : ''}</button></li>`;
+  }).join('');
+  return `<ul class="fl-tvs" aria-label="Travelers, tap to edit one">${tags}</ul>`;
+}
+// One line per traveler, with their own Add, Edit or Remove
+function flAssistLines(b) {
+  const lines = travelerList(b).map(t => {
+    const a = assistRec(b, t.key), on = a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [], err = travelerError(b, t);
+    const what = !on ? 'None' : c === 'none' ? 'No help needed' : c === 'companion' ? `Personal companion to ${tShort(travelerList(b).find(z => z.key === a.m.for) || { n: '?' })}` : items[0];
+    const more = on && c !== 'companion' ? items.slice(1).filter(x => x !== 'No other needs').join(' · ') : '';
+    const acts = on ? flAct('assist-edit', 'Edit', `Edit assistance for ${t.label}`, `data-t="${t.key}"`) + flAct('assist-remove', 'Remove', `Remove assistance for ${t.label}`, `data-t="${t.key}"`) : flAct('assist-edit', 'Add', `Add assistance for ${t.label}`, `data-t="${t.key}"`);
+    return `<li class="fl-al${err ? ' is-error' : ''}"><span class="fl-al__who">${tShort(t)} ${esc(t.short)}</span><span class="fl-al__what">${esc(what)}${more ? `<small>${esc(more)}</small>` : ''}${err ? `<small class="fl-al__err">${ic('alert-diamond', 'ads-icon--sm')}${esc(err)}</small>` : ''}</span><span class="fl-al__acts">${acts}</span></li>`;
+  }).join('');
+  const prob = assistProblems(b);
+  return `<div class="fl-assistlist">${prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" tabindex="-1">${ic('alert-diamond')}<span>Assistance needs a change. See the marked traveler.</span></p>` : ''}<ul class="fl-als" aria-label="Assistance by traveler">${lines}</ul></div>`;
+}
+// One-line offline explanation with a way forward
+function flOfflineNote(b) {
+  if (!b.assistOffline) return '';
+  const t = travelerList(b).find(z => z.key === b.assistOffline) || { label: 'this traveler', key: b.assistOffline };
+  return `<p class="fl-offline" id="fl-offline-note" role="status" tabindex="-1">${ic('alert-triangle', 'ads-icon--sm')}<span>Offline. ${esc(t.label)}’s questions need a connection the first time. Assistance stays on.</span>${flAct('assist-edit', 'Try again', `Try again: assistance for ${t.label}`, `data-t="${t.key}"`)}${flAct('assist-offline-ok', 'OK', 'Dismiss')}</p>`;
+}
+INFO.assistance = {
+  title: 'Assistance',
+  body: () => `<p>Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. Answer for each traveler who needs help; the others can stay without answers.</p><p>One traveler with a disability may bring one personal companion, who gets the Companion discount.</p><p>Answering the questions for the first time needs a connection. After that you can finish or review them offline. Finding trains needs a connection.</p><p class="info-draft">Final explanation text comes from AEM (NMA-973 AC2).</p>`
 };
 
 /* Sprint 4 prototype: start-up */

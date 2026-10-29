@@ -569,3 +569,35 @@ The Fare Finder is the overview of the whole booking. Every section is still edi
   - Overview acceptance run on iPhone (31) and iPad (32): inspect, attention items, route, travelers, nested assistance with Back and confirm, info sheet over a step, Cancel, Escape and X, no lost or duplicated assistance, broken pairing, Pass Rider dependent and employee, TripLink, Profile coupon into booking.
   - Every earlier suite.
   - Accessibility checks in light and dark mode at 100% and 140% text, on iPhone and iPad.
+
+## Version 4 (Compact) refinement
+
+The densest of the four, without hiding anything required (`compact.js`).
+
+- **Dates:**
+  - The chips show weekday, month, day and year on one line ("Wed, Oct 28, 2026"), with tighter type and *Today* underneath when it applies.
+  - The calendar's Depart and Return toggle and its footer also show the year, in every version (NMA-1060 AC8).
+- **Traveler tags:**
+  - The Travelers row has one small tag per traveler: *T1 Adult PWD (assistance icon) ↔ T2*. It shows the discount (PWD, Companion, Military, RPA, Senior, Child fare, Lap infant), an assistance icon when there's a request, and the companion pairing.
+  - Each tag's spoken label gives the full wording. Tapping a tag opens that traveler's short edit sheet: discount, assistance and personal companion.
+  - Problems mark the tag.
+- **Assistance row:**
+  - Booking-level Add and Remove stay, with an *About assistance* explanation.
+  - With several travelers, every traveler gets one line with their own Add, Edit or Remove, and errors appear on the line they belong to.
+- **Separate Discounts row removed:** each traveler's discount is now on their tag.
+- **Offline (NMA-973, 995–997), in every version:**
+  - Turning assistance on or off works offline.
+  - Opening a traveler's questions for the first time needs a connection.
+  - Questions already opened in this booking can be finished or reviewed offline.
+  - Compact explains a blocked first opening in one line in the Assistance row, with *Try again* and *OK*. The other versions use a short dialog.
+  - Find Trains still needs a connection.
+- **Pass Rider dependent:**
+  - Uses the same compact controls: Leisure only, tags for each traveler, and assistance per traveler.
+  - The traveler summary now reads "employee or spouse" ("employee and spouse" for both) for a dependent's family.
+- **Fixed for every version:**
+  - Focus stays on a screen's title after its slide-in finishes; it used to drop to the page.
+  - The offline banner fits at 140% text.
+- **Checks:**
+  - Compact acceptance run on iPhone and iPad (23 each): full dates, a 4-traveler booking with three distinct requests, a companion set from a tag, removing one request, the three offline cases, the Find Trains handoff, a dependent Pass Rider with two travelers' assistance, and Profile.
+  - A density check: the same booking is shortest in Compact.
+  - All earlier suites, and accessibility checks in light and dark mode at 100% and 140% text.
