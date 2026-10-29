@@ -4193,6 +4193,11 @@ Train pair is explained in the search.</p></li>
 <li><p><strong>Version 3:</strong> the status box (<em>items to
 finish</em>, <em>ready</em>) is removed. Problems still show on each
 traveler's row.</p></li>
+<li><p><strong>No hover states in the device:</strong> the app is for
+phones and tablets, so the page drops every hover style when it loads,
+except on the prototype controls outside the device. Press, focus and
+selected states are unchanged. The design system CSS itself is
+untouched.</p></li>
 </ul>
 
   </article>
@@ -7127,6 +7132,22 @@ document.addEventListener('keydown', e => {
   setChrome(false);
 });
 setChrome(false, false);
+// The device is a phone or tablet app, where nothing hovers: drop every hover style except the prototype's
+// own controls outside the device (toolbar, view switch, launcher). Press and focus states stay.
+(function dropAppHover() {
+  const keep = /toolbar|\.tb|viewtabs|chrome-|\.notes|\.doc|\.top\b/;
+  const walk = list => {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const r = list[i];
+      if (r.cssRules && !r.selectorText) { walk(r.cssRules); continue; }
+      if (!r.selectorText || !r.selectorText.includes(':hover')) continue;
+      const parts = r.selectorText.split(/,(?![^(]*\))/).map(x => x.trim()).filter(x => !x.includes(':hover') || keep.test(x));
+      if (!parts.length) (r.parentRule || r.parentStyleSheet).deleteRule(i);
+      else if (parts.join(', ') !== r.selectorText) r.selectorText = parts.join(', ');
+    }
+  };
+  for (const sh of document.styleSheets) { try { walk(sh.cssRules); } catch (e) {} }
+})();
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

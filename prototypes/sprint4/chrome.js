@@ -18,3 +18,19 @@ document.addEventListener('keydown', e => {
   setChrome(false);
 });
 setChrome(false, false);
+// The device is a phone or tablet app, where nothing hovers: drop every hover style except the prototype's
+// own controls outside the device (toolbar, view switch, launcher). Press and focus states stay.
+(function dropAppHover() {
+  const keep = /toolbar|\.tb|viewtabs|chrome-|\.notes|\.doc|\.top\b/;
+  const walk = list => {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const r = list[i];
+      if (r.cssRules && !r.selectorText) { walk(r.cssRules); continue; }
+      if (!r.selectorText || !r.selectorText.includes(':hover')) continue;
+      const parts = r.selectorText.split(/,(?![^(]*\))/).map(x => x.trim()).filter(x => !x.includes(':hover') || keep.test(x));
+      if (!parts.length) (r.parentRule || r.parentStyleSheet).deleteRule(i);
+      else if (parts.join(', ') !== r.selectorText) r.selectorText = parts.join(', ');
+    }
+  };
+  for (const sh of document.styleSheets) { try { walk(sh.cssRules); } catch (e) {} }
+})();

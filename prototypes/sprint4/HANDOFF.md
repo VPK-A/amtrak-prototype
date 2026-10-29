@@ -635,3 +635,4 @@ The densest of the four, without hiding anything required (`compact.js`).
   TripLink and Pass Rider choices stay at the top, because they change the whole booking.
 - **Version 1 station search** stays open until both stations are chosen, in either order, as in Version 3. A cleared Auto Train pair is explained in the search.
 - **Version 3:** the status box (*items to finish*, *ready*) is removed. Problems still show on each traveler's row.
+- **No hover states in the device:** the app is for phones and tablets, so the page drops every hover style when it loads, except on the prototype controls outside the device. Press, focus and selected states are unchanged. The design system CSS itself is untouched.
