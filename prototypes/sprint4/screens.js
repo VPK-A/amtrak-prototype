@@ -149,15 +149,31 @@ function stationRow(s, field, sec) {
   const rec = d.rec.find(x => x.c === s.code);
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
   const blocked = s.tag && autoTrainBlocked();
-  return `<li class="ads-stationrow" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${cur ? '<span class="ads-sr-only">, currently selected</span>' : ''}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
+  const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
+// "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
+function stationRoute(field) {
+  const b = D().booking;
+  const item = f => {
+    const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
+    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">${active ? 'Choosing now' : 'Not chosen yet'}</span>`;
+    const state = active ? `<span class="ss-route__state">${s ? 'Changing' : 'Choosing'}</span>` : '';
+    return active
+      ? `<div class="ss-route__item is-active" aria-current="step"><span class="ss-route__label">${label}${state}</span><span class="ss-route__val">${val}</span></div>`
+      : `<button class="ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead"><span class="ss-route__label">${label}</span><span class="ss-route__val">${val}</span></button>`;
+  };
+  return `<section class="ss-route" aria-label="Your route">${item('from')}${item('to')}</section>`;
+}
+A['ss-switch'] = (t, ri) => { const r = routeAt(ri); r.u.d = {}; replaceTop('stations', { field: t.dataset.field }); pendingFocus = '#ss-q'; render(); };
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
   const qv = r.u.d.q || '';
   const favs = d.fav.map(c => ST[c]);
   const recs = d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d).map(x => ST[x.c]);
   ref('600', '118', '984');
-  let h = `<div class="ss-search"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${ic('search')}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="City, station, code or ZIP" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
+  let h = stationRoute(field) + `<div class="ss-search"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${ic('search')}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="City, station, code or ZIP" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;

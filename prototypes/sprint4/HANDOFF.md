@@ -392,3 +392,8 @@ The assistance questionnaire keeps Version 2's wizard (one question per step, re
 ## Use Points removed from Fare Finder
 
 The *Pay with* Cash / Points control (NMA-624) has been removed from every Fare Finder version. All searches are cash searches, as in Version 1, so the discount code is always available on standard and personal bookings. TripLink Corporate and Pass Rider still use no discounts or codes. Points remain visible in Account (balance and Points activity). If searching with points comes back, it needs a placement decision outside the Fare Finder.
+
+
+## Station search: Your route
+
+Every station search (all versions) starts with a *Your route* summary: From and To with code, city and station name. The station being chosen is highlighted and labeled *Choosing* (empty) or *Changing* (already set); the other one is a button that switches the search to it without losing the route. In the lists, the station already used for the other end is tagged *Your departure* or *Your arrival*, and the current choice is tagged *Selected*. Choosing the same station for both ends still shows the existing dialog (607 BR2.2, BR3.1).
