@@ -171,7 +171,7 @@ A['code-add'] = (t, ri) => {
 };
 A['code-pick'] = (t, ri) => { const b = D().booking; b.code = clone(D().coupons.find(x => x.code === t.dataset.code)); b.codeErr = ''; popTo(+ri - 1); pendingFocus = '[data-a="code-remove"]'; toast(`${b.code.kind} added`); };
 A['code-remove'] = () => { const b = D().booking, c = b.code.code; b.code = null; b.codeErr = ''; pendingFocus = '[data-s="code"]'; toast(`Code ${c} removed`, 'info'); };
-A['code-info'] = t => dialog({ title: 'About discount codes', returnFocus: t.dataset.a === 'code-info' && t.closest('.psheet-nest') ? '.psheet-nest [data-a="code-info"]' : '[data-a="code-info"]',
+A['code-info'] = t => dialog({ title: 'About discount codes', returnFocus: '[data-a="code-info"]',
   body: 'Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion. Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains.', actions: [['Close', 'primary', null]] });
 
 // ---------- Stations sheet ----------
@@ -248,6 +248,16 @@ A.back = (t, ri) => {
       actions: [['Keep editing', 'secondary', null], ['Undo traveler changes', 'primary', () => { Object.assign(b, clone(r.u.snap)); popTo(+ri - 1); }]] });
   }
   return backBase(t, ri);
+};
+// The sheet's X closes the whole booking; if Traveler details is open with a selection that can't be searched, ask first
+const closeBase = A.close;
+A.close = A.scrim = (t, ri) => {
+  const sh = sheet(), r = sh && sh.stack[sh.stack.length - 1], b = D().booking;
+  if (r && r.s === 'travelers' && ['standard', 'personal'].includes(intentOf(b)) && paxProblems(b.pax).length) {
+    return dialog({ title: 'Travelers can’t be used yet', body: esc(paxProblems(b.pax).join(' ')), returnFocus: '[data-a="pick-travelers-done"]',
+      actions: [['Keep editing', 'secondary', null], ['Undo traveler changes and close', 'primary', () => { Object.assign(b, clone(r.u.snap)); closeSheet(); }]] });
+  }
+  return closeBase(t, ri);
 };
 // Core Flow links Youth to the unaccompanied-minor rules; the content comes from AEM (NMA-611 BR3)
 A['youth-alone'] = () => dialog({ title: 'Traveling alone?', returnFocus: '[data-a="youth-alone"]', actions: [['Close', 'primary', null]],

@@ -4,6 +4,9 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ic = (n, cls = '') => `<span class="ads-icon ads-icon--${n}${cls ? ' ' + cls : ''}" aria-hidden="true"></span>`;
 const clone = o => JSON.parse(JSON.stringify(o));
+// Motion tokens (Amtrak mobile motion system). Starting values inside the proposed ranges; tune on devices.
+const MT = { tap: 100, control: 200, panel: 280, shared: 360, close: 260, stagger: 35, fade: 120 };
+const EASE = { standard: 'cubic-bezier(0.2, 0, 0, 1)', settle: 'cubic-bezier(0.22, 1, 0.36, 1)', exit: 'cubic-bezier(0.4, 0, 1, 1)' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 // ---------- Dates (stored as YYYY-MM-DD) ----------
@@ -204,7 +207,7 @@ function netAlert(r) {
 }
 const alertBox = (tone, title, text, action = '') => `<div class="ads-alert ads-alert--${tone}" role="${tone === 'error' ? 'alert' : 'status'}">${ic(tone === 'error' ? 'alert-diamond' : tone === 'warning' ? 'alert-triangle' : tone === 'success' ? 'check-circle' : 'info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${title}</p><p class="ads-alert__description ads-body-small">${text}</p>${action ? `<div>${action}</div>` : ''}</div></div>`;
 function busyBtn(r, label, busyLabel, attrs = '') {
-  return r.u.busy ? `<div class="busyrow"><button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}${busyLabel}</button><button class="ads-btn ads-btn--tertiary" type="button" data-a="cancel-busy">Cancel</button></div>`
+  return r.u.busy ? `<div class="busyrow"><button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}${busyLabel}</button><button class="ads-btn ads-btn--tertiary ads-btn--sm busy-cancel" type="button" data-a="cancel-busy">Cancel</button></div>`
     : `<button class="ads-btn ads-btn--block" type="button" ${attrs}>${label}</button>`;
 }
 
@@ -309,26 +312,40 @@ function paneHtml(r, ri, ctx) {
   const body = typeof o.body === 'string' ? o.body : '';
   return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
 }
+// Second-level screens are pushed inside the same sheet (iOS navigation): the new screen slides in from
+// the right and Back slides it out. While the slide runs, the screen it replaces stays underneath (inert).
+const NAV_MS = MT.panel;
+let navAnimT;
 function renderSheet(sh, covered) {
   const st = sh.stack, n = st.length, ipad = IPAD();
   const splitOK = ipad && n >= 2 && SPLIT_PARENT(st[n - 2], st[n - 1]);
-  let panes = '', cls = 'psheet';
-  // V3 booking: the Fare Finder stays underneath and each picker opens as a rounded sheet over it
-  if (TB.v >= 3 && sh.id === 'booking') {
-    const top = st[n - 1], nested = n > 1;
-    const base = paneHtml(st[0], 0, { showClose: true });
-    const nest = nested ? `<div class="nest-layer"><div class="nest-scrim" data-a="back" aria-hidden="true"></div><div class="psheet-nest" role="dialog" aria-modal="true" aria-labelledby="t-${n - 1}">${paneHtml(top, n - 1, { nested: true, showClose: true, hideBack: n === 2, parentTitle: titleOf(st[n - 2], n - 2) })}</div></div>` : '';
-    return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="psheet ${TB.v === 3 ? 'psheet--clear' : 'psheet--fl'}" role="dialog" aria-modal="true" aria-label="New Booking" ${nested ? 'inert' : ''}>${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${base}</div></div>${nest}</div>`;
+  const top = st[n - 1], selfSplit = ipad && SPLIT_SELF(top);
+  let cls = 'psheet' + (TB.v === 3 && sh.id === 'booking' ? ' psheet--clear' : TB.v === 4 && sh.id === 'booking' ? ' psheet--fl' : '');
+  if (n > 1) cls += ' psheet--pushed';
+  // Which way to slide: compare with the depth and top screen at the last render
+  const replaced = sh._n === n && sh._top && sh._top !== top;
+  if (sh._n != null && (sh._n !== n || replaced) && !splitOK && !selfSplit && !sh._split) {
+    sh._anim = { dir: n >= sh._n ? 'fwd' : 'back', under: replaced ? [sh._top, n - 1] : n > sh._n ? [st[n - 2], n - 2] : [sh._top, sh._n - 1], start: Date.now(), until: Date.now() + NAV_MS };
+    clearTimeout(navAnimT); navAnimT = setTimeout(() => { if (sh._anim && Date.now() >= sh._anim.until - 5) { sh._anim = null; render(); } }, NAV_MS + 10);
   }
+  if (sh._anim && Date.now() >= sh._anim.until) sh._anim = null;
+  sh._n = n; sh._top = top; sh._split = splitOK || selfSplit;
+  let panes;
   if (splitOK) {
     cls += ' psheet--split';
     panes = paneHtml(st[n - 2], n - 2, { showClose: true, hideBack: n - 2 === 0, parentTitle: n > 2 ? titleOf(st[n - 3], n - 3) : '' }) + paneHtml(st[n - 1], n - 1, { hideBack: true, parentTitle: titleOf(st[n - 2], n - 2) });
   } else {
-    const top = st[n - 1];
-    if (ipad && SPLIT_SELF(top)) cls += ' psheet--split';
-    panes = paneHtml(top, n - 1, { showClose: true, parentTitle: n > 1 ? titleOf(st[n - 2], n - 2) : '' });
+    if (selfSplit) cls += ' psheet--split';
+    const a = sh._anim;
+    const current = paneHtml(top, n - 1, { showClose: true, parentTitle: n > 1 ? titleOf(st[n - 2], n - 2) : '' });
+    if (a && a.under[0]) {
+      const [ur, uri] = a.under;
+      const under = `<div class="navstage__under nav-${a.dir}" inert aria-hidden="true">${paneHtml(ur, uri, { showClose: true, parentTitle: uri > 0 ? titleOf(st[uri - 1] || ur, uri - 1) : '' }).replace(/ (id|for|aria-labelledby|aria-describedby|aria-controls)="[^"]*"/g, '').replace(/data-title/g, '')}</div>`; // no duplicate ids while the copy is underneath
+      panes = `<div class="navstage navstage--${a.dir}">${a.dir === 'fwd' ? under : ''}<div class="navstage__top nav-${a.dir}">${current}</div>${a.dir === 'back' ? under : ''}</div>`;
+    } else panes = current;
   }
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${sh.id === 'booking' ? 'New Booking' : sh.id === 'inbox' ? 'Notification Inbox' : 'Account'}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  const label = sh.id === 'booking' ? 'New Booking' : sh.id === 'inbox' ? 'Notification Inbox' : 'Account';
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {

@@ -37,17 +37,17 @@ function gsSeg(label, key, opts, cur, id) {
 }
 // Favorites first, then recent stations (last 10 days), as quick picks for the empty field
 function gsQuick(b, d) {
-  const f = !b.from ? 'from' : !b.to ? 'to' : null; if (!f) return '';
+  const f = !b.from ? 'from' : 'to'; // with a full route, the picks offer a different destination
   const other = f === 'from' ? 'to' : 'from';
-  const list = [...d.fav, ...d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, c) => a.d - c.d).map(x => x.c)].filter(c => c !== b[other] && !(AUTO_TRAIN[c] && autoTrainBlocked())).slice(0, 2); // two quick picks: favorites first, then the most recent
+  const list = [...d.fav, ...d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, c) => a.d - c.d).map(x => x.c)].filter(c => c !== b[other] && c !== b[f] && !(AUTO_TRAIN[c] && autoTrainBlocked())).slice(0, 2); // two quick picks: favorites first, then the most recent
   if (!list.length) return '';
-  return `<div class="gs-quick"><p class="gs-quick__label" id="gs-ql">${f === 'from' ? 'Leave from' : 'Go to'} a favorite or recent station</p><div class="gs-quick__list" role="group" aria-labelledby="gs-ql">${list.map(c => `<button class="gs-chip" type="button" data-a="gs-quick" data-field="${f}" data-code="${c}">${d.fav.includes(c) ? ic('bookmark-filled', 'ads-icon--sm') : ic('history', 'ads-icon--sm')}<span><b>${c}</b> ${ST[c].city}, ${ST[c].st}</span></button>`).join('')}</div></div>`;
+  return `<div class="gs-quick"><p class="gs-quick__label" id="gs-ql">${f === 'from' ? 'Leave from' : b.to ? 'Or go to' : 'Go to'} a favorite or recent station</p><div class="gs-quick__list" role="group" aria-labelledby="gs-ql">${list.map(c => `<button class="gs-chip" type="button" data-a="gs-quick" data-field="${f}" data-code="${c}">${d.fav.includes(c) ? ic('bookmark-filled', 'ads-icon--sm') : ic('history', 'ads-icon--sm')}<span><b>${c}</b> ${ST[c].city}, ${ST[c].st}</span></button>`).join('')}</div></div>`;
 }
 function ffGuided(r, ri) {
   const d = D(), b = d.booking, v = V(), member = d.signedIn, intent = intentOf(b);
   const corp = intent === 'corporate', pr = intent === 'pr', std = !corp && !pr;
   const st = gsState(b), errs = gsErrors(r, b);
-  if (r.u.open === undefined) r.u.open = st.where ? null : 'where';
+  if (r.u.open === undefined) r.u.open = 'where'; // Where always opens first, with its suggestions
   ref('607', '608', '1060', '611', '612'); if (std) ref('613'); if (member) ref('624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
   // Booking intent (TripLink, Pass Rider), at the top like Airbnb's tabs
@@ -126,7 +126,7 @@ function findGuided(t, ri) {
 // Version 2 demo states (Flow menu › I)
 const populatedBase = V3_PLACES.populated;
 Object.assign(V3_PLACES, {
-  populated: () => { populatedBase(); if (v2()) { sheet().stack[0].u.open = null; render(); } },
+  populated: () => { populatedBase(); if (v2()) { sheet().stack[0].u.open = 'where'; render(); } },
   partial: () => { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; sheet().stack[0].u.open = 'when'; pendingFocus = '#gs-when-q'; render(); },
   reopened: () => { V3_PLACES.populated(); sheet().stack[0].u.open = 'where'; pendingFocus = '#gs-where-q'; render(); },
   validate: () => A['find-trains'](null, '0'),
