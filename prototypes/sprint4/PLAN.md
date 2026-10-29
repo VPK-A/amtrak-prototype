@@ -116,7 +116,7 @@ Verified with the scripted suites in all four versions on iPhone and iPad:
 - every earlier suite;
 - accessibility in light and dark mode at 100% and 140% text.
 
-Next, concept-specific polish (not started):
+Second pass done: per-traveler remove, companion pairing, employee status, dependent Pass Rider, coupon states, Flow › J (see HANDOFF). Next, concept-specific polish (not started):
 - the Guided Who summary wording for several travelers;
 - an iPad layout pass on My Coupons;
 - the Overview My Coupons card shown in place on iPad.

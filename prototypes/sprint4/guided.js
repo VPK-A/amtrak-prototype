@@ -27,9 +27,10 @@ function gsSummary(k, b, d) {
   const intent = intentOf(b);
   if (k === 'where') return b.from || b.to ? `${b.from ? `${b.from} · ${ST[b.from].city}` : 'Choose departure'} → ${b.to ? `${b.to} · ${ST[b.to].city}` : 'choose arrival'}` : 'Choose stations';
   if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShortY(b.dep)}` : `Round-trip · ${fmtShortY(b.dep)} – ${b.ret ? fmtShortY(b.ret) : 'choose return'}`;
-  if (intent === 'corporate') return `1 Adult · Corporate${b.assistOn && b.assistDone ? ' · Assistance' : ''}`;
-  if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}`;
-  const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', b.assistOn ? 'Assistance' : ''].filter(Boolean);
+  const as = assistShort(b);
+  if (intent === 'corporate') return `1 Adult · Corporate${as ? ' · ' + as : ''}`;
+  if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}${as ? ' · ' + as : ''}`;
+  const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', as].filter(Boolean);
   return [paxSummary(b), ...extras].join(' · ');
 }
 function gsSeg(label, key, opts, cur, id) {

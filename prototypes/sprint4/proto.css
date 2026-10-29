@@ -711,3 +711,12 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-uses { margin: 0; padding-left: 18px; }
 .text-large .cpn-dl { grid-template-columns: 1fr; }
 [data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */
+.atl__acts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.atl__badge { padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); }
+.atl__row.is-requested { box-shadow: inset 3px 0 0 var(--ads-border-focus); }
+.cmp-for { margin-top: 12px; }
+.emp-status { margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+.cpn-loading { display: flex; flex-direction: column; gap: 8px; }
+.cpn-skel { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--ads-border-subtle); border-radius: 12px; }
+.cpn-skel i { display: block; height: 12px; border-radius: 6px; background: var(--ads-background-surface-sunken); }
+.cpn-skel i:nth-child(1) { width: 55%; height: 14px; } .cpn-skel i:nth-child(2) { width: 80%; } .cpn-skel i:nth-child(3) { width: 40%; }

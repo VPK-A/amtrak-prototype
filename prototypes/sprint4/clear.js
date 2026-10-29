@@ -94,7 +94,7 @@ function ffClear(r, ri) {
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
+  if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn ? esc(travelerList(b).length > 1 ? assistShort(b) : assistSummaryLine(b)) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
   const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Discounts, codes and assistance' : 'Assistance and discounts'}</h4><div class="ffc-list">${rows.join('')}</div>${v.entry === 'ff' ? assistBlock(r, ri, 'ff') : ''}</section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
@@ -103,6 +103,7 @@ function ffClear(r, ri) {
 A['ffc-set'] = t => {
   const d = D(), b = d.booking, k = t.dataset.key, val = t.dataset.v; b.modeNote = null;
   if (k === 'pay') { b.pay = val; }
+  if (k === 'intent' && val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = `[data-a="ffc-set"][data-key="intent"][data-v="pr"], #fl-intent`; render(); return; }
   if (k === 'intent' && b.intent !== val) {
     const was = b.intent; b.intent = val;
     if (val === 'corporate') { // NMA-622 AC3: 1 adult, no points, discounts or codes
@@ -132,6 +133,7 @@ A['find-trains'] = (t, ri) => {
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
   const b = D().booking; b.codeErr = '';
+  if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
   if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   runNet(r, () => codeApplies(b) ? checkCode(b) : null, res => {
@@ -203,11 +205,11 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018');
-    const f = b.prPax, room = prCount(b) < MAX_PAX, emp = d.passrider.role === 'employee', left = d.passrider.compLeft;
+    const f = b.prPax, room = prCount(b) < MAX_PAX, emp = d.passrider.role === 'employee', dep = d.passrider.role === 'dependent', left = d.passrider.compLeft;
     if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>`;
     else {
       body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">You’re always on the trip. ${q(13)}</p></div>
-        <div class="ffc-counts">${counter('fam', emp ? 'Spouse' : 'Employee (your spouse)', 'On your pass', f.fam, f.fam > 0, f.fam < 1 && room, 'pr')}${counter('dep', 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}
+        <div class="ffc-counts">${counter('fam', emp ? 'Spouse' : dep ? 'Employee or spouse' : 'Employee (your spouse)', dep ? 'The employee and their spouse' : 'On your pass', f.fam, f.fam > 0, f.fam < (dep ? 2 : 1) && room, 'pr')}${counter('dep', dep ? 'Other dependents' : 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}
         ${emp ? counter('comp', 'Companions', `${left} of 8 companion passes left this year`, f.comp, f.comp > 0, f.comp < left && room, 'pr', left ? '' : 'No companion passes left this year.') : ''}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app, including you.</span></p>` : ''}
         ${emp && f.comp ? '<p class="ss-note">Companions must book and travel with you.</p>' : ''}${b.prType ? '' : '<p class="ss-note">Family and companions are for Leisure travel.</p>'}`;

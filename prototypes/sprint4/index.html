@@ -2154,6 +2154,15 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-uses { margin: 0; padding-left: 18px; }
 .text-large .cpn-dl { grid-template-columns: 1fr; }
 [data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */
+.atl__acts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.atl__badge { padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); }
+.atl__row.is-requested { box-shadow: inset 3px 0 0 var(--ads-border-focus); }
+.cmp-for { margin-top: 12px; }
+.emp-status { margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+.cpn-loading { display: flex; flex-direction: column; gap: 8px; }
+.cpn-skel { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--ads-border-subtle); border-radius: 12px; }
+.cpn-skel i { display: block; height: 12px; border-radius: 6px; background: var(--ads-background-surface-sunken); }
+.cpn-skel i:nth-child(1) { width: 55%; height: 14px; } .cpn-skel i:nth-child(2) { width: 80%; } .cpn-skel i:nth-child(3) { width: 40%; }
 
 </style>
 </head>
@@ -3751,6 +3760,66 @@ coupon, station-details and V1-mode checks, in all four versions. All
 earlier scripted suites still pass, including the 119-step journey. The
 new screens pass accessibility checks in light and dark mode at 100% and
 140% text, with no overflow.</p>
+<h2 id="sprint-4-functional-coverage-second-pass-all-versions">Sprint 4
+functional coverage (second pass, all versions)</h2>
+<ul>
+<li><strong>Assistance per traveler:</strong>
+<ul>
+<li>Every traveler can add, edit or remove their own request; the others
+keep theirs.</li>
+<li>The shared list marks who has a request (<em>Requested</em>), shows
+each one's summary, and says whether a traveler with a disability has a
+personal companion.</li>
+<li>Station Assistance and the conditional accessible seat follow
+NMA-996 and 997.</li>
+<li>Requests survive section changes, closing the booking and switching
+concepts.</li>
+</ul></li>
+<li><strong>Personal companion:</strong>
+<ul>
+<li>The companion names the traveler they accompany (<em>Personal
+companion to</em>). Only travelers with a disability who don't have a
+companion yet are offered, which enforces one each (NMA-615 BR2.1–2.2).
+A second companion for the same traveler is unavailable.</li>
+<li>The companion's discount becomes Companion (NMA-43 BR8 AC3) in the
+discount list, the summaries and the search handoff.</li>
+<li>Removing or changing the paired traveler's request flags the
+companion, and Find Trains stays blocked until it's fixed.</li>
+<li>Who can be a companion is open (Q19).</li>
+</ul></li>
+<li><strong>Amtrak employee pass:</strong> shows the saved pass's
+status: Pass Rider on or off, Business Pass, companion passes left,
+travel type, and the dependent age rule.</li>
+<li><strong>Pass Rider dependents:</strong>
+<ul>
+<li>New scenario <em>Pass Rider dependent, 17</em>.</li>
+<li>Dependents 16 or older can start Leisure travel with the employee,
+their spouse and other dependents. There's no Business option and no
+Companion Pass.</li>
+<li>Under 16, or with no date of birth in Profile, Pass Rider can't be
+chosen and Find Trains explains why (NMA-1017 AC4).</li>
+</ul></li>
+<li><strong>My Coupons:</strong>
+<ul>
+<li>Loading follows the toolbar's network setting: slow shows a
+skeleton; a server error shows <em>Try again</em>; offline shows the
+saved list.</li>
+<li><em>Add</em> shows progress, then a success or a specific
+error.</li>
+<li>Notifications and retention are dependencies (Q17).</li>
+</ul></li>
+<li><strong>Flow › J:</strong> the same scenarios in every version: a
+personal companion pair, TripLink Corporate, Pass Rider employee and
+Pass Rider dependent.</li>
+<li><strong>Checks:</strong>
+<ul>
+<li>Acceptance suite: 89 checks per device, on iPhone and iPad, covering
+the criteria above in all four versions.</li>
+<li>All earlier suites, including Cash / Points.</li>
+<li>Accessibility checks in light and dark mode at 100% and 140%
+text.</li>
+</ul></li>
+</ul>
 
   </article>
 </div>
@@ -3861,6 +3930,7 @@ const SCENARIOS = [
   ['triplink', 'TripLink member', 'Signed in with an account connected to Concur TripLink. Every version shows Corporate or Personal booking; Corporate is the default (NMA-622).'],
   ['passrider', 'Pass Rider employee, Business Pass', 'Employee Pass Rider with an active Business Pass and 5 of 8 companion passes left (NMA-623, 1016–1019).'],
   ['passrider-nopass', 'Pass Rider employee, no Business Pass', 'Employee without a Business Pass, so Leisure only, and no companion passes left (NMA-1016 AC4, NMA-1018 AC7).'],
+  ['passrider-dependent', 'Pass Rider dependent, 17', 'Dependent of an employee, born 03/12/2009, with the employee’s pass number saved. Leisure only, no companion passes; can bring the employee, their spouse and other dependents (NMA-1016 AC6, NMA-1017 AC4, NMA-1018 AC2). Change the date of birth in Profile to see the under-16 rule.'],
   ['passrider-spouse', 'Pass Rider spouse', 'Spouse Pass Rider: Leisure only, no companion passes (NMA-1016 AC5, NMA-1018 AC2).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
@@ -3879,6 +3949,7 @@ const QUESTIONS = {
   15: ['Reauthentication to change email', 'Conflict: NMA-21 BR3 and BR4 ask for Verify it’s you only when the access token (40 minutes) has expired, and go straight to the new email otherwise. NMA-980 scenario 12 always requires signing in again. The prototype follows NMA-21: Scenario › Session token chooses which path you see.'],
   16: ['Pass Rider identifiers', 'NMA-623 says the Pass Rider experience needs a SAP ID and Index Number in the Profile; NMA-20 stores a 9-digit Pass Number and a 3-digit Personal Index Number. The prototype uses NMA-20’s fields. How the relationship (employee, spouse, dependent) is known, and whether the dependent experience differs (NMA-623 AC3–AC6), are open.'],
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
+  19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. The prototype lets any traveler be one, and asks who they accompany so the one-each rule can be checked.'],
   18: ['Wheelchair and mobility device details (NMA-29)', 'Partly defined, awaiting clarification: the story asks for device details under “I have a disability and reduced mobility”, its prerequisite names “I do not have a disability, but need assistance”, and most of its table is still Open. Not built beyond the existing wheelchair question.'],
   10: ['Traveler age bands and who can accompany minors', 'Conflict in NMA-611. BR3 and BR4 count Adult, Senior and Young Adult (16–17) as accompanying travelers, but the Child message says “at least one adult who is 18 years old”, and BR4 (Infant) reuses the Youth message. Until this is decided, the prototype requires an Adult or Senior, and a Young Adult alone can’t accompany. Age ranges also aren’t final (Core Flow labels Adult 16–64).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
@@ -3898,6 +3969,8 @@ const FLOWS = [
   ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['H · Version 4 Fare Finder (Flighty-inspired)', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['I · Version 2 guided Fare Finder (Airbnb-inspired)', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find Trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['J · Sprint 4 coverage, every version', [
+    ...[1, 2, 3, 4].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (17)`]])]],
   ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
 ];
 
@@ -3953,18 +4026,18 @@ function seed(sc) {
       first: 'Alex', last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: 'alex.rivera@example.com',
       phone: intl ? { region: 'intl', mobile: '', home: '', business: '', ext: '', cc: 'GB', intl: '7700900123' } : { region: 'us', mobile: '2155550147', home: '', business: '', ext: '', cc: 'GB', intl: '' },
       address: intl ? { country: 'GB', street: '221 Baker Street', apt: 'Flat B', city: 'London', state: '', zip: 'NW1 6XE' } : { country: 'US', street: '1500 Market Street', apt: 'Apt 4B', city: 'Philadelphia', state: 'Pennsylvania', zip: '19102' },
-      dob: ''
+      dob: sc === 'passrider-dependent' ? '03/12/2009' : ''
     },
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink',
-    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
+    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in Profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : 'employee', pass: sc === 'passrider-spouse' ? '418200775' : '418200774', index: sc === 'passrider-spouse' ? '002' : '001' } : null,
+    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', pass: '418200774', index: sc === 'passrider-spouse' ? '002' : sc === 'passrider-dependent' ? '003' : '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
   d.booking = freshBooking(d);
@@ -3979,7 +4052,7 @@ function freshBooking(d) {
     assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
-    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider ? 'pr' : 'standard',
+    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
     code: null, codeTries: 0, codeErr: '', modeNote: null
   };
@@ -4087,7 +4160,7 @@ function goLoc(loc) {
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v2': case 'v3': case 'v4': {
+    case 'v1': case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));
@@ -4725,8 +4798,8 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 // =====================================================================
 // The traveler a booking questionnaire is for (route param t), and their label
 const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
-const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs] });
-const fromDraft = x => ({ cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], for: m.for || '' });
+const fromDraft = x => ({ for: x.cat === 'companion' ? x.for || null : null, cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
 function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
   if (mode === 'booking' && !x.cat) e.cat = `Choose an option for ${who}.`;
@@ -4764,7 +4837,7 @@ function catBlock(r, x, idp, mode, e) {
   const opts = cats.map(k => k === 'companion'
     ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
     : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with Disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
@@ -4832,7 +4905,7 @@ function wizard(r, ri, mode, title) {
   return { title, kind: 'push', body, foot, wide: IPAD() };
 }
 function stepValue(s, m) {
-  if (s === 'cat') return m.cat ? CATS[m.cat] : 'Nothing selected';
+  if (s === 'cat') return m.cat ? CATS[m.cat] + (m.cat === 'companion' && m.for ? ` · ${travelerLabel(D().booking, m.for)}` : '') : 'Nothing selected';
   if (s === 'dis') return m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', ');
   if (s === 'wc') return m.wc ? 'Yes, I’ll bring a wheelchair' : 'No';
   if (s === 'needs') return m.needs.length ? m.needs.map(k => NEEDS.find(x => x[0] === k)[1]).join(', ') : 'None';
@@ -5305,7 +5378,7 @@ function ffClear(r, ri) {
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
+  if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn ? esc(travelerList(b).length > 1 ? assistShort(b) : assistSummaryLine(b)) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
   const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Discounts, codes and assistance' : 'Assistance and discounts'}</h4><div class="ffc-list">${rows.join('')}</div>${v.entry === 'ff' ? assistBlock(r, ri, 'ff') : ''}</section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
@@ -5314,6 +5387,7 @@ function ffClear(r, ri) {
 A['ffc-set'] = t => {
   const d = D(), b = d.booking, k = t.dataset.key, val = t.dataset.v; b.modeNote = null;
   if (k === 'pay') { b.pay = val; }
+  if (k === 'intent' && val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = `[data-a="ffc-set"][data-key="intent"][data-v="pr"], #fl-intent`; render(); return; }
   if (k === 'intent' && b.intent !== val) {
     const was = b.intent; b.intent = val;
     if (val === 'corporate') { // NMA-622 AC3: 1 adult, no points, discounts or codes
@@ -5343,6 +5417,7 @@ A['find-trains'] = (t, ri) => {
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
   const b = D().booking; b.codeErr = '';
+  if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
   if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   runNet(r, () => codeApplies(b) ? checkCode(b) : null, res => {
@@ -5414,11 +5489,11 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018');
-    const f = b.prPax, room = prCount(b) < MAX_PAX, emp = d.passrider.role === 'employee', left = d.passrider.compLeft;
+    const f = b.prPax, room = prCount(b) < MAX_PAX, emp = d.passrider.role === 'employee', dep = d.passrider.role === 'dependent', left = d.passrider.compLeft;
     if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>`;
     else {
       body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">You’re always on the trip. ${q(13)}</p></div>
-        <div class="ffc-counts">${counter('fam', emp ? 'Spouse' : 'Employee (your spouse)', 'On your pass', f.fam, f.fam > 0, f.fam < 1 && room, 'pr')}${counter('dep', 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}
+        <div class="ffc-counts">${counter('fam', emp ? 'Spouse' : dep ? 'Employee or spouse' : 'Employee (your spouse)', dep ? 'The employee and their spouse' : 'On your pass', f.fam, f.fam > 0, f.fam < (dep ? 2 : 1) && room, 'pr')}${counter('dep', dep ? 'Other dependents' : 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}
         ${emp ? counter('comp', 'Companions', `${left} of 8 companion passes left this year`, f.comp, f.comp > 0, f.comp < left && room, 'pr', left ? '' : 'No companion passes left this year.') : ''}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app, including you.</span></p>` : ''}
         ${emp && f.comp ? '<p class="ss-note">Companions must book and travel with you.</p>' : ''}${b.prType ? '' : '<p class="ss-note">Family and companions are for Leisure travel.</p>'}`;
@@ -5647,9 +5722,10 @@ function gsSummary(k, b, d) {
   const intent = intentOf(b);
   if (k === 'where') return b.from || b.to ? `${b.from ? `${b.from} · ${ST[b.from].city}` : 'Choose departure'} → ${b.to ? `${b.to} · ${ST[b.to].city}` : 'choose arrival'}` : 'Choose stations';
   if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShortY(b.dep)}` : `Round-trip · ${fmtShortY(b.dep)} – ${b.ret ? fmtShortY(b.ret) : 'choose return'}`;
-  if (intent === 'corporate') return `1 Adult · Corporate${b.assistOn && b.assistDone ? ' · Assistance' : ''}`;
-  if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}`;
-  const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', b.assistOn ? 'Assistance' : ''].filter(Boolean);
+  const as = assistShort(b);
+  if (intent === 'corporate') return `1 Adult · Corporate${as ? ' · ' + as : ''}`;
+  if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}${as ? ' · ' + as : ''}`;
+  const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', as].filter(Boolean);
   return [paxSummary(b), ...extras].join(' · ');
 }
 function gsSeg(label, key, opts, cur, id) {
@@ -5783,11 +5859,17 @@ function travelerList(b) {
   return out.map((t, n) => Object.assign(t, { n: n + 1, label: `Traveler ${n + 1} · ${t.short}` }));
 }
 const firstKey = b => (travelerList(b)[0] || {}).key;
+const travelerLabel = (b, key) => (travelerList(b).find(t => t.key === key) || { label: 'a traveler no longer on this booking' }).label;
 // The assistance record for one traveler: { m, done, fromProfile }
 function assistRec(b, key) {
   b.ta = b.ta || {};
   if (!key || key === firstKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
   return b.ta[key] || { m: blankAssist(), done: false };
+}
+function clearAssistRec(b, key) {
+  b.ta = b.ta || {};
+  if (!key || key === firstKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; }
+  else delete b.ta[key];
 }
 function setAssistRec(b, key, m) {
   b.ta = b.ta || {};
@@ -5797,14 +5879,30 @@ function setAssistRec(b, key, m) {
 // The assistance type that counts for a traveler: only once answered, and only while the booking asks for help
 function assistCat(b, key) { const a = assistRec(b, key); return b.assistOn && a.done ? a.m.cat : null; }
 const catCount = (b, cat, except) => travelerList(b).filter(t => t.key !== except && assistCat(b, t.key) === cat).length;
-// NMA-615 BR2.1–2.2: a personal companion needs a traveler with a disability who doesn't have one yet
-const companionOpen = (b, key) => catCount(b, 'disability', key) > catCount(b, 'companion', key);
-// Problems that stop the search: a companion left without a traveler with a disability
+// NMA-615 BR2.1–2.2: a personal companion accompanies one traveler with a disability, and each of them may
+// bring one companion. The companion names who they accompany, so the pairing is explicit.
+const companionOf = (b, forKey, except) => travelerList(b).find(t => t.key !== except && assistCat(b, t.key) === 'companion' && assistRec(b, t.key).m.for === forKey);
+const companionTargets = (b, key) => travelerList(b).filter(t => t.key !== key && assistCat(b, t.key) === 'disability' && !companionOf(b, t.key, key));
+const companionOpen = (b, key) => companionTargets(b, key).length > 0;
+// Problems that stop the search: companions whose traveler with a disability is missing, changed or shared
 function assistProblems(b) {
   if (!b.assistOn) return [];
-  const comps = catCount(b, 'companion'), dis = catCount(b, 'disability');
-  if (comps > dis) return [dis ? `Each traveler with a disability may bring one personal companion. ${comps} travelers are personal companions and ${dis} has a disability.` : 'A personal companion needs another traveler with a disability. Change the assistance type for the personal companion, or add assistance for the traveler with a disability.'];
-  return [];
+  const out = [], seen = {};
+  for (const t of travelerList(b)) {
+    if (assistCat(b, t.key) !== 'companion') continue;
+    const f = assistRec(b, t.key).m.for;
+    if (!f || assistCat(b, f) !== 'disability') out.push(`${t.label} is a personal companion, but ${f ? travelerLabel(b, f) + ' no longer has a disability in assistance' : 'no traveler with a disability is chosen'}. Edit ${t.label}’s assistance.`);
+    else if (seen[f]) out.push(`${travelerLabel(b, f)} has two personal companions. Each traveler with a disability may bring one. Edit ${t.label}’s assistance.`);
+    seen[f] = true;
+  }
+  return out;
+}
+// The type step's "Personal companion to" choice
+function companionFor(r, x, idp, e) {
+  const b = D().booking, key = assistWho(r).key, opts = companionTargets(b, key);
+  if (!x.for || !opts.some(t => t.key === x.for)) x.for = opts[0] ? opts[0].key : '';
+  if (!opts.length) return '';
+  return `<div class="cmp-for">${fieldHtml({ id: `${idp}-for`, f: 'for', label: 'Personal companion to', value: x.for, select: opts.map(t => [t.key, t.label]), req: true, help: opts.length > 1 ? 'Each traveler with a disability may bring one personal companion.' : `${opts[0].label} has a disability in assistance.`, err: e.for })}${q(19)}</div>`;
 }
 // Passenger discount from assistance (standard and TripLink Personal bookings only): PWD or Companion
 function assistDiscount(b, key) {
@@ -5827,21 +5925,67 @@ function assistSummaryLine(b) {
   return `${asked.length} of ${list.length} travelers`;
 }
 
+// Short form for summaries: "Assistance for 2 travelers"
+function assistShort(b) {
+  if (!b.assistOn) return '';
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  return n ? `Assistance for ${n} traveler${n > 1 ? 's' : ''}` : 'Assistance not answered yet';
+}
 // ---------- Shared component: every traveler's assistance, with Add or Edit ----------
 function assistTravelerList(b) {
   const list = travelerList(b), prob = assistProblems(b);
   const rows = list.map(t => {
     const a = assistRec(b, t.key), items = a.done ? assistSummaryItems(a.m) : [], disc = assistDiscount(b, t.key);
     const tag = a.done && t.n === 1 && a.fromProfile ? '<span class="ads-lock">From your Profile</span>' : '';
-    const sub = a.done ? items.slice(1).filter(x => x !== 'No other needs').join(' · ') : '';
+    const c = a.done ? a.m.cat : null;
+    const sub = [c === 'companion' ? `Companion to ${travelerLabel(b, a.m.for)}` : '', ...(a.done ? items.slice(1).filter(x => x !== 'No other needs') : [])].filter(Boolean).join(' · ');
+    const comp = c === 'disability' ? companionOf(b, t.key) : null;
+    const pair = c === 'disability' ? `<span class="atl__sub">${comp ? `Personal companion: ${esc(comp.label)}` : 'May bring one personal companion'}</span>` : '';
     const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
-    return `<li class="atl__row"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}</span><span class="atl__val">${esc(a.done ? items[0] : 'No answers yet')}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${discNote}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button></li>`;
+    const state = !a.done ? 'No assistance requested' : c === 'none' ? 'No assistance needed' : items[0];
+    const acts = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button>${a.done ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}" aria-label="Remove assistance for ${esc(t.label)}">Remove</button>` : ''}`;
+    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}</div><div class="atl__acts">${acts}</div></li>`;
   }).join('');
   const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert">${ic('alert-diamond')}<span>${esc(prob[0])}</span></p>` : '';
   return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p><ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul>${err}</div>`;
 }
 
+// ---------- Pass Rider eligibility (NMA-623, 1016, 1017) ----------
+// Employees and spouses can start Pass Rider travel. A dependent can at 16 or older (NMA-1017 AC4); their age
+// comes from the Profile's date of birth (NMA-919). How the app learns the relationship is open (Q16).
+function ageFromDob(dob) {
+  if (!dob || !validDob(dob)) return null;
+  const [m, dd, y] = dob.split('/').map(Number);
+  let a = TODAY.getFullYear() - y; if (TODAY.getMonth() + 1 < m || (TODAY.getMonth() + 1 === m && TODAY.getDate() < dd)) a--;
+  return a;
+}
+function prCanStart(d) {
+  const p = d.passrider;
+  if (!p) return { ok: false, text: 'Add your Amtrak employee pass details in Profile to book Pass Rider travel.' };
+  if (p.role !== 'dependent') return { ok: true };
+  const age = ageFromDob(d.profile.dob);
+  if (age == null) return { ok: false, text: 'Dependents 16 or older can start Pass Rider travel. Add your date of birth in Profile.' };
+  if (age < 16) return { ok: false, text: 'Dependents under 16 can’t start Pass Rider travel. The employee or their spouse can book it and add you.' };
+  return { ok: true, age };
+}
+
+// Demo state (Flow › J): two adults, Traveler 1 with a disability, Traveler 2 as their personal companion
+V3_PLACES.companion = () => {
+  const b = D().booking; b.from = b.from || 'NYP'; b.to = b.to || 'WAS'; b.pax.adult = 2; b.assistOn = true;
+  setAssistRec(b, 'adult-1', { cat: 'disability', dis: ['mobility'], wc: false, needs: ['station'] });
+  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true };
+  if (v2()) sheet().stack[0].u.open = 'who';
+  render();
+};
+
 // ---------- Actions ----------
+// Remove one traveler's assistance; the others keep theirs
+A['assist-remove'] = t => {
+  const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
+  clearAssistRec(b, key);
+  pendingFocus = `[data-a="assist-edit"][data-t="${key}"]`;
+  toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}`, 'info');
+};
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 function assistOffline(returnFocus) {
   if (V().net !== 'offline') return false;
@@ -5867,7 +6011,8 @@ A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
   const e = assistErrors(x, 'booking', who);
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = 'Choose the traveler you’re a personal companion to.';
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat || e.for ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`; render();
 };
@@ -6184,7 +6329,16 @@ A['pick-station'] = (t, ri) => {
 PFIELDS.employee = 'Amtrak employee pass';
 const EMP_REL = { employee: 'Employee or retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
-const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)}` : 'Not added';
+const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
+// Status of the saved pass: what the pass record allows (NMA-1016, 1018) and, for dependents, the age rule (NMA-1017 AC4)
+function empStatus(d) {
+  const e = d.employee, p = d.passrider; if (!e || !p) return '';
+  const can = prCanStart(d), rows = [['Pass Rider booking', can.ok ? 'On' : 'Not available']];
+  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Companion passes', `${p.compLeft} of 8 left this year`]); }
+  else rows.push(['Travel type', 'Leisure only']);
+  if (p.role === 'dependent') rows.push(['Age rule', can.ok ? `Eligible (${can.age}). Dependents 16 or older can start Pass Rider travel.` : can.text]);
+  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${p.role === 'dependent' && !can.ok ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="dob">Add date of birth</button>` : ''}</div>`;
+}
 EDITORS.employee = (r, ri, inline) => {
   const d = D(), cur = d.employee; ref('20');
   if (!r.u.d) r.u.d = { emp: cur ? 'yes' : '', rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
@@ -6192,11 +6346,12 @@ EDITORS.employee = (r, ri, inline) => {
   prov('NMA-623 identifies Pass Riders by SAP ID and Index Number; NMA-20 by Pass Number and Personal Index Number. The prototype uses NMA-20’s fields (Q16).');
   const yes = x.emp === 'yes', primary = x.rel !== 'employee';
   const radios = [['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<label class="ads-choice ads-radio"><input type="radio" name="${idp}-emp" data-f="emp" value="${v}" ${x.emp === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${l}</span></label>`).join('');
-  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
+  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
   if (yes) {
     body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
     body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass Number' : 'Pass Number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
     body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal Index Number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can start Pass Rider travel. Your age comes from the date of birth in your Profile.</p>`;
     if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
   } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your Profile. Pass Rider booking won’t be available.</p>`;
   const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
@@ -6219,7 +6374,9 @@ SAVE.employee = (r, ri) => {
       d.employee = { rel: x.rel, pass: x.pass, index: x.index };
       // Business Pass and companion passes come from the pass record; newly added details start without them
       d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0 };
-      if (!was) { b.intent = 'pr'; b.prType = d.passrider.business ? null : 'leisure'; }
+      b.prType = d.passrider.business ? b.prType : 'leisure';
+      if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
+      if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
     } else {
       d.employee = null; d.passrider = null;
       if (b.intent === 'pr') { b.intent = 'standard'; b.prType = null; }
@@ -6236,16 +6393,29 @@ function couponCard(c) {
   const apply = !done && !c.lounge ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
   return `<li class="cpn${done ? ' cpn--done' : ''}"><div class="cpn__main"><span class="cpn__name">${esc(c.name || c.kind)} ${badge}</span><span class="cpn__benefit">${esc(c.benefit)}</span><span class="cpn__meta">${esc(c.kind)} · ${c.code} · ${st === 'expired' ? 'Expired' : 'Expires'} ${fmtShortY(c.exp)}</span></div><div class="cpn__acts">${apply}<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(c.name || c.kind)}">Details</button></div></li>`;
 }
+// Loading the list follows the toolbar network: online loads at once, slow shows loading, a server error offers
+// Try again, offline shows the coupons saved on the device
+function couponLoad(r) {
+  if (r.u.load) return r.u.load;
+  const net = V().net;
+  r.u.load = net === 'slow' ? 'loading' : net === 'error' ? 'error' : net === 'offline' ? 'cached' : 'ok';
+  if (r.u.load === 'loading') setTimeout(() => { if (r.u.load === 'loading') { r.u.load = 'ok'; render(); } }, 1500);
+  return r.u.load;
+}
+A['coupon-retry'] = (t, ri) => { const r = routeAt(ri); r.u.load = null; pendingFocus = 'title'; render(); };
 SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '';
   ref('697');
+  const load = couponLoad(r);
+  if (load === 'loading') return { title: 'My Coupons', kind: 'push', banner: false, body: `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>` };
+  if (load === 'error') return { title: 'My Coupons', kind: 'push', banner: false, body: alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>') };
   const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
   const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
-  const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div><button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button></div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
+  const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div>${r.u.busy ? `<button class="ads-btn ads-btn--secondary" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button>'}</div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
   const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
   const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
   tip('My Coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
-  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}</section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
+  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided (NMA-697 BR8). ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
   return { title: 'My Coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
 };
 A['coupon-add'] = (t, ri) => {

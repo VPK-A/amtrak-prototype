@@ -496,3 +496,30 @@ See `PLAN.md` for the issue inventory, coverage, blocked items and regression ri
 - **Q18:** NMA-29, partly defined.
 
 **Checks:** 41 multi-traveler checks and 59 Profile, coupon, station-details and V1-mode checks, in all four versions. All earlier scripted suites still pass, including the 119-step journey. The new screens pass accessibility checks in light and dark mode at 100% and 140% text, with no overflow.
+
+## Sprint 4 functional coverage (second pass, all versions)
+
+- **Assistance per traveler:**
+  - Every traveler can add, edit or remove their own request; the others keep theirs.
+  - The shared list marks who has a request (*Requested*), shows each one's summary, and says whether a traveler with a disability has a personal companion.
+  - Station Assistance and the conditional accessible seat follow NMA-996 and 997.
+  - Requests survive section changes, closing the booking and switching concepts.
+- **Personal companion:**
+  - The companion names the traveler they accompany (*Personal companion to*). Only travelers with a disability who don't have a companion yet are offered, which enforces one each (NMA-615 BR2.1–2.2). A second companion for the same traveler is unavailable.
+  - The companion's discount becomes Companion (NMA-43 BR8 AC3) in the discount list, the summaries and the search handoff.
+  - Removing or changing the paired traveler's request flags the companion, and Find Trains stays blocked until it's fixed.
+  - Who can be a companion is open (Q19).
+- **Amtrak employee pass:** shows the saved pass's status: Pass Rider on or off, Business Pass, companion passes left, travel type, and the dependent age rule.
+- **Pass Rider dependents:**
+  - New scenario *Pass Rider dependent, 17*.
+  - Dependents 16 or older can start Leisure travel with the employee, their spouse and other dependents. There's no Business option and no Companion Pass.
+  - Under 16, or with no date of birth in Profile, Pass Rider can't be chosen and Find Trains explains why (NMA-1017 AC4).
+- **My Coupons:**
+  - Loading follows the toolbar's network setting: slow shows a skeleton; a server error shows *Try again*; offline shows the saved list.
+  - *Add* shows progress, then a success or a specific error.
+  - Notifications and retention are dependencies (Q17).
+- **Flow › J:** the same scenarios in every version: a personal companion pair, TripLink Corporate, Pass Rider employee and Pass Rider dependent.
+- **Checks:**
+  - Acceptance suite: 89 checks per device, on iPhone and iPad, covering the criteria above in all four versions.
+  - All earlier suites, including Cash / Points.
+  - Accessibility checks in light and dark mode at 100% and 140% text.

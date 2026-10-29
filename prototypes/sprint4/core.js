@@ -31,18 +31,18 @@ function seed(sc) {
       first: 'Alex', last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: 'alex.rivera@example.com',
       phone: intl ? { region: 'intl', mobile: '', home: '', business: '', ext: '', cc: 'GB', intl: '7700900123' } : { region: 'us', mobile: '2155550147', home: '', business: '', ext: '', cc: 'GB', intl: '' },
       address: intl ? { country: 'GB', street: '221 Baker Street', apt: 'Flat B', city: 'London', state: '', zip: 'NW1 6XE' } : { country: 'US', street: '1500 Market Street', apt: 'Apt 4B', city: 'Philadelphia', state: 'Pennsylvania', zip: '19102' },
-      dob: ''
+      dob: sc === 'passrider-dependent' ? '03/12/2009' : ''
     },
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink',
-    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
+    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in Profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : 'employee', pass: sc === 'passrider-spouse' ? '418200775' : '418200774', index: sc === 'passrider-spouse' ? '002' : '001' } : null,
+    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', pass: '418200774', index: sc === 'passrider-spouse' ? '002' : sc === 'passrider-dependent' ? '003' : '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
   d.booking = freshBooking(d);
@@ -57,7 +57,7 @@ function freshBooking(d) {
     assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
-    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider ? 'pr' : 'standard',
+    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
     code: null, codeTries: 0, codeErr: '', modeNote: null
   };
@@ -165,7 +165,7 @@ function goLoc(loc) {
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v2': case 'v3': case 'v4': {
+    case 'v1': case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));
