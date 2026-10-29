@@ -6,8 +6,8 @@
    discount codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019). */
 
 // ---------- Rules ----------
-// Booking modes (TripLink, Pass Rider) are designed in Versions 2–4; Version 1 always books as standard
-const intentOf = b => TB.v >= 2 ? (b.intent || 'standard') : 'standard';
+// Booking modes (TripLink, Pass Rider) apply in every version; each presents them its own way
+const intentOf = b => b.intent || 'standard';
 const autoTrainBlocked = () => intentOf(D().booking) === 'pr'; // NMA-623: Auto Train isn't offered
 const PAX_PLURAL = { adult: 'Adults', senior: 'Seniors', ya: 'Young Adults', youth: 'Youths', child: 'Children', infant: 'Infants' };
 const paxSeated = p => p.adult + p.senior + p.ya + p.youth + p.child; // infants don't count toward 8 (NMA-611 BR3)
@@ -29,7 +29,7 @@ function paxProblems(p) {
 }
 // Discount shown for a traveler (NMA-612 BR5): fixed for seniors and infants, PWD for Traveler 1 when Assistance says so
 function tdiscOf(b, t) {
-  if (t.n === 1 && pwdApplies(b)) return 'pwd';
+  const fromAssist = assistDiscount(b, t.key); if (fromAssist) return fromAssist; // PWD or Companion (NMA-43 BR8)
   if (t.type === 'senior') return 'senior';
   if (t.type === 'infant') return t.i > b.pax.adult + b.pax.senior ? 'infantchild' : 'infant';
   if (t.key === 'adult-1') return b.disc;
@@ -41,7 +41,7 @@ function discSummary(b) {
   if (!list.length) return 'None chosen';
   return list.map(([t, x]) => `${TDISC_LABEL[x]}${paxList(b).length > 1 ? ` (Traveler ${t.n})` : ''}`).join(', ');
 }
-const prRoleLabel = d => d.passrider.role === 'employee' ? 'Employee' : 'Spouse';
+const prRoleLabel = d => ({ employee: 'Employee', spouse: 'Spouse', dependent: 'Dependent' })[d.passrider.role] || 'Employee';
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
   const f = b.prPax, parts = ['You'];
@@ -122,7 +122,7 @@ A['pr-type'] = t => { D().booking.prType = t.dataset.v; pendingFocus = `[data-a=
 // Find Trains: the shared checks, then Travel type and the discount code (format and rules the app can know; the rest is the back end's)
 const findTrainsBase = A['find-trains'];
 A['find-trains'] = (t, ri) => {
-  if (TB.v === 1) return findTrainsBase(t, ri);
+  if (TB.v === 1) { const b = D().booking, r = routeAt(ri); if (intentOf(b) === 'pr' && !b.prType) { r.u.showErr = true; pendingFocus = '[data-a="pr-type"]'; render(); return; } return findTrainsBase(t, ri); }
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b), prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
   if (paxBad) { r.u.showErr = true; pendingFocus = '#ff-trav, [data-a="pick-travelers"]'; render(); return; }
@@ -132,6 +132,8 @@ A['find-trains'] = (t, ri) => {
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
   const b = D().booking; b.codeErr = '';
+  const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
+  if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   runNet(r, () => codeApplies(b) ? checkCode(b) : null, res => {
     if (res && res.err) { b.codeErr = res.err; pendingFocus = '#ffc-code-err'; render(); return; }
     if (res && res.range) {
@@ -157,7 +159,8 @@ SCR.code = (r, ri) => {
   const d = D(), b = d.booking; r.u.d = r.u.d || { code: b.codeDraft || '' };
   ref('613'); if (d.coupons.length) ref('697');
   const locked = b.codeTries >= 2, err = r.u.err || '';
-  const saved = d.signedIn && d.coupons.length ? `<section class="ffc-codes" aria-labelledby="ffc-saved"><h4 class="ffc-h" id="ffc-saved">Your saved codes</h4><ul class="ffc-codelist">${[...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp)).map(c => `<li><button class="ffc-code" type="button" data-a="code-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Expired and used codes aren’t shown. Whether a code works for your train is checked when you find trains. ${q(11)}</p></section>` : '';
+  const fare = d.coupons.filter(c => !c.lounge); // lounge passes aren't fare codes
+  const saved = d.signedIn && fare.length ? `<section class="ffc-codes" aria-labelledby="ffc-saved"><h4 class="ffc-h" id="ffc-saved">Your saved codes</h4><ul class="ffc-codelist">${[...fare].sort((x, y) => x.exp.localeCompare(y.exp)).map(c => `<li><button class="ffc-code" type="button" data-a="code-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Expired and used codes aren’t shown. Whether a code works for your train is checked when you find trains. ${q(11)}</p></section>` : '';
   const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Add a code</h3><p class="ffc-sheetsub">Use one coupon or promo code. Promo codes have 4 letters or numbers, coupon codes have 14.</p></div>
     <div class="ads-field"><label class="ads-field__label" for="code-in">Discount code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ffc-codeentry"><div class="ads-control ads-control--pill${err ? ' ads-control--error' : ''}">${ic('payment-voucher')}<input id="code-in" data-f="code" data-nodirty data-hook="codedraft" value="${esc(r.u.d.code)}" placeholder="Enter discount code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" ${err ? 'aria-invalid="true"' : ''} aria-describedby="code-h" ${locked ? 'disabled' : ''}></div><button class="ads-btn ads-btn--secondary" type="button" data-a="code-add" ${locked ? 'disabled' : ''}>Add</button></div><p class="ads-helper${err ? ' ads-helper--error' : ''}" id="code-h" ${err ? 'role="alert"' : ''}>${err ? ic('alert-diamond') + `<span>${err}</span>` : 'Letters and numbers only.'}</p></div>
     ${locked ? alertBox('warning', 'Need help with a code?', 'You’ve tried twice. Call 1-800-USA-RAIL (1-800-872-7245) and we’ll help you use it.') : ''}
@@ -220,9 +223,9 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
     const discs = paxList(b).map(t => {
       const x = tdiscOf(b, t), opts = TDISC[t.type], label = `Traveler ${t.n} · ${PAX_LABEL[t.type]}`;
-      const info = x === 'pwd' ? `Applied because Traveler 1 has a disability in Assistance. ${q(9)}` : x === 'senior' ? 'Seniors get the senior discount automatically when eligible.' : x === 'infant' ? 'Infants travel on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults: this infant pays the child fare.' : x === 'childfare' ? 'Children pay the child fare.' : x === 'none' ? (t.type === 'adult' || t.type === 'ya' ? 'Adults and young adults don’t get a passenger-type discount.' : 'No discount.') : DISCOUNTS[x] ? DISCOUNTS[x].info : '';
-      const ctl = opts && x !== 'pwd' ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
-      return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && x !== 'pwd' ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
+      const info = x === 'pwd' ? `Applied because ${esc(t.label || `Traveler ${t.n}`)} has a disability in Assistance. ${q(9)}` : x === 'companion' ? `Applied because Traveler ${t.n} is a personal companion in Assistance. It replaces other passenger discounts. ${q(9)}` : x === 'senior' ? 'Seniors get the senior discount automatically when eligible.' : x === 'infant' ? 'Infants travel on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults: this infant pays the child fare.' : x === 'childfare' ? 'Children pay the child fare.' : x === 'none' ? (t.type === 'adult' || t.type === 'ya' ? 'Adults and young adults don’t get a passenger-type discount.' : 'No discount.') : DISCOUNTS[x] ? DISCOUNTS[x].info : '';
+      const ctl = opts && !['pwd', 'companion'].includes(x) ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
+      return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
@@ -306,5 +309,5 @@ SCR.calendar = (r, ri) => {
 const assistBase = SCR.assist;
 SCR.assist = (r, ri) => {
   const o = assistBase(r, ri); if (!rich()) return o;
-  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', 'Traveler 1. Tell us what help you need for this trip.') + o.body });
+  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', `${esc(assistWho(r).label)}. Tell us what help they need for this trip.`) + o.body });
 };

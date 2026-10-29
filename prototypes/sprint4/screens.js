@@ -88,8 +88,26 @@ function payV1(b) {
   return `<div class="v1pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'v1pay')}</div>`;
 }
 function travelersRow(r, opts = {}) {
-  const b = D().booking;
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
+  const b = D().booking, it = intentOf(b);
+  const label = it === 'corporate' ? '1 Adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
+  const value = it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fares apply' : `Discounts: ${discSummary(b)}`;
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: esc(value), current: opts.open })]);
+}
+// Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
+function modesV1(r, b) {
+  const d = D(); if (!d.signedIn) return '';
+  const out = [];
+  if (d.triplink) { ref('622'); out.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'v1intent')); }
+  if (d.passrider) {
+    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'v1intent'));
+    if (b.intent === 'pr') {
+      const elig = d.passrider.role === 'employee' && d.passrider.business, miss = r.u.showErr && !b.prType;
+      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" ${miss ? 'aria-describedby="v1-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="v1-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone.</p>'}</div>`
+        : `<p class="ads-helper">Travel type: Leisure. ${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</p>`);
+    }
+  }
+  if (!out.length) return '';
+  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${b.intent === 'corporate' ? q(12) : ''}</div>`;
 }
 function assistBlock(r, ri, host) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -97,8 +115,10 @@ function assistBlock(r, ri, host) {
   const intro = 'Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. One traveler with a disability may bring one personal companion.';
   let h = `<div class="assistbox"><label class="ads-choice ads-checkbox"><input type="checkbox" id="assist-on-${host}" data-a="assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="assist-intro-${host}"><span class="ads-choice__control"></span><span class="ads-choice__label"><span><b>Traveler with disability or need help?</b></span><span class="ads-choice__supporting" id="assist-intro-${host}">${intro}</span></span></label>`;
   if (b.assistOn) {
-    if (b.assistDone) h += assistSummaryCard(b.assist, { title: 'Traveler 1 · Adult', edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true });
-    else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" style="align-self:flex-start">Answer for Traveler 1</button>`;
+    const list = travelerList(b), t1 = list[0] || { key: firstKey(b), label: 'Traveler 1' };
+    if (list.length > 1) h += assistTravelerList(b);
+    else if (b.assistDone) h += assistSummaryCard(b.assist, { title: esc(t1.label), edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true }).replace('data-a="assist-edit"', `data-a="assist-edit" data-t="${t1.key}"`);
+    else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t1.key}" style="align-self:flex-start">Answer for ${esc(t1.label)}</button>`;
   }
   h += q(7) + '</div>';
   return h;
@@ -112,10 +132,10 @@ SCR.ff = (r, ri) => {
   if (b.trip === 'rt') ref('608');
   if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
-  if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
   if (v2()) return ffGuided(r, ri);
   ref('613');
-  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${payV1(b)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  const std = ['standard', 'personal'].includes(intentOf(b));
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? payV1(b) + codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -158,7 +178,7 @@ function stationRow(s, field, sec) {
   const blocked = s.tag && autoTrainBlocked();
   const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
   const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 function stationRoute(field) {
@@ -289,18 +309,21 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 // =====================================================================
 // Assistance (shared model: cat, dis[], wc 'yes'|'no'|'', needs[])
 // =====================================================================
+// The traveler a booking questionnaire is for (route param t), and their label
+const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
 const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs] });
-const fromDraft = x => ({ cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : [] });
-function assistErrors(x, mode) {
+const fromDraft = x => ({ cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
-  if (mode === 'booking' && !x.cat) e.cat = 'Choose an option for Traveler 1.';
+  if (mode === 'booking' && !x.cat) e.cat = `Choose an option for ${who}.`;
   if (x.cat === 'disability' && !x.dis.length) e.dis = 'Choose at least one disability.';
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = 'Tell us whether you’ll bring a wheelchair.';
   return e;
 }
 HOOKS.assist = (r, t) => {
   const x = r.u.d;
-  if (x.cat !== 'disability') { x.dis = []; x.wc = ''; x.needs = x.cat === 'station' ? x.needs.filter(n => n === 'seat') : []; }
+  if (x.cat !== 'disability') { x.dis = []; x.wc = ''; x.needs = x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || n === 'seat') : []; }
+  if (x.cat === 'companion' && !x.needs.includes('station')) x.needs = x.needs.filter(n => n !== 'seat'); // NMA-997 AC2
   if (!x.dis.includes('mobility')) x.wc = '';
   if (x.wc === 'yes' && x.needs.includes('seat') && x.needs.includes('animal')) { x.needs = x.needs.filter(n => n !== 'animal'); r.u.assistNote = 'Large service animal was removed. With wheelchair space you can choose an accessible seat or a large service animal, not both.'; }
   else if (t.dataset.f !== 'needs') r.u.assistNote = null;
@@ -308,39 +331,43 @@ HOOKS.assist = (r, t) => {
 };
 function needsBlock(r, x, idp, explain) {
   const wcYes = x.wc === 'yes';
-  const items = x.cat === 'station' ? NEEDS.filter(n => n[0] === 'seat') : NEEDS;
+  const comp = x.cat === 'companion';
+  const items = x.cat === 'station' ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
   const opts = items.map(([k, l, s]) => {
     let dis = false, why = '';
     if (wcYes && k === 'animal' && x.needs.includes('seat')) { dis = true; why = 'Not available with an accessible seat when you bring a wheelchair. Remove Accessible seat to choose this.'; }
     if (wcYes && k === 'seat' && x.needs.includes('animal')) { dis = true; why = 'Not available with a large service animal when you bring a wheelchair. Remove Large service animal to choose this.'; }
+    if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = 'Choose Station Assistance first.'; }
     return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? 'disabled' : ''}`);
   }).join('');
   const lead = explain && wcYes ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>With wheelchair space, Station Assistance is always available. You can add an accessible seat or a large service animal, but not both.</span></p>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.assistNote}</p></div></div>` : '';
-  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : comp ? 'Do you need help as a personal companion?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 function catBlock(r, x, idp, mode, e) {
   const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
+  const who = assistWho(r), open = mode === 'booking' && companionOpen(D().booking, who.key);
   const opts = cats.map(k => k === 'companion'
-    ? choice('radio', `${idp}-cat`, 'cat', k, false, CATS[k], 'Needs another traveler who has a disability. Companion rules aren’t final, so this is unavailable here.', 'disabled')
+    ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
     : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with Disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? 'Traveler 1 needs' : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
-  const src = o.mode === 'booking' ? D().booking.assist : D().assist;
+  const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
   const x = r.u.d, e = r.u.err || {}, idp = o.idp;
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let h = catBlock(r, x, idp, o.mode, e);
   if (x.cat === 'disability') { h += disBlock(r, x, idp, e); if (x.dis.includes('mobility')) h += wcBlock(r, x, idp, e); h += needsBlock(r, x, idp, false); }
-  if (x.cat === 'station') h += needsBlock(r, x, idp, false);
+  if (x.cat === 'station' || x.cat === 'companion') h += needsBlock(r, x, idp, false);
+  if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') h += `<p class="ss-note">Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) are placeholders, not designed here.</p>`;
   return `<div class="assistform">${h}</div>`;
 }
@@ -362,13 +389,13 @@ function assistSummaryCard(m, o) {
 function wizSteps(x, mode) {
   const s = ['cat'];
   if (x.cat === 'disability') { s.push('dis'); if (x.dis.includes('mobility')) s.push('wc'); s.push('needs'); }
-  if (x.cat === 'station') s.push('needs');
+  if (x.cat === 'station' || x.cat === 'companion') s.push('needs');
   s.push('review');
   return s;
 }
 const STEP_NAMES = { cat: 'Type of help', dis: 'Disabilities', wc: 'Wheelchair', needs: 'Other needs', review: 'Review' };
 function wizard(r, ri, mode, title) {
-  const src = mode === 'booking' ? D().booking.assist : D().assist;
+  const src = mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
   const x = r.u.d, steps = wizSteps(x, mode); if (!steps.includes(r.u.step)) r.u.step = 'cat';
   const i = steps.indexOf(r.u.step), e = r.u.err || {}, idp = 'wz';
@@ -381,7 +408,7 @@ function wizard(r, ri, mode, title) {
   if (r.u.step === 'needs') content = needsBlock(r, x, idp, true);
   if (r.u.step === 'review') {
     const m = fromDraft(x);
-    content = `${why(mode === 'booking' ? 'Check Traveler 1’s answers. You can change them before you find trains.' : 'Check your answers, then save them to your Profile.')}${steps.filter(s => s !== 'review').map(s => `<div class="revrow"><div><span class="ads-caption ads-text-secondary">${STEP_NAMES[s]}</span><p class="ads-body-small">${esc(stepValue(s, m))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="wiz-go" data-step="${s}" aria-label="Edit ${STEP_NAMES[s]}">Edit</button></div>`).join('')}${mode === 'profile' ? pwdPreview(m) : ''}`;
+    content = `${why(mode === 'booking' ? `Check ${esc(assistWho(r).label)}’s answers. You can change them before you find trains.` : 'Check your answers, then save them to your Profile.')}${steps.filter(s => s !== 'review').map(s => `<div class="revrow"><div><span class="ads-caption ads-text-secondary">${STEP_NAMES[s]}</span><p class="ads-body-small">${esc(stepValue(s, m))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="wiz-go" data-step="${s}" aria-label="Edit ${STEP_NAMES[s]}">Edit</button></div>`).join('')}${mode === 'profile' ? pwdPreview(m) : ''}`;
   }
   const count = `<div class="ads-steps__progress"><span class="ads-steps__count">Step ${i + 1} of ${steps.length} · ${STEP_NAMES[r.u.step]}</span><div class="ads-steps__bar" aria-hidden="true">${steps.map((s, j) => `<i class="${j <= i ? 'is-done' : ''}"></i>`).join('')}</div></div>`;
   const rail = `<ol class="ads-steps" aria-label="Steps">${['cat', 'dis', 'wc', 'needs', 'review'].map((s, j) => { const inS = steps.includes(s) || !x.cat, done = steps.includes(s) && steps.indexOf(s) < i, cur = s === r.u.step; return `<li class="ads-steps__item${done ? ' ads-steps__item--done' : ''}${!inS ? ' ads-steps__item--skipped' : ''}${!steps.includes(s) && !x.cat ? ' is-maybe' : ''}" ${cur ? 'aria-current="step"' : ''}><span class="ads-steps__marker" aria-hidden="true">${done ? ic('check', 'ads-icon--sm') : j + 1}</span><span>${STEP_NAMES[s]}<span class="ads-sr-only">${done ? ', done' : cur ? ', current' : !inS ? ', skipped, doesn’t apply' : ''}</span></span></li>`; }).join('')}</ol>`;
@@ -410,20 +437,9 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '',
 
 // ---- Booking assistance screen ----
 SCR.assist = (r, ri) => {
-  if (v2()) return wizard(r, ri, 'booking', 'Assistance · Traveler 1');
-  return { title: 'Assistance · Traveler 1', kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
-};
-A['assist-toggle'] = (t, ri) => {
-  const b = D().booking; b.assistOn = t.checked;
-  if (b.assistOn && !b.assistDone) { push('assist', {}, +ri); return; }
-  pendingFocus = `#${t.id}`; render();
-};
-A['assist-edit'] = (t, ri) => push('assist', {}, +ri);
-A['assist-confirm'] = (t, ri) => {
-  const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'booking');
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
-  const b = D().booking; b.assist = fromDraft(x); b.assistDone = true; b.assistOn = b.assist.cat !== 'none' || true; b.assistFromProfile = false;
-  r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-a="assist-edit"]'; render();
+  const who = assistWho(r).label;
+  if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
+  return { title: `Assistance · ${who}`, kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
 };
 
 // =====================================================================
@@ -432,7 +448,7 @@ A['assist-confirm'] = (t, ri) => {
 SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
-    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist).join(' · ')) : 'None requested'}</dd></dl>
+    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistRec(b, t.key).done) ? travelerList(b).filter(t => assistRec(b, t.key).done).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
 
@@ -482,7 +498,9 @@ function profileRows(r, ri, opts = {}) {
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
     ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: fmtAddress(p.address), current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
-    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}`;
+    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}
+    ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
+    ${group('Coupons', [grow({ a: 'push', data: 'data-s="coupons"', label: 'My Coupons', value: `${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}`, k: 'row-coupons' })])}`;
 }
 SCR.profile = (r, ri) => {
   ref('19', '22', '23', '919', '21');
@@ -509,7 +527,9 @@ function profileV3(r, ri) {
     ${card('mi', 'Middle initial', p.mi ? esc(p.mi) : 'Not added. You can add it once.', !!p.mi)}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Email</p><p class="ads-body-small ads-text-secondary">${esc(p.email)}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="change-email">Change</button></div></div>
     ${card('phone', 'Phone', esc(fmtPhone(p.phone)))}${card('address', 'Billing address', fmtAddress(p.address))}${card('dob', 'Date of birth', p.dob || 'Optional. Not added.')}
-    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>`;
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>
+    ${card('employee', 'Amtrak employee pass', esc(empSummary(d.employee)))}
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">My Coupons</p><p class="ads-body-small ads-text-secondary">${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="coupons" data-k="row-coupons">View</button></div></div>`;
   if (!IPAD()) return { title: 'Profile', kind: 'push', body: main, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
   const side = f ? `<div class="edpane"><h3 class="ads-h4">${PFIELDS[f]}</h3>${editorInline(r, ri, f)}</div>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">Choose Edit on any card</p><p class="ads-body-small">The editor opens here, next to your details.</p></div>`;
   return { title: 'Profile', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${main}</div><div class="split2__side">${side}</div></div>`, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
@@ -713,7 +733,7 @@ A['assist-save'] = (t, ri) => {
 SCR.verify = (r) => {
   const c = nav().cover, d = D(), x = c.u.d, e = c.u.err || {}, step = c.steps[c.i];
   ref('980'); if (c.trigger === 'change-email') ref('21');
-  const demo = `<p class="pdemo">${ic('info-circle', 'ads-icon--sm')}<span>Demonstration. ${c.trigger === 'change-email' ? 'Change-email verification' : c.trigger === 'sign-in' ? 'Sign-in on a device that isn’t remembered' : 'Verifying an unverified account before an account change'}. The channel and reauthentication policy aren’t approved. ${q(8)}</span></p>`;
+  const demo = `<p class="pdemo">${ic('info-circle', 'ads-icon--sm')}<span>Demonstration. ${c.trigger === 'change-email' ? 'Change-email verification' : c.trigger === 'sign-in' ? 'Sign-in on a device that isn’t remembered' : 'Verifying an unverified account before an account change'}. The channel and reauthentication policy aren’t approved. ${q(8)}${c.trigger === 'change-email' ? q(15) : ''}</span></p>`;
   tip('Codes: 123456 works, 000000 has expired, anything else is wrong.');
   const total = c.steps.length, prog = total > 1 ? `<span class="ads-steps__count">Step ${c.i + 1} of ${total}</span>` : '';
   let title = 'Verify', body = '', foot = '';

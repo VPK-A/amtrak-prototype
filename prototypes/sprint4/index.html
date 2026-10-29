@@ -2117,6 +2117,43 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-search--focus + .ss-route { margin-top: 8px; }
 .device:not(.device--ipad) .info-head { padding-top: 14px; }
 [data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code, [data-theme="dark"] .ads-stationrow[aria-current="true"] .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover and selected surfaces */
+.info-pending { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px dashed var(--ads-border-default); border-radius: 12px; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.info-pending b { color: var(--ads-content-text-primary); }
+
+/* ---------- Assistance by traveler (travelers.js), shared by all concepts ---------- */
+.atl { display: flex; flex-direction: column; gap: 8px; }
+.atl__head { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.atl__list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); }
+.atl__row { display: flex; align-items: center; gap: 8px; padding: 10px 6px 10px 14px; }
+.atl__row + .atl__row { border-top: 1px solid var(--ads-border-subtle); }
+.atl__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.atl__who { font-weight: 600; color: var(--ads-content-text-primary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.atl__val { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }
+.atl__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.atl__disc { color: var(--ads-content-text-success, var(--ads-content-text-secondary)); font-size: var(--ads-type-body-small-size); font-weight: 600; }
+.fl-assistlist { padding: 0 0 12px; }
+.text-large .atl__row { flex-wrap: wrap; }
+.v1modes { display: flex; flex-direction: column; gap: 10px; }
+.v1modes .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+
+/* ---------- My Coupons (profile.js) ---------- */
+.cpn-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cpn { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); }
+.cpn--done { background: var(--ads-background-surface-sunken); }
+.cpn__main { flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cpn__name { font-weight: 600; color: var(--ads-content-text-primary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cpn__benefit { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }
+.cpn__meta { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); overflow-wrap: anywhere; }
+.cpn__acts { display: flex; gap: 4px; margin-left: auto; }
+.cpn__state { padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); }
+.cpn__state--soon { background: var(--ads-background-warning-subtle, #fff4d6); color: var(--ads-content-text-warning, #6b4b00); }
+.cpn-add { display: flex; flex-direction: column; gap: 6px; margin: 16px 0; }
+.cpn-dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.cpn-dl dt { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.cpn-dl dd { margin: 0; overflow-wrap: anywhere; }
+.cpn-uses { margin: 0; padding-left: 18px; }
+.text-large .cpn-dl { grid-template-columns: 1fr; }
+[data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */
 
 </style>
 </head>
@@ -2221,8 +2258,9 @@ the App Shell IA, then the ADS design system, then Core Flow.</p>
 </thead>
 <tbody>
 <tr class="odd">
-<td>NMA_Sprint_4_Combined.docx (31 stories)</td>
-<td>Read in full</td>
+<td>NMA_Sprint_4_Combined.docx: 66 issues (44 user stories, 2 of them
+cancelled; 1 feature; 1 task; 20 sub-tasks)</td>
+<td>Read in full; inventory in <code>PLAN.md</code> §0</td>
 <td>Requirements, rules, copy, open questions</td>
 </tr>
 <tr class="even">
@@ -2253,18 +2291,17 @@ these parts were used: the App PWD flow, <em>Book</em> and
 <p>Stories with no content: NMA-620 (in-station assistance
 availability), NMA-621 (about accessible travel), NMA-628 (service
 animal info), NMA-629 (wheeled mobility device specs). They are shown as
-labeled placeholders only.</p>
-<p>Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type
-and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points),
-NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built
-in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and
-per-traveler discounts (NMA-612) are in all three versions' Traveler
-Selection, following Core Flow (node 90:16532): counters per type,
-<em>Traveling alone?</em> on Youth, assistance between travelers and
-discounts, then one discount per traveler. All four versions have the
-coupon or promo code (Version 1 as a row under Travelers) and the
-<em>Pay with</em> Cash / Points switch. Version 1 doesn't show the
-TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.</p>
+labeled placeholders only, with no invented copy or behavior. NMA-29 is
+partly defined and awaiting clarification (Q18). Cancelled NMA-44 and
+NMA-609 aren't built; Auto Train pairing stays through NMA-607 and 608.
+NMA-310 and its 14 delivery sub-tasks, and the 6 PO-review sub-tasks,
+aren't UI. NMA-992 is a back-end email with no app screen.</p>
+<p>Fare Finder coverage is the same in all four versions: traveler types
+and counts (NMA-611), a discount per traveler (612), coupon and promo
+codes (613), Use Points (624), TripLink (622) and Pass Rider (623,
+1016–1019), and assistance for every traveler (615, 973, 995–997, 1019).
+Each version presents them its own way. Version 1 shows booking modes as
+plain labeled controls above its form.</p>
 <h2 id="ia-conflicts-and-proposed-resolutions">IA conflicts and proposed
 resolutions</h2>
 <table>
@@ -2594,9 +2631,17 @@ and offers Retry [27, 28]</label></li>
 <li><label><input type="checkbox" checked="" />Booking: "Traveler with
 disability or need help?" checkbox with an explanation; it can be
 unchecked [973]</label></li>
-<li><label><input type="checkbox" checked="" />Booking category per
-traveler; Companion is shown but disabled, because it needs a second
-traveler and its rules aren't finalized [615, 997]</label></li>
+<li><label><input type="checkbox" checked="" />Assistance type for each
+traveler, everyone on the booking, including Pass Rider spouses,
+dependents and Companion Pass travelers [615 AC1, 1019]</label></li>
+<li><label><input type="checkbox" checked="" />Personal companion:
+available once another traveler has a disability, one companion each;
+needs Station Assistance, then optionally an accessible seat; the
+traveler's discount becomes Companion, and the earlier choice returns if
+the type changes [615 BR2.1–2.2, 997, 43 BR8 AC3]</label></li>
+<li><label><input type="checkbox" checked="" />Opening the questionnaire
+needs a connection; once it's open it can be finished offline; Find
+Trains needs a connection [973, 995–997]</label></li>
 <li><label><input type="checkbox" checked="" />The checkbox is
 pre-checked when the member has saved assistance or PWD; Traveler 1's
 answers come from Profile and can be changed [614]</label></li>
@@ -3067,8 +3112,8 @@ infants pay the child fare; Traveler 1 starts from the Profile
 preference and changes don't touch the Profile [612
 BR1–BR6]</label></li>
 <li><label><input type="checkbox" checked="" />Passenger with Disability
-replaces Traveler 1's discount when Assistance says "I have a
-disability" [612 BR8 AC1]</label></li>
+replaces the discount of any traveler whose assistance says "I have a
+disability" [43 BR8 AC1]</label></li>
 <li><label><input type="checkbox" checked="" />One discount code field
 for cash searches, hidden for points; 4 or 14 letters and numbers;
 "Please enter a valid discount code"; saved profile codes sorted by
@@ -3106,8 +3151,8 @@ fixed 1 Adult).</li>
 <li><strong>Added in all versions:</strong> the coupon or promo code,
 with the same checks at Find Trains, and <em>Pay with</em> Cash / Points
 (NMA-624).</li>
-<li><strong>Added in V2, V3 and V4:</strong> TripLink and Pass Rider, so
-Version 1 doesn't cover the same scope.</li>
+<li><strong>In all four versions:</strong> TripLink and Pass Rider
+(Version 1 since the Sprint 4 alignment).</li>
 <li><strong>Core Flow difference:</strong> Core Flow labels Adult as
 16–64 and has no Young Adult row; the stories list Young Adult (16–17)
 separately, and the prototype follows the stories (Q10).</li>
@@ -3128,9 +3173,8 @@ code.</li>
 </ul>
 <p>Unresolved requirements:</p>
 <ul>
-<li>Assistance is still recorded for Traveler 1 only. NMA-1019 lets any
-traveler, and more than one, request assistance; NMA-614 attaches the
-Profile answers to Traveler 1.</li>
+<li>Assistance is recorded per traveler (NMA-615, 1019). The Profile's
+answers still attach to Traveler 1 (NMA-614 BR5.1).</li>
 <li>The personal-companion assistance option (NMA-997) and the Companion
 discount (612 BR8 AC3) stay unavailable, as in the baseline, because
 companion rules aren't final.</li>
@@ -3272,13 +3316,14 @@ sheet, <em>Remove</em>, information button</td>
 </tr>
 <tr class="odd">
 <td>TripLink Corporate / Personal (622)</td>
-<td>(not in V1)</td>
+<td><em>Booking for</em> control above the form</td>
 <td><em>Booking for</em> pill; Corporate locks travelers to 1 adult</td>
 </tr>
 <tr class="even">
 <td>Pass Rider / Personal, travel type, family and companions (623,
 1016–1018)</td>
-<td>(not in V1)</td>
+<td><em>Book as</em> and <em>Travel type</em> controls above the form;
+Traveler Selection counters</td>
 <td><em>Book as</em> pill, <em>Travel type</em> row (required when
 eligible for both), traveler sheet counters</td>
 </tr>
@@ -3638,6 +3683,74 @@ Booking.</li>
 <p>The new states also passed accessibility checks in light and dark
 mode and at 100% and 140% text, with no overflow. Reduced motion uses
 opacity only.</p>
+<h2 id="sprint-4-alignment-all-versions">Sprint 4 alignment (all
+versions)</h2>
+<p>See <code>PLAN.md</code> for the issue inventory, coverage, blocked
+items and regression risks.</p>
+<p><strong>Shared foundation added</strong></p>
+<ul>
+<li><strong>Traveler model</strong> (<code>travelers.js</code>): one
+list of travelers for standard, TripLink Corporate and Pass Rider
+bookings. Each traveler has their own assistance record, and Traveler 1
+keeps the Profile-prefilled one. Each concept hosts a shared
+<em>Assistance by traveler</em> list: V1 and V2 in their assistance
+blocks, V3 on its Fare Finder, V4 in its Assistance row. With one
+traveler, the existing summary card stays.</li>
+<li><strong>Personal companion and discounts:</strong> described in the
+requirements checklist above. Three companions stay distinct:
+<ul>
+<li>a personal companion (an assistance type, which gets the Companion
+discount);</li>
+<li>a Companion Pass (Pass Rider employees, 8 a year);</li>
+<li>a companion coupon (a code that needs two travelers).</li>
+</ul></li>
+<li><strong>Amtrak employee pass</strong> in Profile
+(<code>profile.js</code>, NMA-20):
+<ul>
+<li>Yes or No; relationship (employee or retiree, spouse, dependent);
+9-digit Pass Number (the employee's own for spouses and dependents) and
+3-digit Personal Index Number.</li>
+<li>Errors when either is missing or has the wrong format. Pass Number
+999999999 shows "don't belong to you" (BR4 AC3). Saving needs a
+connection.</li>
+<li>A valid save turns on the Pass Rider Fare Finder (NMA-623 AC2), and
+removing the details turns it off. V1, V2 and V4 use the pushed editor;
+V3 edits on its Profile card.</li>
+</ul></li>
+<li><strong>My Coupons</strong> in Profile (NMA-697):
+<ul>
+<li>Available coupons, soonest expiry first and flagged when they expire
+within 30 days; used and expired coupons, with each use's reservation
+number and date, newest first; an empty state.</li>
+<li>Details in a supporting-information sheet; adding a 14-character
+coupon (valid, expired and not-found results); <em>Apply</em> starts a
+booking with the code.</li>
+<li>Lounge passes are listed but aren't fare codes. The booking code
+screen reads the same list.</li>
+</ul></li>
+<li><strong>Station details:</strong> a separate details control on
+every station row opens a sheet with the station data the app has.
+Tapping the row still chooses the station (NMA-600 S2 vs S4, Q3). The
+full page is NMA-604.</li>
+<li><strong>Dates:</strong> every Fare Finder now shows the day name,
+month, day and year (NMA-1060 AC8); V2's When summary and V4's date
+chips gained the year.</li>
+</ul>
+<p><strong>Conflicts flagged in the prototype</strong></p>
+<ul>
+<li><strong>Q10 (NMA-611):</strong> accompaniment rule versus copy.</li>
+<li><strong>Q15:</strong> NMA-21 versus NMA-980 reauthentication.</li>
+<li><strong>Q16:</strong> NMA-623 SAP ID versus NMA-20 Pass Number, and
+whether the dependent experience differs.</li>
+<li><strong>Q17:</strong> NMA-697 retention period and
+notifications.</li>
+<li><strong>Q18:</strong> NMA-29, partly defined.</li>
+</ul>
+<p><strong>Checks:</strong> 41 multi-traveler checks and 59 Profile,
+coupon, station-details and V1-mode checks, in all four versions. All
+earlier scripted suites still pass, including the 119-step journey. The
+new screens pass accessibility checks in light and dark mode at 100% and
+140% text, with no overflow.</p>
 
   </article>
 </div>
@@ -3745,10 +3858,10 @@ const SCENARIOS = [
   ['mi', 'Middle initial already added', 'The one-time middle initial is saved and locked (NMA-19).'],
   ['intl', 'International member', 'International phone number and a UK billing address.'],
   ['unverified', 'Unverified account', 'Saving a Profile change asks for verification first, then finishes the save (NMA-980 scenario 6).'],
-  ['triplink', 'TripLink member (Version 3)', 'Signed in with an account connected to Concur TripLink. Version 3 shows Corporate or Personal booking; Corporate is the default (NMA-622).'],
-  ['passrider', 'Pass Rider employee, Business Pass (Version 3)', 'Employee Pass Rider with an active Business Pass and 5 of 8 companion passes left (NMA-623, 1016–1019).'],
-  ['passrider-nopass', 'Pass Rider employee, no Business Pass (Version 3)', 'Employee without a Business Pass, so Leisure only, and no companion passes left (NMA-1016 AC4, NMA-1018 AC7).'],
-  ['passrider-spouse', 'Pass Rider spouse (Version 3)', 'Spouse Pass Rider: Leisure only, no companion passes (NMA-1016 AC5, NMA-1018 AC2).'],
+  ['triplink', 'TripLink member', 'Signed in with an account connected to Concur TripLink. Every version shows Corporate or Personal booking; Corporate is the default (NMA-622).'],
+  ['passrider', 'Pass Rider employee, Business Pass', 'Employee Pass Rider with an active Business Pass and 5 of 8 companion passes left (NMA-623, 1016–1019).'],
+  ['passrider-nopass', 'Pass Rider employee, no Business Pass', 'Employee without a Business Pass, so Leisure only, and no companion passes left (NMA-1016 AC4, NMA-1018 AC7).'],
+  ['passrider-spouse', 'Pass Rider spouse', 'Spouse Pass Rider: Leisure only, no companion passes (NMA-1016 AC5, NMA-1018 AC2).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
 const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection'], ['error', 'Server error']];
@@ -3762,8 +3875,12 @@ const QUESTIONS = {
   5: ['Country change and the address', 'The criteria say changing country clears the fields; a note says UX decides. The prototype clears them and offers Undo.'],
   6: ['Phone types and DOB bounds', 'Are Home/Business/Extension the final phone types? Does changing the country code clear the number (the prototype keeps each region’s number)? DOB only rejects future dates.'],
   7: ['Where booking assistance starts', 'NMA-973 puts the checkbox on Fare Finder; Core Flow puts it in Traveler Selection. Switch between them in Scenario › Assistance entry.'],
-  8: ['Verification channel and reauthentication', 'Email only or email and text depends on the trigger, and is still open (NMA-980). The flows here are demonstrations, not approved policy.'],
-  10: ['Traveler age bands and who can accompany minors', 'Age ranges aren’t final (Young Adult changed to 16–17). NMA-611 lets Adult, Senior or Young Adult accompany youths, children and infants, but a note says only adults 18+ can. The prototype follows the business rule and flags the note.'],
+  8: ['Verification channel', 'Email only or email and text depends on the trigger, and is still open (NMA-980). The flows here are demonstrations, not approved policy.'],
+  15: ['Reauthentication to change email', 'Conflict: NMA-21 BR3 and BR4 ask for Verify it’s you only when the access token (40 minutes) has expired, and go straight to the new email otherwise. NMA-980 scenario 12 always requires signing in again. The prototype follows NMA-21: Scenario › Session token chooses which path you see.'],
+  16: ['Pass Rider identifiers', 'NMA-623 says the Pass Rider experience needs a SAP ID and Index Number in the Profile; NMA-20 stores a 9-digit Pass Number and a 3-digit Personal Index Number. The prototype uses NMA-20’s fields. How the relationship (employee, spouse, dependent) is known, and whether the dependent experience differs (NMA-623 AC3–AC6), are open.'],
+  17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
+  18: ['Wheelchair and mobility device details (NMA-29)', 'Partly defined, awaiting clarification: the story asks for device details under “I have a disability and reduced mobility”, its prerequisite names “I do not have a disability, but need assistance”, and most of its table is still Open. Not built beyond the existing wheelchair question.'],
+  10: ['Traveler age bands and who can accompany minors', 'Conflict in NMA-611. BR3 and BR4 count Adult, Senior and Young Adult (16–17) as accompanying travelers, but the Child message says “at least one adult who is 18 years old”, and BR4 (Infant) reuses the Youth message. Until this is decided, the prototype requires an Adult or Senior, and a Young Adult alone can’t accompany. Age ranges also aren’t final (Core Flow labels Adult 16–64).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
   12: ['Corporate and Pass Rider restrictions not yet confirmed', 'Whether TripLink Corporate allows Auto Train, and whether the Passenger with Disability discount applies to Corporate or Pass Rider travel, are still open. The prototype allows Auto Train for Corporate, blocks it for Pass Rider, and applies no PWD discount in either.'],
   13: ['Pass Rider travelers', 'NMA-1017 lists family combinations but not the counts. The prototype allows one spouse (or employee), up to 6 dependents and, for employees, companions, up to 8 travelers in all. Business travel is the employee alone.'],
@@ -3775,7 +3892,7 @@ const QUESTIONS = {
 const FLOWS = [
   ['App shell', [['tab:book', 'Book (tab)'], ['tab:trips', 'Trips (tab)'], ['tab:train-status', 'Train Status (tab)'], ['tab:support', 'Support (tab)']]],
   ['A · Booking and stations', [['ff', 'Fare Finder · one-way'], ['ff-rt', 'Fare Finder · round-trip'], ['stations:from', 'Station search · From'], ['stations:to', 'Station search · To'], ['calendar:dep', 'Calendar · Depart'], ['travelers', 'Traveler Selection'], ['code', 'Coupon or promo code'], ['handoff', 'Find Trains · prototype handoff'], ['clear-recents', 'Clear recent stations']]],
-  ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth']]],
+  ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth'], ['edit:employee', 'Amtrak employee pass'], ['coupons', 'My Coupons']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
   ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
@@ -3789,12 +3906,18 @@ const PAX = [['adult', 'Adult', 'Ages 18 to 64'], ['senior', 'Senior', 'Ages 65 
 const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
 // Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
 const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };
-const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with Disability' };
+const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with Disability', companion: 'Companion' };
 // Codes saved to the signed-in member's profile (NMA-613 scenarios 5 and 6; NMA-697)
 const PROFILE_CODES = [
-  { code: 'V123', kind: 'Promo code', benefit: '20% off Northeast Regional Coach', exp: '2026-11-30' },
-  { code: '60412233445566', kind: 'Companion coupon', benefit: 'A companion travels free', exp: '2027-01-15', companion: true },
-  { code: '60998877665544', kind: 'Dollar-off coupon', benefit: '$25 off one trip', exp: '2027-03-31' }
+  { code: 'V123', kind: 'Promo code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
+  { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
+  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' },
+  { code: '60778899001122', kind: 'Lounge pass', name: 'Single-visit lounge pass', benefit: 'One visit to a Metropolitan Lounge', issued: '2026-08-20', exp: '2027-02-28', lounge: true }
+];
+// Used and expired coupons in My Coupons (NMA-697 BR1, BR4 AC3: one line per use, newest first)
+const PAST_CODES = [
+  { code: '60123456789012', kind: 'Dollar-off coupon', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
+  { code: '60555544443333', kind: 'Percentage coupon', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
 ];
 
 /* Sprint 4 prototype: state, routing, rendering shell, network mock, toolbar. */
@@ -3812,6 +3935,8 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+// Fare Finder summaries show day name, month, day and year (NMA-1060 AC8)
+const fmtShortY = s => parse(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 const fmtShort = s => parse(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 const fmtDate = s => parse(s).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' });
@@ -3833,10 +3958,13 @@ function seed(sc) {
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
-    // Fare Finder variants (Version 3): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613)
+    // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink',
     passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
+    couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
+    // Amtrak employee pass details in Profile (NMA-20). Pass Rider scenarios start with them saved.
+    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : 'employee', pass: sc === 'passrider-spouse' ? '418200775' : '418200774', index: sc === 'passrider-spouse' ? '002' : '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
   d.booking = freshBooking(d);
@@ -3914,6 +4042,7 @@ function locOf() {
     case 'profile': return t.u.inline ? 'edit:' + t.u.inline : 'profile';
     case 'edit': return 'edit:' + t.p.field;
     case 'discounts': return 'discounts';
+    case 'coupons': return 'coupons';
     case 'rules': return 'rules';
     case 'assist-profile': return 'assist-profile';
     case 'inbox': return 'tab:' + n.tab;
@@ -3955,6 +4084,7 @@ function goLoc(loc) {
     case 'profile': if (guestBlocked()) break; account([R('profile')]); break;
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
+    case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v2': case 'v3': case 'v4': {
@@ -4372,8 +4502,26 @@ function payV1(b) {
   return `<div class="v1pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'v1pay')}</div>`;
 }
 function travelersRow(r, opts = {}) {
-  const b = D().booking;
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(paxSummary(b)), value: `Discounts: ${esc(discSummary(b))}`, current: opts.open })]);
+  const b = D().booking, it = intentOf(b);
+  const label = it === 'corporate' ? '1 Adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
+  const value = it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fares apply' : `Discounts: ${discSummary(b)}`;
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: esc(value), current: opts.open })]);
+}
+// Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
+function modesV1(r, b) {
+  const d = D(); if (!d.signedIn) return '';
+  const out = [];
+  if (d.triplink) { ref('622'); out.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'v1intent')); }
+  if (d.passrider) {
+    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'v1intent'));
+    if (b.intent === 'pr') {
+      const elig = d.passrider.role === 'employee' && d.passrider.business, miss = r.u.showErr && !b.prType;
+      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" ${miss ? 'aria-describedby="v1-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="v1-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone.</p>'}</div>`
+        : `<p class="ads-helper">Travel type: Leisure. ${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</p>`);
+    }
+  }
+  if (!out.length) return '';
+  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${b.intent === 'corporate' ? q(12) : ''}</div>`;
 }
 function assistBlock(r, ri, host) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -4381,8 +4529,10 @@ function assistBlock(r, ri, host) {
   const intro = 'Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. One traveler with a disability may bring one personal companion.';
   let h = `<div class="assistbox"><label class="ads-choice ads-checkbox"><input type="checkbox" id="assist-on-${host}" data-a="assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="assist-intro-${host}"><span class="ads-choice__control"></span><span class="ads-choice__label"><span><b>Traveler with disability or need help?</b></span><span class="ads-choice__supporting" id="assist-intro-${host}">${intro}</span></span></label>`;
   if (b.assistOn) {
-    if (b.assistDone) h += assistSummaryCard(b.assist, { title: 'Traveler 1 · Adult', edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true });
-    else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" style="align-self:flex-start">Answer for Traveler 1</button>`;
+    const list = travelerList(b), t1 = list[0] || { key: firstKey(b), label: 'Traveler 1' };
+    if (list.length > 1) h += assistTravelerList(b);
+    else if (b.assistDone) h += assistSummaryCard(b.assist, { title: esc(t1.label), edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true }).replace('data-a="assist-edit"', `data-a="assist-edit" data-t="${t1.key}"`);
+    else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t1.key}" style="align-self:flex-start">Answer for ${esc(t1.label)}</button>`;
   }
   h += q(7) + '</div>';
   return h;
@@ -4396,10 +4546,10 @@ SCR.ff = (r, ri) => {
   if (b.trip === 'rt') ref('608');
   if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
-  if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
   if (v2()) return ffGuided(r, ri);
   ref('613');
-  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${payV1(b)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  const std = ['standard', 'personal'].includes(intentOf(b));
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? payV1(b) + codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -4442,7 +4592,7 @@ function stationRow(s, field, sec) {
   const blocked = s.tag && autoTrainBlocked();
   const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
   const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 function stationRoute(field) {
@@ -4573,18 +4723,21 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 // =====================================================================
 // Assistance (shared model: cat, dis[], wc 'yes'|'no'|'', needs[])
 // =====================================================================
+// The traveler a booking questionnaire is for (route param t), and their label
+const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
 const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs] });
-const fromDraft = x => ({ cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : [] });
-function assistErrors(x, mode) {
+const fromDraft = x => ({ cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
-  if (mode === 'booking' && !x.cat) e.cat = 'Choose an option for Traveler 1.';
+  if (mode === 'booking' && !x.cat) e.cat = `Choose an option for ${who}.`;
   if (x.cat === 'disability' && !x.dis.length) e.dis = 'Choose at least one disability.';
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = 'Tell us whether you’ll bring a wheelchair.';
   return e;
 }
 HOOKS.assist = (r, t) => {
   const x = r.u.d;
-  if (x.cat !== 'disability') { x.dis = []; x.wc = ''; x.needs = x.cat === 'station' ? x.needs.filter(n => n === 'seat') : []; }
+  if (x.cat !== 'disability') { x.dis = []; x.wc = ''; x.needs = x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || n === 'seat') : []; }
+  if (x.cat === 'companion' && !x.needs.includes('station')) x.needs = x.needs.filter(n => n !== 'seat'); // NMA-997 AC2
   if (!x.dis.includes('mobility')) x.wc = '';
   if (x.wc === 'yes' && x.needs.includes('seat') && x.needs.includes('animal')) { x.needs = x.needs.filter(n => n !== 'animal'); r.u.assistNote = 'Large service animal was removed. With wheelchair space you can choose an accessible seat or a large service animal, not both.'; }
   else if (t.dataset.f !== 'needs') r.u.assistNote = null;
@@ -4592,39 +4745,43 @@ HOOKS.assist = (r, t) => {
 };
 function needsBlock(r, x, idp, explain) {
   const wcYes = x.wc === 'yes';
-  const items = x.cat === 'station' ? NEEDS.filter(n => n[0] === 'seat') : NEEDS;
+  const comp = x.cat === 'companion';
+  const items = x.cat === 'station' ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
   const opts = items.map(([k, l, s]) => {
     let dis = false, why = '';
     if (wcYes && k === 'animal' && x.needs.includes('seat')) { dis = true; why = 'Not available with an accessible seat when you bring a wheelchair. Remove Accessible seat to choose this.'; }
     if (wcYes && k === 'seat' && x.needs.includes('animal')) { dis = true; why = 'Not available with a large service animal when you bring a wheelchair. Remove Large service animal to choose this.'; }
+    if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = 'Choose Station Assistance first.'; }
     return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? 'disabled' : ''}`);
   }).join('');
   const lead = explain && wcYes ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>With wheelchair space, Station Assistance is always available. You can add an accessible seat or a large service animal, but not both.</span></p>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.assistNote}</p></div></div>` : '';
-  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : comp ? 'Do you need help as a personal companion?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 function catBlock(r, x, idp, mode, e) {
   const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
+  const who = assistWho(r), open = mode === 'booking' && companionOpen(D().booking, who.key);
   const opts = cats.map(k => k === 'companion'
-    ? choice('radio', `${idp}-cat`, 'cat', k, false, CATS[k], 'Needs another traveler who has a disability. Companion rules aren’t final, so this is unavailable here.', 'disabled')
+    ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
     : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with Disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? 'Traveler 1 needs' : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
-  const src = o.mode === 'booking' ? D().booking.assist : D().assist;
+  const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
   const x = r.u.d, e = r.u.err || {}, idp = o.idp;
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let h = catBlock(r, x, idp, o.mode, e);
   if (x.cat === 'disability') { h += disBlock(r, x, idp, e); if (x.dis.includes('mobility')) h += wcBlock(r, x, idp, e); h += needsBlock(r, x, idp, false); }
-  if (x.cat === 'station') h += needsBlock(r, x, idp, false);
+  if (x.cat === 'station' || x.cat === 'companion') h += needsBlock(r, x, idp, false);
+  if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') h += `<p class="ss-note">Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) are placeholders, not designed here.</p>`;
   return `<div class="assistform">${h}</div>`;
 }
@@ -4646,13 +4803,13 @@ function assistSummaryCard(m, o) {
 function wizSteps(x, mode) {
   const s = ['cat'];
   if (x.cat === 'disability') { s.push('dis'); if (x.dis.includes('mobility')) s.push('wc'); s.push('needs'); }
-  if (x.cat === 'station') s.push('needs');
+  if (x.cat === 'station' || x.cat === 'companion') s.push('needs');
   s.push('review');
   return s;
 }
 const STEP_NAMES = { cat: 'Type of help', dis: 'Disabilities', wc: 'Wheelchair', needs: 'Other needs', review: 'Review' };
 function wizard(r, ri, mode, title) {
-  const src = mode === 'booking' ? D().booking.assist : D().assist;
+  const src = mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
   const x = r.u.d, steps = wizSteps(x, mode); if (!steps.includes(r.u.step)) r.u.step = 'cat';
   const i = steps.indexOf(r.u.step), e = r.u.err || {}, idp = 'wz';
@@ -4665,7 +4822,7 @@ function wizard(r, ri, mode, title) {
   if (r.u.step === 'needs') content = needsBlock(r, x, idp, true);
   if (r.u.step === 'review') {
     const m = fromDraft(x);
-    content = `${why(mode === 'booking' ? 'Check Traveler 1’s answers. You can change them before you find trains.' : 'Check your answers, then save them to your Profile.')}${steps.filter(s => s !== 'review').map(s => `<div class="revrow"><div><span class="ads-caption ads-text-secondary">${STEP_NAMES[s]}</span><p class="ads-body-small">${esc(stepValue(s, m))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="wiz-go" data-step="${s}" aria-label="Edit ${STEP_NAMES[s]}">Edit</button></div>`).join('')}${mode === 'profile' ? pwdPreview(m) : ''}`;
+    content = `${why(mode === 'booking' ? `Check ${esc(assistWho(r).label)}’s answers. You can change them before you find trains.` : 'Check your answers, then save them to your Profile.')}${steps.filter(s => s !== 'review').map(s => `<div class="revrow"><div><span class="ads-caption ads-text-secondary">${STEP_NAMES[s]}</span><p class="ads-body-small">${esc(stepValue(s, m))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="wiz-go" data-step="${s}" aria-label="Edit ${STEP_NAMES[s]}">Edit</button></div>`).join('')}${mode === 'profile' ? pwdPreview(m) : ''}`;
   }
   const count = `<div class="ads-steps__progress"><span class="ads-steps__count">Step ${i + 1} of ${steps.length} · ${STEP_NAMES[r.u.step]}</span><div class="ads-steps__bar" aria-hidden="true">${steps.map((s, j) => `<i class="${j <= i ? 'is-done' : ''}"></i>`).join('')}</div></div>`;
   const rail = `<ol class="ads-steps" aria-label="Steps">${['cat', 'dis', 'wc', 'needs', 'review'].map((s, j) => { const inS = steps.includes(s) || !x.cat, done = steps.includes(s) && steps.indexOf(s) < i, cur = s === r.u.step; return `<li class="ads-steps__item${done ? ' ads-steps__item--done' : ''}${!inS ? ' ads-steps__item--skipped' : ''}${!steps.includes(s) && !x.cat ? ' is-maybe' : ''}" ${cur ? 'aria-current="step"' : ''}><span class="ads-steps__marker" aria-hidden="true">${done ? ic('check', 'ads-icon--sm') : j + 1}</span><span>${STEP_NAMES[s]}<span class="ads-sr-only">${done ? ', done' : cur ? ', current' : !inS ? ', skipped, doesn’t apply' : ''}</span></span></li>`; }).join('')}</ol>`;
@@ -4694,20 +4851,9 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '',
 
 // ---- Booking assistance screen ----
 SCR.assist = (r, ri) => {
-  if (v2()) return wizard(r, ri, 'booking', 'Assistance · Traveler 1');
-  return { title: 'Assistance · Traveler 1', kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
-};
-A['assist-toggle'] = (t, ri) => {
-  const b = D().booking; b.assistOn = t.checked;
-  if (b.assistOn && !b.assistDone) { push('assist', {}, +ri); return; }
-  pendingFocus = `#${t.id}`; render();
-};
-A['assist-edit'] = (t, ri) => push('assist', {}, +ri);
-A['assist-confirm'] = (t, ri) => {
-  const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'booking');
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
-  const b = D().booking; b.assist = fromDraft(x); b.assistDone = true; b.assistOn = b.assist.cat !== 'none' || true; b.assistFromProfile = false;
-  r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-a="assist-edit"]'; render();
+  const who = assistWho(r).label;
+  if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
+  return { title: `Assistance · ${who}`, kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
 };
 
 // =====================================================================
@@ -4716,7 +4862,7 @@ A['assist-confirm'] = (t, ri) => {
 SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
-    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist).join(' · ')) : 'None requested'}</dd></dl>
+    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistRec(b, t.key).done) ? travelerList(b).filter(t => assistRec(b, t.key).done).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
 
@@ -4766,7 +4912,9 @@ function profileRows(r, ri, opts = {}) {
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
     ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: fmtAddress(p.address), current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
-    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}`;
+    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}
+    ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
+    ${group('Coupons', [grow({ a: 'push', data: 'data-s="coupons"', label: 'My Coupons', value: `${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}`, k: 'row-coupons' })])}`;
 }
 SCR.profile = (r, ri) => {
   ref('19', '22', '23', '919', '21');
@@ -4793,7 +4941,9 @@ function profileV3(r, ri) {
     ${card('mi', 'Middle initial', p.mi ? esc(p.mi) : 'Not added. You can add it once.', !!p.mi)}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Email</p><p class="ads-body-small ads-text-secondary">${esc(p.email)}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="change-email">Change</button></div></div>
     ${card('phone', 'Phone', esc(fmtPhone(p.phone)))}${card('address', 'Billing address', fmtAddress(p.address))}${card('dob', 'Date of birth', p.dob || 'Optional. Not added.')}
-    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>`;
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>
+    ${card('employee', 'Amtrak employee pass', esc(empSummary(d.employee)))}
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">My Coupons</p><p class="ads-body-small ads-text-secondary">${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="coupons" data-k="row-coupons">View</button></div></div>`;
   if (!IPAD()) return { title: 'Profile', kind: 'push', body: main, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
   const side = f ? `<div class="edpane"><h3 class="ads-h4">${PFIELDS[f]}</h3>${editorInline(r, ri, f)}</div>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">Choose Edit on any card</p><p class="ads-body-small">The editor opens here, next to your details.</p></div>`;
   return { title: 'Profile', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${main}</div><div class="split2__side">${side}</div></div>`, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
@@ -4997,7 +5147,7 @@ A['assist-save'] = (t, ri) => {
 SCR.verify = (r) => {
   const c = nav().cover, d = D(), x = c.u.d, e = c.u.err || {}, step = c.steps[c.i];
   ref('980'); if (c.trigger === 'change-email') ref('21');
-  const demo = `<p class="pdemo">${ic('info-circle', 'ads-icon--sm')}<span>Demonstration. ${c.trigger === 'change-email' ? 'Change-email verification' : c.trigger === 'sign-in' ? 'Sign-in on a device that isn’t remembered' : 'Verifying an unverified account before an account change'}. The channel and reauthentication policy aren’t approved. ${q(8)}</span></p>`;
+  const demo = `<p class="pdemo">${ic('info-circle', 'ads-icon--sm')}<span>Demonstration. ${c.trigger === 'change-email' ? 'Change-email verification' : c.trigger === 'sign-in' ? 'Sign-in on a device that isn’t remembered' : 'Verifying an unverified account before an account change'}. The channel and reauthentication policy aren’t approved. ${q(8)}${c.trigger === 'change-email' ? q(15) : ''}</span></p>`;
   tip('Codes: 123456 works, 000000 has expired, anything else is wrong.');
   const total = c.steps.length, prog = total > 1 ? `<span class="ads-steps__count">Step ${c.i + 1} of ${total}</span>` : '';
   let title = 'Verify', body = '', foot = '';
@@ -5067,8 +5217,8 @@ A['vf-finish'] = () => endVerify(true);
    discount codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019). */
 
 // ---------- Rules ----------
-// Booking modes (TripLink, Pass Rider) are designed in Versions 2–4; Version 1 always books as standard
-const intentOf = b => TB.v >= 2 ? (b.intent || 'standard') : 'standard';
+// Booking modes (TripLink, Pass Rider) apply in every version; each presents them its own way
+const intentOf = b => b.intent || 'standard';
 const autoTrainBlocked = () => intentOf(D().booking) === 'pr'; // NMA-623: Auto Train isn't offered
 const PAX_PLURAL = { adult: 'Adults', senior: 'Seniors', ya: 'Young Adults', youth: 'Youths', child: 'Children', infant: 'Infants' };
 const paxSeated = p => p.adult + p.senior + p.ya + p.youth + p.child; // infants don't count toward 8 (NMA-611 BR3)
@@ -5090,7 +5240,7 @@ function paxProblems(p) {
 }
 // Discount shown for a traveler (NMA-612 BR5): fixed for seniors and infants, PWD for Traveler 1 when Assistance says so
 function tdiscOf(b, t) {
-  if (t.n === 1 && pwdApplies(b)) return 'pwd';
+  const fromAssist = assistDiscount(b, t.key); if (fromAssist) return fromAssist; // PWD or Companion (NMA-43 BR8)
   if (t.type === 'senior') return 'senior';
   if (t.type === 'infant') return t.i > b.pax.adult + b.pax.senior ? 'infantchild' : 'infant';
   if (t.key === 'adult-1') return b.disc;
@@ -5102,7 +5252,7 @@ function discSummary(b) {
   if (!list.length) return 'None chosen';
   return list.map(([t, x]) => `${TDISC_LABEL[x]}${paxList(b).length > 1 ? ` (Traveler ${t.n})` : ''}`).join(', ');
 }
-const prRoleLabel = d => d.passrider.role === 'employee' ? 'Employee' : 'Spouse';
+const prRoleLabel = d => ({ employee: 'Employee', spouse: 'Spouse', dependent: 'Dependent' })[d.passrider.role] || 'Employee';
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
   const f = b.prPax, parts = ['You'];
@@ -5183,7 +5333,7 @@ A['pr-type'] = t => { D().booking.prType = t.dataset.v; pendingFocus = `[data-a=
 // Find Trains: the shared checks, then Travel type and the discount code (format and rules the app can know; the rest is the back end's)
 const findTrainsBase = A['find-trains'];
 A['find-trains'] = (t, ri) => {
-  if (TB.v === 1) return findTrainsBase(t, ri);
+  if (TB.v === 1) { const b = D().booking, r = routeAt(ri); if (intentOf(b) === 'pr' && !b.prType) { r.u.showErr = true; pendingFocus = '[data-a="pr-type"]'; render(); return; } return findTrainsBase(t, ri); }
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b), prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
   if (paxBad) { r.u.showErr = true; pendingFocus = '#ff-trav, [data-a="pick-travelers"]'; render(); return; }
@@ -5193,6 +5343,8 @@ A['find-trains'] = (t, ri) => {
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
   const b = D().booking; b.codeErr = '';
+  const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
+  if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   runNet(r, () => codeApplies(b) ? checkCode(b) : null, res => {
     if (res && res.err) { b.codeErr = res.err; pendingFocus = '#ffc-code-err'; render(); return; }
     if (res && res.range) {
@@ -5218,7 +5370,8 @@ SCR.code = (r, ri) => {
   const d = D(), b = d.booking; r.u.d = r.u.d || { code: b.codeDraft || '' };
   ref('613'); if (d.coupons.length) ref('697');
   const locked = b.codeTries >= 2, err = r.u.err || '';
-  const saved = d.signedIn && d.coupons.length ? `<section class="ffc-codes" aria-labelledby="ffc-saved"><h4 class="ffc-h" id="ffc-saved">Your saved codes</h4><ul class="ffc-codelist">${[...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp)).map(c => `<li><button class="ffc-code" type="button" data-a="code-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Expired and used codes aren’t shown. Whether a code works for your train is checked when you find trains. ${q(11)}</p></section>` : '';
+  const fare = d.coupons.filter(c => !c.lounge); // lounge passes aren't fare codes
+  const saved = d.signedIn && fare.length ? `<section class="ffc-codes" aria-labelledby="ffc-saved"><h4 class="ffc-h" id="ffc-saved">Your saved codes</h4><ul class="ffc-codelist">${[...fare].sort((x, y) => x.exp.localeCompare(y.exp)).map(c => `<li><button class="ffc-code" type="button" data-a="code-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Expired and used codes aren’t shown. Whether a code works for your train is checked when you find trains. ${q(11)}</p></section>` : '';
   const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Add a code</h3><p class="ffc-sheetsub">Use one coupon or promo code. Promo codes have 4 letters or numbers, coupon codes have 14.</p></div>
     <div class="ads-field"><label class="ads-field__label" for="code-in">Discount code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ffc-codeentry"><div class="ads-control ads-control--pill${err ? ' ads-control--error' : ''}">${ic('payment-voucher')}<input id="code-in" data-f="code" data-nodirty data-hook="codedraft" value="${esc(r.u.d.code)}" placeholder="Enter discount code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" ${err ? 'aria-invalid="true"' : ''} aria-describedby="code-h" ${locked ? 'disabled' : ''}></div><button class="ads-btn ads-btn--secondary" type="button" data-a="code-add" ${locked ? 'disabled' : ''}>Add</button></div><p class="ads-helper${err ? ' ads-helper--error' : ''}" id="code-h" ${err ? 'role="alert"' : ''}>${err ? ic('alert-diamond') + `<span>${err}</span>` : 'Letters and numbers only.'}</p></div>
     ${locked ? alertBox('warning', 'Need help with a code?', 'You’ve tried twice. Call 1-800-USA-RAIL (1-800-872-7245) and we’ll help you use it.') : ''}
@@ -5281,9 +5434,9 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
     const discs = paxList(b).map(t => {
       const x = tdiscOf(b, t), opts = TDISC[t.type], label = `Traveler ${t.n} · ${PAX_LABEL[t.type]}`;
-      const info = x === 'pwd' ? `Applied because Traveler 1 has a disability in Assistance. ${q(9)}` : x === 'senior' ? 'Seniors get the senior discount automatically when eligible.' : x === 'infant' ? 'Infants travel on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults: this infant pays the child fare.' : x === 'childfare' ? 'Children pay the child fare.' : x === 'none' ? (t.type === 'adult' || t.type === 'ya' ? 'Adults and young adults don’t get a passenger-type discount.' : 'No discount.') : DISCOUNTS[x] ? DISCOUNTS[x].info : '';
-      const ctl = opts && x !== 'pwd' ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
-      return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && x !== 'pwd' ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
+      const info = x === 'pwd' ? `Applied because ${esc(t.label || `Traveler ${t.n}`)} has a disability in Assistance. ${q(9)}` : x === 'companion' ? `Applied because Traveler ${t.n} is a personal companion in Assistance. It replaces other passenger discounts. ${q(9)}` : x === 'senior' ? 'Seniors get the senior discount automatically when eligible.' : x === 'infant' ? 'Infants travel on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults: this infant pays the child fare.' : x === 'childfare' ? 'Children pay the child fare.' : x === 'none' ? (t.type === 'adult' || t.type === 'ya' ? 'Adults and young adults don’t get a passenger-type discount.' : 'No discount.') : DISCOUNTS[x] ? DISCOUNTS[x].info : '';
+      const ctl = opts && !['pwd', 'companion'].includes(x) ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
+      return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
@@ -5367,7 +5520,7 @@ SCR.calendar = (r, ri) => {
 const assistBase = SCR.assist;
 SCR.assist = (r, ri) => {
   const o = assistBase(r, ri); if (!rich()) return o;
-  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', 'Traveler 1. Tell us what help you need for this trip.') + o.body });
+  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', `${esc(assistWho(r).label)}. Tell us what help they need for this trip.`) + o.body });
 };
 
 /* Sprint 4 prototype: Version 4 Fare Finder, Flighty-inspired.
@@ -5391,7 +5544,7 @@ function flStation(b, f, err) {
 function flDate(b, f, err) {
   if (f === 'ret' && b.trip === 'ow') return `<button class="fl-chip fl-chip--date fl-chip--add" type="button" data-a="add-return"><span class="fl-chip__label">Return</span><span class="fl-chip__val">${ic('plus-circle', 'ads-icon--sm')}Add Return</span></button>`;
   const val = b[f], label = f === 'dep' ? 'Depart' : 'Return';
-  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? (val === TODAY_S ? 'Today' : parse(val).getFullYear()) : '&nbsp;'}</span></button>`;
+  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? `${parse(val).getFullYear()}${val === TODAY_S ? ' · Today' : ''}` : '&nbsp;'}</span></button>`;
 }
 // Aligned information row: icon column, label, summary, optional detail, actions
 function flRow(o) {
@@ -5429,8 +5582,10 @@ function ffFlighty(r, ri) {
   // Assistance (NMA-973): Add sets the same "Traveler with disability or need help?" answer the checkbox sets elsewhere
   if (v.entry === 'ff') {
     ref('973', '614');
-    const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [];
-    rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
+    const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [], many = travelerList(b).length > 1;
+    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
+      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + (on ? `<div class="fl-assistlist">${assistTravelerList(b)}</div>` : ''));
+    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
       value: on && done ? esc(items[0]) : on ? 'Questions not answered yet' : 'Not requested',
       sub: on && done ? `${esc(items.slice(1).join(' · '))}${items.length > 1 ? '<br>' : ''}<span class="fl-tag">${b.assistFromProfile ? 'From your Profile' : 'This trip only'}</span>${b.assist.cat === 'disability' ? (pwdApplies(b) ? ' Passenger with Disability discount applies.' : ' Passenger discounts aren’t used for this booking.') : ''}` : on ? '' : 'Traveler with disability or need help? For example a mobility device, a service animal, hearing loss or station help. One traveler with a disability may bring one personal companion.',
       actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }));
@@ -5448,7 +5603,6 @@ function ffFlighty(r, ri) {
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;
   return { title: 'New Booking', srTitle: true, cls: 'pane--fl', kind: 'root', banner: false, body, foot: r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains">Find Trains</button>` };
 }
-A['fl-assist-on'] = (t, ri) => { const b = D().booking; b.assistOn = true; if (!b.assistDone) { push('assist', {}, +ri); return; } pendingFocus = '[data-a="assist-edit"]'; render(); };
 A['fl-assist-off'] = () => { D().booking.assistOn = false; pendingFocus = '[data-a="fl-assist-on"]'; toast('Assistance removed from this booking', 'info'); };
 HOOKS.flprtype = (r, t) => { D().booking.prType = t.value || null; pendingFocus = '#fl-prtype'; };
 
@@ -5492,7 +5646,7 @@ function gsErrors(r, b) {
 function gsSummary(k, b, d) {
   const intent = intentOf(b);
   if (k === 'where') return b.from || b.to ? `${b.from ? `${b.from} · ${ST[b.from].city}` : 'Choose departure'} → ${b.to ? `${b.to} · ${ST[b.to].city}` : 'choose arrival'}` : 'Choose stations';
-  if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShort(b.dep)}` : `Round-trip · ${fmtShort(b.dep)} – ${b.ret ? fmtShort(b.ret) : 'choose return'}`;
+  if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShortY(b.dep)}` : `Round-trip · ${fmtShortY(b.dep)} – ${b.ret ? fmtShortY(b.ret) : 'choose return'}`;
   if (intent === 'corporate') return `1 Adult · Corporate${b.assistOn && b.assistDone ? ' · Assistance' : ''}`;
   if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}`;
   const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', b.assistOn ? 'Assistance' : ''].filter(Boolean);
@@ -5601,6 +5755,122 @@ Object.assign(V3_PLACES, {
   whoerror: () => { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.pax = { adult: 0, senior: 0, ya: 0, youth: 0, child: 1, infant: 0 }; sheet().stack[0].u.open = null; A['find-trains'](null, '0'); },
   who: () => { const b = D().booking; if (b.intent === 'pr') b.prType = 'leisure'; sheet().stack[0].u.open = 'who'; render(); }
 });
+
+/* Sprint 4 prototype: shared traveler model and per-traveler assistance (all four concepts).
+   - travelerList(b) lists everyone on the booking, for every booking mode: standard (passenger types,
+     NMA-611), TripLink Corporate (1 traveler, NMA-622) and Pass Rider (you, spouse or employee, dependents,
+     Companion Pass travelers; NMA-1017, 1018).
+   - Assistance is traveler-specific (NMA-615 AC1, NMA-1019). Traveler 1 keeps b.assist, the record the
+     Profile prefills (NMA-614 BR5.1); everyone else has a record in b.ta[key].
+   - A personal companion needs another traveler with a disability, one companion each (NMA-615 BR2.1, 2.2).
+     Their passenger discount becomes Companion; the earlier choice returns if they change type (NMA-43 BR8).
+   - Three different "companions" are kept apart: the personal companion (assistance type, Companion
+     discount), the Companion Pass (Pass Rider employees, 8 a year, NMA-1018) and the companion coupon (a code
+     that needs two travelers, NMA-613 scenario 13). */
+
+function travelerList(b) {
+  const d = D(), it = intentOf(b), out = [];
+  if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
+  else if (it === 'pr' && d.passrider) {
+    out.push({ key: 'pr-you', type: 'pr', short: `You · ${prRoleLabel(d)}` });
+    if (b.prType !== 'business') {
+      const f = b.prPax;
+      for (let i = 1; i <= f.fam; i++) out.push({ key: `pr-fam-${i}`, type: 'pr', short: d.passrider.role === 'employee' ? 'Spouse' : d.passrider.role === 'spouse' ? 'Employee' : 'Employee or spouse' });
+      for (let i = 1; i <= f.dep; i++) out.push({ key: `pr-dep-${i}`, type: 'pr', short: `Dependent ${i}` });
+      for (let i = 1; i <= f.comp; i++) out.push({ key: `pr-comp-${i}`, type: 'pr', short: `Companion Pass ${i}` });
+    }
+  } else paxList(b).forEach(t => out.push({ key: t.key, type: t.type, i: t.i, short: PAX_LABEL[t.type] }));
+  return out.map((t, n) => Object.assign(t, { n: n + 1, label: `Traveler ${n + 1} · ${t.short}` }));
+}
+const firstKey = b => (travelerList(b)[0] || {}).key;
+// The assistance record for one traveler: { m, done, fromProfile }
+function assistRec(b, key) {
+  b.ta = b.ta || {};
+  if (!key || key === firstKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
+  return b.ta[key] || { m: blankAssist(), done: false };
+}
+function setAssistRec(b, key, m) {
+  b.ta = b.ta || {};
+  if (!key || key === firstKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
+  else b.ta[key] = { m, done: true };
+}
+// The assistance type that counts for a traveler: only once answered, and only while the booking asks for help
+function assistCat(b, key) { const a = assistRec(b, key); return b.assistOn && a.done ? a.m.cat : null; }
+const catCount = (b, cat, except) => travelerList(b).filter(t => t.key !== except && assistCat(b, t.key) === cat).length;
+// NMA-615 BR2.1–2.2: a personal companion needs a traveler with a disability who doesn't have one yet
+const companionOpen = (b, key) => catCount(b, 'disability', key) > catCount(b, 'companion', key);
+// Problems that stop the search: a companion left without a traveler with a disability
+function assistProblems(b) {
+  if (!b.assistOn) return [];
+  const comps = catCount(b, 'companion'), dis = catCount(b, 'disability');
+  if (comps > dis) return [dis ? `Each traveler with a disability may bring one personal companion. ${comps} travelers are personal companions and ${dis} has a disability.` : 'A personal companion needs another traveler with a disability. Change the assistance type for the personal companion, or add assistance for the traveler with a disability.'];
+  return [];
+}
+// Passenger discount from assistance (standard and TripLink Personal bookings only): PWD or Companion
+function assistDiscount(b, key) {
+  if (!['standard', 'personal'].includes(intentOf(b))) return null;
+  const c = assistCat(b, key);
+  return c === 'disability' ? 'pwd' : c === 'companion' ? 'companion' : null;
+}
+function assistLine(b, key) {
+  const a = assistRec(b, key);
+  if (!b.assistOn) return 'Not requested';
+  if (!a.done) return 'Not answered';
+  return a.m.cat === 'none' ? 'No assistance needed' : CATS[a.m.cat];
+}
+// One line for compact hosts (Compact rows, Guided summaries)
+function assistSummaryLine(b) {
+  if (!b.assistOn) return 'Not requested';
+  const list = travelerList(b), asked = list.filter(t => assistRec(b, t.key).done && assistRec(b, t.key).m.cat && assistRec(b, t.key).m.cat !== 'none');
+  if (!asked.length) return list.some(t => assistRec(b, t.key).done) ? 'No assistance needed' : 'Questions not answered yet';
+  if (list.length === 1) return CATS[asked[0] && assistRec(b, asked[0].key).m.cat] || 'Not answered';
+  return `${asked.length} of ${list.length} travelers`;
+}
+
+// ---------- Shared component: every traveler's assistance, with Add or Edit ----------
+function assistTravelerList(b) {
+  const list = travelerList(b), prob = assistProblems(b);
+  const rows = list.map(t => {
+    const a = assistRec(b, t.key), items = a.done ? assistSummaryItems(a.m) : [], disc = assistDiscount(b, t.key);
+    const tag = a.done && t.n === 1 && a.fromProfile ? '<span class="ads-lock">From your Profile</span>' : '';
+    const sub = a.done ? items.slice(1).filter(x => x !== 'No other needs').join(' · ') : '';
+    const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
+    return `<li class="atl__row"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}</span><span class="atl__val">${esc(a.done ? items[0] : 'No answers yet')}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${discNote}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button></li>`;
+  }).join('');
+  const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert">${ic('alert-diamond')}<span>${esc(prob[0])}</span></p>` : '';
+  return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p><ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul>${err}</div>`;
+}
+
+// ---------- Actions ----------
+// Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
+function assistOffline(returnFocus) {
+  if (V().net !== 'offline') return false;
+  dialog({ title: 'You’re offline', body: 'Connect to the internet to answer the assistance questions. Your trip details are kept.', actions: [['OK', 'primary', null]], returnFocus });
+  return true;
+}
+A['assist-edit'] = (t, ri) => {
+  const key = (t && t.dataset && t.dataset.t) || firstKey(D().booking);
+  if (assistOffline(`[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`)) return;
+  push('assist', { t: key }, +ri);
+};
+A['assist-toggle'] = (t, ri) => {
+  const b = D().booking; b.assistOn = t.checked;
+  if (b.assistOn && !b.assistDone) { /* as before: checking it starts with Traveler 1's questions */ if (assistOffline(`#${t.id}`)) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  pendingFocus = `#${t.id}`; render();
+};
+A['fl-assist-on'] = (t, ri) => {
+  const b = D().booking; b.assistOn = true;
+  if (!b.assistDone) { if (assistOffline('[data-a="fl-assist-on"]')) { render(); return; } push('assist', { t: firstKey(b) }, +ri); return; }
+  pendingFocus = '[data-a="assist-edit"]'; render();
+};
+A['assist-confirm'] = (t, ri) => {
+  const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
+  const e = assistErrors(x, 'booking', who);
+  if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
+  r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`; render();
+};
 
 /* Sprint 4 prototype: motion, following the Amtrak mobile motion system prompts.
    One small token scale (MT, EASE in core.js) used everywhere:
@@ -5848,16 +6118,30 @@ const INFO = {
     title: 'Traveling alone?',
     body: () => `<p>The rules for youths traveling without an adult (unaccompanied minors) will come from AEM. They aren’t in this prototype.</p><p>In the app, a youth needs an adult or senior on the same booking.</p>${q(10)}`
   },
+  // NMA-628 and NMA-621 have no defined content: placeholders only, no invented copy or behavior
   'service-animals': {
     title: 'Service animals',
-    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><p>Service animals aren’t pets, so you don’t add them as travelers.</p><p>If your service animal is large, add <b>Large service animal</b> in the traveler’s assistance, so the right space is planned for you.</p><p>Traveling with an emotional support animal? Check our ${infoLink('accessible-travel', 'accessible travel policy', 'push')}.</p><p class="info-draft">Draft text. The final content comes from AEM (NMA-628).</p>`
+    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Content not defined yet</b><span>Service animal information (NMA-628) has no content or rules in Sprint 4. It will come from AEM.</span></div><p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
   },
   'accessible-travel': {
     title: 'Accessible travel',
-    body: () => `<p>Accessible travel covers station assistance, accessible seats and spaces, mobility devices, service animals and the Passenger with Disability discount.</p><p>Tell us what you need in each traveler’s assistance and we plan it with your trip.</p><p class="info-draft">Placeholder. The policy content comes from AEM (NMA-621).</p>`
+    body: () => `<div class="info-pending"><b>Content not defined yet</b><span>About accessible travel with Amtrak (NMA-621) has no content in Sprint 4. It will come from AEM.</span></div>`
   },
   rules: { title: 'Discount rules', body: () => SCR.rules().body }
 };
+// Topics with a parameter: coupon details (NMA-697) and station details (NMA-600 S4)
+function infoTopic(topic) {
+  const [k, arg] = topic.split(':');
+  if (k === 'coupon') return couponInfo(arg);
+  if (k === 'station') return stationInfo(arg);
+  return INFO[topic];
+}
+// Station details (NMA-600 S4): a separate control, because tapping a station chooses it (S2). The details
+// page itself is NMA-604, outside Sprint 4, so only the data the app already has is shown (Q3).
+function stationInfo(code) {
+  const s = ST[code]; if (!s) return { title: 'Station', body: () => '' };
+  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><div class="info-pending"><b>Station details page not in Sprint 4</b><span>Hours, accessibility, parking and amenities belong to the station details page (NMA-604). ${q(3)}</span></div>` };
+}
 // A link that opens supporting information (or, inside the sheet, goes one level deeper)
 function infoLink(topic, label, mode = 'open') {
   return `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="${mode === 'push' ? 'info-push' : 'info'}" data-topic="${topic}">${label}</button>`;
@@ -5869,9 +6153,9 @@ function openInfo(topic, returnFocus, silent) {
   pendingFocus = 'title'; if (!silent) render();
 }
 function renderInfo(o, covered) {
-  const topic = o.stack[o.stack.length - 1], t = INFO[topic], depth = o.stack.length;
-  const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(INFO[o.stack[depth - 2]].title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
-  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
+  const topic = o.stack[o.stack.length - 1], t = infoTopic(topic), depth = o.stack.length;
+  const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(infoTopic(o.stack[depth - 2]).title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
+  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic.replace(':', '-')}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
 }
 A.info = t => openInfo(t.dataset.topic, t.dataset.k ? `[data-k="${t.dataset.k}"]` : `[data-a="${t.dataset.a}"][data-topic="${t.dataset.topic}"]`);
 A['info-push'] = t => { nav().info.stack.push(t.dataset.topic); pendingFocus = 'title'; render(); };
@@ -5888,6 +6172,105 @@ A['pick-station'] = (t, ri) => {
   if (stationFocus() && t && t.getBoundingClientRect) MOTION.field = { rect: rectIn(t), at: performance.now() };
   pickStationBeforeFocus(t, ri);
 };
+
+/* Sprint 4 prototype: Profile additions shared by all four concepts.
+   - Amtrak employee pass details (NMA-20). Saving valid details turns on the Pass Rider Fare Finder (NMA-623);
+     removing them turns it off. NMA-623 names the identifiers "SAP ID and Index Number" while NMA-20 uses
+     a 9-digit Pass Number and a 3-digit Personal Index Number: the prototype follows NMA-20 (Q16).
+   - My Coupons (NMA-697): available coupons (soonest expiry first), used and expired coupons, details,
+     adding a coupon, and Apply, which starts a booking with the code. Lounge passes are listed as coupons. */
+
+// ---------- Amtrak employee pass details (NMA-20) ----------
+PFIELDS.employee = 'Amtrak employee pass';
+const EMP_REL = { employee: 'Employee or retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
+const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
+const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)}` : 'Not added';
+EDITORS.employee = (r, ri, inline) => {
+  const d = D(), cur = d.employee; ref('20');
+  if (!r.u.d) r.u.d = { emp: cur ? 'yes' : '', rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
+  const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee';
+  prov('NMA-623 identifies Pass Riders by SAP ID and Index Number; NMA-20 by Pass Number and Personal Index Number. The prototype uses NMA-20’s fields (Q16).');
+  const yes = x.emp === 'yes', primary = x.rel !== 'employee';
+  const radios = [['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<label class="ads-choice ads-radio"><input type="radio" name="${idp}-emp" data-f="emp" value="${v}" ${x.emp === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${l}</span></label>`).join('');
+  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
+  if (yes) {
+    body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
+    body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass Number' : 'Pass Number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
+    body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal Index Number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+    if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
+  } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your Profile. Pass Rider booking won’t be available.</p>`;
+  const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
+  tip('Employee pass: any 9-digit Pass Number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3).');
+  return { body, saveDisabled: unchanged, noSaveWhy: 'Make a change to save.' };
+};
+SAVE.employee = (r, ri) => {
+  const x = r.u.d, d = D(), e = {};
+  if (x.emp === 'yes') {
+    if (!x.pass) e.pass = 'Enter your Pass Number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass Number not recognized. It has 9 numbers.';
+    if (!x.index) e.index = 'Enter your Personal Index Number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal Index Number not recognized. It has 3 numbers.';
+    if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
+  }
+  r.u.err = e;
+  if (Object.keys(e).length) { pendingFocus = e.pass ? '[data-f="pass"]' : e.index ? '[data-f="index"]' : '.ads-alert--error'; render(); return; }
+  runSave(r, () => {
+    const b = d.booking;
+    if (x.emp === 'yes') {
+      const was = d.passrider;
+      d.employee = { rel: x.rel, pass: x.pass, index: x.index };
+      // Business Pass and companion passes come from the pass record; newly added details start without them
+      d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0 };
+      if (!was) { b.intent = 'pr'; b.prType = d.passrider.business ? null : 'leisure'; }
+    } else {
+      d.employee = null; d.passrider = null;
+      if (b.intent === 'pr') { b.intent = 'standard'; b.prType = null; }
+    }
+  }, () => afterSave(ri, 'Profile has been updated', 'employee'));
+};
+
+// ---------- My Coupons (NMA-697) ----------
+const couponState = c => c.uses && c.uses.length ? 'used' : c.exp < TODAY_S ? 'expired' : 'available';
+const soon = c => couponState(c) === 'available' && c.exp <= addDays(TODAY_S, 30);
+function couponCard(c) {
+  const st = couponState(c), done = st !== 'available';
+  const badge = st === 'used' ? '<span class="cpn__state cpn__state--used">Used</span>' : st === 'expired' ? '<span class="cpn__state cpn__state--expired">Expired</span>' : soon(c) ? '<span class="cpn__state cpn__state--soon">Expires soon</span>' : '';
+  const apply = !done && !c.lounge ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
+  return `<li class="cpn${done ? ' cpn--done' : ''}"><div class="cpn__main"><span class="cpn__name">${esc(c.name || c.kind)} ${badge}</span><span class="cpn__benefit">${esc(c.benefit)}</span><span class="cpn__meta">${esc(c.kind)} · ${c.code} · ${st === 'expired' ? 'Expired' : 'Expires'} ${fmtShortY(c.exp)}</span></div><div class="cpn__acts">${apply}<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(c.name || c.kind)}">Details</button></div></li>`;
+}
+SCR.coupons = (r, ri) => {
+  const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '';
+  ref('697');
+  const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
+  const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
+  const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div><button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button></div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
+  const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
+  const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
+  tip('My Coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
+  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}</section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
+  return { title: 'My Coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
+};
+A['coupon-add'] = (t, ri) => {
+  const r = routeAt(ri), d = D(), c = (r.u.d.add || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{14}$/.test(c)) { r.u.err = 'Enter the 14-character coupon code.'; pendingFocus = '#cpn-in'; render(); return; }
+  if (d.coupons.some(x => x.code === c)) { r.u.err = 'This coupon is already in your account.'; pendingFocus = '#cpn-in'; render(); return; }
+  r.u.err = '';
+  runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
+    if (res.err) { r.u.err = res.err; pendingFocus = '#cpn-in'; render(); return; } // NMA-697 BR8 AC3
+    d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
+    r.u.d.add = ''; pendingFocus = `[data-a="coupon-apply"][data-code="${c}"]`; toast('Coupon added to your account'); // BR8 AC4
+  }, { what: 'add a coupon' });
+};
+// Apply: start a booking with this code (standard booking, paying cash)
+A['coupon-apply'] = t => {
+  const d = D(), c = d.coupons.find(x => x.code === t.dataset.code); if (!c) return;
+  const b = d.booking; b.code = clone(c); b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
+  nav().sheet = null; openSheet('booking', ['ff'], '[data-a="open-booking"]'); toast(`${c.name || c.kind} applied`);
+};
+// Coupon details as supporting information: details for available coupons, uses for used ones (BR4 AC2, AC3)
+function couponInfo(code) {
+  const d = D(), c = [...d.coupons, ...(d.couponsPast || [])].find(x => x.code === code); if (!c) return { title: 'Coupon', body: () => '<p>This coupon isn’t in your account any more.</p>' };
+  const st = couponState(c);
+  return { title: c.name || c.kind, body: () => `<dl class="cpn-dl"><dt>Benefit</dt><dd>${esc(c.benefit)}</dd><dt>Type</dt><dd>${esc(c.kind)}</dd><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd><dt>Status</dt><dd>${st === 'used' ? 'Used' : st === 'expired' ? 'Expired' : 'Available'}</dd></dl>${st === 'used' ? `<h3 class="ads-h5">Uses</h3><ul class="cpn-uses">${[...c.uses].sort((x, y) => y.date.localeCompare(x.date)).map(u => `<li>Reservation ${u.pnr} · ${fmtDate(u.date)}</li>`).join('')}</ul>` : ''}<p class="info-draft">Eligibility and restrictions come with each coupon and are checked when you find trains. ${c.companion ? 'A companion coupon needs at least two travelers.' : ''}</p>` };
+}
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

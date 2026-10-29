@@ -20,16 +20,30 @@ const INFO = {
     title: 'Traveling alone?',
     body: () => `<p>The rules for youths traveling without an adult (unaccompanied minors) will come from AEM. They aren’t in this prototype.</p><p>In the app, a youth needs an adult or senior on the same booking.</p>${q(10)}`
   },
+  // NMA-628 and NMA-621 have no defined content: placeholders only, no invented copy or behavior
   'service-animals': {
     title: 'Service animals',
-    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><p>Service animals aren’t pets, so you don’t add them as travelers.</p><p>If your service animal is large, add <b>Large service animal</b> in the traveler’s assistance, so the right space is planned for you.</p><p>Traveling with an emotional support animal? Check our ${infoLink('accessible-travel', 'accessible travel policy', 'push')}.</p><p class="info-draft">Draft text. The final content comes from AEM (NMA-628).</p>`
+    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Content not defined yet</b><span>Service animal information (NMA-628) has no content or rules in Sprint 4. It will come from AEM.</span></div><p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
   },
   'accessible-travel': {
     title: 'Accessible travel',
-    body: () => `<p>Accessible travel covers station assistance, accessible seats and spaces, mobility devices, service animals and the Passenger with Disability discount.</p><p>Tell us what you need in each traveler’s assistance and we plan it with your trip.</p><p class="info-draft">Placeholder. The policy content comes from AEM (NMA-621).</p>`
+    body: () => `<div class="info-pending"><b>Content not defined yet</b><span>About accessible travel with Amtrak (NMA-621) has no content in Sprint 4. It will come from AEM.</span></div>`
   },
   rules: { title: 'Discount rules', body: () => SCR.rules().body }
 };
+// Topics with a parameter: coupon details (NMA-697) and station details (NMA-600 S4)
+function infoTopic(topic) {
+  const [k, arg] = topic.split(':');
+  if (k === 'coupon') return couponInfo(arg);
+  if (k === 'station') return stationInfo(arg);
+  return INFO[topic];
+}
+// Station details (NMA-600 S4): a separate control, because tapping a station chooses it (S2). The details
+// page itself is NMA-604, outside Sprint 4, so only the data the app already has is shown (Q3).
+function stationInfo(code) {
+  const s = ST[code]; if (!s) return { title: 'Station', body: () => '' };
+  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><div class="info-pending"><b>Station details page not in Sprint 4</b><span>Hours, accessibility, parking and amenities belong to the station details page (NMA-604). ${q(3)}</span></div>` };
+}
 // A link that opens supporting information (or, inside the sheet, goes one level deeper)
 function infoLink(topic, label, mode = 'open') {
   return `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="${mode === 'push' ? 'info-push' : 'info'}" data-topic="${topic}">${label}</button>`;
@@ -41,9 +55,9 @@ function openInfo(topic, returnFocus, silent) {
   pendingFocus = 'title'; if (!silent) render();
 }
 function renderInfo(o, covered) {
-  const topic = o.stack[o.stack.length - 1], t = INFO[topic], depth = o.stack.length;
-  const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(INFO[o.stack[depth - 2]].title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
-  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
+  const topic = o.stack[o.stack.length - 1], t = infoTopic(topic), depth = o.stack.length;
+  const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(infoTopic(o.stack[depth - 2]).title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
+  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic.replace(':', '-')}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
 }
 A.info = t => openInfo(t.dataset.topic, t.dataset.k ? `[data-k="${t.dataset.k}"]` : `[data-a="${t.dataset.a}"][data-topic="${t.dataset.topic}"]`);
 A['info-push'] = t => { nav().info.stack.push(t.dataset.topic); pendingFocus = 'title'; render(); };

@@ -674,3 +674,40 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-search--focus + .ss-route { margin-top: 8px; }
 .device:not(.device--ipad) .info-head { padding-top: 14px; }
 [data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code, [data-theme="dark"] .ads-stationrow[aria-current="true"] .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover and selected surfaces */
+.info-pending { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px dashed var(--ads-border-default); border-radius: 12px; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.info-pending b { color: var(--ads-content-text-primary); }
+
+/* ---------- Assistance by traveler (travelers.js), shared by all concepts ---------- */
+.atl { display: flex; flex-direction: column; gap: 8px; }
+.atl__head { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.atl__list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); }
+.atl__row { display: flex; align-items: center; gap: 8px; padding: 10px 6px 10px 14px; }
+.atl__row + .atl__row { border-top: 1px solid var(--ads-border-subtle); }
+.atl__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.atl__who { font-weight: 600; color: var(--ads-content-text-primary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.atl__val { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }
+.atl__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.atl__disc { color: var(--ads-content-text-success, var(--ads-content-text-secondary)); font-size: var(--ads-type-body-small-size); font-weight: 600; }
+.fl-assistlist { padding: 0 0 12px; }
+.text-large .atl__row { flex-wrap: wrap; }
+.v1modes { display: flex; flex-direction: column; gap: 10px; }
+.v1modes .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+
+/* ---------- My Coupons (profile.js) ---------- */
+.cpn-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cpn { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); }
+.cpn--done { background: var(--ads-background-surface-sunken); }
+.cpn__main { flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cpn__name { font-weight: 600; color: var(--ads-content-text-primary); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cpn__benefit { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }
+.cpn__meta { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); overflow-wrap: anywhere; }
+.cpn__acts { display: flex; gap: 4px; margin-left: auto; }
+.cpn__state { padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); }
+.cpn__state--soon { background: var(--ads-background-warning-subtle, #fff4d6); color: var(--ads-content-text-warning, #6b4b00); }
+.cpn-add { display: flex; flex-direction: column; gap: 6px; margin: 16px 0; }
+.cpn-dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.cpn-dl dt { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.cpn-dl dd { margin: 0; overflow-wrap: anywhere; }
+.cpn-uses { margin: 0; padding-left: 18px; }
+.text-large .cpn-dl { grid-template-columns: 1fr; }
+[data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */

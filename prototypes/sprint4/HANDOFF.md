@@ -24,16 +24,16 @@ How conflicts were decided: stories and grooming notes first, then the App Shell
 
 | Source | Status | Used for |
 |---|---|---|
-| NMA_Sprint_4_Combined.docx (31 stories) | Read in full | Requirements, rules, copy, open questions |
+| NMA_Sprint_4_Combined.docx: 66 issues (44 user stories, 2 of them cancelled; 1 feature; 1 task; 20 sub-tasks) | Read in full; inventory in `PLAN.md` §0 | Requirements, rules, copy, open questions |
 | IA App Shell Overview (PDF), summarized in `ia/app-shell.json` | Read | Destinations, header, sheets, landing rules |
 | ADS library (`css/`, `tokens/`, `icons/`) | In repo | Every component and token |
 | Core Flow Figma (`dkrhpF1qtC3EKeynFLnj3U`, node 7:96076) | Read through the Figma connection (screenshots and layer list) | Fare Finder layout, Traveler Selection, the PWD questionnaire's structure |
 
 Most of Core Flow is out of Sprint 4 scope: search results, fare families, ancillaries, checkout, cancel/modify, private rooms. Only these parts were used: the App PWD flow, *Book* and *Search_Trigger*.
 
-Stories with no content: NMA-620 (in-station assistance availability), NMA-621 (about accessible travel), NMA-628 (service animal info), NMA-629 (wheeled mobility device specs). They are shown as labeled placeholders only.
+Stories with no content: NMA-620 (in-station assistance availability), NMA-621 (about accessible travel), NMA-628 (service animal info), NMA-629 (wheeled mobility device specs). They are shown as labeled placeholders only, with no invented copy or behavior. NMA-29 is partly defined and awaiting clarification (Q18). Cancelled NMA-44 and NMA-609 aren't built; Auto Train pairing stays through NMA-607 and 608. NMA-310 and its 14 delivery sub-tasks, and the 6 PO-review sub-tasks, aren't UI. NMA-992 is a back-end email with no app screen.
 
-Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. All four versions have the coupon or promo code (Version 1 as a row under Travelers) and the *Pay with* Cash / Points switch. Version 1 doesn't show the TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.
+Fare Finder coverage is the same in all four versions: traveler types and counts (NMA-611), a discount per traveler (612), coupon and promo codes (613), Use Points (624), TripLink (622) and Pass Rider (623, 1016–1019), and assistance for every traveler (615, 973, 995–997, 1019). Each version presents them its own way. Version 1 shows booking modes as plain labeled controls above its form.
 
 ## IA conflicts and proposed resolutions
 
@@ -126,7 +126,9 @@ Key: **S** = state shown. Story IDs are in brackets.
 - [x] Station-help branch: optional Accessible seat only, no PWD discount [28, 996]
 - [x] Profile save shows a summary and confirms that PWD was saved; a failed save keeps the answers and offers Retry [27, 28]
 - [x] Booking: "Traveler with disability or need help?" checkbox with an explanation; it can be unchecked [973]
-- [x] Booking category per traveler; Companion is shown but disabled, because it needs a second traveler and its rules aren't finalized [615, 997]
+- [x] Assistance type for each traveler, everyone on the booking, including Pass Rider spouses, dependents and Companion Pass travelers [615 AC1, 1019]
+- [x] Personal companion: available once another traveler has a disability, one companion each; needs Station Assistance, then optionally an accessible seat; the traveler's discount becomes Companion, and the earlier choice returns if the type changes [615 BR2.1–2.2, 997, 43 BR8 AC3]
+- [x] Opening the questionnaire needs a connection; once it's open it can be finished offline; Find Trains needs a connection [973, 995–997]
 - [x] The checkbox is pre-checked when the member has saved assistance or PWD; Traveler 1's answers come from Profile and can be changed [614]
 - [x] Review and edit the summary; Find Trains needs a connection [995, 996]
 - [x] Assistance entry placement **(unresolved, toggle)** [973 vs Core Flow]
@@ -280,7 +282,7 @@ Stations, dates, travelers, discount codes and assistance open as **rounded shee
 - [x] Traveler types Adult, Senior, Young Adult, Youth, Child, Infant; Adult starts at 1, others at 0 [611 BR1, BR2]
 - [x] Up to 8 travelers (infants don't count), at least one traveler, and youths, children and infants need an adult or senior; Done is disabled with the reason shown [611 BR3, BR4]
 - [x] One discount per traveler, choices by traveler type; Senior and Infant fixed; extra infants pay the child fare; Traveler 1 starts from the Profile preference and changes don't touch the Profile [612 BR1–BR6]
-- [x] Passenger with Disability replaces Traveler 1's discount when Assistance says "I have a disability" [612 BR8 AC1]
+- [x] Passenger with Disability replaces the discount of any traveler whose assistance says "I have a disability" [43 BR8 AC1]
 - [x] One discount code field for cash searches, hidden for points; 4 or 14 letters and numbers; "Please enter a valid discount code"; saved profile codes sorted by expiry, with type, benefit and expiry; toast on selection; information pop-up; Remove; two failed attempts lead to the call center [613]
 - [x] Code checks at Find Trains (mocked): companion coupon needs two travelers, rejected code, invalid date range with Enter New Code / Continue without Discount / Close [613]
 - [x] Use Points only for signed-in members, Cash by default [624]
@@ -294,7 +296,7 @@ Functional differences:
 
 - **Added in all versions:** traveler types and counts, and a discount per traveler, in Traveler Selection (the baseline used a fixed 1 Adult).
 - **Added in all versions:** the coupon or promo code, with the same checks at Find Trains, and *Pay with* Cash / Points (NMA-624).
-- **Added in V2, V3 and V4:** TripLink and Pass Rider, so Version 1 doesn't cover the same scope.
+- **In all four versions:** TripLink and Pass Rider (Version 1 since the Sprint 4 alignment).
 - **Core Flow difference:** Core Flow labels Adult as 16–64 and has no Young Adult row; the stories list Young Adult (16–17) separately, and the prototype follows the stories (Q10).
 - **Changed interaction:** V3 no longer edits the Fare Finder in place; each picker opens in a rounded sheet. After choosing From, the To sheet opens straight away (as in V2).
 - **Mode-specific rules:** the Passenger with Disability discount isn't applied for Corporate or Pass Rider bookings, because those modes take no passenger discounts (open, Q12). Auto Train stations are unavailable for Pass Rider travel and cleared when switching to it.
@@ -302,7 +304,7 @@ Functional differences:
 
 Unresolved requirements:
 
-- Assistance is still recorded for Traveler 1 only. NMA-1019 lets any traveler, and more than one, request assistance; NMA-614 attaches the Profile answers to Traveler 1.
+- Assistance is recorded per traveler (NMA-615, 1019). The Profile's answers still attach to Traveler 1 (NMA-614 BR5.1).
 - The personal-companion assistance option (NMA-997) and the Companion discount (612 BR8 AC3) stay unavailable, as in the baseline, because companion rules aren't final.
 - Age bands and who can accompany minors (Q10); infant seat options.
 - Code eligibility for a specific train, live revalidation after a change, and points balance rules happen after search results, which are outside Sprint 4 (Q11, Q14). The prototype checks codes again on every Find Trains.
@@ -344,8 +346,8 @@ Stations, dates, traveler details, codes and the assistance questionnaire open a
 | Assistance, Traveler Selection entry (Core Flow, Q7) | Checkbox in Traveler Selection | Same, in the traveler sheet; the row's *Edit* opens it |
 | Discount code (613) | *Coupon or promo code* row under Travelers | *Coupon or promo code* row: *Add* opens the code sheet, *Remove*, information button |
 | Use Points (624) | *Pay with* Cash / Points pill (signed-in members) | *Pay with* pill; codes become unavailable with points |
-| TripLink Corporate / Personal (622) | (not in V1) | *Booking for* pill; Corporate locks travelers to 1 adult |
-| Pass Rider / Personal, travel type, family and companions (623, 1016–1018) | (not in V1) | *Book as* pill, *Travel type* row (required when eligible for both), traveler sheet counters |
+| TripLink Corporate / Personal (622) | *Booking for* control above the form | *Booking for* pill; Corporate locks travelers to 1 adult |
+| Pass Rider / Personal, travel type, family and companions (623, 1016–1018) | *Book as* and *Travel type* controls above the form; Traveler Selection counters | *Book as* pill, *Travel type* row (required when eligible for both), traveler sheet counters |
 | Find Trains, validation, loading, offline, error (607) | Pinned button; errors beside fields | Same; errors beside the route, dates, travel type, travelers or code |
 | Search handoff | Prototype handoff screen | Same screen |
 
@@ -461,3 +463,36 @@ A complete journey in every version on iPhone and iPad (119 checks):
 8. Find trains and close, returning to Book with focus on New Booking.
 
 The new states also passed accessibility checks in light and dark mode and at 100% and 140% text, with no overflow. Reduced motion uses opacity only.
+
+
+## Sprint 4 alignment (all versions)
+
+See `PLAN.md` for the issue inventory, coverage, blocked items and regression risks.
+
+**Shared foundation added**
+
+- **Traveler model** (`travelers.js`): one list of travelers for standard, TripLink Corporate and Pass Rider bookings. Each traveler has their own assistance record, and Traveler 1 keeps the Profile-prefilled one. Each concept hosts a shared *Assistance by traveler* list: V1 and V2 in their assistance blocks, V3 on its Fare Finder, V4 in its Assistance row. With one traveler, the existing summary card stays.
+- **Personal companion and discounts:** described in the requirements checklist above. Three companions stay distinct:
+  - a personal companion (an assistance type, which gets the Companion discount);
+  - a Companion Pass (Pass Rider employees, 8 a year);
+  - a companion coupon (a code that needs two travelers).
+- **Amtrak employee pass** in Profile (`profile.js`, NMA-20):
+  - Yes or No; relationship (employee or retiree, spouse, dependent); 9-digit Pass Number (the employee's own for spouses and dependents) and 3-digit Personal Index Number.
+  - Errors when either is missing or has the wrong format. Pass Number 999999999 shows "don't belong to you" (BR4 AC3). Saving needs a connection.
+  - A valid save turns on the Pass Rider Fare Finder (NMA-623 AC2), and removing the details turns it off. V1, V2 and V4 use the pushed editor; V3 edits on its Profile card.
+- **My Coupons** in Profile (NMA-697):
+  - Available coupons, soonest expiry first and flagged when they expire within 30 days; used and expired coupons, with each use's reservation number and date, newest first; an empty state.
+  - Details in a supporting-information sheet; adding a 14-character coupon (valid, expired and not-found results); *Apply* starts a booking with the code.
+  - Lounge passes are listed but aren't fare codes. The booking code screen reads the same list.
+- **Station details:** a separate details control on every station row opens a sheet with the station data the app has. Tapping the row still chooses the station (NMA-600 S2 vs S4, Q3). The full page is NMA-604.
+- **Dates:** every Fare Finder now shows the day name, month, day and year (NMA-1060 AC8); V2's When summary and V4's date chips gained the year.
+
+**Conflicts flagged in the prototype**
+
+- **Q10 (NMA-611):** accompaniment rule versus copy.
+- **Q15:** NMA-21 versus NMA-980 reauthentication.
+- **Q16:** NMA-623 SAP ID versus NMA-20 Pass Number, and whether the dependent experience differs.
+- **Q17:** NMA-697 retention period and notifications.
+- **Q18:** NMA-29, partly defined.
+
+**Checks:** 41 multi-traveler checks and 59 Profile, coupon, station-details and V1-mode checks, in all four versions. All earlier scripted suites still pass, including the 119-step journey. The new screens pass accessibility checks in light and dark mode at 100% and 140% text, with no overflow.

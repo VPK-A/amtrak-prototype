@@ -3,7 +3,7 @@ import pathlib, re, subprocess
 root = pathlib.Path(__file__).resolve().parent.parent
 p = root / "prototypes/sprint4"
 css = "\n".join((root / f"css/{n}.css").read_text() for n in ("tokens", "icons", "components"))
-js = "\n".join((p / f"{n}.js").read_text() for n in ("data", "core", "screens", "clear", "flighty", "guided", "motion", "interact", "boot"))
+js = "\n".join((p / f"{n}.js").read_text() for n in ("data", "core", "screens", "clear", "flighty", "guided", "travelers", "motion", "interact", "profile", "boot"))
 logo = (root / "logos/travelmark-horizontal.svg").read_text().strip()
 logo = re.sub(r'width="\d+" height="\d+"', 'aria-hidden="true" focusable="false"', logo, count=1)
 assert "`" not in logo and "${" not in logo

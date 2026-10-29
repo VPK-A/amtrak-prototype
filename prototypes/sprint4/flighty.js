@@ -19,7 +19,7 @@ function flStation(b, f, err) {
 function flDate(b, f, err) {
   if (f === 'ret' && b.trip === 'ow') return `<button class="fl-chip fl-chip--date fl-chip--add" type="button" data-a="add-return"><span class="fl-chip__label">Return</span><span class="fl-chip__val">${ic('plus-circle', 'ads-icon--sm')}Add Return</span></button>`;
   const val = b[f], label = f === 'dep' ? 'Depart' : 'Return';
-  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? (val === TODAY_S ? 'Today' : parse(val).getFullYear()) : '&nbsp;'}</span></button>`;
+  return `<button class="fl-chip fl-chip--date${err ? ' is-error' : ''}" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${err ? 'aria-invalid="true" aria-describedby="ff-ret-err"' : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="fl-chip__label">${label}</span><span class="fl-chip__val">${val ? fmtShort(val) : 'Choose date'}</span><span class="fl-chip__sub">${val ? `${parse(val).getFullYear()}${val === TODAY_S ? ' · Today' : ''}` : '&nbsp;'}</span></button>`;
 }
 // Aligned information row: icon column, label, summary, optional detail, actions
 function flRow(o) {
@@ -57,8 +57,10 @@ function ffFlighty(r, ri) {
   // Assistance (NMA-973): Add sets the same "Traveler with disability or need help?" answer the checkbox sets elsewhere
   if (v.entry === 'ff') {
     ref('973', '614');
-    const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [];
-    rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
+    const on = b.assistOn, done = b.assistDone, items = done ? assistSummaryItems(b.assist) : [], many = travelerList(b).length > 1;
+    if (many) rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: esc(assistSummaryLine(b)), sub: on ? '' : 'For any traveler on this booking.',
+      actions: on ? flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking') : flAct('fl-assist-on', 'Add', 'Add assistance for travelers on this booking') }) + (on ? `<div class="fl-assistlist">${assistTravelerList(b)}</div>` : ''));
+    else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`,
       value: on && done ? esc(items[0]) : on ? 'Questions not answered yet' : 'Not requested',
       sub: on && done ? `${esc(items.slice(1).join(' · '))}${items.length > 1 ? '<br>' : ''}<span class="fl-tag">${b.assistFromProfile ? 'From your Profile' : 'This trip only'}</span>${b.assist.cat === 'disability' ? (pwdApplies(b) ? ' Passenger with Disability discount applies.' : ' Passenger discounts aren’t used for this booking.') : ''}` : on ? '' : 'Traveler with disability or need help? For example a mobility device, a service animal, hearing loss or station help. One traveler with a disability may bring one personal companion.',
       actions: on ? `${flAct('assist-edit', done ? 'Edit' : 'Answer', done ? 'Edit assistance' : 'Answer assistance questions')}${flAct('fl-assist-off', 'Remove', 'Remove assistance from this booking')}` : flAct('fl-assist-on', 'Add', 'Add assistance for Traveler 1') }));
@@ -76,7 +78,6 @@ function ffFlighty(r, ri) {
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;
   return { title: 'New Booking', srTitle: true, cls: 'pane--fl', kind: 'root', banner: false, body, foot: r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains">Find Trains</button>` };
 }
-A['fl-assist-on'] = (t, ri) => { const b = D().booking; b.assistOn = true; if (!b.assistDone) { push('assist', {}, +ri); return; } pendingFocus = '[data-a="assist-edit"]'; render(); };
 A['fl-assist-off'] = () => { D().booking.assistOn = false; pendingFocus = '[data-a="fl-assist-on"]'; toast('Assistance removed from this booking', 'info'); };
 HOOKS.flprtype = (r, t) => { D().booking.prType = t.value || null; pendingFocus = '#fl-prtype'; };
 

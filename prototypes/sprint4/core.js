@@ -13,6 +13,8 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+// Fare Finder summaries show day name, month, day and year (NMA-1060 AC8)
+const fmtShortY = s => parse(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 const fmtShort = s => parse(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 const fmtDate = s => parse(s).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' });
@@ -34,10 +36,13 @@ function seed(sc) {
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
-    // Fare Finder variants (Version 3): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613)
+    // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink',
     passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
+    couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
+    // Amtrak employee pass details in Profile (NMA-20). Pass Rider scenarios start with them saved.
+    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : 'employee', pass: sc === 'passrider-spouse' ? '418200775' : '418200774', index: sc === 'passrider-spouse' ? '002' : '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
   d.booking = freshBooking(d);
@@ -115,6 +120,7 @@ function locOf() {
     case 'profile': return t.u.inline ? 'edit:' + t.u.inline : 'profile';
     case 'edit': return 'edit:' + t.p.field;
     case 'discounts': return 'discounts';
+    case 'coupons': return 'coupons';
     case 'rules': return 'rules';
     case 'assist-profile': return 'assist-profile';
     case 'inbox': return 'tab:' + n.tab;
@@ -156,6 +162,7 @@ function goLoc(loc) {
     case 'profile': if (guestBlocked()) break; account([R('profile')]); break;
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
+    case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v2': case 'v3': case 'v4': {
