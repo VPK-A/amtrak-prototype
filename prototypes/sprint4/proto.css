@@ -639,3 +639,38 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .mo-reduced .app { filter: none !important; transform: none !important; }
 .mo-reduced .ads-btn:active, .mo-reduced .gs-chip:active, .mo-reduced .gs__sum:active { transform: none; }
 @media (prefers-reduced-motion: reduce) { .ads-btn:active, .gs-chip:active, .gs__sum:active { transform: none; } }
+
+/* ---------- Supporting-information sheet (interact.js) ----------
+   Rises over the current task: rounded top corners, content height up to most of the screen, scrolls inside.
+   The task stays visible behind the scrim and is inert. */
+.info-layer { position: absolute; inset: 0; z-index: 16; }
+.info-scrim { position: absolute; inset: 0; background: var(--ads-background-surface-scrim); }
+.info-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 96px); display: flex; flex-direction: column; border-radius: 16px 16px 0 0; background: var(--ads-background-surface-default); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
+.device--ipad .info-sheet { left: 50%; right: auto; bottom: auto; top: 50%; transform: translate(-50%, -50%); width: min(480px, 88%); max-height: 70%; border-radius: 16px; }
+.info-sheet .ads-sheet__grabber { flex: none; position: absolute; top: 6px; left: 50%; margin-left: -18px; z-index: 1; }
+.info-head { flex: none; display: grid; grid-template-columns: minmax(64px, 1fr) auto minmax(64px, 1fr); align-items: center; gap: 8px; min-height: 52px; padding: 4px 12px; border-bottom: 1px solid var(--ads-border-subtle); }
+.info-head__trail { display: flex; justify-content: flex-end; }
+.info-title { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; text-align: center; color: var(--ads-content-text-primary); }
+.info-title:focus { outline: none; }
+.info-title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: 4px; }
+.info-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px 20px max(24px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size, 16px); line-height: 1.45; }
+.info-body p { margin: 0; }
+.info-body .linkbtn { display: inline; padding: 0; font-size: inherit; vertical-align: baseline; }
+.info-art { display: grid; place-items: center; height: 120px; margin: -16px -20px 4px; background: var(--ads-background-surface-sunken); color: var(--ads-content-icon-brand, var(--ads-content-icon-primary)); }
+.info-art .ads-icon { width: 48px; height: 48px; }
+.info-draft { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.info-entry { margin: 4px 0 0; }
+.text-large .info-head { grid-template-columns: auto 1fr auto; }
+.text-large .info-title { text-align: left; }
+
+/* ---------- Focused input: station search ---------- */
+.ads-navbar--focus { min-height: 8px; padding: 0; border: 0; }
+.pane--focus .pane__body { padding-top: 4px; }
+.ss-search--focus { padding-top: 8px; }
+.ss-search--focus .ads-control { padding-left: 4px; }
+.ss-back { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 2px; border: 0; border-radius: 50%; background: none; color: var(--ads-content-icon-primary); cursor: pointer; }
+.ss-back:hover { background: var(--ads-background-surface-hover); }
+.ss-back:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.ss-search--focus + .ss-route { margin-top: 8px; }
+.device:not(.device--ipad) .info-head { padding-top: 14px; }
+[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover surface */

@@ -62,7 +62,7 @@ Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), 
 | Profile details | Account | Account › Profile | Pushed inside the Account sheet | Save goes to Profile with a toast |
 | Change email and verification | Account | Account › Profile › Email › Change | Full-screen cover over the sheet | On success: Profile plus "Your email has been updated". On Cancel: Profile, unchanged. |
 | Passenger discounts | Account | Account › Profile › Passenger discounts | Pushed | Save goes to Profile |
-| Discount rules | Account | Passenger discounts › *Passenger types and discount rules* | Pushed | Back |
+| Discount rules | Account | Passenger discounts › *Passenger types and discount rules* | Supporting-information sheet over Passenger discounts | Close (or Escape) returns to Passenger discounts at the same scroll position |
 | Profile assistance | Account | Account › Assistance | Pushed | Save shows the summary; Close goes to the app |
 | Sign-in verification (demo) | Account | Account (guest) › Sign in | Full-screen cover | Back to the screen that was open, signed in |
 | Unverified-account verification (demo) | Account | Saving any Profile change while the *Unverified account* scenario is on | Full-screen cover | Back to the editor, and the save finishes |
@@ -395,3 +395,69 @@ The assistance questionnaire keeps Version 2's wizard (one question per step, re
 ## Station search: Your route
 
 Every station search (all versions) starts with a *Your route* summary: From and To with code, city and station name. The station being chosen is highlighted and labeled *Choosing* (empty) or *Changing* (already set); the other one is a button that switches the search to it without losing the route. In the lists, the station already used for the other end is tagged *Your departure* or *Your arrival*, and the current choice is tagged *Selected*. Choosing the same station for both ends still shows the existing dialog (607 BR2.2, BR3.1).
+
+
+## Interaction and motion system (all versions)
+
+One shared set of navigation levels, components and motion tokens, applied to every concept. Each concept keeps its own structure, content and visual identity. The reference recording (expanding search, guided cards, a service-animal info sheet) and the two motion prompts were the inputs. Items marked *observed* come from the recording; everything else is a proposed Amtrak adaptation, with timings to tune on devices.
+
+**Navigation levels**
+
+| Level | Used for | Controls | Motion |
+|---|---|---|---|
+| Top-level tabs | Book, Trips, Train Status, Support | Tab bar (iPhone) or top tabs (iPad) | No page transition; only the selection indicator moves. Each tab keeps its scroll position; reselecting the current tab scrolls it to the top |
+| Modal task | New Booking, Account, Notification Inbox | **Close** at the root (*observed*) | Grows out of the Book control when opened from it; otherwise rises from the bottom. Reverses on close |
+| Detail inside a task | Calendar, Travelers, code, assistance, Profile and its editors | **Back** returns one level; **Close** ends the whole task | Pushes in from the right in the same sheet, with the previous screen moving 25% behind it |
+| Focused input (iPhone) | Station search in every version | **Back** inside the search field (*observed*); Escape also goes back | The tapped From or To field grows into the view; Back collapses it into the field again, now showing the choice |
+| Supporting information | About discount codes, Traveling alone?, Service animals, Accessible travel, Discount rules | **Close**; **Back** inside the sheet for a deeper level | Rises from the bottom over a dimmed, inactive task (*observed*); reverses on close |
+
+Back and Close are always separate controls with separate meanings. On iPad, station search stays beside the Fare Finder (split view), so it keeps the standard header.
+
+**Supporting-information sheet**
+
+- Bottom sheet with rounded top corners on iPhone; a centered card on iPad. Height follows the content, up to the top 96 px of the screen, and long content scrolls inside it.
+- The task behind it stays visible under the scrim and is inert. Tapping the scrim, Close or Escape dismisses it and restores the exact step, selections, scroll position and focus (on the link that opened it).
+- A deeper level (for example *Service animals › accessible travel policy*) opens inside the same sheet with Back. Sheets never stack.
+- Entry points: the *Bringing a service animal?* link under the traveler counters (every version), *About service animals* in the assistance questions, the information buttons beside codes, *Traveling alone?* on Youth, and Passenger types and discount rules in Account. Service-animal and accessible-travel text is draft content, labeled as such, for NMA-628 and NMA-621.
+- These replace the earlier alert dialogs for explanations. Dialogs remain only for decisions (discard changes, same station twice, clear recents).
+
+**Focused station search (iPhone)**
+
+The field becomes the top of the view, with Back in its leading slot and focus in the input. The *Your route* summary and the results follow it. Choosing a station returns it to the task, where the field or summary row updates; Versions 2 and 3 go straight on to To first, as before. Rapid taps can't stack a second view, because the task behind is inert during the transition.
+
+**Expandable cards (Version 2 booking)**
+
+Where, When and Who: the active section is a rounded card and the others are summary rows with their label and current choice (*observed*). Opening another section collapses the previous one while the cards around it move to their new places: height and position animate together over 300 ms. Values are kept when switching, and Next and Find Trains stay in the bottom action area. Versions 1, 3 and 4 keep their single-form Fare Finders, which is what distinguishes those concepts. They share the focused search, the sheets and the motion.
+
+**Motion tokens**
+
+| Token | Duration | Easing | Used for | Reduced motion |
+|---|---|---|---|---|
+| tap | 100 ms | standard | Press feedback (slight dim, 1.5% compression) | No compression |
+| control | 200 ms | standard | Segmented and tab indicators, dialog entry, toasts | Direct change |
+| panel | 280 ms | standard | Pushes, focused view in and out, sheet-level changes | 120 ms fade |
+| section | 300 ms | standard | Expandable card height and position | Direct change |
+| shared | 360 ms | settle | Modal and information sheet presentation | 120 ms fade, no blur or scale |
+| close | 260 ms | exit | Dismissals (reverse of presentation) | 120 ms fade |
+| stagger | 35 ms | | Content reveal after a surface settles | None |
+
+Easing: standard `cubic-bezier(.2, 0, 0, 1)`, settle `cubic-bezier(.2, .8, .2, 1)`, exit `cubic-bezier(.4, 0, 1, 1)`. There's no bounce. Surfaces animate (position, size, clip and corner radius, backdrop opacity), and text is never scaled. Reduced motion follows the system setting or the toolbar's *Motion* control.
+
+**Native notes**
+
+- iOS: use `UISheetPresentationController` with detents for the information sheet (`.medium()` and custom content heights) and a navigation stack inside the booking sheet. The focused search fits a matched-geometry transition (SwiftUI `matchedGeometryEffect`) from the field. Follow the keyboard with `keyboardLayoutGuide`, so the action area stays above it.
+- Android: `ModalBottomSheet` for supporting information; shared-element transitions (`SharedTransitionLayout`) for the focused search; predictive back reverses each level. Keep the action area above the IME with `imePadding()`.
+
+**QA checklist (scripted, all passing)**
+
+A complete journey in every version on iPhone and iPad (119 checks):
+1. Open booking.
+2. Enter the focused station search and choose From and To.
+3. Go back from the focused view, keeping the value.
+4. Add a traveler.
+5. Open *Service animals* (focus moves to its title and the task behind is inert), then go deeper and back.
+6. Press Escape, which restores the step, scroll position and focus.
+7. Open the code information and close it.
+8. Find trains and close, returning to Book with focus on New Booking.
+
+The new states also passed accessibility checks in light and dark mode and at 100% and 140% text, with no overflow. Reduced motion uses opacity only.

@@ -99,6 +99,7 @@ function toast(msg, kind = 'success') { V().toast = { msg, kind }; render(); cle
 // ---------- Location: lets the toolbar keep the same place across versions and devices ----------
 function locOf() {
   const n = nav();
+  if (n.info) { const i = n.info; n.info = null; const base = locOf(); n.info = i; return base + '|info:' + i.stack.join('>'); }
   if (n.cover) return 'verify:' + n.cover.trigger;
   if (n.dialog && n.dialog.id === 'clear') return 'clear-recents';
   const sh = n.sheet; if (!sh) return 'tab:' + n.tab;
@@ -121,8 +122,9 @@ function locOf() {
   }
 }
 function goLoc(loc) {
+  if (loc.includes('|info:')) { const [base, path] = loc.split('|info:'); goLoc(base); const [first, ...more] = path.split('>'); openInfo(first, null, true); nav().info.stack.push(...more); render(); return; }
   const v = V(), d = v.data, b = d.booking, v3 = TB.v === 3; // V3 edits Profile in place; its booking uses sheets like V1
-  v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.toast = null;
+  v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.nav.info = null; v.toast = null;
   const [k, arg] = loc.split(':');
   const booking = extra => { v.nav.tab = 'book'; v.nav.sheet = { id: 'booking', stack: [R('ff'), ...extra], opener: '[data-a="open-booking"]' }; };
   const account = extra => { v.nav.sheet = { id: 'account', stack: [R('account'), ...extra], opener: '[data-a="open-account"]' }; };
@@ -154,7 +156,7 @@ function goLoc(loc) {
     case 'profile': if (guestBlocked()) break; account([R('profile')]); break;
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
-    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
+    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
@@ -255,7 +257,7 @@ var render = function () {
   dev.style.setProperty('--text-zoom', TB.text / 100);
   for (const [k, t] of scrolls) { const e = $(`[data-scroll="${k}"]`, dev); if (e) e.scrollTop = t; }
   let target = null;
-  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop();
+  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
   else if (keep) target = $(keep, dev);
   if (target) { target.focus({ preventScroll: pendingFocus === null }); if (sel && target.id && '#' + CSS.escape(target.id) === keep && target.setSelectionRange) try { target.setSelectionRange(sel[0], sel[1]); } catch (e) {} }
@@ -263,11 +265,12 @@ var render = function () {
   renderChrome();
 }
 function renderDevice() {
-  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog);
+  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog || n.info);
   let h = `<div class="dev-status" aria-hidden="true"><span>9:41</span><span class="dev-status__right">${ic('wifi', 'ads-icon--sm')}<span class="dev-batt"></span></span></div>`;
   h += `<div class="app" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
-  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog));
-  if (n.cover) h += renderCover(n.cover, !!n.dialog);
+  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog || n.info));
+  if (n.cover) h += renderCover(n.cover, !!(n.dialog || n.info));
+  if (n.info) h += renderInfo(n.info, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
   const t = V().toast;
   h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
@@ -294,6 +297,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
@@ -387,6 +391,7 @@ function wireDevice() {
     if (e.key !== 'Escape') return;
     const n = nav();
     if (n.dialog) { closeDialog(); e.preventDefault(); }
+    else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
     else if (n.sheet) { const top = topR(); if (n.sheet.stack.length > 1) A.back(null, String(n.sheet.stack.length - 1)); else closeSheet(); e.preventDefault(); }
   });

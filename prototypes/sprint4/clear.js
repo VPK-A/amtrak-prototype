@@ -182,6 +182,7 @@ function stationsClear(r, ri) {
   const f = r.p.field, b = D().booking;
   const why = b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div></div>` : '';
   const head = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${f === 'from' ? 'Departure station' : 'Arrival station'}</h3><p class="ffc-sheetsub">Search by city, station name, code or ZIP code.</p></div>`;
+  if (stationFocus()) return { title: f === 'from' ? 'Departure station' : 'Arrival station', cls: 'pane--sheet pane--focus', kind: 'focus', banner: false, body: why + stationSearch(r, ri, f, false) };
   return { title: f === 'from' ? 'From' : 'To', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body: head + why + stationSearch(r, ri, f, false) };
 }
 
@@ -224,7 +225,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && x !== 'pwd' ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${assistBlock(r, ri, aHost)}
       ${paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
   }

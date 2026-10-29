@@ -2083,6 +2083,41 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .mo-reduced .ads-btn:active, .mo-reduced .gs-chip:active, .mo-reduced .gs__sum:active { transform: none; }
 @media (prefers-reduced-motion: reduce) { .ads-btn:active, .gs-chip:active, .gs__sum:active { transform: none; } }
 
+/* ---------- Supporting-information sheet (interact.js) ----------
+   Rises over the current task: rounded top corners, content height up to most of the screen, scrolls inside.
+   The task stays visible behind the scrim and is inert. */
+.info-layer { position: absolute; inset: 0; z-index: 16; }
+.info-scrim { position: absolute; inset: 0; background: var(--ads-background-surface-scrim); }
+.info-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 96px); display: flex; flex-direction: column; border-radius: 16px 16px 0 0; background: var(--ads-background-surface-default); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
+.device--ipad .info-sheet { left: 50%; right: auto; bottom: auto; top: 50%; transform: translate(-50%, -50%); width: min(480px, 88%); max-height: 70%; border-radius: 16px; }
+.info-sheet .ads-sheet__grabber { flex: none; position: absolute; top: 6px; left: 50%; margin-left: -18px; z-index: 1; }
+.info-head { flex: none; display: grid; grid-template-columns: minmax(64px, 1fr) auto minmax(64px, 1fr); align-items: center; gap: 8px; min-height: 52px; padding: 4px 12px; border-bottom: 1px solid var(--ads-border-subtle); }
+.info-head__trail { display: flex; justify-content: flex-end; }
+.info-title { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; text-align: center; color: var(--ads-content-text-primary); }
+.info-title:focus { outline: none; }
+.info-title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: 4px; }
+.info-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px 20px max(24px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size, 16px); line-height: 1.45; }
+.info-body p { margin: 0; }
+.info-body .linkbtn { display: inline; padding: 0; font-size: inherit; vertical-align: baseline; }
+.info-art { display: grid; place-items: center; height: 120px; margin: -16px -20px 4px; background: var(--ads-background-surface-sunken); color: var(--ads-content-icon-brand, var(--ads-content-icon-primary)); }
+.info-art .ads-icon { width: 48px; height: 48px; }
+.info-draft { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.info-entry { margin: 4px 0 0; }
+.text-large .info-head { grid-template-columns: auto 1fr auto; }
+.text-large .info-title { text-align: left; }
+
+/* ---------- Focused input: station search ---------- */
+.ads-navbar--focus { min-height: 8px; padding: 0; border: 0; }
+.pane--focus .pane__body { padding-top: 4px; }
+.ss-search--focus { padding-top: 8px; }
+.ss-search--focus .ads-control { padding-left: 4px; }
+.ss-back { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 2px; border: 0; border-radius: 50%; background: none; color: var(--ads-content-icon-primary); cursor: pointer; }
+.ss-back:hover { background: var(--ads-background-surface-hover); }
+.ss-back:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.ss-search--focus + .ss-route { margin-top: 8px; }
+.device:not(.device--ipad) .info-head { padding-top: 14px; }
+[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover surface */
+
 </style>
 </head>
 <body class="ads-root">
@@ -3657,6 +3692,7 @@ function toast(msg, kind = 'success') { V().toast = { msg, kind }; render(); cle
 // ---------- Location: lets the toolbar keep the same place across versions and devices ----------
 function locOf() {
   const n = nav();
+  if (n.info) { const i = n.info; n.info = null; const base = locOf(); n.info = i; return base + '|info:' + i.stack.join('>'); }
   if (n.cover) return 'verify:' + n.cover.trigger;
   if (n.dialog && n.dialog.id === 'clear') return 'clear-recents';
   const sh = n.sheet; if (!sh) return 'tab:' + n.tab;
@@ -3679,8 +3715,9 @@ function locOf() {
   }
 }
 function goLoc(loc) {
+  if (loc.includes('|info:')) { const [base, path] = loc.split('|info:'); goLoc(base); const [first, ...more] = path.split('>'); openInfo(first, null, true); nav().info.stack.push(...more); render(); return; }
   const v = V(), d = v.data, b = d.booking, v3 = TB.v === 3; // V3 edits Profile in place; its booking uses sheets like V1
-  v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.toast = null;
+  v.nav.cover = null; v.nav.dialog = null; v.nav.sheet = null; v.nav.info = null; v.toast = null;
   const [k, arg] = loc.split(':');
   const booking = extra => { v.nav.tab = 'book'; v.nav.sheet = { id: 'booking', stack: [R('ff'), ...extra], opener: '[data-a="open-booking"]' }; };
   const account = extra => { v.nav.sheet = { id: 'account', stack: [R('account'), ...extra], opener: '[data-a="open-account"]' }; };
@@ -3712,7 +3749,7 @@ function goLoc(loc) {
     case 'profile': if (guestBlocked()) break; account([R('profile')]); break;
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
-    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break;
+    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v2': case 'v3': case 'v4': {
       // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
@@ -3813,7 +3850,7 @@ var render = function () {
   dev.style.setProperty('--text-zoom', TB.text / 100);
   for (const [k, t] of scrolls) { const e = $(`[data-scroll="${k}"]`, dev); if (e) e.scrollTop = t; }
   let target = null;
-  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop();
+  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
   else if (keep) target = $(keep, dev);
   if (target) { target.focus({ preventScroll: pendingFocus === null }); if (sel && target.id && '#' + CSS.escape(target.id) === keep && target.setSelectionRange) try { target.setSelectionRange(sel[0], sel[1]); } catch (e) {} }
@@ -3821,11 +3858,12 @@ var render = function () {
   renderChrome();
 }
 function renderDevice() {
-  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog);
+  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog || n.info);
   let h = `<div class="dev-status" aria-hidden="true"><span>9:41</span><span class="dev-status__right">${ic('wifi', 'ads-icon--sm')}<span class="dev-batt"></span></span></div>`;
   h += `<div class="app" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
-  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog));
-  if (n.cover) h += renderCover(n.cover, !!n.dialog);
+  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog || n.info));
+  if (n.cover) h += renderCover(n.cover, !!(n.dialog || n.info));
+  if (n.info) h += renderInfo(n.info, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
   const t = V().toast;
   h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
@@ -3852,6 +3890,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
@@ -3945,6 +3984,7 @@ function wireDevice() {
     if (e.key !== 'Escape') return;
     const n = nav();
     if (n.dialog) { closeDialog(); e.preventDefault(); }
+    else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
     else if (n.sheet) { const top = topR(); if (n.sheet.stack.length > 1) A.back(null, String(n.sheet.stack.length - 1)); else closeSheet(); e.preventDefault(); }
   });
@@ -4218,7 +4258,11 @@ function stationSearch(r, ri, field, inline) {
   const favs = d.fav.map(c => ST[c]);
   const recs = d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d).map(x => ST[x.c]);
   ref('600', '118', '984');
-  let h = stationRoute(field) + `<div class="ss-search"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${ic('search')}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="City, station, code or ZIP" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
+  // Focused view (iPhone): the search field leads, with Back inside it; the route summary and results follow
+  const focus = stationFocus() && !inline;
+  const lead = focus ? `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>` : ic('search');
+  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
+  let h = focus ? search + stationRoute(field) : stationRoute(field) + search;
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
@@ -4238,11 +4282,14 @@ function stationSearch(r, ri, field, inline) {
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
+// Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
+const stationFocus = () => !IPAD();
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
+  if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus', body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
 };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
@@ -4348,7 +4395,7 @@ function needsBlock(r, x, idp, explain) {
   }).join('');
   const lead = explain && wcYes ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>With wheelchair space, Station Assistance is always available. You can add an accessible seat or a large service animal, but not both.</span></p>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.assistNote}</p></div></div>` : '';
-  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div></fieldset>`;
+  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 function catBlock(r, x, idp, mode, e) {
   const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
@@ -4680,7 +4727,7 @@ SCR.discounts = (r, ri) => {
   if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete Assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your Assistance says “I have a disability”. ${v2() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to Assistance</button></div></div></div>`;
   const body = `${intro('Choose one discount. It will be pre-selected when you book. Senior and Youth discounts are chosen when you book.')}${netAlert(r)}
     <fieldset class="ads-fieldset"><legend class="ads-field-label">Discount preference</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa', 'pwd'].map(k => opt(k) + (x.type === k && cond ? `<div class="condfield">${cond}</div>` : '')).join('')}</div></fieldset>
-    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="rules">Passenger types and discount rules</button>`;
+    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
@@ -4990,6 +5037,7 @@ function stationsClear(r, ri) {
   const f = r.p.field, b = D().booking;
   const why = b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div></div>` : '';
   const head = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${f === 'from' ? 'Departure station' : 'Arrival station'}</h3><p class="ffc-sheetsub">Search by city, station name, code or ZIP code.</p></div>`;
+  if (stationFocus()) return { title: f === 'from' ? 'Departure station' : 'Arrival station', cls: 'pane--sheet pane--focus', kind: 'focus', banner: false, body: why + stationSearch(r, ri, f, false) };
   return { title: f === 'from' ? 'From' : 'To', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body: head + why + stationSearch(r, ri, f, false) };
 }
 
@@ -5032,7 +5080,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && x !== 'pwd' ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${assistBlock(r, ri, aHost)}
       ${paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
   }
@@ -5386,7 +5434,7 @@ function ghostOut(node, frames, duration, easing = EASE.exit) {
   const g = node.cloneNode(true); g.setAttribute('inert', ''); g.setAttribute('aria-hidden', 'true'); g.style.pointerEvents = 'none'; g.classList.add('mo-ghost');
   g.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
   devEl().appendChild(g);
-  const target = g.matches('.dialog-layer, .cover-layer, .toast-wrap') ? (g.querySelector('.pdialog, .pcover, .ads-toast') || g) : g;
+  const target = g.matches('.dialog-layer, .cover-layer, .toast-wrap, .info-layer') ? (g.querySelector('.pdialog, .pcover, .ads-toast, .info-sheet') || g) : g;
   const a = target.animate(frames, { duration, easing, fill: 'forwards' });
   if (target !== g) g.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing, fill: 'forwards' });
   a.onfinish = () => g.remove(); setTimeout(() => g.remove(), duration + 60);
@@ -5418,6 +5466,20 @@ function placeIndicators(dev, before, animate) {
   });
 }
 
+// ---------- Expandable cards (FLIP): height and position animate from where each card was ----------
+const CARD_SEL = '.gs-stack > .gs';
+function captureCards(dev) { const out = {}; $$(CARD_SEL, dev).forEach(e => { if (e.id || e.getAttribute('aria-label')) out[e.id || e.getAttribute('aria-label')] = rectIn(e); }); return out; }
+function flipCards(dev, before) {
+  if (!before) return;
+  $$(CARD_SEL, dev).forEach(e => {
+    const b = before[e.id || e.getAttribute('aria-label')]; if (!b) return;
+    const a = rectIn(e), dy = b.y - a.y, dh = b.h - a.h; if (Math.abs(dy) < 1 && Math.abs(dh) < 1) return;
+    e.style.overflow = 'clip';
+    const x = e.animate([{ height: b.h + 'px', transform: `translateY(${dy}px)` }, { height: a.h + 'px', transform: 'none' }], { duration: 300, easing: EASE.standard });
+    x.onfinish = x.oncancel = () => { e.style.overflow = ''; };
+  });
+}
+
 // ---------- Transitions, decided by comparing the state before and after each render ----------
 function sheetRadius(ps) { const c = getComputedStyle(ps); return `${c.borderTopLeftRadius} ${c.borderTopRightRadius} ${c.borderBottomRightRadius} ${c.borderBottomLeftRadius}`; }
 function insetTo(ps, o) { const p = rectIn(ps); return `inset(${o.y - p.y}px ${p.x + p.w - (o.x + o.w)}px ${p.y + p.h - (o.y + o.h)}px ${o.x - p.x}px round ${o.h / 2}px)`; }
@@ -5438,6 +5500,27 @@ function pushMotion(sh) {
   const t = Date.now() - a.start, top = $('.navstage__top', devEl()), under = $('.navstage__under', devEl());
   const run = (el, frames, dur) => { if (!el) return; const x = el.animate(frames, { duration: dur, easing: EASE.standard, fill: 'both' }); x.currentTime = Math.min(t, dur); };
   if (motionOff()) return run(top, [{ opacity: 0 }, { opacity: 1 }], MT.fade);
+  const st = sh.stack, topR_ = st[st.length - 1], underR = a.under && a.under[0];
+  const focusTop = stationFocus() && topR_.s === 'stations', focusUnder = stationFocus() && underR && underR.s === 'stations';
+  if (focusTop && focusUnder) return run(top, [{ opacity: 0 }, { opacity: 1 }], MT.control); // From → To inside the focused view
+  const clipFor = (el, f) => { const p = rectIn(el); return `inset(${Math.max(0, f.y - p.y)}px ${Math.max(0, p.x + p.w - (f.x + f.w))}px ${Math.max(0, p.y + p.h - (f.y + f.h))}px ${Math.max(0, f.x - p.x)}px round 16px)`; };
+  if (a.dir === 'fwd' && focusTop) {
+    // The tapped field grows into the focused search view; the task behind fades back
+    const f = MOTION.field && performance.now() - MOTION.field.at < 1500 ? MOTION.field.rect : null;
+    if (f && top) run(top, [{ clipPath: clipFor(top, f) }, { clipPath: 'inset(0px round 0px)' }], NAV_MS);
+    else run(top, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], NAV_MS);
+    run(top && top.querySelector('.pane__body'), [{ opacity: 0 }, { opacity: 1 }], NAV_MS * 0.7);
+    run(under, [{ opacity: 1 }, { opacity: 0 }], NAV_MS);
+    return;
+  }
+  if (a.dir === 'back' && focusUnder) {
+    // Back from the focused view: it collapses into the field, and the task returns updated
+    const fld = top && (top.querySelector(`#ff-${underR.p.field}`) || top.querySelector('#gs-where'));
+    if (fld && under) run(under, [{ clipPath: 'inset(0px round 0px)', opacity: 1 }, { clipPath: clipFor(under, rectIn(fld)), opacity: 0.4 }], NAV_MS);
+    else run(under, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(12px)' }], NAV_MS);
+    run(top, [{ opacity: 0.4 }, { opacity: 1 }], NAV_MS);
+    return;
+  }
   if (a.dir === 'fwd') { run(top, [{ transform: 'translateX(100%)' }, { transform: 'none' }], NAV_MS); run(under, [{ transform: 'none' }, { transform: 'translateX(-25%)', opacity: 0.7 }], NAV_MS); }
   else { run(top, [{ transform: 'translateX(-25%)', opacity: 0.7 }, { transform: 'none', opacity: 1 }], NAV_MS); run(under, [{ transform: 'none' }, { transform: 'translateX(100%)' }], NAV_MS); }
 }
@@ -5455,8 +5538,21 @@ function afterRenderMotion(dev, prev, cur, ghosts, ind) {
     if (prev.cover && !cur.cover) ghostOut(ghosts.cover, off || IPAD() ? [{ opacity: 1 }, { opacity: 0 }] : [{ translate: '0 0' }, { translate: '0 100%' }], off ? MT.fade : MT.close);
     if (cur.toast && cur.toast !== prev.toast) play('toast', '.toast-wrap .ads-toast', off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, translate: '0 8px' }, { opacity: 1, translate: '0 0' }], { duration: MT.control, easing: EASE.settle });
     if (prev.toast && !cur.toast) ghostOut(ghosts.toast, [{ opacity: 1 }, { opacity: 0 }], MT.fade);
-    // Tab switch: the new content fades in; the tab bar indicator carries the movement
-    if (!cur.sheet && prev.tab !== cur.tab) play('tab', '.app-main > *', [{ opacity: 0 }, { opacity: 1 }], { duration: off ? MT.fade : 220, easing: EASE.standard });
+    // Tab switch: top-level destinations change in place, with no transition; only the tab indicator moves
+    // Supporting information: the sheet rises from the bottom over a dimmed, inactive task, and reverses on close
+    if (!prev.info && cur.info) {
+      play('info', '.info-layer .info-sheet', off ? [{ opacity: 0 }, { opacity: 1 }] : IPAD() ? [{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }] : [{ translate: '0 100%' }, { translate: '0 0' }], { duration: off ? MT.fade : MT.shared, easing: EASE.settle });
+      play('infoscrim', '.info-layer .info-scrim', [{ opacity: 0 }, { opacity: 1 }], { duration: off ? MT.fade : MT.shared, easing: EASE.standard });
+    }
+    if (prev.info && !cur.info) ghostOut(ghosts.info, off ? [{ opacity: 1 }, { opacity: 0 }] : IPAD() ? [{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 24px' }] : [{ translate: '0 0' }, { translate: '0 100%' }], off ? MT.fade : MT.close);
+    if (prev.info && cur.info && prev.info !== cur.info) {
+      // A deeper level inside the same sheet: content moves sideways, the sheet eases to its new height
+      const fwd = cur.info.length > prev.info.length, sh = $('.info-layer .info-sheet', dev);
+      if (sh && ghosts.infoH && !off) sh.animate([{ height: ghosts.infoH + 'px' }, { height: sh.offsetHeight + 'px' }], { duration: MT.panel, easing: EASE.standard });
+      play('infobody', '.info-layer .info-head > *, .info-layer .info-body', off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: `translateX(${fwd ? 24 : -24}px)` }, { opacity: 1, transform: 'none' }], { duration: off ? MT.fade : MT.panel, easing: EASE.standard });
+    }
+    // Expandable cards: the previous section collapses and the next expands; the cards around them reposition
+    if (cur.sheet && prev.sheet === cur.sheet && !cur.sheet._anim && !off) flipCards(dev, ghosts.cards);
     // Version 2 guided sections: the opened section's content arrives after the card settles
     if (cur.gsOpen && cur.gsOpen !== prev.gsOpen && prev.sheet) play('gs', `#gs-${cur.gsOpen} .gs__head, #gs-${cur.gsOpen} .gs__body > *`, off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: off ? MT.fade : MT.control, easing: EASE.standard }, off ? 0 : MT.stagger);
   }
@@ -5472,13 +5568,13 @@ function afterRenderMotion(dev, prev, cur, ghosts, ind) {
 const renderBeforeMotion = render;
 render = function () {
   const dev = devEl(); if (!dev) return renderBeforeMotion();
-  const ghosts = { dialog: $('.dialog-layer', dev), cover: $('.cover-layer', dev), toast: $('.toast-wrap', dev) && $('.toast-wrap .ads-toast', dev) ? $('.toast-wrap', dev) : null };
+  const ghosts = { info: $('.info-layer', dev), infoH: ($('.info-layer .info-sheet', dev) || {}).offsetHeight, cards: captureCards(dev), dialog: $('.dialog-layer', dev), cover: $('.cover-layer', dev), toast: $('.toast-wrap', dev) && $('.toast-wrap .ads-toast', dev) ? $('.toast-wrap', dev) : null };
   const ind = captureIndicators(dev), prev = MOTION.prev;
   renderBeforeMotion();
   const n = nav(), open = $('.gs.is-open', dev);
   dev.classList.toggle('mo-reduced', motionOff());
   dev.classList.toggle('has-overlay', !!(n.sheet || n.cover));
-  const cur = { v: TB.v, dev: TB.dev, orient: TB.orient, sheet: n.sheet, dialog: n.dialog, cover: n.cover, toast: V().toast && V().toast.msg, tab: n.tab, gsOpen: open ? open.id.slice(3) : null };
+  const cur = { v: TB.v, dev: TB.dev, orient: TB.orient, sheet: n.sheet, dialog: n.dialog, cover: n.cover, toast: V().toast && V().toast.msg, tab: n.tab, info: n.info ? n.info.stack.join('>') : null, gsOpen: open ? open.id.slice(3) : null };
   afterRenderMotion(dev, prev, cur, ghosts, ind);
   MOTION.prev = cur;
   setSeg('#tbMotion', MOTION.reduced ? 'reduced' : 'full');
@@ -5523,6 +5619,69 @@ document.getElementById('tbMotion').addEventListener('click', e => {
   MOTION.reduced = b.dataset.v === 'reduced'; try { localStorage.setItem('s4-motion', MOTION.reduced ? 'reduced' : 'full'); } catch (er) {}
   render();
 });
+
+/* Sprint 4 prototype: shared interaction system (all versions).
+   Navigation levels:
+     1. Tabs switch between top-level destinations (no transition).
+     2. Inside a flow, a detail screen is pushed; Back returns one level.
+     3. A contained task (booking, Account, Inbox) is a modal sheet: Close at its root; Back on deeper
+        screens, plus Close, which ends the whole flow.
+     4. Supporting information (explanations, policies, help) is a secondary sheet over the task. The task
+        stays visible, dimmed and inactive. A further level opens inside the same sheet with Back; sheets
+        never stack. Closing restores the exact step, selections and scroll position.
+   Focused input: on iPhone, station search grows out of the field that was tapped. The search field leads,
+   with Back inside it; results follow. Choosing a station returns it to the task. */
+
+// ---------- Supporting information content ----------
+const INFO = {
+  codes: {
+    title: 'About discount codes',
+    body: () => `<p>Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion.</p><p>Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains.</p><p>Codes can’t be used when you pay with points, for TripLink Corporate bookings or for Pass Rider travel.</p>`
+  },
+  'youth-alone': {
+    title: 'Traveling alone?',
+    body: () => `<p>The rules for youths traveling without an adult (unaccompanied minors) will come from AEM. They aren’t in this prototype.</p><p>In the app, a youth needs an adult or senior on the same booking.</p>${q(10)}`
+  },
+  'service-animals': {
+    title: 'Service animals',
+    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><p>Service animals aren’t pets, so you don’t add them as travelers.</p><p>If your service animal is large, add <b>Large service animal</b> in the traveler’s assistance, so the right space is planned for you.</p><p>Traveling with an emotional support animal? Check our ${infoLink('accessible-travel', 'accessible travel policy', 'push')}.</p><p class="info-draft">Draft text. The final content comes from AEM (NMA-628).</p>`
+  },
+  'accessible-travel': {
+    title: 'Accessible travel',
+    body: () => `<p>Accessible travel covers station assistance, accessible seats and spaces, mobility devices, service animals and the Passenger with Disability discount.</p><p>Tell us what you need in each traveler’s assistance and we plan it with your trip.</p><p class="info-draft">Placeholder. The policy content comes from AEM (NMA-621).</p>`
+  },
+  rules: { title: 'Discount rules', body: () => SCR.rules().body }
+};
+// A link that opens supporting information (or, inside the sheet, goes one level deeper)
+function infoLink(topic, label, mode = 'open') {
+  return `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="${mode === 'push' ? 'info-push' : 'info'}" data-topic="${topic}">${label}</button>`;
+}
+
+// ---------- The sheet ----------
+function openInfo(topic, returnFocus, silent) {
+  nav().info = { stack: [topic], returnFocus: returnFocus || `[data-topic="${topic}"]` };
+  pendingFocus = 'title'; if (!silent) render();
+}
+function renderInfo(o, covered) {
+  const topic = o.stack[o.stack.length - 1], t = INFO[topic], depth = o.stack.length;
+  const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(INFO[o.stack[depth - 2]].title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
+  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
+}
+A.info = t => openInfo(t.dataset.topic, t.dataset.k ? `[data-k="${t.dataset.k}"]` : `[data-a="${t.dataset.a}"][data-topic="${t.dataset.topic}"]`);
+A['info-push'] = t => { nav().info.stack.push(t.dataset.topic); pendingFocus = 'title'; render(); };
+A['info-back'] = () => { const i = nav().info, from = i.stack.pop(); pendingFocus = `.info-body [data-topic="${from}"]`; render(); };
+A['info-close'] = () => { const i = nav().info; if (!i) return; nav().info = null; pendingFocus = i.returnFocus; render(); };
+
+// Explanations that used to be alert dialogs are supporting information
+A['code-info'] = t => openInfo('codes', `[data-a="code-info"]`);
+A['youth-alone'] = () => openInfo('youth-alone', '[data-a="youth-alone"]');
+
+// ---------- Focused station search: remember the field it grows out of ----------
+const pickStationBeforeFocus = A['pick-station'];
+A['pick-station'] = (t, ri) => {
+  if (stationFocus() && t && t.getBoundingClientRect) MOTION.field = { rect: rectIn(t), at: performance.now() };
+  pickStationBeforeFocus(t, ri);
+};
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

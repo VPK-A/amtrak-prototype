@@ -36,7 +36,7 @@ function ghostOut(node, frames, duration, easing = EASE.exit) {
   const g = node.cloneNode(true); g.setAttribute('inert', ''); g.setAttribute('aria-hidden', 'true'); g.style.pointerEvents = 'none'; g.classList.add('mo-ghost');
   g.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
   devEl().appendChild(g);
-  const target = g.matches('.dialog-layer, .cover-layer, .toast-wrap') ? (g.querySelector('.pdialog, .pcover, .ads-toast') || g) : g;
+  const target = g.matches('.dialog-layer, .cover-layer, .toast-wrap, .info-layer') ? (g.querySelector('.pdialog, .pcover, .ads-toast, .info-sheet') || g) : g;
   const a = target.animate(frames, { duration, easing, fill: 'forwards' });
   if (target !== g) g.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing, fill: 'forwards' });
   a.onfinish = () => g.remove(); setTimeout(() => g.remove(), duration + 60);
@@ -68,6 +68,20 @@ function placeIndicators(dev, before, animate) {
   });
 }
 
+// ---------- Expandable cards (FLIP): height and position animate from where each card was ----------
+const CARD_SEL = '.gs-stack > .gs';
+function captureCards(dev) { const out = {}; $$(CARD_SEL, dev).forEach(e => { if (e.id || e.getAttribute('aria-label')) out[e.id || e.getAttribute('aria-label')] = rectIn(e); }); return out; }
+function flipCards(dev, before) {
+  if (!before) return;
+  $$(CARD_SEL, dev).forEach(e => {
+    const b = before[e.id || e.getAttribute('aria-label')]; if (!b) return;
+    const a = rectIn(e), dy = b.y - a.y, dh = b.h - a.h; if (Math.abs(dy) < 1 && Math.abs(dh) < 1) return;
+    e.style.overflow = 'clip';
+    const x = e.animate([{ height: b.h + 'px', transform: `translateY(${dy}px)` }, { height: a.h + 'px', transform: 'none' }], { duration: 300, easing: EASE.standard });
+    x.onfinish = x.oncancel = () => { e.style.overflow = ''; };
+  });
+}
+
 // ---------- Transitions, decided by comparing the state before and after each render ----------
 function sheetRadius(ps) { const c = getComputedStyle(ps); return `${c.borderTopLeftRadius} ${c.borderTopRightRadius} ${c.borderBottomRightRadius} ${c.borderBottomLeftRadius}`; }
 function insetTo(ps, o) { const p = rectIn(ps); return `inset(${o.y - p.y}px ${p.x + p.w - (o.x + o.w)}px ${p.y + p.h - (o.y + o.h)}px ${o.x - p.x}px round ${o.h / 2}px)`; }
@@ -88,6 +102,27 @@ function pushMotion(sh) {
   const t = Date.now() - a.start, top = $('.navstage__top', devEl()), under = $('.navstage__under', devEl());
   const run = (el, frames, dur) => { if (!el) return; const x = el.animate(frames, { duration: dur, easing: EASE.standard, fill: 'both' }); x.currentTime = Math.min(t, dur); };
   if (motionOff()) return run(top, [{ opacity: 0 }, { opacity: 1 }], MT.fade);
+  const st = sh.stack, topR_ = st[st.length - 1], underR = a.under && a.under[0];
+  const focusTop = stationFocus() && topR_.s === 'stations', focusUnder = stationFocus() && underR && underR.s === 'stations';
+  if (focusTop && focusUnder) return run(top, [{ opacity: 0 }, { opacity: 1 }], MT.control); // From → To inside the focused view
+  const clipFor = (el, f) => { const p = rectIn(el); return `inset(${Math.max(0, f.y - p.y)}px ${Math.max(0, p.x + p.w - (f.x + f.w))}px ${Math.max(0, p.y + p.h - (f.y + f.h))}px ${Math.max(0, f.x - p.x)}px round 16px)`; };
+  if (a.dir === 'fwd' && focusTop) {
+    // The tapped field grows into the focused search view; the task behind fades back
+    const f = MOTION.field && performance.now() - MOTION.field.at < 1500 ? MOTION.field.rect : null;
+    if (f && top) run(top, [{ clipPath: clipFor(top, f) }, { clipPath: 'inset(0px round 0px)' }], NAV_MS);
+    else run(top, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], NAV_MS);
+    run(top && top.querySelector('.pane__body'), [{ opacity: 0 }, { opacity: 1 }], NAV_MS * 0.7);
+    run(under, [{ opacity: 1 }, { opacity: 0 }], NAV_MS);
+    return;
+  }
+  if (a.dir === 'back' && focusUnder) {
+    // Back from the focused view: it collapses into the field, and the task returns updated
+    const fld = top && (top.querySelector(`#ff-${underR.p.field}`) || top.querySelector('#gs-where'));
+    if (fld && under) run(under, [{ clipPath: 'inset(0px round 0px)', opacity: 1 }, { clipPath: clipFor(under, rectIn(fld)), opacity: 0.4 }], NAV_MS);
+    else run(under, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(12px)' }], NAV_MS);
+    run(top, [{ opacity: 0.4 }, { opacity: 1 }], NAV_MS);
+    return;
+  }
   if (a.dir === 'fwd') { run(top, [{ transform: 'translateX(100%)' }, { transform: 'none' }], NAV_MS); run(under, [{ transform: 'none' }, { transform: 'translateX(-25%)', opacity: 0.7 }], NAV_MS); }
   else { run(top, [{ transform: 'translateX(-25%)', opacity: 0.7 }, { transform: 'none', opacity: 1 }], NAV_MS); run(under, [{ transform: 'none' }, { transform: 'translateX(100%)' }], NAV_MS); }
 }
@@ -105,8 +140,21 @@ function afterRenderMotion(dev, prev, cur, ghosts, ind) {
     if (prev.cover && !cur.cover) ghostOut(ghosts.cover, off || IPAD() ? [{ opacity: 1 }, { opacity: 0 }] : [{ translate: '0 0' }, { translate: '0 100%' }], off ? MT.fade : MT.close);
     if (cur.toast && cur.toast !== prev.toast) play('toast', '.toast-wrap .ads-toast', off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, translate: '0 8px' }, { opacity: 1, translate: '0 0' }], { duration: MT.control, easing: EASE.settle });
     if (prev.toast && !cur.toast) ghostOut(ghosts.toast, [{ opacity: 1 }, { opacity: 0 }], MT.fade);
-    // Tab switch: the new content fades in; the tab bar indicator carries the movement
-    if (!cur.sheet && prev.tab !== cur.tab) play('tab', '.app-main > *', [{ opacity: 0 }, { opacity: 1 }], { duration: off ? MT.fade : 220, easing: EASE.standard });
+    // Tab switch: top-level destinations change in place, with no transition; only the tab indicator moves
+    // Supporting information: the sheet rises from the bottom over a dimmed, inactive task, and reverses on close
+    if (!prev.info && cur.info) {
+      play('info', '.info-layer .info-sheet', off ? [{ opacity: 0 }, { opacity: 1 }] : IPAD() ? [{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }] : [{ translate: '0 100%' }, { translate: '0 0' }], { duration: off ? MT.fade : MT.shared, easing: EASE.settle });
+      play('infoscrim', '.info-layer .info-scrim', [{ opacity: 0 }, { opacity: 1 }], { duration: off ? MT.fade : MT.shared, easing: EASE.standard });
+    }
+    if (prev.info && !cur.info) ghostOut(ghosts.info, off ? [{ opacity: 1 }, { opacity: 0 }] : IPAD() ? [{ opacity: 1, translate: '0 0' }, { opacity: 0, translate: '0 24px' }] : [{ translate: '0 0' }, { translate: '0 100%' }], off ? MT.fade : MT.close);
+    if (prev.info && cur.info && prev.info !== cur.info) {
+      // A deeper level inside the same sheet: content moves sideways, the sheet eases to its new height
+      const fwd = cur.info.length > prev.info.length, sh = $('.info-layer .info-sheet', dev);
+      if (sh && ghosts.infoH && !off) sh.animate([{ height: ghosts.infoH + 'px' }, { height: sh.offsetHeight + 'px' }], { duration: MT.panel, easing: EASE.standard });
+      play('infobody', '.info-layer .info-head > *, .info-layer .info-body', off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: `translateX(${fwd ? 24 : -24}px)` }, { opacity: 1, transform: 'none' }], { duration: off ? MT.fade : MT.panel, easing: EASE.standard });
+    }
+    // Expandable cards: the previous section collapses and the next expands; the cards around them reposition
+    if (cur.sheet && prev.sheet === cur.sheet && !cur.sheet._anim && !off) flipCards(dev, ghosts.cards);
     // Version 2 guided sections: the opened section's content arrives after the card settles
     if (cur.gsOpen && cur.gsOpen !== prev.gsOpen && prev.sheet) play('gs', `#gs-${cur.gsOpen} .gs__head, #gs-${cur.gsOpen} .gs__body > *`, off ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: off ? MT.fade : MT.control, easing: EASE.standard }, off ? 0 : MT.stagger);
   }
@@ -122,13 +170,13 @@ function afterRenderMotion(dev, prev, cur, ghosts, ind) {
 const renderBeforeMotion = render;
 render = function () {
   const dev = devEl(); if (!dev) return renderBeforeMotion();
-  const ghosts = { dialog: $('.dialog-layer', dev), cover: $('.cover-layer', dev), toast: $('.toast-wrap', dev) && $('.toast-wrap .ads-toast', dev) ? $('.toast-wrap', dev) : null };
+  const ghosts = { info: $('.info-layer', dev), infoH: ($('.info-layer .info-sheet', dev) || {}).offsetHeight, cards: captureCards(dev), dialog: $('.dialog-layer', dev), cover: $('.cover-layer', dev), toast: $('.toast-wrap', dev) && $('.toast-wrap .ads-toast', dev) ? $('.toast-wrap', dev) : null };
   const ind = captureIndicators(dev), prev = MOTION.prev;
   renderBeforeMotion();
   const n = nav(), open = $('.gs.is-open', dev);
   dev.classList.toggle('mo-reduced', motionOff());
   dev.classList.toggle('has-overlay', !!(n.sheet || n.cover));
-  const cur = { v: TB.v, dev: TB.dev, orient: TB.orient, sheet: n.sheet, dialog: n.dialog, cover: n.cover, toast: V().toast && V().toast.msg, tab: n.tab, gsOpen: open ? open.id.slice(3) : null };
+  const cur = { v: TB.v, dev: TB.dev, orient: TB.orient, sheet: n.sheet, dialog: n.dialog, cover: n.cover, toast: V().toast && V().toast.msg, tab: n.tab, info: n.info ? n.info.stack.join('>') : null, gsOpen: open ? open.id.slice(3) : null };
   afterRenderMotion(dev, prev, cur, ghosts, ind);
   MOTION.prev = cur;
   setSeg('#tbMotion', MOTION.reduced ? 'reduced' : 'full');

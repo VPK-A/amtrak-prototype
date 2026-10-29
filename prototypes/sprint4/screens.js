@@ -180,7 +180,11 @@ function stationSearch(r, ri, field, inline) {
   const favs = d.fav.map(c => ST[c]);
   const recs = d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d).map(x => ST[x.c]);
   ref('600', '118', '984');
-  let h = stationRoute(field) + `<div class="ss-search"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${ic('search')}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="City, station, code or ZIP" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
+  // Focused view (iPhone): the search field leads, with Back inside it; the route summary and results follow
+  const focus = stationFocus() && !inline;
+  const lead = focus ? `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>` : ic('search');
+  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off" aria-describedby="ss-help">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div><p class="ads-helper" id="ss-help">Works offline. ${q(1)}${q(2)}</p></div>`;
+  let h = focus ? search + stationRoute(field) : stationRoute(field) + search;
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
@@ -200,11 +204,14 @@ function stationSearch(r, ri, field, inline) {
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
+// Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
+const stationFocus = () => !IPAD();
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
+  if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus', body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
 };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
@@ -310,7 +317,7 @@ function needsBlock(r, x, idp, explain) {
   }).join('');
   const lead = explain && wcYes ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>With wheelchair space, Station Assistance is always available. You can add an accessible seat or a large service animal, but not both.</span></p>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.assistNote}</p></div></div>` : '';
-  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div></fieldset>`;
+  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 function catBlock(r, x, idp, mode, e) {
   const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
@@ -642,7 +649,7 @@ SCR.discounts = (r, ri) => {
   if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete Assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your Assistance says “I have a disability”. ${v2() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to Assistance</button></div></div></div>`;
   const body = `${intro('Choose one discount. It will be pre-selected when you book. Senior and Youth discounts are chosen when you book.')}${netAlert(r)}
     <fieldset class="ads-fieldset"><legend class="ads-field-label">Discount preference</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa', 'pwd'].map(k => opt(k) + (x.type === k && cond ? `<div class="condfield">${cond}</div>` : '')).join('')}</div></fieldset>
-    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="rules">Passenger types and discount rules</button>`;
+    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
