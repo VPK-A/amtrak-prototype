@@ -523,3 +523,26 @@ See `PLAN.md` for the issue inventory, coverage, blocked items and regression ri
   - Acceptance suite: 89 checks per device, on iPhone and iPad, covering the criteria above in all four versions.
   - All earlier suites, including Cash / Points.
   - Accessibility checks in light and dark mode at 100% and 140% text.
+
+## Version 1 (Familiar) refinement
+
+The most conventional of the four: a standard booking form, a modal Traveler Selection step and labeled fields.
+
+- **Booking modes:** *Booking for* (TripLink) and *Book as* (Pass Rider) sit above the same form, with a required *Travel type* when the traveler is eligible for both. Pass Rider and Corporate replace the code and points rows with a one-line explanation.
+- **Traveler Selection** (`familiar.js`):
+  - Cancel (top left) undoes everything changed on the screen, including assistance. Done keeps it. X still closes the whole booking.
+  - The counters show errors on the counter they belong to.
+  - *Traveler details* has one card per traveler, with labeled rows:
+    - *Discount:* a select, or the fixed value with its reason.
+    - *Assistance:* the summary with Add, Edit or Remove.
+    - *Personal companion:* on a traveler with a disability, a select of eligible travelers; on the companion, *Companion to Traveler n*.
+  - Choosing a companion on the card makes that traveler's assistance *personal companion* and sets their Companion discount. Choosing *No personal companion* removes it.
+- **Invalid pairing:** if the traveler with a disability loses that request, the error appears on the companion's card and on their Fare Finder row. The Companion discount stops applying, and the earlier discount returns (in every version). Find Trains moves focus to the inline error instead of opening a dialog.
+- **Fare Finder:** the assistance list shows each traveler's request beside their name. The code row says how many coupons are saved in My Coupons.
+- **Checks:** a 27-step Familiar acceptance run on iPhone and iPad:
+  - form, travelers, independent assistance, companion from the card;
+  - Cancel and Done, invalid pairing;
+  - Pass Rider dependent with assistance, TripLink;
+  - Employee pass and coupon through Profile into booking.
+
+  Every earlier suite also passes. Accessibility passes in light and dark mode at 100% and 140% text.

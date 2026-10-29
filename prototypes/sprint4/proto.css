@@ -720,3 +720,19 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-skel { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--ads-border-subtle); border-radius: 12px; }
 .cpn-skel i { display: block; height: 12px; border-radius: 6px; background: var(--ads-background-surface-sunken); }
 .cpn-skel i:nth-child(1) { width: 55%; height: 14px; } .cpn-skel i:nth-child(2) { width: 80%; } .cpn-skel i:nth-child(3) { width: 40%; }
+
+/* ---------- Version 1 traveler details (familiar.js) ---------- */
+.fam-travelers { display: flex; flex-direction: column; gap: 8px; }
+.fam-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fam-card { display: flex; flex-direction: column; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); overflow: hidden; }
+.fam-card.has-error { border-color: var(--ads-border-error, #c0262d); }
+.fam-card__title { margin: 0; padding: 12px 14px 10px; font-size: 16px; font-weight: 600; color: var(--ads-content-text-primary); background: var(--ads-background-surface-sunken); }
+.fam-row { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-top: 1px solid var(--ads-border-subtle); }
+.fam-row__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.fam-row__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }
+.fam-row__acts { display: flex; gap: 2px; }
+.fam-row__value { color: var(--ads-content-text-primary); }
+.fam-card > .ads-helper--error { margin: 0; padding: 0 14px 12px; }
+.fam-counterr { display: flex; gap: 4px; margin-top: 4px; }
+.atl__row.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
+[data-theme="dark"] .assistbox .ads-helper--error { color: var(--ads-color-red-300); } /* 4.5:1 on the dark assistance box */

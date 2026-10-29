@@ -63,6 +63,15 @@ function assistProblems(b) {
   }
   return out;
 }
+// Errors that belong to one traveler (from the shared rules)
+function travelerError(b, t) {
+  if (assistCat(b, t.key) !== 'companion') return '';
+  const f = assistRec(b, t.key).m.for;
+  if (!f || assistCat(b, f) !== 'disability') return `${f ? travelerLabel(b, f) + ' no longer has a disability in assistance' : 'No traveler with a disability is chosen'}, so this traveler can’t be a personal companion. Edit their assistance, or remove it.`;
+  const first = travelerList(b).find(x => assistCat(b, x.key) === 'companion' && assistRec(b, x.key).m.for === f);
+  if (first && first.key !== t.key) return `${travelerLabel(b, f)} already has a personal companion (${first.label}). Each traveler with a disability may bring one.`;
+  return '';
+}
 // The type step's "Personal companion to" choice
 function companionFor(r, x, idp, e) {
   const b = D().booking, key = assistWho(r).key, opts = companionTargets(b, key);
@@ -74,7 +83,7 @@ function companionFor(r, x, idp, e) {
 function assistDiscount(b, key) {
   if (!['standard', 'personal'].includes(intentOf(b))) return null;
   const c = assistCat(b, key);
-  return c === 'disability' ? 'pwd' : c === 'companion' ? 'companion' : null;
+  return c === 'disability' ? 'pwd' : c === 'companion' && !travelerError(b, travelerList(b).find(t => t.key === key) || { key }) ? 'companion' : null; // only a valid pairing gets Companion
 }
 function assistLine(b, key) {
   const a = assistRec(b, key);
@@ -110,10 +119,11 @@ function assistTravelerList(b) {
     const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
     const state = !a.done ? 'No assistance requested' : c === 'none' ? 'No assistance needed' : items[0];
     const acts = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button>${a.done ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}" aria-label="Remove assistance for ${esc(t.label)}">Remove</button>` : ''}`;
-    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}</div><div class="atl__acts">${acts}</div></li>`;
+    const terr = travelerError(b, t);
+    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}${terr ? ' has-error' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}${terr ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(terr)}</span></span>` : ''}</div><div class="atl__acts">${acts}</div></li>`;
   }).join('');
-  const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert">${ic('alert-diamond')}<span>${esc(prob[0])}</span></p>` : '';
-  return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p><ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul>${err}</div>`;
+  const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert" tabindex="-1">${ic('alert-diamond')}<span>${prob.length > 1 ? `${prob.length} travelers need changes to their assistance.` : 'A traveler needs a change to their assistance.'} See below.</span></p>` : '';
+  return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p>${err}<ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul></div>`;
 }
 
 // ---------- Pass Rider eligibility (NMA-623, 1016, 1017) ----------

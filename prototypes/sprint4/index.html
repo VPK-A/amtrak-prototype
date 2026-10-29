@@ -2164,6 +2164,22 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-skel i { display: block; height: 12px; border-radius: 6px; background: var(--ads-background-surface-sunken); }
 .cpn-skel i:nth-child(1) { width: 55%; height: 14px; } .cpn-skel i:nth-child(2) { width: 80%; } .cpn-skel i:nth-child(3) { width: 40%; }
 
+/* ---------- Version 1 traveler details (familiar.js) ---------- */
+.fam-travelers { display: flex; flex-direction: column; gap: 8px; }
+.fam-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fam-card { display: flex; flex-direction: column; border: 1px solid var(--ads-border-subtle); border-radius: 12px; background: var(--ads-background-surface-default); overflow: hidden; }
+.fam-card.has-error { border-color: var(--ads-border-error, #c0262d); }
+.fam-card__title { margin: 0; padding: 12px 14px 10px; font-size: 16px; font-weight: 600; color: var(--ads-content-text-primary); background: var(--ads-background-surface-sunken); }
+.fam-row { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-top: 1px solid var(--ads-border-subtle); }
+.fam-row__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.fam-row__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }
+.fam-row__acts { display: flex; gap: 2px; }
+.fam-row__value { color: var(--ads-content-text-primary); }
+.fam-card > .ads-helper--error { margin: 0; padding: 0 14px 12px; }
+.fam-counterr { display: flex; gap: 4px; margin-top: 4px; }
+.atl__row.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
+[data-theme="dark"] .assistbox .ads-helper--error { color: var(--ads-color-red-300); } /* 4.5:1 on the dark assistance box */
+
 </style>
 </head>
 <body class="ads-root">
@@ -4304,7 +4320,8 @@ function navbar(o, ri, ctx) {
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
-    if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
+    if (o.close && !o.save) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
+    else if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-navbar__btn" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}<span>Back</span></button>`;
     if (ctx.showClose) trail = close;
@@ -4565,7 +4582,7 @@ function codeRowV1(b) {
   if (D().coupons.length) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const info = `<button class="ads-icon-btn ads-icon-btn--sm v1code__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
   if (b.pay === 'points') return `<div class="ads-group"><div class="ads-group__body v1code"><div class="ads-group__row">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : ''}</span></span></div>${info}</div></div>`;
-  if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Add a code', k: 'row-code' })}${info}</div></div>`;
+  if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: (() => { const n = D().signedIn ? D().coupons.filter(c => !c.lounge).length : 0; return n ? `Add a code · ${n} saved in My Coupons` : 'Add a code'; })(), k: 'row-code' })}${info}</div></div>`;
   return `<div class="ads-group"><div class="ads-group__body"><div class="ads-group__row v1code__applied">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">${esc(b.code.code)} · ${esc(b.code.kind)}${b.code.benefit ? `<br>${esc(b.code.benefit)}` : ''}<br>Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div></div></div>`;
 }
 // Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
@@ -4578,7 +4595,8 @@ function travelersRow(r, opts = {}) {
   const b = D().booking, it = intentOf(b);
   const label = it === 'corporate' ? '1 Adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
   const value = it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fares apply' : `Discounts: ${discSummary(b)}`;
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: esc(value), current: opts.open })]);
+  const err = r.u && r.u.showErr && assistProblems(b).length && V().entry === 'travelers' ? assistProblems(b)[0] : '';
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: esc(value), current: opts.open })]) + (err ? `<p class="ads-helper ads-helper--error" id="trav-err">${ic('alert-diamond')}<span>${esc(err)} Open Travelers to fix it.</span></p>` : '');
 }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
@@ -4596,14 +4614,15 @@ function modesV1(r, b) {
   if (!out.length) return '';
   return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${b.intent === 'corporate' ? q(12) : ''}</div>`;
 }
-function assistBlock(r, ri, host) {
+function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
   ref('973', '614');
   const intro = 'Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. One traveler with a disability may bring one personal companion.';
   let h = `<div class="assistbox"><label class="ads-choice ads-checkbox"><input type="checkbox" id="assist-on-${host}" data-a="assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="assist-intro-${host}"><span class="ads-choice__control"></span><span class="ads-choice__label"><span><b>Traveler with disability or need help?</b></span><span class="ads-choice__supporting" id="assist-intro-${host}">${intro}</span></span></label>`;
   if (b.assistOn) {
     const list = travelerList(b), t1 = list[0] || { key: firstKey(b), label: 'Traveler 1' };
-    if (list.length > 1) h += assistTravelerList(b);
+    if (o.noList) {} // Version 1 Traveler Selection shows assistance on each traveler's card
+    else if (list.length > 1) h += assistTravelerList(b);
     else if (b.assistDone) h += assistSummaryCard(b.assist, { title: esc(t1.label), edit: 'assist-edit', fromProfile: b.assistFromProfile, booking: true }).replace('data-a="assist-edit"', `data-a="assist-edit" data-t="${t1.key}"`);
     else h += `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t1.key}" style="align-self:flex-start">Answer for ${esc(t1.label)}</button>`;
   }
@@ -5407,7 +5426,12 @@ A['pr-type'] = t => { D().booking.prType = t.dataset.v; pendingFocus = `[data-a=
 // Find Trains: the shared checks, then Travel type and the discount code (format and rules the app can know; the rest is the back end's)
 const findTrainsBase = A['find-trains'];
 A['find-trains'] = (t, ri) => {
-  if (TB.v === 1) { const b = D().booking, r = routeAt(ri); if (intentOf(b) === 'pr' && !b.prType) { r.u.showErr = true; pendingFocus = '[data-a="pr-type"]'; render(); return; } return findTrainsBase(t, ri); }
+  if (TB.v === 1) {
+    const b = D().booking, r = routeAt(ri);
+    if (intentOf(b) === 'pr' && !b.prType) { r.u.showErr = true; pendingFocus = '[data-a="pr-type"]'; render(); return; }
+    if (assistProblems(b).length) { r.u.showErr = true; pendingFocus = '#atl-err, #trav-err'; render(); return; } // shown on the traveler rows
+    return findTrainsBase(t, ri);
+  }
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b), prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
   if (paxBad) { r.u.showErr = true; pendingFocus = '#ff-trav, [data-a="pick-travelers"]'; render(); return; }
@@ -5484,7 +5508,8 @@ function counter(k, label, sub, val, minusOk, plusOk, group, why, extra = '') {
 function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
-  if (!r.u.snap) r.u.snap = clone({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax });
+  const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 Adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -5502,7 +5527,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const counts = PAX.map(([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, k === 'infant' ? p.infant < MAX_PAX : seated < MAX_PAX, 'std', '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '')).join('');
+    const counts = PAX.map(([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, k === 'infant' ? p.infant < MAX_PAX : seated < MAX_PAX, 'std', fam && paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '')).join('');
     const limit = seated >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app; infants don’t count. For larger groups, call 1-800-USA-RAIL (1-800-872-7245).</span></p>` : '';
     const ratio = p.infant > p.adult + p.senior && !probs.length ? '<p class="ss-note">There are more infants than adults and seniors, so each extra infant needs a seat and pays the child fare.</p>' : '';
     why = probs.join(' ');
@@ -5515,13 +5540,14 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${assistBlock(r, ri, aHost)}
-      ${paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
+      ${fam ? assistBlock(r, ri, aHost, { noList: true }) + travelerCards(b) : assistBlock(r, ri, aHost)}
+      ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your Profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? assistBlock(r, ri, aHost, { noList: true }) + travelerCards(b) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler Selection with the same content
+  if (fam) return { title: 'Traveler Selection', kind: 'editor', cancelA: 'trav-cancel', close: true, banner: false, body: `<div class="travsel">${body}</div>`, foot };
   if (std) return { title: 'Traveler Selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling and any discounts.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
@@ -5897,6 +5923,15 @@ function assistProblems(b) {
   }
   return out;
 }
+// Errors that belong to one traveler (from the shared rules)
+function travelerError(b, t) {
+  if (assistCat(b, t.key) !== 'companion') return '';
+  const f = assistRec(b, t.key).m.for;
+  if (!f || assistCat(b, f) !== 'disability') return `${f ? travelerLabel(b, f) + ' no longer has a disability in assistance' : 'No traveler with a disability is chosen'}, so this traveler can’t be a personal companion. Edit their assistance, or remove it.`;
+  const first = travelerList(b).find(x => assistCat(b, x.key) === 'companion' && assistRec(b, x.key).m.for === f);
+  if (first && first.key !== t.key) return `${travelerLabel(b, f)} already has a personal companion (${first.label}). Each traveler with a disability may bring one.`;
+  return '';
+}
 // The type step's "Personal companion to" choice
 function companionFor(r, x, idp, e) {
   const b = D().booking, key = assistWho(r).key, opts = companionTargets(b, key);
@@ -5908,7 +5943,7 @@ function companionFor(r, x, idp, e) {
 function assistDiscount(b, key) {
   if (!['standard', 'personal'].includes(intentOf(b))) return null;
   const c = assistCat(b, key);
-  return c === 'disability' ? 'pwd' : c === 'companion' ? 'companion' : null;
+  return c === 'disability' ? 'pwd' : c === 'companion' && !travelerError(b, travelerList(b).find(t => t.key === key) || { key }) ? 'companion' : null; // only a valid pairing gets Companion
 }
 function assistLine(b, key) {
   const a = assistRec(b, key);
@@ -5944,10 +5979,11 @@ function assistTravelerList(b) {
     const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
     const state = !a.done ? 'No assistance requested' : c === 'none' ? 'No assistance needed' : items[0];
     const acts = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button>${a.done ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}" aria-label="Remove assistance for ${esc(t.label)}">Remove</button>` : ''}`;
-    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}</div><div class="atl__acts">${acts}</div></li>`;
+    const terr = travelerError(b, t);
+    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}${terr ? ' has-error' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}${terr ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(terr)}</span></span>` : ''}</div><div class="atl__acts">${acts}</div></li>`;
   }).join('');
-  const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert">${ic('alert-diamond')}<span>${esc(prob[0])}</span></p>` : '';
-  return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p><ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul>${err}</div>`;
+  const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert" tabindex="-1">${ic('alert-diamond')}<span>${prob.length > 1 ? `${prob.length} travelers need changes to their assistance.` : 'A traveler needs a change to their assistance.'} See below.</span></p>` : '';
+  return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p>${err}<ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul></div>`;
 }
 
 // ---------- Pass Rider eligibility (NMA-623, 1016, 1017) ----------
@@ -6441,6 +6477,82 @@ function couponInfo(code) {
   const st = couponState(c);
   return { title: c.name || c.kind, body: () => `<dl class="cpn-dl"><dt>Benefit</dt><dd>${esc(c.benefit)}</dd><dt>Type</dt><dd>${esc(c.kind)}</dd><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd><dt>Status</dt><dd>${st === 'used' ? 'Used' : st === 'expired' ? 'Expired' : 'Available'}</dd></dl>${st === 'used' ? `<h3 class="ads-h5">Uses</h3><ul class="cpn-uses">${[...c.uses].sort((x, y) => y.date.localeCompare(x.date)).map(u => `<li>Reservation ${u.pnr} · ${fmtDate(u.date)}</li>`).join('')}</ul>` : ''}<p class="info-draft">Eligibility and restrictions come with each coupon and are checked when you find trains. ${c.companion ? 'A companion coupon needs at least two travelers.' : ''}</p>` };
 }
+
+/* Sprint 4 prototype: Version 1 (Familiar) traveler details.
+   A conventional, explicit structure: one card per traveler with labeled rows for Discount, Assistance and,
+   where it applies, Personal companion. Errors sit on the traveler or field they belong to. Traveler
+   Selection is a standard modal step: Cancel undoes everything changed on it, Done keeps it.
+   The rules are the shared ones (travelers.js): assistance per traveler, one personal companion per traveler
+   with a disability, the Companion discount override, Pass Rider and TripLink travelers. */
+
+// Travelers who can be chosen as someone's personal companion: no other assistance request, not already a
+// companion to someone else (Q19: which passenger types may be companions is open)
+function companionCandidates(b, forKey) {
+  return travelerList(b).filter(t => {
+    if (t.key === forKey) return false;
+    const c = assistCat(b, t.key);
+    return !c || c === 'none' || (c === 'companion' && assistRec(b, t.key).m.for === forKey);
+  });
+}
+function discountRow(b, t, fromProfile) {
+  if (!['standard', 'personal'].includes(intentOf(b))) return famRow('Discount', intentOf(b) === 'pr' ? 'Pass Rider fare' : 'Not used for Corporate bookings', '');
+  const x = tdiscOf(b, { ...t, n: t.n }), opts = TDISC[t.type], fixed = !opts || ['pwd', 'companion'].includes(x);
+  const why = x === 'pwd' ? 'Set by assistance: this traveler has a disability.' : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Infants ride on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults and seniors, so this infant needs a seat and pays the child fare.' : 'One discount per traveler. Proof may be needed when you travel.';
+  const lock = t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : '';
+  if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
+  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
+}
+const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span>${actions ? `<span class="fam-row__acts">${actions}</span>` : ''}</div><span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>${help ? `<span class="ads-helper">${help}</span>` : ''}</div>`;
+function assistanceRow(b, t) {
+  const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
+  const value = !on ? 'None' : c === 'none' ? 'No assistance needed' : esc(items[0]);
+  const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
+  const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
+  const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
+  const tag = on && t.n === 1 && a.fromProfile ? ' <span class="ads-lock">From your Profile</span>' : '';
+  return famRow(`Assistance${tag}`, value, details, '', acts);
+}
+function companionRow(b, t) {
+  const c = assistCat(b, t.key);
+  if (c === 'companion') {
+    const f = assistRec(b, t.key).m.for;
+    return famRow('Personal companion', `Companion to <b>${esc(travelerLabel(b, f))}</b>`, 'To change this, edit this traveler’s assistance, or choose a different companion on their card.');
+  }
+  if (c !== 'disability') return '';
+  const cur = companionOf(b, t.key), opts = companionCandidates(b, t.key);
+  ref('615', '997');
+  return `<div class="fam-row"><label class="fam-row__label" for="cmp-${t.key}">Personal companion <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ads-control ads-control--select"><select id="cmp-${t.key}" data-f="cmp" data-nodirty data-hook="famcomp" data-for="${t.key}" aria-describedby="cmp-${t.key}-h"><option value="">No personal companion</option>${opts.map(o => `<option value="${o.key}" ${cur && cur.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div><p class="ads-helper" id="cmp-${t.key}-h">${opts.length ? 'A traveler with a disability may bring one personal companion. Their discount becomes Companion.' : 'Add another traveler without an assistance request to choose a personal companion.'} ${q(19)}</p></div>`;
+}
+function travelerCards(b) {
+  const d = D(), list = travelerList(b), fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
+  if (!list.length) return '';
+  const cards = list.map(t => {
+    const err = travelerError(b, t), id = `tc-${t.key}`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+  }).join('');
+  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3><ul class="fam-cards">${cards}</ul><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${q(7)}</section>`;
+}
+// Choosing a companion on the traveler with a disability's card
+HOOKS.famcomp = (r, t) => {
+  const b = D().booking, forKey = t.dataset.for, pick = t.value, cur = companionOf(b, forKey);
+  if (cur && cur.key !== pick) clearAssistRec(b, cur.key);
+  if (pick) { setAssistRec(b, pick, { cat: 'companion', for: forKey, dis: [], wc: null, needs: [] }); b.assistOn = true; }
+  pendingFocus = `#cmp-${forKey}`;
+  toast(pick ? `${travelerLabel(b, pick)} is now ${travelerLabel(b, forKey)}’s personal companion. Companion discount applies.` : `${travelerLabel(b, forKey)} has no personal companion`, pick ? 'success' : 'info');
+};
+// Errors on the counters they belong to (NMA-611 BR3, BR4); the rule itself is the shared one (Q10)
+function paxErrorFor(p, k) {
+  const grown = p.adult + p.senior;
+  if (k === 'youth' && p.youth && !grown) return 'Youths need an adult or senior on this booking.';
+  if ((k === 'child' || k === 'infant') && p[k] && !grown) return 'Children and infants need an adult 18 or older on this booking.';
+  return '';
+}
+// Cancel: put back everything Traveler Selection changed, including assistance
+A['trav-cancel'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, s = r.u.snap;
+  if (s) Object.assign(b, clone(s));
+  r.u.snap = null; popTo(+ri - 1); pendingFocus = '[data-a="pick-travelers"]'; render();
+};
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
