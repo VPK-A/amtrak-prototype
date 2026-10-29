@@ -5,6 +5,7 @@ Four directions for the same Sprint 4 scope, built on the ADS library and the Ap
 ## Opening and switching
 
 - **Open it:** the published artifact, or `prototypes/sprint4/index.html` in any browser. It's one self-contained file with no network calls.
+- **Controls and notes are hidden at first:** only the device shows. The round sliders button at the right edge (top right on phones) shows the title, the Prototype and Handoff switch, the toolbar and the screen notes together. Its label says whether it will show or hide them. *Hide controls and notes*, the same button, or Escape (outside the device) hides them again. Showing or hiding never changes the demo or the settings.
 - **Toolbar** (the dark strip above the device; it isn't part of the app):
   - **Version** 1 / 2 / 3. Each version keeps its own data, so a change in V1 doesn't show up in V2. Switching keeps the same place in the flow; if you're on Billing address in V1, you land on Billing address in V3.
   - **Device** and **Orientation:** iPhone or iPad, portrait or landscape. The place in the flow and the data are kept.
@@ -619,3 +620,18 @@ The densest of the four, without hiding anything required (`compact.js`).
   - Calendar suite, 43 checks on iPhone and iPad in all four versions: one month, the limits, next month, three fare levels, spoken prices, picking across months, the range, the end of the window, no route, Pass Rider, and points.
   - Accessibility in light and dark mode at 100% and 140% text.
   - The earlier suites, updated to page to later months.
+
+
+## Latest adjustments
+
+- **Version 2:** the whole booking modal is stone, including the strip behind the grabber and the bottom action bar; there's no lighter edge.
+- **Calendars:** the price numbers are gone and the shading stays. Each day's spoken label still gives the illustrative price and level, and the legend explains the shades (Q20).
+- **Pay with (Cash / Points)** sits lower in every version, below the booking modes:
+  - V1: at the end of the form.
+  - V2: a small card after the code card.
+  - V3: in *Codes and payment* at the bottom.
+  - V4: a compact row after the code row.
+
+  TripLink and Pass Rider choices stay at the top, because they change the whole booking.
+- **Version 1 station search** stays open until both stations are chosen, in either order, as in Version 3. A cleared Auto Train pair is explained in the search.
+- **Version 3:** the status box (*items to finish*, *ready*) is removed. Problems still show on each traveler's row.

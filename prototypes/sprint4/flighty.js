@@ -37,7 +37,6 @@ function ffFlighty(r, ri) {
   const ctx = [];
   if (member && d.triplink) ctx.push(flPill('intent', 'Booking for', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent));
   if (member && d.passrider) ctx.push(flPill('intent', 'Book as', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent));
-  if (member && std) ctx.push(flPill('pay', 'Pay with', [['cash', 'Cash'], ['points', 'Points']], b.pay));
   const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? '12,450 points available.' : 'One way or round trip, up to 8 travelers.';
   const head = `<div class="fl-head"><h3 class="fl-title" tabindex="-1" data-title>Find a train</h3>${ctx.length ? `<div class="fl-ctx">${ctx.join('')}</div>` : ''}<p class="fl-sub">${sub}${corp ? ' ' + q(12) : ''}</p>${b.modeNote ? `<p class="fl-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
   // Route, then trip type and dates
@@ -73,6 +72,8 @@ function ffFlighty(r, ri) {
         : flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'None', actions: info + flAct('push', 'Add', 'Add a coupon or promo code', 'data-s="code"') }));
     } else rows.push(flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Not available when paying with points', sub: b.code ? `Your code ${esc(b.code.code)} is kept for a cash search.` : '', muted: true }));
   } else rows.push(flRow({ icon: 'discount', label: 'Discounts, codes and points', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
+  // Pay with sits low in the list: a compact row after codes
+  if (member && std) rows.push(flRow({ icon: 'payment-points', label: 'Pay with', value: `<span class="fl-pill fl-pill--row"><span class="fl-pill__ctl"><select id="fl-pay" data-f="flmode" data-nodirty data-hook="flmode" data-key="pay" aria-label="Pay with">${[['cash', 'Cash'], ['points', 'Points · 12,450']].map(([v, l]) => `<option value="${v}" ${b.pay === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${ic('chevron-down', 'ads-icon--sm')}</span></span>` }));
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const offline = v.net === 'offline' ? `<div class="ads-banner fl-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;

@@ -68,7 +68,6 @@ function ffClear(r, ri) {
   let modes = '';
   if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
   if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent');
-  if (member && std) modes += ffcSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points']], b.pay, 'pay');
   const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : 'One way or round trip, up to 8 travelers.';
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
   const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New Booking</h3><p class="ffc-sub">${sub}</p>${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
@@ -94,9 +93,9 @@ function ffClear(r, ri) {
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Coupon or promo code' : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div></section>`;
+  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? (member ? 'Codes and payment' : 'Coupon or promo code') : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div>${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${overviewStatus(r, b)}${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
+  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Personal, Cash/Points
 A['ffc-set'] = t => {

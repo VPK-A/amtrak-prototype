@@ -550,7 +550,7 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs-cal .ads-day[aria-pressed="true"]::before { background: var(--ads-content-text-primary); }
 .gs-cal .ads-day[aria-pressed="true"] { color: var(--ads-background-surface-default); }
 .gs .assistbox { border-radius: 18px; }
-.pane--gs .pane__foot { background: var(--ads-background-surface-default); }
+.pane--gs .pane__foot { background: var(--ads-background-surface-sunken); border-top-color: var(--ads-border-subtle); }
 .gs-foot { display: flex; gap: 10px; align-items: center; }
 .gs-foot > .ads-btn--block, .gs-foot > .busyrow { flex: 1; }
 .gs-foot .ads-btn .ads-icon { margin-right: 6px; }
@@ -744,17 +744,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .info-layer:has(~ .dialog-layer) > .info-scrim { opacity: 0 !important; }
 
 /* ---------- Version 3 overview (overview.js) ---------- */
-.ov-status { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; margin-bottom: 12px; border-radius: 14px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
-.ov-status--ready { flex-direction: row; align-items: flex-start; gap: 10px; border-color: var(--ads-border-success, var(--ads-border-subtle)); }
-.ov-status--error { border-color: var(--ads-border-error, #c0262d); }
-.ov-status__icon { flex: none; color: var(--ads-content-icon-success, var(--ads-content-icon-brand)); }
-.ov-status__title { margin: 0; font-weight: 600; color: var(--ads-content-text-primary); }
-.ov-status__sub { margin: 2px 0 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ov-status__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.ov-status__item { display: flex; align-items: flex-start; gap: 6px; width: 100%; padding: 6px 4px; border: 0; border-radius: 8px; background: none; color: var(--ads-content-text-link); font: inherit; font-size: var(--ads-type-body-small-size); text-align: left; cursor: pointer; }
-.ov-status__item:hover { background: var(--ads-background-surface-hover); }
-.ov-status__item--error { color: var(--ads-content-text-error, #b20609); }
-.ov-status__item .ads-icon { flex: none; margin-top: 2px; }
 .ov-travs { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
 .ov-travs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .ov-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 14px; background: var(--ads-background-surface-default); }
@@ -811,8 +800,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-calendar--paged .ads-calendar__weekdays { position: static; }
 .ads-day__n { line-height: 1; }
 .ads-calendar__grid.has-fares { row-gap: 4px; }
-.ads-calendar__grid.has-fares .ads-day { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
-.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 1px 2px; border-radius: 10px; }
+.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 2px; border-radius: 10px; }
 .ads-day__p { font-size: 11px; line-height: 1; color: var(--ads-content-text-secondary); font-weight: 400; letter-spacing: -0.2px; }
 .ads-day--fare-low::before { background: var(--ads-background-status-success-subtle); }
 .ads-day--fare-high::before { background: var(--ads-background-status-warning-subtle); }
@@ -827,6 +815,27 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cal-key { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; color: var(--ads-content-text-primary); border: 1px solid var(--ads-border-subtle); }
 .cal-key--low { background: var(--ads-background-status-success-subtle); }
 .cal-key--high { background: var(--ads-background-status-warning-subtle); }
-.text-large .ads-calendar__grid.has-fares .ads-day { height: 64px; }
 .cal-pick > button { height: auto; min-height: 44px; padding: 6px 8px; white-space: normal; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .cal-pick__k { font-size: 12px; color: inherit; opacity: 0.8; }
+/* Guided: the whole booking modal is stone, including the grabber strip at the top (no lighter edge) */
+.psheet:has(> .psheet__panes > .pane--gs), .psheet:has(> .psheet__panes > .navstage .pane--gs) { background: var(--ads-background-surface-sunken); }
+/* Pay with, low in each Fare Finder */
+.gs--pay { padding: 12px 16px; }
+.gs-paybox .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+.ffc-pay { margin-top: 12px; }
+.ffc-pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+.v1pay { margin-top: 4px; }
+
+/* ---------- Prototype shell: collapsible header, controls and notes (chrome.js) ---------- */
+body.chrome-hidden .top, body.chrome-hidden .toolbar, body.chrome-hidden .notes { display: none; }
+body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
+.chrome-toggle { position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 50%; background: var(--ads-background-surface-raised); color: var(--ads-content-icon-secondary); box-shadow: var(--ads-shadow-elevation-sm); opacity: 0.8; cursor: pointer; transition: opacity 120ms, color 120ms; }
+.chrome-toggle:hover, .chrome-toggle:focus-visible { opacity: 1; color: var(--ads-content-icon-primary); }
+.chrome-toggle:focus-visible, .chrome-close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.chrome-toggle[aria-expanded="true"] { opacity: 1; background: var(--ads-background-surface-selected); color: var(--ads-content-icon-primary); }
+.chrome-close { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-left: auto; padding: 0 14px; border: 1px solid var(--ads-border-subtle); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+.chrome-close:hover { background: var(--ads-background-surface-hover); }
+/* Open on wider screens: keep a gutter on the right so the launcher never covers the notes or controls */
+@media (min-width: 701px) { body:not(.chrome-hidden) .main, body:not(.chrome-hidden) .top, body:not(.chrome-hidden) .toolbar { padding-right: 76px; } }
+/* Phones: the launcher sits top-right, above the device, so it doesn't cover the app's tab bar */
+@media (max-width: 700px) { .chrome-toggle { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); transform: none; width: 40px; height: 40px; } .chrome-close { margin-left: 0; } body.chrome-hidden .main { padding-top: 60px; } .top { padding-right: 60px; } }

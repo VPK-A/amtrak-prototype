@@ -32,7 +32,7 @@ function fareLevels(values) {
 const FARE_WORD = { low: 'lower fare', mid: 'typical fare', high: 'higher fare' };
 function fareLegend(mode) {
   if (mode.kind === 'none') return `<p class="cal-legend cal-legend--none">${esc(mode.why)}</p>`;
-  return `<div class="cal-legend"><span class="cal-legend__keys"><span class="cal-key cal-key--low">Lower</span><span class="cal-key cal-key--mid">Typical</span><span class="cal-key cal-key--high">Higher</span></span><span class="cal-legend__note">Lowest Coach fare per traveler, one way${mode.kind === 'points' ? ', in points' : ''}. Illustrative prices, not live fares. ${q(20)}</span></div>`;
+  return `<div class="cal-legend"><span class="cal-legend__keys"><span class="cal-key cal-key--low">Lower</span><span class="cal-key cal-key--mid">Typical</span><span class="cal-key cal-key--high">Higher</span></span><span class="cal-legend__note">Shading compares the lowest Coach fare per traveler, one way${mode.kind === 'points' ? ' (in points)' : ''}, across the month. Illustrative prices, not live fares. ${q(20)}</span></div>`;
 }
 // Month navigation (one month at a time)
 const monthKey = s => s.slice(0, 7);

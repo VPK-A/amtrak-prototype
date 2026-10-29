@@ -137,7 +137,7 @@ SCR.ff = (r, ri) => {
   if (v2()) return ffGuided(r, ri);
   ref('613');
   const std = ['standard', 'personal'].includes(intentOf(b));
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? payV1(b) + codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -232,7 +232,7 @@ SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
-  const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
+  const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus', body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
 };
@@ -253,7 +253,9 @@ A['choose-station'] = (t, ri) => {
   else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
   if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
   // V2 and V3 keep going: after From, they open To straight away (no needless return to the form)
-  if ((v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  if ((v1() || v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  // Version 1 stays in station search until both stations are chosen, in either order
+  if (v1() && f === 'to' && !b.from) { replaceTop('stations', { field: 'from' }); pendingFocus = '#ss-q'; render(); return; }
   popTo(+ri - 1); pendingFocus = `#ff-${f}`; render();
 };
 
@@ -285,7 +287,7 @@ function calendarBody(r, ri, field) {
     const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : '', lv ? `ads-day--fare-${lv}` : ''].filter(Boolean).join(' ');
     const price = f != null ? `, ${mode.kind === 'points' ? fareText(f, 'points') + ' points' : 'from ' + fareText(f, 'cash')}, ${FARE_WORD[lv]}` : '';
     const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : price}`;
-    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span>${f != null ? `<span class="ads-day__p" aria-hidden="true">${fareText(f, mode.kind)}</span>` : ''}</button>`;
+    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span></button>`; // price shown by shading only; the label still says it
   };
   const title = m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);

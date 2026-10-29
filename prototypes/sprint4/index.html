@@ -1993,7 +1993,7 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs-cal .ads-day[aria-pressed="true"]::before { background: var(--ads-content-text-primary); }
 .gs-cal .ads-day[aria-pressed="true"] { color: var(--ads-background-surface-default); }
 .gs .assistbox { border-radius: 18px; }
-.pane--gs .pane__foot { background: var(--ads-background-surface-default); }
+.pane--gs .pane__foot { background: var(--ads-background-surface-sunken); border-top-color: var(--ads-border-subtle); }
 .gs-foot { display: flex; gap: 10px; align-items: center; }
 .gs-foot > .ads-btn--block, .gs-foot > .busyrow { flex: 1; }
 .gs-foot .ads-btn .ads-icon { margin-right: 6px; }
@@ -2187,17 +2187,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .info-layer:has(~ .dialog-layer) > .info-scrim { opacity: 0 !important; }
 
 /* ---------- Version 3 overview (overview.js) ---------- */
-.ov-status { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; margin-bottom: 12px; border-radius: 14px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
-.ov-status--ready { flex-direction: row; align-items: flex-start; gap: 10px; border-color: var(--ads-border-success, var(--ads-border-subtle)); }
-.ov-status--error { border-color: var(--ads-border-error, #c0262d); }
-.ov-status__icon { flex: none; color: var(--ads-content-icon-success, var(--ads-content-icon-brand)); }
-.ov-status__title { margin: 0; font-weight: 600; color: var(--ads-content-text-primary); }
-.ov-status__sub { margin: 2px 0 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ov-status__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.ov-status__item { display: flex; align-items: flex-start; gap: 6px; width: 100%; padding: 6px 4px; border: 0; border-radius: 8px; background: none; color: var(--ads-content-text-link); font: inherit; font-size: var(--ads-type-body-small-size); text-align: left; cursor: pointer; }
-.ov-status__item:hover { background: var(--ads-background-surface-hover); }
-.ov-status__item--error { color: var(--ads-content-text-error, #b20609); }
-.ov-status__item .ads-icon { flex: none; margin-top: 2px; }
 .ov-travs { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
 .ov-travs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .ov-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 14px; background: var(--ads-background-surface-default); }
@@ -2254,8 +2243,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-calendar--paged .ads-calendar__weekdays { position: static; }
 .ads-day__n { line-height: 1; }
 .ads-calendar__grid.has-fares { row-gap: 4px; }
-.ads-calendar__grid.has-fares .ads-day { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
-.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 1px 2px; border-radius: 10px; }
+.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 2px; border-radius: 10px; }
 .ads-day__p { font-size: 11px; line-height: 1; color: var(--ads-content-text-secondary); font-weight: 400; letter-spacing: -0.2px; }
 .ads-day--fare-low::before { background: var(--ads-background-status-success-subtle); }
 .ads-day--fare-high::before { background: var(--ads-background-status-warning-subtle); }
@@ -2270,24 +2258,47 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cal-key { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; color: var(--ads-content-text-primary); border: 1px solid var(--ads-border-subtle); }
 .cal-key--low { background: var(--ads-background-status-success-subtle); }
 .cal-key--high { background: var(--ads-background-status-warning-subtle); }
-.text-large .ads-calendar__grid.has-fares .ads-day { height: 64px; }
 .cal-pick > button { height: auto; min-height: 44px; padding: 6px 8px; white-space: normal; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .cal-pick__k { font-size: 12px; color: inherit; opacity: 0.8; }
+/* Guided: the whole booking modal is stone, including the grabber strip at the top (no lighter edge) */
+.psheet:has(> .psheet__panes > .pane--gs), .psheet:has(> .psheet__panes > .navstage .pane--gs) { background: var(--ads-background-surface-sunken); }
+/* Pay with, low in each Fare Finder */
+.gs--pay { padding: 12px 16px; }
+.gs-paybox .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+.ffc-pay { margin-top: 12px; }
+.ffc-pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
+.v1pay { margin-top: 4px; }
+
+/* ---------- Prototype shell: collapsible header, controls and notes (chrome.js) ---------- */
+body.chrome-hidden .top, body.chrome-hidden .toolbar, body.chrome-hidden .notes { display: none; }
+body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
+.chrome-toggle { position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 50%; background: var(--ads-background-surface-raised); color: var(--ads-content-icon-secondary); box-shadow: var(--ads-shadow-elevation-sm); opacity: 0.8; cursor: pointer; transition: opacity 120ms, color 120ms; }
+.chrome-toggle:hover, .chrome-toggle:focus-visible { opacity: 1; color: var(--ads-content-icon-primary); }
+.chrome-toggle:focus-visible, .chrome-close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.chrome-toggle[aria-expanded="true"] { opacity: 1; background: var(--ads-background-surface-selected); color: var(--ads-content-icon-primary); }
+.chrome-close { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-left: auto; padding: 0 14px; border: 1px solid var(--ads-border-subtle); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 14px; cursor: pointer; }
+.chrome-close:hover { background: var(--ads-background-surface-hover); }
+/* Open on wider screens: keep a gutter on the right so the launcher never covers the notes or controls */
+@media (min-width: 701px) { body:not(.chrome-hidden) .main, body:not(.chrome-hidden) .top, body:not(.chrome-hidden) .toolbar { padding-right: 76px; } }
+/* Phones: the launcher sits top-right, above the device, so it doesn't cover the app's tab bar */
+@media (max-width: 700px) { .chrome-toggle { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); transform: none; width: 40px; height: 40px; } .chrome-close { margin-left: 0; } body.chrome-hidden .main { padding-top: 60px; } .top { padding-right: 60px; } }
 
 </style>
 </head>
-<body class="ads-root">
-<div class="top">
+<body class="ads-root chrome-hidden">
+<button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoHeader protoControls protoNotes" aria-label="Show prototype controls and notes" title="Show prototype controls and notes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+<section class="top" id="protoHeader" aria-label="About this prototype">
   <h1>Amtrak app · Sprint 4 exploration</h1>
   <p>Four directions, one scope and one App Shell IA, all built with ADS components. Mock data only: nothing is saved or sent.</p>
   <div class="viewtabs" role="tablist" aria-label="View" id="viewTabs">
     <button type="button" role="tab" data-v="proto" aria-selected="true" aria-controls="protoView">Prototype</button>
     <button type="button" role="tab" data-v="handoff" aria-selected="false" aria-controls="handoffView">Handoff</button>
   </div>
-</div>
+  <button class="chrome-close" type="button" id="chromeClose"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Hide controls and notes</button>
+</section>
 
 <div id="protoView" role="tabpanel">
-  <section class="toolbar" aria-label="Prototype controls (not part of the app)">
+  <section class="toolbar" id="protoControls" aria-label="Prototype controls (not part of the app)">
     <div class="tb"><span id="lbV">Version</span><div class="tbseg" id="tbVersion" role="group" aria-labelledby="lbV"><button type="button" data-v="1" aria-pressed="true">1 · Familiar</button><button type="button" data-v="2" aria-pressed="false">2 · Guided</button><button type="button" data-v="3" aria-pressed="false">3 · Overview</button><button type="button" data-v="4" aria-pressed="false">4 · Compact</button></div></div>
     <div class="tb"><span id="lbD">Device</span><div class="tbseg" id="tbDevice" role="group" aria-labelledby="lbD"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="tb"><span id="lbO">Orientation</span><div class="tbseg" id="tbOrient" role="group" aria-labelledby="lbO"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
@@ -2306,7 +2317,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
   </section>
   <div class="main">
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
-    <aside class="notes" aria-label="Screen notes">
+    <aside class="notes" id="protoNotes" aria-label="Screen notes">
       <h2>Screen notes</h2>
       <p class="scdesc" id="scDesc"></p>
       <div id="notes" aria-live="polite"></div>
@@ -2326,6 +2337,13 @@ landscape.</p>
 <li><strong>Open it:</strong> the published artifact, or
 <code>prototypes/sprint4/index.html</code> in any browser. It's one
 self-contained file with no network calls.</li>
+<li><strong>Controls and notes are hidden at first:</strong> only the
+device shows. The round sliders button at the right edge (top right on
+phones) shows the title, the Prototype and Handoff switch, the toolbar
+and the screen notes together. Its label says whether it will show or
+hide them. <em>Hide controls and notes</em>, the same button, or Escape
+(outside the device) hides them again. Showing or hiding never changes
+the demo or the settings.</li>
 <li><strong>Toolbar</strong> (the dark strip above the device; it isn't
 part of the app):
 <ul>
@@ -4151,6 +4169,31 @@ Rider, and points.</li>
 <li>The earlier suites, updated to page to later months.</li>
 </ul></li>
 </ul>
+<h2 id="latest-adjustments">Latest adjustments</h2>
+<ul>
+<li><p><strong>Version 2:</strong> the whole booking modal is stone,
+including the strip behind the grabber and the bottom action bar;
+there's no lighter edge.</p></li>
+<li><p><strong>Calendars:</strong> the price numbers are gone and the
+shading stays. Each day's spoken label still gives the illustrative
+price and level, and the legend explains the shades (Q20).</p></li>
+<li><p><strong>Pay with (Cash / Points)</strong> sits lower in every
+version, below the booking modes:</p>
+<ul>
+<li>V1: at the end of the form.</li>
+<li>V2: a small card after the code card.</li>
+<li>V3: in <em>Codes and payment</em> at the bottom.</li>
+<li>V4: a compact row after the code row.</li>
+</ul>
+<p>TripLink and Pass Rider choices stay at the top, because they change
+the whole booking.</p></li>
+<li><p><strong>Version 1 station search</strong> stays open until both
+stations are chosen, in either order, as in Version 3. A cleared Auto
+Train pair is explained in the search.</p></li>
+<li><p><strong>Version 3:</strong> the status box (<em>items to
+finish</em>, <em>ready</em>) is removed. Problems still show on each
+traveler's row.</p></li>
+</ul>
 
   </article>
 </div>
@@ -4974,7 +5017,7 @@ SCR.ff = (r, ri) => {
   if (v2()) return ffGuided(r, ri);
   ref('613');
   const std = ['standard', 'personal'].includes(intentOf(b));
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? payV1(b) + codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -5069,7 +5112,7 @@ SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
-  const why = v2() && D().booking.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
+  const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus', body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
 };
@@ -5090,7 +5133,9 @@ A['choose-station'] = (t, ri) => {
   else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
   if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
   // V2 and V3 keep going: after From, they open To straight away (no needless return to the form)
-  if ((v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  if ((v1() || v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
+  // Version 1 stays in station search until both stations are chosen, in either order
+  if (v1() && f === 'to' && !b.from) { replaceTop('stations', { field: 'from' }); pendingFocus = '#ss-q'; render(); return; }
   popTo(+ri - 1); pendingFocus = `#ff-${f}`; render();
 };
 
@@ -5122,7 +5167,7 @@ function calendarBody(r, ri, field) {
     const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : '', lv ? `ads-day--fare-${lv}` : ''].filter(Boolean).join(' ');
     const price = f != null ? `, ${mode.kind === 'points' ? fareText(f, 'points') + ' points' : 'from ' + fareText(f, 'cash')}, ${FARE_WORD[lv]}` : '';
     const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : price}`;
-    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span>${f != null ? `<span class="ads-day__p" aria-hidden="true">${fareText(f, mode.kind)}</span>` : ''}</button>`;
+    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span></button>`; // price shown by shading only; the label still says it
   };
   const title = m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
@@ -5682,7 +5727,7 @@ function fareLevels(values) {
 const FARE_WORD = { low: 'lower fare', mid: 'typical fare', high: 'higher fare' };
 function fareLegend(mode) {
   if (mode.kind === 'none') return `<p class="cal-legend cal-legend--none">${esc(mode.why)}</p>`;
-  return `<div class="cal-legend"><span class="cal-legend__keys"><span class="cal-key cal-key--low">Lower</span><span class="cal-key cal-key--mid">Typical</span><span class="cal-key cal-key--high">Higher</span></span><span class="cal-legend__note">Lowest Coach fare per traveler, one way${mode.kind === 'points' ? ', in points' : ''}. Illustrative prices, not live fares. ${q(20)}</span></div>`;
+  return `<div class="cal-legend"><span class="cal-legend__keys"><span class="cal-key cal-key--low">Lower</span><span class="cal-key cal-key--mid">Typical</span><span class="cal-key cal-key--high">Higher</span></span><span class="cal-legend__note">Shading compares the lowest Coach fare per traveler, one way${mode.kind === 'points' ? ' (in points)' : ''}, across the month. Illustrative prices, not live fares. ${q(20)}</span></div>`;
 }
 // Month navigation (one month at a time)
 const monthKey = s => s.slice(0, 7);
@@ -5761,7 +5806,6 @@ function ffClear(r, ri) {
   let modes = '';
   if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
   if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent');
-  if (member && std) modes += ffcSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points']], b.pay, 'pay');
   const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : 'One way or round trip, up to 8 travelers.';
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
   const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New Booking</h3><p class="ffc-sub">${sub}</p>${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
@@ -5787,9 +5831,9 @@ function ffClear(r, ri) {
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Coupon or promo code' : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div></section>`;
+  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? (member ? 'Codes and payment' : 'Coupon or promo code') : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div>${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${overviewStatus(r, b)}${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
+  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Personal, Cash/Points
 A['ffc-set'] = t => {
@@ -6052,7 +6096,6 @@ function ffFlighty(r, ri) {
   const ctx = [];
   if (member && d.triplink) ctx.push(flPill('intent', 'Booking for', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent));
   if (member && d.passrider) ctx.push(flPill('intent', 'Book as', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent));
-  if (member && std) ctx.push(flPill('pay', 'Pay with', [['cash', 'Cash'], ['points', 'Points']], b.pay));
   const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? '12,450 points available.' : 'One way or round trip, up to 8 travelers.';
   const head = `<div class="fl-head"><h3 class="fl-title" tabindex="-1" data-title>Find a train</h3>${ctx.length ? `<div class="fl-ctx">${ctx.join('')}</div>` : ''}<p class="fl-sub">${sub}${corp ? ' ' + q(12) : ''}</p>${b.modeNote ? `<p class="fl-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
   // Route, then trip type and dates
@@ -6088,6 +6131,8 @@ function ffFlighty(r, ri) {
         : flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'None', actions: info + flAct('push', 'Add', 'Add a coupon or promo code', 'data-s="code"') }));
     } else rows.push(flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Not available when paying with points', sub: b.code ? `Your code ${esc(b.code.code)} is kept for a cash search.` : '', muted: true }));
   } else rows.push(flRow({ icon: 'discount', label: 'Discounts, codes and points', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
+  // Pay with sits low in the list: a compact row after codes
+  if (member && std) rows.push(flRow({ icon: 'payment-points', label: 'Pay with', value: `<span class="fl-pill fl-pill--row"><span class="fl-pill__ctl"><select id="fl-pay" data-f="flmode" data-nodirty data-hook="flmode" data-key="pay" aria-label="Pay with">${[['cash', 'Cash'], ['points', 'Points · 12,450']].map(([v, l]) => `<option value="${v}" ${b.pay === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${ic('chevron-down', 'ads-icon--sm')}</span></span>` }));
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const offline = v.net === 'offline' ? `<div class="ads-banner fl-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;
@@ -6165,7 +6210,6 @@ function ffGuided(r, ri) {
   const modes = [];
   if (member && d.triplink) modes.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent'));
   if (member && d.passrider) modes.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent'));
-  if (member && std) modes.push(gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay'));
   const top = modes.length || b.modeNote ? `<div class="gs-top">${modes.join('')}${b.modeNote ? `<p class="gs-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${corp ? q(12) : ''}</div>` : '';
   const content = {
     where: () => {
@@ -6204,7 +6248,7 @@ function ffGuided(r, ri) {
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const nextK = r.u.open && GS[GS.indexOf(r.u.open) + 1];
   const foot = `<div class="gs-foot">${nextK ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="gs-next" aria-label="Next: ${GS_LABEL[nextK]}">Next</button>` : ''}${r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block" type="button" data-a="find-trains">${ic('search')}Find Trains</button>`}</div>`;
-  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}</div>${netAlert(r)}`, foot };
+  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}${member && std ? `<section class="gs gs--pay" aria-label="Payment"><div class="gs-paybox">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay')}</div></section>` : ''}</div>${netAlert(r)}`, foot };
 }
 A['gs-open'] = (t, ri) => { const r = routeAt(ri); r.u.open = t.dataset.k; pendingFocus = `#gs-${t.dataset.k}-q`; render(); };
 A['gs-next'] = (t, ri) => { const r = routeAt(ri), n = GS[GS.indexOf(r.u.open) + 1]; if (n) { r.u.open = n; pendingFocus = `#gs-${n}-q`; render(); } };
@@ -6952,8 +6996,6 @@ A['trav-cancel'] = (t, ri) => {
 };
 
 /* Sprint 4 prototype: Version 3 (Overview). The Fare Finder is the overview of the whole booking:
-   - a status strip says whether the booking is ready, or lists what needs attention, each item linked to
-     the field or traveler it belongs to;
    - a Travelers overview shows every traveler with their discount, assistance and companion pairing, each
      editable on its own;
    - booking as Pass Rider, an eligibility card shows role, travel type, companion passes and the
@@ -6961,38 +7003,6 @@ A['trav-cancel'] = (t, ri) => {
    Editing a traveler opens one sheet level (no extra layers). It changes the booking live so the overview
    updates at once; Cancel puts back what that sheet changed, Done keeps it. Assistance opens inside the same
    sheet and returns to that traveler. */
-
-// What still needs attention, in reading order. tone: 'todo' (not done yet) or 'error' (needs a change)
-function overviewIssues(r, b) {
-  const d = D(), out = [], it = intentOf(b), e = ffErrors(b), list = travelerList(b);
-  if (!b.from) out.push({ text: 'Choose a departure station', target: '#ff-from', tone: 'todo' });
-  if (!b.to) out.push({ text: 'Choose an arrival station', target: '#ff-to', tone: 'todo' });
-  if (e.ret) out.push({ text: e.ret, target: '#ff-ret', tone: 'error' });
-  if (it === 'pr' && !b.prType) out.push({ text: 'Choose Business or Leisure travel', target: '[data-a="pr-type"]', tone: 'todo' });
-  if (it === 'pr' && !prCanStart(d).ok) out.push({ text: prCanStart(d).text, target: '[data-a="ffc-set"][data-key="intent"][data-v="personal"]', tone: 'error' });
-  if (['standard', 'personal'].includes(it)) paxProblems(b.pax).forEach(t => out.push({ text: t, target: '#ff-trav', tone: 'error' }));
-  list.forEach(t => { const er = travelerError(b, t); if (er) out.push({ text: `${t.label}: personal companion needs a change`, target: `[data-a="ov-traveler"][data-t="${t.key}"]`, tone: 'error' }); });
-  if (b.assistOn && list.length && !list.some(t => assistRec(b, t.key).done)) out.push({ text: 'Assistance is on, but no traveler has answered yet', target: `[data-a="ov-traveler"][data-t="${list[0].key}"]`, tone: 'todo' });
-  if (b.codeErr) out.push({ text: b.codeErr, target: '#ffc-code-err', tone: 'error' });
-  return out;
-}
-function overviewStatus(r, b) {
-  const issues = overviewIssues(r, b);
-  if (!issues.length) {
-    const n = travelerList(b).length;
-    return `<div class="ov-status ov-status--ready" role="status">${ic('check-circle', 'ov-status__icon')}<div><p class="ov-status__title">Ready to find trains</p><p class="ov-status__sub">${b.trip === 'rt' ? 'Round-trip' : 'One-way'} · ${b.from} → ${b.to} · ${fmtShortY(b.dep)}${b.trip === 'rt' && b.ret ? ` – ${fmtShortY(b.ret)}` : ''} · ${n} traveler${n > 1 ? 's' : ''}</p></div></div>`;
-  }
-  const errs = issues.filter(x => x.tone === 'error').length;
-  return `<div class="ov-status${errs ? ' ov-status--error' : ''}" role="status" aria-labelledby="ov-st-h"><p class="ov-status__title" id="ov-st-h">${issues.length} ${issues.length > 1 ? 'items' : 'item'} ${errs ? (issues.length > 1 ? 'need' : 'needs') + ' attention' : 'to finish'}</p><ul class="ov-status__list">${issues.map(x => `<li><button class="ov-status__item ov-status__item--${x.tone}" type="button" data-a="ov-go" data-target="${esc(x.target)}">${ic(x.tone === 'error' ? 'alert-diamond' : 'chevron-right', 'ads-icon--sm')}<span>${esc(x.text)}</span></button></li>`).join('')}</ul></div>`;
-}
-// Go to an item: scroll only the booking content (not the sheet or device around it), then focus it
-A['ov-go'] = t => {
-  pendingFocus = null; render();
-  const el = $(t.dataset.target, devEl()); if (!el) return;
-  const sc = el.closest('.pane__scroll');
-  if (sc) sc.scrollTo({ top: sc.scrollTop + el.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientHeight / 3, behavior: motionOff() ? 'auto' : 'smooth' });
-  el.focus({ preventScroll: true });
-};
 
 // Travelers overview: one row per traveler, with discount, assistance and companion at a glance
 function overviewTravelers(r, ri, b) {
@@ -7096,6 +7106,27 @@ INFO.assistance = {
   title: 'Assistance',
   body: () => `<p>Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. Answer for each traveler who needs help; the others can stay without answers.</p><p>One traveler with a disability may bring one personal companion, who gets the Companion discount.</p><p>Answering the questions for the first time needs a connection. After that you can finish or review them offline. Finding trains needs a connection.</p><p class="info-draft">Final explanation text comes from AEM (NMA-973 AC2).</p>`
 };
+
+/* Sprint 4 prototype shell (not part of the app): the header, control panel and screen notes are hidden by
+   default and shown together from a floating launcher. Showing or hiding them never touches the demo state. */
+function setChrome(open, moveFocus = true) {
+  const btn = $('#chromeToggle'), label = open ? 'Hide prototype controls and notes' : 'Show prototype controls and notes';
+  document.body.classList.toggle('chrome-hidden', !open);
+  btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-label', label); btn.title = label;
+  // With the panel hidden only the device shows, so the Prototype view comes back if Handoff was open
+  if (!open && TB.tab !== 'proto') $('#viewTabs [data-v="proto"]').click();
+  scaleDevice();
+  if (moveFocus) (open ? $('#chromeClose') : btn).focus();
+}
+$('#chromeToggle').addEventListener('click', () => setChrome(document.body.classList.contains('chrome-hidden')));
+$('#chromeClose').addEventListener('click', () => setChrome(false));
+// Escape hides them, unless the key belongs to the app inside the device (sheets, dialogs)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.defaultPrevented || document.body.classList.contains('chrome-hidden')) return;
+  if ($('#device').contains(e.target)) return;
+  setChrome(false);
+});
+setChrome(false, false);
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

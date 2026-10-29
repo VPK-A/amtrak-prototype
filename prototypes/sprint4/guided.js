@@ -55,7 +55,6 @@ function ffGuided(r, ri) {
   const modes = [];
   if (member && d.triplink) modes.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent'));
   if (member && d.passrider) modes.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent'));
-  if (member && std) modes.push(gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay'));
   const top = modes.length || b.modeNote ? `<div class="gs-top">${modes.join('')}${b.modeNote ? `<p class="gs-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${corp ? q(12) : ''}</div>` : '';
   const content = {
     where: () => {
@@ -94,7 +93,7 @@ function ffGuided(r, ri) {
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const nextK = r.u.open && GS[GS.indexOf(r.u.open) + 1];
   const foot = `<div class="gs-foot">${nextK ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="gs-next" aria-label="Next: ${GS_LABEL[nextK]}">Next</button>` : ''}${r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block" type="button" data-a="find-trains">${ic('search')}Find Trains</button>`}</div>`;
-  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}</div>${netAlert(r)}`, foot };
+  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}${member && std ? `<section class="gs gs--pay" aria-label="Payment"><div class="gs-paybox">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay')}</div></section>` : ''}</div>${netAlert(r)}`, foot };
 }
 A['gs-open'] = (t, ri) => { const r = routeAt(ri); r.u.open = t.dataset.k; pendingFocus = `#gs-${t.dataset.k}-q`; render(); };
 A['gs-next'] = (t, ri) => { const r = routeAt(ri), n = GS[GS.indexOf(r.u.open) + 1]; if (n) { r.u.open = n; pendingFocus = `#gs-${n}-q`; render(); } };

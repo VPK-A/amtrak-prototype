@@ -1,6 +1,4 @@
 /* Sprint 4 prototype: Version 3 (Overview). The Fare Finder is the overview of the whole booking:
-   - a status strip says whether the booking is ready, or lists what needs attention, each item linked to
-     the field or traveler it belongs to;
    - a Travelers overview shows every traveler with their discount, assistance and companion pairing, each
      editable on its own;
    - booking as Pass Rider, an eligibility card shows role, travel type, companion passes and the
@@ -8,38 +6,6 @@
    Editing a traveler opens one sheet level (no extra layers). It changes the booking live so the overview
    updates at once; Cancel puts back what that sheet changed, Done keeps it. Assistance opens inside the same
    sheet and returns to that traveler. */
-
-// What still needs attention, in reading order. tone: 'todo' (not done yet) or 'error' (needs a change)
-function overviewIssues(r, b) {
-  const d = D(), out = [], it = intentOf(b), e = ffErrors(b), list = travelerList(b);
-  if (!b.from) out.push({ text: 'Choose a departure station', target: '#ff-from', tone: 'todo' });
-  if (!b.to) out.push({ text: 'Choose an arrival station', target: '#ff-to', tone: 'todo' });
-  if (e.ret) out.push({ text: e.ret, target: '#ff-ret', tone: 'error' });
-  if (it === 'pr' && !b.prType) out.push({ text: 'Choose Business or Leisure travel', target: '[data-a="pr-type"]', tone: 'todo' });
-  if (it === 'pr' && !prCanStart(d).ok) out.push({ text: prCanStart(d).text, target: '[data-a="ffc-set"][data-key="intent"][data-v="personal"]', tone: 'error' });
-  if (['standard', 'personal'].includes(it)) paxProblems(b.pax).forEach(t => out.push({ text: t, target: '#ff-trav', tone: 'error' }));
-  list.forEach(t => { const er = travelerError(b, t); if (er) out.push({ text: `${t.label}: personal companion needs a change`, target: `[data-a="ov-traveler"][data-t="${t.key}"]`, tone: 'error' }); });
-  if (b.assistOn && list.length && !list.some(t => assistRec(b, t.key).done)) out.push({ text: 'Assistance is on, but no traveler has answered yet', target: `[data-a="ov-traveler"][data-t="${list[0].key}"]`, tone: 'todo' });
-  if (b.codeErr) out.push({ text: b.codeErr, target: '#ffc-code-err', tone: 'error' });
-  return out;
-}
-function overviewStatus(r, b) {
-  const issues = overviewIssues(r, b);
-  if (!issues.length) {
-    const n = travelerList(b).length;
-    return `<div class="ov-status ov-status--ready" role="status">${ic('check-circle', 'ov-status__icon')}<div><p class="ov-status__title">Ready to find trains</p><p class="ov-status__sub">${b.trip === 'rt' ? 'Round-trip' : 'One-way'} · ${b.from} → ${b.to} · ${fmtShortY(b.dep)}${b.trip === 'rt' && b.ret ? ` – ${fmtShortY(b.ret)}` : ''} · ${n} traveler${n > 1 ? 's' : ''}</p></div></div>`;
-  }
-  const errs = issues.filter(x => x.tone === 'error').length;
-  return `<div class="ov-status${errs ? ' ov-status--error' : ''}" role="status" aria-labelledby="ov-st-h"><p class="ov-status__title" id="ov-st-h">${issues.length} ${issues.length > 1 ? 'items' : 'item'} ${errs ? (issues.length > 1 ? 'need' : 'needs') + ' attention' : 'to finish'}</p><ul class="ov-status__list">${issues.map(x => `<li><button class="ov-status__item ov-status__item--${x.tone}" type="button" data-a="ov-go" data-target="${esc(x.target)}">${ic(x.tone === 'error' ? 'alert-diamond' : 'chevron-right', 'ads-icon--sm')}<span>${esc(x.text)}</span></button></li>`).join('')}</ul></div>`;
-}
-// Go to an item: scroll only the booking content (not the sheet or device around it), then focus it
-A['ov-go'] = t => {
-  pendingFocus = null; render();
-  const el = $(t.dataset.target, devEl()); if (!el) return;
-  const sc = el.closest('.pane__scroll');
-  if (sc) sc.scrollTo({ top: sc.scrollTop + el.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientHeight / 3, behavior: motionOff() ? 'auto' : 'smooth' });
-  el.focus({ preventScroll: true });
-};
 
 // Travelers overview: one row per traveler, with discount, assistance and companion at a glance
 function overviewTravelers(r, ri, b) {
