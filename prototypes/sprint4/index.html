@@ -3836,6 +3836,56 @@ the criteria above in all four versions.</li>
 text.</li>
 </ul></li>
 </ul>
+<h2 id="version-1-familiar-refinement">Version 1 (Familiar)
+refinement</h2>
+<p>The most conventional of the four: a standard booking form, a modal
+Traveler Selection step and labeled fields.</p>
+<ul>
+<li><p><strong>Booking modes:</strong> <em>Booking for</em> (TripLink)
+and <em>Book as</em> (Pass Rider) sit above the same form, with a
+required <em>Travel type</em> when the traveler is eligible for both.
+Pass Rider and Corporate replace the code and points rows with a
+one-line explanation.</p></li>
+<li><p><strong>Traveler Selection</strong>
+(<code>familiar.js</code>):</p>
+<ul>
+<li>Cancel (top left) undoes everything changed on the screen, including
+assistance. Done keeps it. X still closes the whole booking.</li>
+<li>The counters show errors on the counter they belong to.</li>
+<li><em>Traveler details</em> has one card per traveler, with labeled
+rows:
+<ul>
+<li><em>Discount:</em> a select, or the fixed value with its
+reason.</li>
+<li><em>Assistance:</em> the summary with Add, Edit or Remove.</li>
+<li><em>Personal companion:</em> on a traveler with a disability, a
+select of eligible travelers; on the companion, <em>Companion to
+Traveler n</em>.</li>
+</ul></li>
+<li>Choosing a companion on the card makes that traveler's assistance
+<em>personal companion</em> and sets their Companion discount. Choosing
+<em>No personal companion</em> removes it.</li>
+</ul></li>
+<li><p><strong>Invalid pairing:</strong> if the traveler with a
+disability loses that request, the error appears on the companion's card
+and on their Fare Finder row. The Companion discount stops applying, and
+the earlier discount returns (in every version). Find Trains moves focus
+to the inline error instead of opening a dialog.</p></li>
+<li><p><strong>Fare Finder:</strong> the assistance list shows each
+traveler's request beside their name. The code row says how many coupons
+are saved in My Coupons.</p></li>
+<li><p><strong>Checks:</strong> a 27-step Familiar acceptance run on
+iPhone and iPad:</p>
+<ul>
+<li>form, travelers, independent assistance, companion from the
+card;</li>
+<li>Cancel and Done, invalid pairing;</li>
+<li>Pass Rider dependent with assistance, TripLink;</li>
+<li>Employee pass and coupon through Profile into booking.</li>
+</ul>
+<p>Every earlier suite also passes. Accessibility passes in light and
+dark mode at 100% and 140% text.</p></li>
+</ul>
 
   </article>
 </div>
