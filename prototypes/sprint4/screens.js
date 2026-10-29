@@ -41,9 +41,9 @@ const TABS = {
 
 // ---------- Split rules (iPad) ----------
 const SPLIT_PARENT = (parent, child) => {
-  if (v3()) return false;
+  if (v3()) return parent.s === 'ff' && child.s === 'traveler'; // Overview on iPad: the booking overview stays beside the traveler being edited
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
-  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
+  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code', 'traveler'], travelers: ['assist'], traveler: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
 const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));

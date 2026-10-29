@@ -84,9 +84,21 @@ let pendingFocus = null;
 const sheet = () => nav().sheet;
 const topR = () => { const s = sheet(); return s && s.stack[s.stack.length - 1]; };
 function openSheet(id, stack, opener) { nav().sheet = { id, stack: stack.map(x => typeof x === 'string' ? R(x) : x), opener }; pendingFocus = 'title'; render(); }
-function push(s, p = {}, fromIdx) { const sh = sheet(); if (fromIdx != null && fromIdx >= 0) sh.stack = sh.stack.slice(0, fromIdx + 1); sh.stack.push(R(s, p)); pendingFocus = 'title'; render(); }
-function replaceTop(s, p = {}) { const sh = sheet(); sh.stack[sh.stack.length - 1] = R(s, p); pendingFocus = 'title'; render(); }
-function popTo(i) { const sh = sheet(); if (i < 0) return closeSheet(); sh.stack = sh.stack.slice(0, i + 1); pendingFocus = 'title'; render(); }
+// Child screens remember what opened them: closing one returns focus to that control, and its parent's
+// scroll position is kept (SCROLL_MEM), so Back never jumps to the top of the parent
+let LAST_TRIGGER = null;
+const SCROLL_MEM = {};
+function openerSel(el) {
+  if (!el || !el.isConnected || !el.closest('#device')) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  if (el.dataset.k) return `[data-k="${el.dataset.k}"]`;
+  if (!el.dataset.a) return null;
+  return `[data-a="${el.dataset.a}"]` + ['s', 't', 'field', 'topic', 'code'].filter(k => el.dataset[k]).map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('');
+}
+const forgetScroll = (r, i) => { delete SCROLL_MEM[`p${i}-${r.s}`]; };
+function push(s, p = {}, fromIdx) { const sh = sheet(); if (fromIdx != null && fromIdx >= 0) sh.stack.slice(fromIdx + 1).forEach((r, j) => forgetScroll(r, fromIdx + 1 + j)), sh.stack = sh.stack.slice(0, fromIdx + 1); const r = R(s, p); r.opener = openerSel(LAST_TRIGGER); forgetScroll(r, sh.stack.length); sh.stack.push(r); pendingFocus = 'title'; render(); }
+function replaceTop(s, p = {}) { const sh = sheet(), old = sh.stack[sh.stack.length - 1], r = R(s, p); r.opener = old && old.opener; forgetScroll(old, sh.stack.length - 1); sh.stack[sh.stack.length - 1] = r; pendingFocus = 'title'; render(); }
+function popTo(i) { const sh = sheet(); if (i < 0) return closeSheet(); const gone = sh.stack.slice(i + 1); gone.forEach((r, j) => forgetScroll(r, i + 1 + j)); sh.stack = sh.stack.slice(0, i + 1); pendingFocus = (gone[0] && gone[0].opener) || 'title'; render(); }
 function pop() { popTo(sheet().stack.length - 2); }
 function closeSheet(force) {
   const sh = sheet(); if (!sh) return;
@@ -255,14 +267,16 @@ function clearDialog() {
 var render = function () {
   const dev = $('#device'); if (!dev) return;
   resetNotes();
-  const ae = document.activeElement, keep = ae && dev.contains(ae) ? (ae.id ? '#' + CSS.escape(ae.id) : ae.dataset.k ? `[data-k="${ae.dataset.k}"]` : null) : null;
+  const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
-  const scrolls = $$('[data-scroll]', dev).map(e => [e.dataset.scroll, e.scrollTop]);
+  $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
   dev.dataset.theme = TB.theme;
   dev.innerHTML = renderDevice();
   dev.style.setProperty('--text-zoom', TB.text / 100);
-  for (const [k, t] of scrolls) { const e = $(`[data-scroll="${k}"]`, dev); if (e) e.scrollTop = t; }
+  // Closed layers start fresh next time; open ones get their scroll back, even after a child screen
+  const n0 = nav(); for (const k of Object.keys(SCROLL_MEM)) if ((!n0.sheet && /^p\d/.test(k)) || (!n0.info && k.startsWith('info-'))) delete SCROLL_MEM[k];
+  $$('[data-scroll]', dev).forEach(e => { const t = SCROLL_MEM[e.dataset.scroll]; if (t != null) e.scrollTop = t; });
   let target = null;
   if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
@@ -309,7 +323,7 @@ function navbar(o, ri, ctx) {
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
-    if (o.close && !o.save) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
+    if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
     else if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-navbar__btn" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}<span>Back</span></button>`;
@@ -380,6 +394,7 @@ function wireDevice() {
     const t = e.target.closest('[data-a]'); if (!t) return;
     if (t.tagName === 'A') e.preventDefault();
     if (t.disabled || t.getAttribute('aria-disabled') === 'true') return;
+    LAST_TRIGGER = t;
     const fn = A[t.dataset.a]; if (fn) fn(t, riOf(t), e);
   });
   dev.addEventListener('input', e => {
@@ -401,7 +416,7 @@ function wireDevice() {
     if (n.dialog) { closeDialog(); e.preventDefault(); }
     else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
-    else if (n.sheet) { const top = topR(); if (n.sheet.stack.length > 1) A.back(null, String(n.sheet.stack.length - 1)); else closeSheet(); e.preventDefault(); }
+    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else closeSheet(); e.preventDefault(); }
   });
 }
 // Inputs inside V3's inline Profile editor write to that editor, not to the Profile route

@@ -546,3 +546,26 @@ The most conventional of the four: a standard booking form, a modal Traveler Sel
   - Employee pass and coupon through Profile into booking.
 
   Every earlier suite also passes. Accessibility passes in light and dark mode at 100% and 140% text.
+
+## Version 3 (Overview) refinement
+
+The Fare Finder is the overview of the whole booking. Every section is still edited from it (`overview.js`).
+
+- **Status strip** at the top of the booking surface:
+  - When complete: *Ready to find trains*, with trip type, route, dates and traveler count.
+  - Otherwise: *n items to finish* (stations, travel type) or *n items need attention* (return date, accompaniment, companion pairing, Pass Rider eligibility, code error).
+  - Each item is a link that scrolls to and focuses the field or traveler it belongs to.
+- **Travelers overview:** one row per traveler, with chips for the discount (Companion and PWD highlighted), assistance (*No assistance* or the type) and companion pairing (*Companion: Traveler 2*, *Companion to Traveler 1*), plus an Edit button. Rows with a problem are marked and explain it. *Change travelers* opens the traveler counts. The NMA-973 checkbox sits under the list.
+- **Pass Rider card:** shows eligibility, the pass the traveler books on, travel type, companion passes left (employees) and the age rule (dependents).
+- **Editing one traveler:** a single sheet level with labeled Discount, Assistance and Personal companion rows (the same components as Version 1).
+  - Changes update the booking at once, so the overview is current. On iPad the overview stays beside the sheet.
+  - Cancel, Escape and X discard what that sheet changed. Done keeps it.
+  - Assistance opens inside the same sheet. Confirming returns to that traveler; Back returns without saving.
+- **Layered screens, fixed for every version:**
+  - Closing a child screen returns focus to the control that opened it.
+  - A parent's scroll position is kept while a child is open.
+  - Only the topmost layer dims the screen: no doubled backdrops under an info sheet or dialog.
+- **Checks:**
+  - Overview acceptance run on iPhone (31) and iPad (32): inspect, attention items, route, travelers, nested assistance with Back and confirm, info sheet over a step, Cancel, Escape and X, no lost or duplicated assistance, broken pairing, Pass Rider dependent and employee, TripLink, Profile coupon into booking.
+  - Every earlier suite.
+  - Accessibility checks in light and dark mode at 100% and 140% text, on iPhone and iPad.

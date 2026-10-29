@@ -2180,6 +2180,42 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .atl__row.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
 [data-theme="dark"] .assistbox .ads-helper--error { color: var(--ads-color-red-300); } /* 4.5:1 on the dark assistance box */
 
+/* One backdrop at a time: when another layer opens above, the layer below hides its own scrim and the top
+   layer dims everything once (no doubled or tripled darkening) */
+.sheet-layer:has(~ .cover-layer, ~ .info-layer, ~ .dialog-layer) > .sheet-scrim { opacity: 0 !important; }
+.cover-layer:has(~ .info-layer, ~ .dialog-layer) { background: transparent; }
+.info-layer:has(~ .dialog-layer) > .info-scrim { opacity: 0 !important; }
+
+/* ---------- Version 3 overview (overview.js) ---------- */
+.ov-status { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; margin-bottom: 12px; border-radius: 14px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
+.ov-status--ready { flex-direction: row; align-items: flex-start; gap: 10px; border-color: var(--ads-border-success, var(--ads-border-subtle)); }
+.ov-status--error { border-color: var(--ads-border-error, #c0262d); }
+.ov-status__icon { flex: none; color: var(--ads-content-icon-success, var(--ads-content-icon-brand)); }
+.ov-status__title { margin: 0; font-weight: 600; color: var(--ads-content-text-primary); }
+.ov-status__sub { margin: 2px 0 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.ov-status__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.ov-status__item { display: flex; align-items: flex-start; gap: 6px; width: 100%; padding: 6px 4px; border: 0; border-radius: 8px; background: none; color: var(--ads-content-text-link); font: inherit; font-size: var(--ads-type-body-small-size); text-align: left; cursor: pointer; }
+.ov-status__item:hover { background: var(--ads-background-surface-hover); }
+.ov-status__item--error { color: var(--ads-content-text-error, #b20609); }
+.ov-status__item .ads-icon { flex: none; margin-top: 2px; }
+.ov-travs { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.ov-travs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.ov-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 14px; background: var(--ads-background-surface-default); }
+.ov-trav { display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 14px; }
+.ov-trav + .ov-trav { border-top: 1px solid var(--ads-border-subtle); }
+.ov-trav.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
+.ov-trav__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ov-trav__name { font-weight: 600; color: var(--ads-content-text-primary); }
+.ov-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ov-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 13px; background: var(--ads-background-surface-sunken); color: var(--ads-content-text-primary); }
+.ov-chip--muted { color: var(--ads-content-text-secondary); }
+.ov-chip--assist, .ov-chip--set { background: var(--ads-background-surface-selected); }
+.ov-chip--pair { background: none; box-shadow: inset 0 0 0 1px var(--ads-border-default); }
+.ov-pr { margin-top: 16px; padding: 12px 14px; border-radius: 14px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); display: flex; flex-direction: column; gap: 8px; }
+.ov-pr__title { margin: 0; display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ads-content-text-primary); }
+.ov-edit { margin-top: 4px; }
+.pane--clear .ffc-sheet { flex: 1 0 auto; } /* the light surface reaches the bottom when scrolled to the end */
+
 </style>
 </head>
 <body class="ads-root">
@@ -3886,6 +3922,62 @@ card;</li>
 <p>Every earlier suite also passes. Accessibility passes in light and
 dark mode at 100% and 140% text.</p></li>
 </ul>
+<h2 id="version-3-overview-refinement">Version 3 (Overview)
+refinement</h2>
+<p>The Fare Finder is the overview of the whole booking. Every section
+is still edited from it (<code>overview.js</code>).</p>
+<ul>
+<li><strong>Status strip</strong> at the top of the booking surface:
+<ul>
+<li>When complete: <em>Ready to find trains</em>, with trip type, route,
+dates and traveler count.</li>
+<li>Otherwise: <em>n items to finish</em> (stations, travel type) or
+<em>n items need attention</em> (return date, accompaniment, companion
+pairing, Pass Rider eligibility, code error).</li>
+<li>Each item is a link that scrolls to and focuses the field or
+traveler it belongs to.</li>
+</ul></li>
+<li><strong>Travelers overview:</strong> one row per traveler, with
+chips for the discount (Companion and PWD highlighted), assistance
+(<em>No assistance</em> or the type) and companion pairing
+(<em>Companion: Traveler 2</em>, <em>Companion to Traveler 1</em>), plus
+an Edit button. Rows with a problem are marked and explain it.
+<em>Change travelers</em> opens the traveler counts. The NMA-973
+checkbox sits under the list.</li>
+<li><strong>Pass Rider card:</strong> shows eligibility, the pass the
+traveler books on, travel type, companion passes left (employees) and
+the age rule (dependents).</li>
+<li><strong>Editing one traveler:</strong> a single sheet level with
+labeled Discount, Assistance and Personal companion rows (the same
+components as Version 1).
+<ul>
+<li>Changes update the booking at once, so the overview is current. On
+iPad the overview stays beside the sheet.</li>
+<li>Cancel, Escape and X discard what that sheet changed. Done keeps
+it.</li>
+<li>Assistance opens inside the same sheet. Confirming returns to that
+traveler; Back returns without saving.</li>
+</ul></li>
+<li><strong>Layered screens, fixed for every version:</strong>
+<ul>
+<li>Closing a child screen returns focus to the control that opened
+it.</li>
+<li>A parent's scroll position is kept while a child is open.</li>
+<li>Only the topmost layer dims the screen: no doubled backdrops under
+an info sheet or dialog.</li>
+</ul></li>
+<li><strong>Checks:</strong>
+<ul>
+<li>Overview acceptance run on iPhone (31) and iPad (32): inspect,
+attention items, route, travelers, nested assistance with Back and
+confirm, info sheet over a step, Cancel, Escape and X, no lost or
+duplicated assistance, broken pairing, Pass Rider dependent and
+employee, TripLink, Profile coupon into booking.</li>
+<li>Every earlier suite.</li>
+<li>Accessibility checks in light and dark mode at 100% and 140% text,
+on iPhone and iPad.</li>
+</ul></li>
+</ul>
 
   </article>
 </div>
@@ -4145,9 +4237,21 @@ let pendingFocus = null;
 const sheet = () => nav().sheet;
 const topR = () => { const s = sheet(); return s && s.stack[s.stack.length - 1]; };
 function openSheet(id, stack, opener) { nav().sheet = { id, stack: stack.map(x => typeof x === 'string' ? R(x) : x), opener }; pendingFocus = 'title'; render(); }
-function push(s, p = {}, fromIdx) { const sh = sheet(); if (fromIdx != null && fromIdx >= 0) sh.stack = sh.stack.slice(0, fromIdx + 1); sh.stack.push(R(s, p)); pendingFocus = 'title'; render(); }
-function replaceTop(s, p = {}) { const sh = sheet(); sh.stack[sh.stack.length - 1] = R(s, p); pendingFocus = 'title'; render(); }
-function popTo(i) { const sh = sheet(); if (i < 0) return closeSheet(); sh.stack = sh.stack.slice(0, i + 1); pendingFocus = 'title'; render(); }
+// Child screens remember what opened them: closing one returns focus to that control, and its parent's
+// scroll position is kept (SCROLL_MEM), so Back never jumps to the top of the parent
+let LAST_TRIGGER = null;
+const SCROLL_MEM = {};
+function openerSel(el) {
+  if (!el || !el.isConnected || !el.closest('#device')) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  if (el.dataset.k) return `[data-k="${el.dataset.k}"]`;
+  if (!el.dataset.a) return null;
+  return `[data-a="${el.dataset.a}"]` + ['s', 't', 'field', 'topic', 'code'].filter(k => el.dataset[k]).map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('');
+}
+const forgetScroll = (r, i) => { delete SCROLL_MEM[`p${i}-${r.s}`]; };
+function push(s, p = {}, fromIdx) { const sh = sheet(); if (fromIdx != null && fromIdx >= 0) sh.stack.slice(fromIdx + 1).forEach((r, j) => forgetScroll(r, fromIdx + 1 + j)), sh.stack = sh.stack.slice(0, fromIdx + 1); const r = R(s, p); r.opener = openerSel(LAST_TRIGGER); forgetScroll(r, sh.stack.length); sh.stack.push(r); pendingFocus = 'title'; render(); }
+function replaceTop(s, p = {}) { const sh = sheet(), old = sh.stack[sh.stack.length - 1], r = R(s, p); r.opener = old && old.opener; forgetScroll(old, sh.stack.length - 1); sh.stack[sh.stack.length - 1] = r; pendingFocus = 'title'; render(); }
+function popTo(i) { const sh = sheet(); if (i < 0) return closeSheet(); const gone = sh.stack.slice(i + 1); gone.forEach((r, j) => forgetScroll(r, i + 1 + j)); sh.stack = sh.stack.slice(0, i + 1); pendingFocus = (gone[0] && gone[0].opener) || 'title'; render(); }
 function pop() { popTo(sheet().stack.length - 2); }
 function closeSheet(force) {
   const sh = sheet(); if (!sh) return;
@@ -4316,14 +4420,16 @@ function clearDialog() {
 var render = function () {
   const dev = $('#device'); if (!dev) return;
   resetNotes();
-  const ae = document.activeElement, keep = ae && dev.contains(ae) ? (ae.id ? '#' + CSS.escape(ae.id) : ae.dataset.k ? `[data-k="${ae.dataset.k}"]` : null) : null;
+  const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
-  const scrolls = $$('[data-scroll]', dev).map(e => [e.dataset.scroll, e.scrollTop]);
+  $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
   dev.dataset.theme = TB.theme;
   dev.innerHTML = renderDevice();
   dev.style.setProperty('--text-zoom', TB.text / 100);
-  for (const [k, t] of scrolls) { const e = $(`[data-scroll="${k}"]`, dev); if (e) e.scrollTop = t; }
+  // Closed layers start fresh next time; open ones get their scroll back, even after a child screen
+  const n0 = nav(); for (const k of Object.keys(SCROLL_MEM)) if ((!n0.sheet && /^p\d/.test(k)) || (!n0.info && k.startsWith('info-'))) delete SCROLL_MEM[k];
+  $$('[data-scroll]', dev).forEach(e => { const t = SCROLL_MEM[e.dataset.scroll]; if (t != null) e.scrollTop = t; });
   let target = null;
   if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
   else if (pendingFocus) target = $(pendingFocus, dev);
@@ -4370,7 +4476,7 @@ function navbar(o, ri, ctx) {
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
-    if (o.close && !o.save) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
+    if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
     else if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-navbar__btn" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}<span>Back</span></button>`;
@@ -4441,6 +4547,7 @@ function wireDevice() {
     const t = e.target.closest('[data-a]'); if (!t) return;
     if (t.tagName === 'A') e.preventDefault();
     if (t.disabled || t.getAttribute('aria-disabled') === 'true') return;
+    LAST_TRIGGER = t;
     const fn = A[t.dataset.a]; if (fn) fn(t, riOf(t), e);
   });
   dev.addEventListener('input', e => {
@@ -4462,7 +4569,7 @@ function wireDevice() {
     if (n.dialog) { closeDialog(); e.preventDefault(); }
     else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
-    else if (n.sheet) { const top = topR(); if (n.sheet.stack.length > 1) A.back(null, String(n.sheet.stack.length - 1)); else closeSheet(); e.preventDefault(); }
+    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else closeSheet(); e.preventDefault(); }
   });
 }
 // Inputs inside V3's inline Profile editor write to that editor, not to the Profile route
@@ -4595,9 +4702,9 @@ const TABS = {
 
 // ---------- Split rules (iPad) ----------
 const SPLIT_PARENT = (parent, child) => {
-  if (v3()) return false;
+  if (v3()) return parent.s === 'ff' && child.s === 'traveler'; // Overview on iPad: the booking overview stays beside the traveler being edited
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
-  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code'], travelers: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
+  const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code', 'traveler'], travelers: ['assist'], traveler: ['assist'], account: ['profile', 'assist-profile', 'stub'], profile: ['edit', 'discounts'], discounts: ['rules'] };
   return (pairs[parent.s] || []).includes(child.s);
 };
 const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
@@ -5440,17 +5547,16 @@ function ffClear(r, ri) {
   // 3. Discounts, codes and assistance
   const rows = [];
   if (std) {
-    rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Traveler discounts</span><span class="ffc-row__val">${esc(discSummary(b))}</span></span>${ic('chevron-right')}</button>`);
+    // Traveler discounts now show per traveler in the Travelers overview (overview.js)
     if (b.pay === 'cash') {
       const info = `<button class="ads-icon-btn ads-icon-btn--sm ffc-row__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       if (b.code) rows.push(`<div class="ffc-row ffc-row--static">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discount code</span><span class="ffc-row__val">${esc(b.code.code)} · ${esc(b.code.kind)}</span><span class="ffc-row__sub">${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div>`);
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  if (v.entry === 'travelers') rows.push(`<button class="ffc-row" type="button" data-a="pick-travelers">${ic('assistance', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Assistance</span><span class="ffc-row__val">${b.assistOn ? esc(travelerList(b).length > 1 ? assistShort(b) : assistSummaryLine(b)) : 'Add it in Travelers'}</span></span>${ic('chevron-right')}</button>`);
-  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Discounts, codes and assistance' : 'Assistance and discounts'}</h4><div class="ffc-list">${rows.join('')}</div>${v.entry === 'ff' ? assistBlock(r, ri, 'ff') : ''}</section>`;
+  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? 'Coupon or promo code' : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div></section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
+  return { title: 'New Booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${overviewStatus(r, b)}${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Personal, Cash/Points
 A['ffc-set'] = t => {
@@ -6602,6 +6708,105 @@ A['trav-cancel'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, s = r.u.snap;
   if (s) Object.assign(b, clone(s));
   r.u.snap = null; popTo(+ri - 1); pendingFocus = '[data-a="pick-travelers"]'; render();
+};
+
+/* Sprint 4 prototype: Version 3 (Overview). The Fare Finder is the overview of the whole booking:
+   - a status strip says whether the booking is ready, or lists what needs attention, each item linked to
+     the field or traveler it belongs to;
+   - a Travelers overview shows every traveler with their discount, assistance and companion pairing, each
+     editable on its own;
+   - booking as Pass Rider, an eligibility card shows role, travel type, companion passes and the
+     dependent age rule.
+   Editing a traveler opens one sheet level (no extra layers). It changes the booking live so the overview
+   updates at once; Cancel puts back what that sheet changed, Done keeps it. Assistance opens inside the same
+   sheet and returns to that traveler. */
+
+// What still needs attention, in reading order. tone: 'todo' (not done yet) or 'error' (needs a change)
+function overviewIssues(r, b) {
+  const d = D(), out = [], it = intentOf(b), e = ffErrors(b), list = travelerList(b);
+  if (!b.from) out.push({ text: 'Choose a departure station', target: '#ff-from', tone: 'todo' });
+  if (!b.to) out.push({ text: 'Choose an arrival station', target: '#ff-to', tone: 'todo' });
+  if (e.ret) out.push({ text: e.ret, target: '#ff-ret', tone: 'error' });
+  if (it === 'pr' && !b.prType) out.push({ text: 'Choose Business or Leisure travel', target: '[data-a="pr-type"]', tone: 'todo' });
+  if (it === 'pr' && !prCanStart(d).ok) out.push({ text: prCanStart(d).text, target: '[data-a="ffc-set"][data-key="intent"][data-v="personal"]', tone: 'error' });
+  if (['standard', 'personal'].includes(it)) paxProblems(b.pax).forEach(t => out.push({ text: t, target: '#ff-trav', tone: 'error' }));
+  list.forEach(t => { const er = travelerError(b, t); if (er) out.push({ text: `${t.label}: personal companion needs a change`, target: `[data-a="ov-traveler"][data-t="${t.key}"]`, tone: 'error' }); });
+  if (b.assistOn && list.length && !list.some(t => assistRec(b, t.key).done)) out.push({ text: 'Assistance is on, but no traveler has answered yet', target: `[data-a="ov-traveler"][data-t="${list[0].key}"]`, tone: 'todo' });
+  if (b.codeErr) out.push({ text: b.codeErr, target: '#ffc-code-err', tone: 'error' });
+  return out;
+}
+function overviewStatus(r, b) {
+  const issues = overviewIssues(r, b);
+  if (!issues.length) {
+    const n = travelerList(b).length;
+    return `<div class="ov-status ov-status--ready" role="status">${ic('check-circle', 'ov-status__icon')}<div><p class="ov-status__title">Ready to find trains</p><p class="ov-status__sub">${b.trip === 'rt' ? 'Round-trip' : 'One-way'} · ${b.from} → ${b.to} · ${fmtShortY(b.dep)}${b.trip === 'rt' && b.ret ? ` – ${fmtShortY(b.ret)}` : ''} · ${n} traveler${n > 1 ? 's' : ''}</p></div></div>`;
+  }
+  const errs = issues.filter(x => x.tone === 'error').length;
+  return `<div class="ov-status${errs ? ' ov-status--error' : ''}" role="status" aria-labelledby="ov-st-h"><p class="ov-status__title" id="ov-st-h">${issues.length} ${issues.length > 1 ? 'items' : 'item'} ${errs ? (issues.length > 1 ? 'need' : 'needs') + ' attention' : 'to finish'}</p><ul class="ov-status__list">${issues.map(x => `<li><button class="ov-status__item ov-status__item--${x.tone}" type="button" data-a="ov-go" data-target="${esc(x.target)}">${ic(x.tone === 'error' ? 'alert-diamond' : 'chevron-right', 'ads-icon--sm')}<span>${esc(x.text)}</span></button></li>`).join('')}</ul></div>`;
+}
+// Go to an item: scroll only the booking content (not the sheet or device around it), then focus it
+A['ov-go'] = t => {
+  pendingFocus = null; render();
+  const el = $(t.dataset.target, devEl()); if (!el) return;
+  const sc = el.closest('.pane__scroll');
+  if (sc) sc.scrollTo({ top: sc.scrollTop + el.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientHeight / 3, behavior: motionOff() ? 'auto' : 'smooth' });
+  el.focus({ preventScroll: true });
+};
+
+// Travelers overview: one row per traveler, with discount, assistance and companion at a glance
+function overviewTravelers(r, ri, b) {
+  const it = intentOf(b), std = ['standard', 'personal'].includes(it), list = travelerList(b);
+  const rows = list.map(t => {
+    const a = assistRec(b, t.key), c = assistCat(b, t.key), err = travelerError(b, t);
+    const chips = [];
+    if (std) { const x = tdiscOf(b, t); chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
+    else chips.push(`<span class="ov-chip">${ic('discount', 'ads-icon--sm')}${it === 'pr' ? 'Pass Rider fare' : 'Corporate fare'}</span>`);
+    chips.push(c && c !== 'none' ? `<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>` : `<span class="ov-chip ov-chip--muted">${ic('assistance', 'ads-icon--sm')}No assistance</span>`);
+    if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
+    if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
+    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.n === 1 && a.done && a.fromProfile ? ' <span class="ads-lock">From your Profile</span>' : ''}</span><span class="ov-chips">${chips.join('')}</span>${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}">Edit</button></li>`;
+  }).join('');
+  const check = V().entry === 'ff' ? assistBlock(r, ri, 'ff', { noList: true }) : '';
+  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><div class="ov-travs__head"><h4 class="ffc-h" id="ov-tr-h">Travelers</h4><button class="ads-link ads-link--sm linkbtn" type="button" data-a="pick-travelers">${it === 'corporate' ? 'View' : 'Change travelers'}</button></div><ul class="ov-list">${rows}</ul>${check}</section>`;
+}
+// Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
+function overviewPassRider(b) {
+  const d = D(), p = d.passrider; if (intentOf(b) !== 'pr' || !p) return '';
+  const can = prCanStart(d), rows = [['Booking as', `${prRoleLabel(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
+  if (p.role === 'employee') rows.push(['Companion passes', `${p.compLeft} of 8 left this year`]);
+  if (p.role === 'dependent') rows.push(['Age rule', can.ok ? `Eligible (${can.age})` : 'Not eligible']);
+  return `<section class="ov-pr" aria-label="Pass Rider eligibility"><p class="ov-pr__title">${ic(can.ok ? 'check-circle' : 'alert-diamond', 'ads-icon--sm')}Pass Rider ${can.ok ? 'eligible' : 'not available'}</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${can.ok ? '' : `<p class="ads-helper">${esc(can.text)}</p>`}</section>`;
+}
+
+// ---------- Editing one traveler from the overview ----------
+const TRAV_SNAP = b => clone({ tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn });
+A['ov-traveler'] = (t, ri) => {
+  const b = D().booking; push('traveler', { t: t.dataset.t }, +ri);
+  const r = sheet().stack[sheet().stack.length - 1]; r.u.snap = TRAV_SNAP(b);
+};
+SCR.traveler = (r, ri) => {
+  const d = D(), b = d.booking, t = travelerList(b).find(x => x.key === r.p.t);
+  if (!t) return { title: 'Traveler', kind: 'push', body: '<p class="ads-body-small">This traveler is no longer on the booking.</p>' };
+  const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type, err = travelerError(b, t);
+  const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${esc(t.label)}</h3><p class="ffc-sheetsub">Changes show in the overview right away. Cancel puts them back.</p></div><div class="fam-card ov-edit${err ? ' has-error' : ''}">${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</div>`;
+  return { title: t.label, srTitle: true, cls: 'pane--sheet', kind: 'editor', cancelA: 'sheet-cancel', close: true, banner: false, body, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="sheet-done">Done</button>` };
+};
+// Cancel puts back what this sheet changed; Done keeps it (the booking was already updated live)
+A['sheet-cancel'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking;
+  if (r && r.u.snap) Object.assign(b, clone(r.u.snap));
+  popTo(+ri - 1);
+};
+A['sheet-done'] = (t, ri) => popTo(+ri - 1);
+
+// Steps with Cancel (Overview traveler sheet, Familiar Traveler Selection): Escape and X don't keep their
+// unconfirmed edits either. Escape cancels the step; X puts the step back, then closes the booking.
+function cancelActionFor(r) { return !r ? null : r.s === 'traveler' ? 'sheet-cancel' : r.s === 'travelers' && v1() ? 'trav-cancel' : null; }
+const closeBeforeCancel = A.close;
+A.close = A.scrim = (t, ri) => {
+  const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1];
+  if (top && cancelActionFor(top) && top.u.snap && !(top.s === 'travelers' && paxProblems(D().booking.pax).length)) Object.assign(D().booking, clone(top.u.snap));
+  return closeBeforeCancel(t, ri);
 };
 
 /* Sprint 4 prototype: start-up */
