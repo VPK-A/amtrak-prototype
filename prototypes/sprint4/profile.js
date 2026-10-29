@@ -7,17 +7,17 @@
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
 PFIELDS.employee = 'Amtrak employee pass';
-const EMP_REL = { employee: 'Employee or retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
+const EMP_REL = { employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
 const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
 // Status of the saved pass: what the pass record allows (NMA-1016, 1018) and, for dependents, the age rule (NMA-1017 AC4)
 function empStatus(d) {
   const e = d.employee, p = d.passrider; if (!e || !p) return '';
   const can = prCanStart(d), rows = [['Pass Rider booking', can.ok ? 'On' : 'Not available']];
-  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Companion passes', `${p.compLeft} of 8 left this year`]); }
+  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]); }
   else rows.push(['Travel type', 'Leisure only']);
-  if (p.role === 'dependent') rows.push(['Age rule', can.ok ? `Eligible (${can.age}). Dependents 16 or older can start Pass Rider travel.` : can.text]);
-  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${p.role === 'dependent' && !can.ok ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="dob">Add date of birth</button>` : ''}</div>`;
+  if (p.role === 'dependent' && !can.ok) rows.push(['Booking on your own', can.text]);
+  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
 }
 EDITORS.employee = (r, ri, inline) => {
   const d = D(), cur = d.employee; ref('20');
@@ -31,7 +31,7 @@ EDITORS.employee = (r, ri, inline) => {
     body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
     body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
     body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
-    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can start Pass Rider travel. Your age comes from the date of birth in your profile.</p>`;
+    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
     if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
   } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your profile. Pass Rider booking won’t be available.</p>`;
   const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
@@ -53,7 +53,7 @@ SAVE.employee = (r, ri) => {
       const was = d.passrider;
       d.employee = { rel: x.rel, pass: x.pass, index: x.index };
       // Business Pass and companion passes come from the pass record; newly added details start without them
-      d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0 };
+      d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, minor: !!(was && was.minor && x.rel === 'dependent') };
       b.prType = d.passrider.business ? b.prType : 'leisure';
       if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
       if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
@@ -95,7 +95,7 @@ SCR.coupons = (r, ri) => {
   const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
   const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
   tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
-  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided (NMA-697 BR8). ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
+  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided. ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
   return { title: 'My coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
 };
 A['coupon-add'] = (t, ri) => {

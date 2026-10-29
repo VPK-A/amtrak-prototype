@@ -10,85 +10,58 @@ The sections below this one are the history of the exploration, and some still d
 
 - Advance Concepts 1 (Familiar) and 3 (Overview). Keep their names, numbering and distinct approaches, with comparable features and booking data.
 - Remove Concepts 2 and 4 from the review switcher and keep their implementation in an archive.
+- Booking is a focused modal with the bottom navigation hidden; stacked station fields; fewer repeated labels; scrolling is fine; design-system styling; selections are kept when returning from nested screens.
+- Assistance is answered per traveler, from Traveler selection.
+- No prices or fare shading on the calendar.
+- Approval notes, Jira IDs, unresolved-rule explanations and test controls stay in the reviewer interface (toolbar, notes, Handoff), not in the app.
 
-- **Latest round, for Concepts 1 and 3:**
-  - assistance per traveler inside traveler selection, with no assistance section on the Fare Finder;
-  - one traveler entry with a concise summary and no empty labels;
-  - the coupon higher on the Fare Finder (its exact position is a proposal, see below);
-  - no prices or fare shading on the calendar;
-  - stacked station fields that fit long names;
-  - booking as a modal with the bottom navigation hidden;
-  - less redundant spacing.
+### 2. Approved requirements (source companion, requirements document, approval tracker)
 
-  This round was requested as review direction. The coupon position is explicitly a proposal.
+Approved items (assigned or tagged to VK count as approved): NMA-607, 608, 1060, 613, 611, 612, 973, 615, 995, 996, 1016, 623, 118, 984; 622, 1017 and 1018 through comments; 997 with its CORE caveat. In grooming: 614, 624, 600, 697, 980. Awaiting approval: 20, 1019. Approval doesn't mean a feature was already built; the requirements round below lists what was added.
 
-Nothing else in this prototype is recorded as stakeholder-confirmed.
+**Requirements round (this update), Concepts 1 and 3:**
+- **Core Fare Finder and calendar (607, 608, 1060):** one-way and today by default; round-trip starts today/today; different stations; one calendar for both dates; past dates and returns before departure disabled; a return before a new departure is cleared with a notice; day names; Auto Train pairing; no prices. The 335-day window stays configurable and flagged (Q4). Favorites and recents (118, 984) are unchanged; station ranking (600) stays provisional (Q1).
+- **Discount code (613):** an always-visible optional *Discount code* field after the traveler summary and the assistance check, before Pay with and Find trains (placement proposed, Q21). Guests and members type a code; members can pick a saved code from a pop-up, soonest expiry first, with a toast. States: entered, checking, applied (kept when you come back), invalid format (not sent), not eligible, couldn't check (Try again and Remove), and trip changed (checked again). A failed or unchecked code is never shown as applied. Removing a profile code keeps it in My coupons. Hidden for points; not used for TripLink Corporate or Pass Rider. Format and offline conflicts: Q23. Responses are simulated: see the notes panel tips.
+- **Travelers (611):** 1 adult by default; CORE age bands; at most 8 occupied seats, where a lap infant rides 1:1 with an Adult, Senior or Young adult and each extra infant takes a seat at the child fare; the 9-to-14 and group guidance; zero travelers blocked; Youth and Child need an Adult or Senior; a Young adult may travel alone but not with a Youth, Child or Infant unless an Adult or Senior is on the booking. The Young adult with Infant conflict (BR7 vs BR9) is isolated in Q10 and not counted as verified.
+- **Discounts (612):** one discount per traveler, choices per type (seat infants can be changed, lap infants can't); a profile discount carries to Traveler 1; a disability saved in the profile sets PWD for Traveler 1; assistance answers set PWD or Companion. Summaries list only discounts that apply (no *No discount*).
+- **Assistance (973, 615, 995, 996, 997):** the Fare Finder has *Traveler with disability or need help?* with explanation text (AEM placeholder) and Continue. Checking or unchecking works offline. Continue needs a connection (offline message; slow connection can be cancelled) and opens Traveler selection, where each traveler answers (proposed mapping, Q7). Once loaded, the questions can be finished offline. While checked, every traveler needs an answer before Find trains. The questionnaire keeps its required choices, the wheelchair-space question, mutually exclusive needs and one personal companion per traveler with a disability. Booking assistance is no longer prefilled from the profile, and there's no Save to profile or carry-over after signing in, because NMA-614 is in grooming.
+- **Employee and corporate (622, 623, 1016, 1017, 1018):**
+  - TripLink is on by default for linked Concur accounts, with 1 traveler and no points, discounts or codes, and assistance is still allowed. Auto Train shows an error after Find trains, with *Switch to Personal*. Switching back restores the travelers set aside and the payment choice.
+  - Pass Rider is on by default for eligible users. The switch reads *Pass Rider / Regular*.
+  - Business and Leisure are offered only with an active Business Pass. Neither is preselected, and Find trains stays disabled until one is chosen. Auto Train is blocked for Business only, and choosing Business clears Lorton and Sanford.
+  - The booker can leave themselves off. Each added traveler is Adult or Child, and a child-only search is blocked.
+  - Companions are for employees only and must travel with a family member. There are 16 one-way passes a year, and a round trip uses 2 per companion. Companions are shown but disabled at 0 passes.
+  - Retirees, spouses and dependents get Leisure only and no companions. A dependent 15 or younger can't start Pass Rider; the age comes from the reviewer fixture (Q16).
+  - The Pass Rider policy is a placeholder (NMA-1081). Points stay for comparison; NMA-624 is provisional (Q14). NMA-1019 and NMA-20 are pending (Q24).
+- **Reviewer fixtures** (Scenario menu, outside the app): TripLink, Pass Rider employee with and without Business Pass, retiree, spouse, dependent 16 or older, dependent 15 or younger, guest, saved PWD, saved RPA.
+- **Reviewer interface:** Q markers are off by default (*Question markers on screen* in the toolbar). Story IDs and open questions are listed in the notes panel. No Jira IDs appear in the app.
 
-### 2. Supported by the supplied documentation
-
-From `NMA_Sprint_4_Combined.docx` (66 issues; inventory and coverage in `PLAN.md`), both reviewed concepts cover:
-- **Stations:** search (NMA-600), favorites and recents (118, 984, 1004).
-- **Trip and dates:** one-way, round trip and Auto Train pairing (607, 608); calendar rules (1060).
-- **Travelers and discounts:** types and counts (611); one discount per traveler (612, 43).
-- **Codes and payment:** coupon and promo codes (613); Cash / Points (624).
-- **Booking modes:** TripLink (622); Pass Rider with Business or Leisure, family, Companion Pass and dependents (623, 1016–1019).
-- **Assistance:** per traveler (614, 615, 973, 995–997, 1019), including personal companion needs and the Companion discount (997, 43 BR8 AC3).
-- **Profile:** details (19, 21–23, 919), Amtrak employee pass (20), My Coupons (697), assistance (26–28) and discount rules (566).
-- **Verification:** NMA-980 and 21.
+**Book landing (redesign from the reference):**
+- **Header:** the App Shell header with avatar, *Hi, Alex*, tier and points, and the inbox. Guests see *Sign in*.
+- **New booking:** a full-width *New booking · Where to?* entry that opens the Fare Finder modal.
+- **Explore cards:** *Recommended trips* and *Favorite stations* (*Routes near me* for guests), equal heights, each with *Explore ›*.
+- **Book again:** recent trips with route, station codes, date and train, and *Rebook*. Route names wrap. The list is hidden with no history.
+- **More ways to travel:** a grouped list with Explore and Passes.
+- **Layout:** warm page background; the bottom navigation stays, with Book active.
+- **Actions:**
+  - New booking and Rebook open the Fare Finder; Rebook fills in the route.
+  - Favorite stations opens station search.
+  - Recommended trips, Explore and Passes open labeled placeholders, because they have no Sprint 4 destination.
+  - Inbox and Account open their sheets. Sign-in is unchanged.
+- **Gaps:** no approved photography (the cards use token-colored illustrations), no trip-history service, and no destinations for Recommended trips, Explore or Passes.
 
 ### 3. Proposed refinements and unresolved requirements
 
-**Design proposals.** These were asked for in earlier design rounds or added by the design work. They aren't requirements and aren't stakeholder-confirmed:
-- **Shared:**
-  - focused station search with Back in the field;
-  - supporting-information sheets;
-  - one month at a time in the calendar, with an illustrative fare shading (no Sprint 4 story; Q20);
-  - Pay with placed below the booking modes;
-  - sentence case; no hover states;
-  - one-backdrop layering, focus return and scroll memory.
-- **Shared companion and station rules:**
-  - a personal companion names the traveler they accompany (Q19);
-  - a separate station-details control (Q3);
-  - an invalid pairing loses the Companion discount.
-- **Familiar:**
-  - traveler cards with Discount, Assistance and Personal companion rows;
-  - Cancel and Done on Traveler selection;
-  - station search continuing until both stations are chosen.
-- **Overview:**
-  - the travelers overview with chips;
-  - the single-traveler sheet;
-  - the Pass Rider eligibility card;
-  - the iPad split beside it.
+**Design proposals** (not requirements, not stakeholder-confirmed): focused station search; supporting-information sheets; one month at a time in the calendar; Pay with below the code; sentence case; no hover states; layered sheets with focus return and scroll memory; a personal companion names who they accompany (Q19); a separate station-details control (Q3); Familiar's traveler cards with Cancel and Done; Overview's travelers overview, traveler sheet and Pass Rider card; the saved-code pop-up opened from *Use a saved code* (Q21); the assistance Continue mapping (Q7); the Book landing layout.
 
-**Latest round: what changed and what to review**
-- **Assistance:**
-  - Familiar: each traveler card in Traveler selection has *Disability or assistance* with Add, Edit or Remove, using the existing questionnaire.
-  - Overview: each traveler's Edit, inside the Travelers sheet.
-  - Answers are kept when editing again or going back to the Fare Finder.
-  - This conflicts with NMA-973, which places the check on the Fare Finder (Q7). The *Assistance entry* toolbar setting now only affects the archived concepts.
-- **Traveler summary:**
-  - One Travelers entry. Its second line appears only after a choice is made: discounts, assistance, or a problem.
-  - Overview no longer repeats the travelers below its card, and its Pass Rider eligibility moved into the Travelers sheet.
-  - The *No discount* and *No assistance* labels are gone. Options remain in traveler editing.
-- **Coupon:** right after travelers and before Pay with and Find trains, with the same code screen and rules. Proposed position (Q21).
-- **Calendar:** no prices, shading or legend. Selected, range, unavailable and today states unchanged, and still one month at a time. The pricing code is kept in `archive/fares.js` and isn't built.
-- **Stations:** already stacked with the swap on the right. Long station names now wrap instead of being cut off.
-- **Modal:** the bottom navigation is hidden while booking and returns on close. Back and close are unchanged. Account and Inbox sheets still show it (Q22), and iPad has a top tab bar, not bottom navigation, so nothing is hidden there.
-- **Density:**
-  - Familiar's initial form fits a 390 × 844 iPhone almost exactly.
-  - Overview's is about 40px taller, because of its navy title band, so Pay with is partly below the fold.
-  - With TripLink or Pass Rider modes, or larger text, both scroll.
-  - Type sizes and touch targets weren't reduced.
-- **Shared code:** the calendar and the traveler model are shared, so the archived concepts lose the prices too. Their own layouts weren't changed.
-
-**Unresolved, shown as Q markers on the screens they affect:**
-- **Stations and dates:** Q1 Station ranking, Q2 Pseudo-stations, Q3 Select or view details, Q4 Maximum booking window.
-- **Profile:** Q5 Country change and the address, Q6 Phone types and DOB bounds.
-- **Assistance and discounts:** Q7 Where booking assistance starts, Q9 Replacing or removing PWD, Q10 Traveler age bands and who can accompany minors.
-- **Verification:** Q8 Verification channel, Q15 Reauthentication to change email.
-- **Codes, points and coupons:** Q11 Discount codes before a train is chosen, Q14 Points and other options, Q17 Coupon retention and notices.
-- **Booking modes:** Q12 Corporate and Pass Rider restrictions, Q13 Pass Rider travelers, Q16 Pass Rider identifiers.
-- **Other:** Q18 Wheelchair and mobility device details (NMA-29), Q19 Who can be a personal companion, Q20 Fares on the calendar (removed), Q21 Coupon placement, Q22 Navigation while booking.
+**Unresolved, listed in the notes panel for the screens they affect:**
+- **Stations and dates:** Q1 station ranking, Q2 pseudo-stations, Q3 select or view details, Q4 maximum booking window.
+- **Profile:** Q5 country change and the address, Q6 phone types and DOB bounds.
+- **Assistance and discounts:** Q7 assistance entry mapping, Q9 replacing or removing PWD, Q10 Young adult with an infant, Q18 wheelchair and mobility device details, Q19 who can be a personal companion.
+- **Verification:** Q8 verification channel, Q15 reauthentication to change email.
+- **Codes, points and coupons:** Q11 codes before a train is chosen, Q14 points (provisional), Q17 coupon retention, Q21 discount code placement, Q23 code format and offline.
+- **Booking modes:** Q12 Corporate Auto Train and PWD in restricted modes, Q13 Pass Rider travelers, Q16 Pass Rider identifiers and dependent age, Q24 pending approvals (1019, 20).
+- **Other:** Q20 fares on the calendar (removed), Q22 navigation while booking.
 
 **Undefined stories:** NMA-620, 621, 628 and 629 are labeled placeholders only. NMA-29 is partly defined. NMA-44 and 609 are cancelled.
 
@@ -96,7 +69,8 @@ From `NMA_Sprint_4_Combined.docx` (66 issues; inventory and coverage in `PLAN.md
 
 - **Regression tests aren't in the repository.** The scripted suites live in the design session's scratch folder and would need to be saved into the repo to keep being run.
 - **Archived concepts share code with the reviewed ones.** Changes to shared components (calendar, station search, traveler model, Profile) also change Concepts 2 and 4, and nobody checks them any more.
-- **Load order matters.** Several files override the same actions in turn (clear, travelers, overview, interact, motion), so the order in `scripts/build-sprint4.py` is part of the behavior.
+- **Load order matters.** Several files override the same actions in turn (clear, travelers, overview, interact, fields, motion), so the order in `scripts/build-sprint4.py` is part of the behavior. `fields.js` (Discount code field, assistance check) loads after `interact.js` because it adds supporting-information topics.
+- **Find trains checks live in one place** (`A['find-trains']` in `clear.js`) for Concepts 1 and 3. The archived concepts keep their own paths.
 - **Some styles are changed when the page loads.** `chrome.js` removes hover styles and forced capitals from the loaded CSS, without editing the ADS files. Styles added dynamically later wouldn't be processed.
 - **`index.html` is built.** Edit the source files and run `python3 scripts/build-sprint4.py`; this document is embedded in it.
 - **Each concept keeps its own copy of the data.** Edits in one don't appear in the other, by design for comparison; Reset restores all of them.
@@ -115,9 +89,9 @@ Four directions for the same Sprint 4 scope, built on the ADS library and the Ap
   - **Flow / screen:** jumps to any flow through its real App Shell path. Book, Fare Finder and the station search opens the station search inside the booking sheet, just as tapping would. Every flow can also be reached by tapping, starting from the Book tab or the Account button.
   - **Scenario:** reloads the current version's data. Options: returning member, new user, saved assistance + PWD, saved RPA, middle initial already added, international member, unverified account, guest.
   - **Network:** Online, Offline, Slow connection (spinner with Cancel, timing out after 6 s) or Server error (Retry).
-  - **Assistance entry:** Fare Finder (NMA-973) or Traveler Selection (Core Flow). It's an open question, so you can compare both.
+  - **Assistance entry (Concepts 2, 4):** Fare Finder (NMA-973) or Traveler Selection (Core Flow), for the archived concepts only. Concepts 1 and 3 use the Fare Finder check with Continue into Traveler selection (Q7).
   - **Session token:** set to Expired to see *Verify it's you* before Change email.
-  - **Text size**, **Appearance** (light/dark) and **Open questions**, which shows or hides the purple **Q** markers.
+  - **Text size**, **Appearance** (light/dark) and **Question markers on screen**, which shows the purple **Q** markers in the app (off by default; the questions are always listed in the notes panel).
   - **Reset demo:** puts all four versions back to the default scenario.
 - **Screen notes** (right-hand panel): the stories, open questions, provisional placements and things to try for the screen you're on. Tapping a Q marker highlights its entry.
 - **Verification codes:** 123456 works, 000000 has expired, anything else is wrong.

@@ -15,23 +15,29 @@ function companionCandidates(b, forKey) {
   });
 }
 function discountRow(b, t, fromProfile) {
-  if (!['standard', 'personal'].includes(intentOf(b))) return famRow('Discount', intentOf(b) === 'pr' ? 'Pass Rider fare' : 'Not used for Corporate bookings', '');
-  const x = tdiscOf(b, { ...t, n: t.n }), opts = TDISC[t.type], fixed = !opts || ['pwd', 'companion'].includes(x);
-  const why = x === 'pwd' ? 'Set by assistance: this traveler has a disability.' : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Infants ride on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults and seniors, so this infant needs a seat and pays the child fare.' : 'One discount per traveler. Proof may be needed when you travel.';
-  const lock = t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : '';
+  const it = intentOf(b);
+  if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
+    if (t.key === 'pr-you') return famRow('Fare', 'Pass Rider fare', '');
+    const k = prKind(b, t.key);
+    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div></div>`;
+  }
+  if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
+  const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
+  const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : 'Set by assistance: this traveler has a disability.') : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
+  const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
   if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
-  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
+  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span>${actions ? `<span class="fam-row__acts">${actions}</span>` : ''}</div><span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>${help ? `<span class="ads-helper">${help}</span>` : ''}</div>`;
 function assistanceRow(b, t) {
   const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
-  const value = !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
+  const missing = b.assistOn && !a.done; // NMA-615 BR1.2: while the Fare Finder box is checked, everyone answers
+  const value = missing ? 'Not answered yet' : !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
   const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
   const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
-  const tag = on && t.n === 1 && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   ref('615', '973');
-  return famRow(`Disability or assistance${tag}`, value, details || (!on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
+  return famRow('Disability or assistance', value, details || (missing ? 'Choose an option for this traveler.' : !on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
@@ -65,7 +71,7 @@ HOOKS.famcomp = (r, t) => {
 function paxErrorFor(p, k) {
   const grown = p.adult + p.senior;
   if (k === 'youth' && p.youth && !grown) return 'Youths need an adult or senior on this booking.';
-  if ((k === 'child' || k === 'infant') && p[k] && !grown) return 'Children and infants need an adult 18 or older on this booking.';
+  if ((k === 'child' || k === 'infant') && p[k] && !grown) return k === 'infant' && p.ya ? 'Infants need an adult or senior on this booking.' : 'Children and infants need an adult 18 or older on this booking.';
   return '';
 }
 // Cancel: put back everything Traveler selection changed, including assistance

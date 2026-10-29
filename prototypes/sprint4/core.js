@@ -21,8 +21,9 @@ const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' }
 const TODAY_S = iso(TODAY);
 
 // ---------- Toolbar state (shared) and per-version state ----------
-const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: true, theme: 'light', tab: 'proto' };
+const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto' };
 const blankAssist = () => ({ cat: null, dis: [], wc: null, needs: [] });
+const PR_ROLE = { 'passrider-spouse': 'spouse', 'passrider-dependent': 'dependent', 'passrider-minor': 'dependent', 'passrider-retiree': 'retiree' };
 function seed(sc) {
   const intl = sc === 'intl';
   const d = {
@@ -31,35 +32,38 @@ function seed(sc) {
       first: 'Alex', last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: 'alex.rivera@example.com',
       phone: intl ? { region: 'intl', mobile: '', home: '', business: '', ext: '', cc: 'GB', intl: '7700900123' } : { region: 'us', mobile: '2155550147', home: '', business: '', ext: '', cc: 'GB', intl: '' },
       address: intl ? { country: 'GB', street: '221 Baker Street', apt: 'Flat B', city: 'London', state: '', zip: 'NW1 6XE' } : { country: 'US', street: '1500 Market Street', apt: 'Apt 4B', city: 'Philadelphia', state: 'Pennsylvania', zip: '19102' },
-      dob: sc === 'passrider-dependent' ? '03/12/2009' : ''
+      dob: sc === 'passrider-dependent' ? '03/12/2009' : sc === 'passrider-minor' ? '06/02/2012' : ''
     },
     discount: sc === 'assist' ? { type: 'pwd', rpa: '' } : sc === 'rpa' ? { type: 'rpa', rpa: '4815162' } : { type: 'none', rpa: '' },
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink',
-    passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
+    passrider: sc.startsWith('passrider') ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, minor: sc === 'passrider-minor' } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', pass: '418200774', index: sc === 'passrider-spouse' ? '002' : sc === 'passrider-dependent' ? '003' : '001' } : null,
-    rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
+    employee: sc.startsWith('passrider') ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
+    rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }],
+    // Past trips for Book again on the Book landing (mock; none for new members or guests)
+    history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }, { from: 'PHL', to: 'BOS', date: '2026-07-18', train: 'Acela 2153' }]
   };
   d.booking = freshBooking(d);
   return d;
 }
+// Booking assistance isn't prefilled from the profile while NMA-614 is open (Q7). A disability saved in the
+// profile still sets Traveler 1's discount to PWD (NMA-612 BR6); other profile discounts carry over too.
+const profilePwd = () => { const d = D(); return d.signedIn && (d.discount.type === 'pwd' || d.assist.cat === 'disability'); };
 function freshBooking(d) {
-  const has = d.signedIn && !!d.assist.cat;
   return {
     trip: 'ow', from: null, to: null, dep: TODAY_S, ret: null,
     disc: d.signedIn && ['military', 'rpa'].includes(d.discount.type) ? d.discount.type : 'none',
-    assistOn: d.signedIn && (has || d.discount.type === 'pwd'),
-    assist: has ? clone(d.assist) : blankAssist(), assistDone: has, assistFromProfile: has, notice: null,
+    assistOn: false, assist: blankAssist(), assistDone: false, assistFromProfile: false, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { fam: 0, dep: 0, comp: 0 },
-    code: null, codeTries: 0, codeErr: '', modeNote: null
+    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, fam: 0, dep: 0, comp: 0 }, prKinds: {},
+    code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
 const makeVS = (sc = 'returning') => ({ sc, net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
@@ -209,7 +213,7 @@ function runNet(r, work, done, opts = {}) {
   if (net === 'slow') { setTimeout(() => { if (r.u.busy !== token) return; r.u.busy = null; r.u.alert = { kind: 'timeout' }; render(); }, 6000); return; }
   setTimeout(() => {
     if (r.u.busy !== token) return; r.u.busy = null;
-    if (net === 'error') { r.u.alert = { kind: 'error', what: opts.what || 'save your changes' }; render(); return; }
+    if (net === 'error') { if (opts.onError && opts.onError()) { render(); return; } r.u.alert = { kind: 'error', what: opts.what || 'save your changes' }; render(); return; }
     const out = work(); done(out);
   }, 700);
 }
@@ -292,7 +296,7 @@ var render = function () {
 function renderDevice() {
   const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog || n.info);
   let h = `<div class="dev-status" aria-hidden="true"><span>9:41</span><span class="dev-status__right">${ic('wifi', 'ads-icon--sm')}<span class="dev-batt"></span></span></div>`;
-  h += `<div class="app" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
+  h += `<div class="app app--${n.tab}" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
   if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog || n.info));
   if (n.cover) h += renderCover(n.cover, !!(n.dialog || n.info));
   if (n.info) h += renderInfo(n.info, !!n.dialog);
@@ -316,7 +320,7 @@ function ipadNav() {
   const n = nav(), d = D();
   return `<header class="ads-ipad-nav app-ipadnav"><span class="ipad-logo" role="img" aria-label="Amtrak">__LOGO_H__</span>
     <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><button class="ads-tabbar-ipad__button" type="button" aria-label="Show sidebar" aria-pressed="false" data-a="noop" title="Sidebar (not part of Sprint 4)">${ic('sidebar')}</button><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
-    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span>`}</button></div></header>`;
+    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
 }
 
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
@@ -483,7 +487,7 @@ function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (co
 const VERSION_NAMES = { 1: 'Familiar', 2: 'Guided', 3: 'Overview', 4: 'Compact' };
 // Stakeholder feedback: Concepts 1 and 3 are advanced and reviewed; 2 and 4 are archived (still usable from Archive)
 const REVIEWED = [1, 3], ARCHIVED = [2, 4];
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates and travelers open in rounded sheets over it; the assistance check and the discount code sit on the surface. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;

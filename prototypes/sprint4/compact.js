@@ -42,5 +42,5 @@ function flOfflineNote(b) {
 }
 INFO.assistance = {
   title: 'Assistance',
-  body: () => `<p>Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. Answer for each traveler who needs help; the others can stay without answers.</p><p>One traveler with a disability may bring one personal companion, who gets the Companion discount.</p><p>Answering the questions for the first time needs a connection. After that you can finish or review them offline. Finding trains needs a connection.</p><p class="info-draft">Final explanation text comes from AEM (NMA-973 AC2).</p>`
+  body: () => `<p>Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. Answer for each traveler who needs help; the others can stay without answers.</p><p>One traveler with a disability may bring one personal companion, who gets the Companion discount.</p><p>Answering the questions for the first time needs a connection. After that you can finish or review them offline. Finding trains needs a connection.</p><p class="info-draft">Final explanation text comes from AEM.</p>`
 };

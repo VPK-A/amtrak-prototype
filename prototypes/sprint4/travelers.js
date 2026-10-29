@@ -14,11 +14,11 @@ function travelerList(b) {
   const d = D(), it = intentOf(b), out = [];
   if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
   else if (it === 'pr' && d.passrider) {
-    out.push({ key: 'pr-you', type: 'pr', short: `You · ${prRoleLabel(d)}` });
+    if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: `You · ${prRoleLabel(d)}` });
     if (b.prType !== 'business') {
-      const f = b.prPax;
-      for (let i = 1; i <= f.fam; i++) out.push({ key: `pr-fam-${i}`, type: 'pr', short: d.passrider.role === 'employee' ? 'Spouse' : d.passrider.role === 'spouse' ? 'Employee' : 'Employee or spouse' });
-      for (let i = 1; i <= f.dep; i++) out.push({ key: `pr-dep-${i}`, type: 'pr', short: `Dependent ${i}` });
+      const f = b.prPax, role = d.passrider.role;
+      for (let i = 1; i <= f.fam; i++) out.push({ key: `pr-fam-${i}`, type: 'pr', short: role === 'spouse' ? 'Employee' : role === 'dependent' ? 'Employee or spouse' : 'Spouse' });
+      for (let i = 1; i <= f.dep; i++) out.push({ key: `pr-dep-${i}`, type: 'pr', short: `${role === 'dependent' ? 'Other dependent' : 'Dependent'} ${i}` });
       for (let i = 1; i <= f.comp; i++) out.push({ key: `pr-comp-${i}`, type: 'pr', short: `Companion Pass ${i}` });
     }
   } else paxList(b).forEach(t => out.push({ key: t.key, type: t.type, i: t.i, short: PAX_LABEL[t.type] }));
@@ -104,8 +104,11 @@ function assistSummaryLine(b) {
 function travelerChoices(b) {
   const it = intentOf(b), parts = [];
   if (['standard', 'personal'].includes(it)) { const d = discSummary(b); if (d !== 'None chosen') parts.push(d); }
+  if (it === 'pr' && b.prType !== 'business') { const kids = travelerList(b).filter(t => prKind(b, t.key) === 'child').length; if (kids) parts.push(`${kids} child${kids > 1 ? 'ren' : ''}`); }
   const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return b.assistOn && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
-  if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
+  const all = travelerList(b).length, miss = b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done).length : 0;
+  if (miss) parts.push(`Assistance answered for ${all - miss} of ${all}`); // NMA-615 BR1.2: everyone answers while checked
+  else if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
   if (assistProblems(b).length) parts.push('Assistance needs a change');
   return parts.join(' · ');
 }
@@ -136,22 +139,14 @@ function assistTravelerList(b) {
 }
 
 // ---------- Pass Rider eligibility (NMA-623, 1016, 1017) ----------
-// Employees and spouses can start Pass Rider travel. A dependent can at 16 or older (NMA-1017 AC4); their age
-// comes from the profile's date of birth (NMA-919). How the app learns the relationship is open (Q16).
-function ageFromDob(dob) {
-  if (!dob || !validDob(dob)) return null;
-  const [m, dd, y] = dob.split('/').map(Number);
-  let a = TODAY.getFullYear() - y; if (TODAY.getMonth() + 1 < m || (TODAY.getMonth() + 1 === m && TODAY.getDate() < dd)) a--;
-  return a;
-}
+// Employees, retirees, spouses and dependents 16 or older can book on their own (NMA-1017 table). The pass
+// file has no dependent age or date of birth, so the prototype takes it from the reviewer fixture
+// (Scenario › Pass Rider dependent 15 or younger). How the app learns relationship and age is open (Q16).
 function prCanStart(d) {
   const p = d.passrider;
   if (!p) return { ok: false, text: 'Add your Amtrak employee pass details in profile to book Pass Rider travel.' };
-  if (p.role !== 'dependent') return { ok: true };
-  const age = ageFromDob(d.profile.dob);
-  if (age == null) return { ok: false, text: 'Dependents 16 or older can start Pass Rider travel. Add your date of birth in profile.' };
-  if (age < 16) return { ok: false, text: 'Dependents under 16 can’t start Pass Rider travel. The employee or their spouse can book it and add you.' };
-  return { ok: true, age };
+  if (p.role === 'dependent' && p.minor) return { ok: false, text: 'Dependents 15 or younger can’t book Pass Rider travel on their own. The employee, their spouse or a dependent 18 or older can book it and add you.' };
+  return { ok: true };
 }
 
 // Demo state (Flow › J): two adults, Traveler 1 with a disability, Traveler 2 as their personal companion
@@ -178,8 +173,8 @@ A['assist-remove'] = t => {
 const assistSeen = (b, key) => !!(b.taSeen && b.taSeen[key]);
 function assistOffline(returnFocus, key) {
   const b = D().booking; key = key || firstKey(b);
-  if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.assistOffline = null; return false; }
-  if (assistSeen(b, key)) return false;
+  if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.formLoaded = true; b.assistOffline = null; return false; }
+  if (assistSeen(b, key) || ((v1() || v3()) && b.formLoaded)) return false; // Concepts 1 and 3: once the questions have loaded, they work offline (NMA-996, 997)
   if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the assistance row
   dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['OK', 'primary', null]], returnFocus });
   return true;

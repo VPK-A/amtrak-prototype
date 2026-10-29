@@ -30,13 +30,42 @@ const stLabel = c => c ? `${ST[c].city}, ${ST[c].st} (${c})` : '';
 
 // ---------- Tabs (App Shell destinations; only Book has Sprint 4 content) ----------
 const TABS = {
-  book: () => `<div class="tabpage"><h1 class="ads-h3">Book</h1>
-    <button class="newbooking" type="button" data-a="open-booking">${ic('search')}<b>New booking</b><span class="ads-text-tertiary">Where to?</span></button>
-    <p class="sec">Explore destinations</p><div class="tiles"><div class="tile"><b>Recommended trips</b><small>Pacific Surfliner, Adirondack</small></div><div class="tile"><b>Routes near me</b><small>Favorite stations</small></div></div>
-    <p class="sec">Plan your trip</p><div class="tiles"><div class="tile"><b>Passes</b><small>Not part of Sprint 4</small></div><div class="tile"><b>Gift cards</b><small>Not part of Sprint 4</small></div></div></div>`,
+  book: () => bookLanding(),
   trips: () => `<div class="tabpage"><h1 class="ads-h3">Trips</h1><div class="ads-segmented" role="group" aria-label="Trips"><button type="button" aria-pressed="false">Active</button><button type="button" aria-pressed="true">Upcoming</button><button type="button" aria-pressed="false">Past</button></div><div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No upcoming trips</p><p class="ads-body-small">Trips you book show up here. Trip management is outside Sprint 4.</p></div></div>`,
-  'train-status': () => `<div class="tabpage"><h1 class="ads-h3">Train status</h1><div class="ads-summary"><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div><p class="ads-body-small ads-text-secondary">Train status isn’t part of Sprint 4. Its station search will reuse the Book station search (NMA-600).</p></div></div>`,
+  'train-status': () => `<div class="tabpage"><h1 class="ads-h3">Train status</h1><div class="ads-summary"><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div><p class="ads-body-small ads-text-secondary">Train status isn’t part of Sprint 4. Its station search will reuse the Book station search.</p></div></div>`,
   support: () => `<div class="tabpage"><h1 class="ads-h3">Support</h1>${group('', [grow({ label: 'Issue with your trip?', value: 'Disruptions and cancellations' }), grow({ label: 'Know before booking', value: 'Accessible travel and station help' }), grow({ label: 'Contact Amtrak', value: 'Text · Call · Email · Live chat' })])}<p class="ads-body-small ads-text-secondary">Support content isn’t part of Sprint 4.</p></div>`
+};
+
+// ---------- Book landing ----------
+// New booking entry, two explore cards, recent trips to rebook (only when there's history) and supporting
+// links. The member header (avatar, greeting, tier and points, inbox) is the App Shell header above it.
+const BK_ART = {
+  trips: `<svg viewBox="0 0 160 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect class="bk-a-sky" width="160" height="96"/><circle class="bk-a-sun" cx="122" cy="26" r="11"/><path class="bk-a-hill2" d="M0 66 L34 40 L60 58 L92 30 L130 62 L160 46 V96 H0 Z"/><path class="bk-a-hill" d="M0 78 Q40 60 80 74 T160 70 V96 H0 Z"/><rect class="bk-a-rail" x="0" y="84" width="160" height="3"/><rect class="bk-a-train" x="40" y="72" width="62" height="12" rx="4"/><rect class="bk-a-win" x="48" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="60" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="72" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="84" y="75" width="8" height="5" rx="1"/></svg>`,
+  near: `<svg viewBox="0 0 160 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect class="bk-a-map" width="160" height="96"/><path class="bk-a-road" d="M-4 70 C40 60 60 30 100 34 S150 20 168 12"/><path class="bk-a-road2" d="M20 -4 L52 100 M110 -4 L96 100"/><path class="bk-a-line" d="M-4 70 C40 60 60 30 100 34 S150 20 168 12"/><path class="bk-a-pin" d="M100 12 a10 10 0 0 1 10 10 c0 8 -10 18 -10 18 s-10 -10 -10 -18 a10 10 0 0 1 10 -10 Z"/><circle class="bk-a-dot" cx="100" cy="22" r="3.5"/><circle class="bk-a-pin2" cx="42" cy="62" r="5"/></svg>`
+};
+function bookLanding() {
+  const d = D(), hist = d.signedIn ? (d.history || []) : [];
+  const card = (a, art, title, sub) => `<li class="bk-card"><div class="bk-card__media">${BK_ART[art]}</div><div class="bk-card__body"><h2 class="bk-card__title">${title}</h2><p class="bk-card__sub">${sub}</p><button class="ads-link ads-link--sm linkbtn bk-card__cta" type="button" data-a="${a}" aria-label="Explore ${title.toLowerCase()}">Explore ${ic('chevron-right', 'ads-icon--sm')}</button></div></li>`;
+  const near = d.signedIn && d.fav.length ? ['Favorite stations', `Trains from ${ST[d.fav[0]].city} and nearby stations`] : ['Routes near me', 'Trains from stations near you'];
+  const rebook = hist.length ? `<section class="bk-sec" aria-labelledby="bk-rebook-h"><h2 class="bk-h" id="bk-rebook-h">Book again</h2><ul class="bk-list bk-rebook">${hist.map((h, i) => `<li class="bk-trip"><div class="bk-trip__text"><span class="bk-trip__route">${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}</span><span class="bk-trip__meta">${h.from} → ${h.to} · ${fmtShort(h.date)} · ${esc(h.train)}</span></div><button class="ads-btn ads-btn--sm bk-trip__btn" type="button" data-a="rebook" data-i="${i}" aria-label="Rebook ${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}">Rebook</button></li>`).join('')}</ul></section>` : '';
+  const link = (a, t, sub, icon) => `<li><button class="bk-link" type="button" data-a="${a}">${ic(icon, 'bk-link__icon')}<span class="bk-link__text"><span class="bk-link__title">${t}</span><span class="bk-link__sub">${sub}</span></span>${ic('chevron-right', 'bk-link__chev')}</button></li>`;
+  return `<div class="tabpage bk"><h1 class="ads-sr-only">Book</h1>
+    <button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button>
+    <ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
+    ${rebook}
+    <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="bk-h" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
+}
+const bkStub = (t, opener) => openSheet('explore', [R('stub', { t })], opener);
+A['bk-recommended'] = () => bkStub('Recommended trips', '[data-a="bk-recommended"]');
+A['bk-explore'] = () => bkStub('Explore', '[data-a="bk-explore"]');
+A['bk-passes'] = () => bkStub('Passes', '[data-a="bk-passes"]');
+// Favorite stations / routes near me: the existing station search, with favorites and recents first
+A['bk-near'] = () => { openSheet('booking', ['ff'], '[data-a="bk-near"]'); push('stations', { field: 'from' }, 0); };
+// Rebook: a new booking with the past trip's route; dates and travelers start fresh (no trip-history service yet)
+A.rebook = t => {
+  const i = +t.dataset.i, h = D().history[i], b = D().booking;
+  Object.assign(b, { from: h.from, to: h.to, trip: 'ow', dep: TODAY_S, ret: null, notice: null });
+  openSheet('booking', ['ff'], `[data-a="rebook"][data-i="${i}"]`);
 };
 
 // ---------- Split rules (iPad) ----------
@@ -73,14 +102,6 @@ function dateFields(r, opts = {}) {
 const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
-// Version 1: the coupon or promo code as its own grouped row under Travelers (NMA-613), apart from traveler discounts
-function codeRowV1(b) {
-  if (D().coupons.length) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  const info = `<button class="ads-icon-btn ads-icon-btn--sm v1code__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
-  if (b.pay === 'points') return `<div class="ads-group"><div class="ads-group__body v1code"><div class="ads-group__row">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : ''}</span></span></div>${info}</div></div>`;
-  if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: (() => { const n = D().signedIn ? D().coupons.filter(c => !c.lounge).length : 0; return n ? `Add a code · ${n} saved in My coupons` : 'Add a code'; })(), k: 'row-code' })}${info}</div></div>`;
-  return `<div class="ads-group"><div class="ads-group__body"><div class="ads-group__row v1code__applied">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">${esc(b.code.code)} · ${esc(b.code.kind)}${b.code.benefit ? `<br>${esc(b.code.benefit)}` : ''}<br>Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div></div></div>`;
-}
 // Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
 function payV1(b) {
   if (!D().signedIn) return '';
@@ -90,9 +111,8 @@ function payV1(b) {
 function travelersRow(r, opts = {}) {
   const b = D().booking, it = intentOf(b);
   const label = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
-  const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fares apply'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
-  const err = r.u && r.u.showErr && assistProblems(b).length ? assistProblems(b)[0] : ''; // assistance lives in Traveler selection
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: value == null ? null : esc(value), current: opts.open })]) + (err ? `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(err)} Open travelers to fix it.</span></p>` : '');
+  const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fare'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: value == null ? null : esc(value), current: opts.open })]) + travErr(r, b);
 }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
@@ -100,15 +120,16 @@ function modesV1(r, b) {
   const out = [];
   if (d.triplink) { ref('622'); out.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'v1intent')); }
   if (d.passrider) {
-    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'v1intent'));
+    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Regular']], b.intent, 'v1intent'));
     if (b.intent === 'pr') {
-      const elig = d.passrider.role === 'employee' && d.passrider.business, miss = r.u.showErr && !b.prType;
-      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" ${miss ? 'aria-describedby="v1-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="v1-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone.</p>'}</div>`
-        : `<p class="ads-helper">Travel type: Leisure. ${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</p>`);
+      const elig = d.passrider.role === 'employee' && d.passrider.business;
+      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>`
+        : `<p class="ads-helper">Travel type: Leisure. ${prLeisureWhy(d)}</p>`);
     }
   }
   if (!out.length) return '';
-  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${b.intent === 'corporate' ? q(12) : ''}</div>`;
+  if (b.intent === 'corporate') q(12);
+  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -126,7 +147,13 @@ function assistBlock(r, ri, host, o = {}) {
   return h;
 }
 function ffNotice(b) { return b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="dismiss-notice" aria-label="Dismiss">${ic('close', 'ads-icon--sm')}</button></div>` : ''; }
-function findBtn(r) { return r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains">Find trains</button>`; }
+// Find trains: disabled while Business or Leisure isn't chosen (NMA-1016 AC2) or while assistance questions open
+function findBtn(r) {
+  const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
+  if (r.u.busy && r.u.busyWhat !== 'assist') return busyBtn(r, '', 'Finding trains');
+  const off = needType || (r.u.busy && r.u.busyWhat === 'assist');
+  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+}
 
 SCR.ff = (r, ri) => {
   const b = D().booking, v = V();
@@ -135,10 +162,10 @@ SCR.ff = (r, ri) => {
   if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
   if (v2()) return ffGuided(r, ri);
-  ref('613');
   const std = ['standard', 'personal'].includes(intentOf(b));
-  if (std) q(21); q(22);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`; // assistance lives on each traveler in Traveler selection
+  q(22); if (std) codeTips();
+  // Travelers, the assistance check (NMA-973), the discount code (NMA-613), then Pay with (proposed order, Q21)
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistCheck(r, ri, b)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${r.u.busyWhat === 'assist' ? '' : netAlert(r)}`;
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -149,12 +176,7 @@ A['dismiss-notice'] = () => { D().booking.notice = null; pendingFocus = 'title';
 A['pick-station'] = (t, ri) => push('stations', { field: t.dataset.field }, +ri);
 A['pick-date'] = (t, ri) => push('calendar', { field: t.dataset.field }, +ri);
 A['pick-travelers'] = (t, ri) => push('travelers', {}, +ri);
-A['find-trains'] = (t, ri) => {
-  const r = routeAt(ri), b = D().booking, e = ffErrors(b);
-  if (e.from || e.to || e.ret) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret'; render(); return; }
-  r.u.showErr = false;
-  searchWithCode(r, ri);
-};
+// Find trains: the checks live in clear.js (one place for every concept)
 A['pick-travelers-done'] = (t, ri) => pop();
 
 // =====================================================================
@@ -181,7 +203,7 @@ function stationRow(s, field, sec) {
   const blocked = s.tag && autoTrainBlocked();
   const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
   const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t offered for Pass Rider travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 function stationRoute(field) {
@@ -704,7 +726,7 @@ A['disc-save'] = (t, ri) => {
 SCR.rules = () => {
   ref('566');
   const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd>From AEM. Not finalized in this prototype.</dd><dt>Applicable discount</dt><dd>From AEM.</dd><dt>Restrictions</dt><dd>From AEM.</dd></dl></div></details>`;
-  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Content comes from AEM unchanged (NMA-566 BR2). It’s grouped by type so passenger-type benefits and traveler discounts aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
+  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Content comes from AEM unchanged. It’s grouped by type so passenger-type benefits and traveler discounts aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
 };
 
 // =====================================================================

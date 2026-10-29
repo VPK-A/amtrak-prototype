@@ -23,11 +23,11 @@ const INFO = {
   // NMA-628 and NMA-621 have no defined content: placeholders only, no invented copy or behavior
   'service-animals': {
     title: 'Service animals',
-    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Content not defined yet</b><span>Service animal information (NMA-628) has no content or rules in Sprint 4. It will come from AEM.</span></div><p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
+    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Content not defined yet</b><span>Service animal information has no content or rules in Sprint 4. It will come from AEM.</span></div><p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
   },
   'accessible-travel': {
     title: 'Accessible travel',
-    body: () => `<div class="info-pending"><b>Content not defined yet</b><span>About accessible travel with Amtrak (NMA-621) has no content in Sprint 4. It will come from AEM.</span></div>`
+    body: () => `<div class="info-pending"><b>Content not defined yet</b><span>About accessible travel with Amtrak has no content in Sprint 4. It will come from AEM.</span></div>`
   },
   rules: { title: 'Discount rules', body: () => SCR.rules().body }
 };
@@ -42,7 +42,7 @@ function infoTopic(topic) {
 // page itself is NMA-604, outside Sprint 4, so only the data the app already has is shown (Q3).
 function stationInfo(code) {
   const s = ST[code]; if (!s) return { title: 'Station', body: () => '' };
-  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><div class="info-pending"><b>Station details page not in Sprint 4</b><span>Hours, accessibility, parking and amenities belong to the station details page (NMA-604). ${q(3)}</span></div>` };
+  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><div class="info-pending"><b>Station details page not in Sprint 4</b><span>Hours, accessibility, parking and amenities belong to the station details page, which isn’t part of Sprint 4. ${q(3)}</span></div>` };
 }
 // A link that opens supporting information (or, inside the sheet, goes one level deeper)
 function infoLink(topic, label, mode = 'open') {
