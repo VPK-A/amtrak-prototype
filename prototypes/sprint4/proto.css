@@ -801,3 +801,32 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .fl-offline span { min-width: 0; }
 .text-large .fl-offline { grid-template-columns: auto 1fr; }
 .text-large .fl-banner { margin: 0; border-radius: 12px; } /* text zoom scales the bleed margin past the edge */
+
+/* ---------- Date picker: one month at a time, with a fare heat map (fares.js) ---------- */
+.ads-calendar--paged { gap: 10px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.cal-nav__title { margin: 0; flex: 1; text-align: center; font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); }
+.cal-nav__title:focus { outline: none; }
+.cal-nav__title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); border-radius: 4px; }
+.ads-calendar--paged .ads-calendar__weekdays { position: static; }
+.ads-day__n { line-height: 1; }
+.ads-calendar__grid.has-fares { row-gap: 4px; }
+.ads-calendar__grid.has-fares .ads-day { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 1px 2px; border-radius: 10px; }
+.ads-day__p { font-size: 11px; line-height: 1; color: var(--ads-content-text-secondary); font-weight: 400; letter-spacing: -0.2px; }
+.ads-day--fare-low::before { background: var(--ads-background-status-success-subtle); }
+.ads-day--fare-high::before { background: var(--ads-background-status-warning-subtle); }
+.ads-day--fare-low .ads-day__p { color: var(--ads-content-text-primary); }
+.ads-day[aria-pressed="true"] .ads-day__p { color: inherit; }
+.has-fares .ads-day--in-range::after, .has-fares .ads-day--range-start::after, .has-fares .ads-day--range-end::after { content: ""; position: absolute; bottom: 0; height: 3px; background: var(--ads-border-focus); left: 0; right: 0; }
+.has-fares .ads-day--range-start::after { left: 50%; } .has-fares .ads-day--range-end::after { right: 50%; }
+.has-fares .ads-day--in-range, .has-fares .ads-day--range-start, .has-fares .ads-day--range-end { background: none; }
+.cal-legend { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ads-content-text-secondary); }
+.cal-legend--none { margin: 0; }
+.cal-legend__keys { display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-key { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; color: var(--ads-content-text-primary); border: 1px solid var(--ads-border-subtle); }
+.cal-key--low { background: var(--ads-background-status-success-subtle); }
+.cal-key--high { background: var(--ads-background-status-warning-subtle); }
+.text-large .ads-calendar__grid.has-fares .ads-day { height: 64px; }
+.cal-pick > button { height: auto; min-height: 44px; padding: 6px 8px; white-space: normal; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.cal-pick__k { font-size: 12px; color: inherit; opacity: 0.8; }

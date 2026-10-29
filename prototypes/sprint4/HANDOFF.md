@@ -601,3 +601,21 @@ The densest of the four, without hiding anything required (`compact.js`).
   - Compact acceptance run on iPhone and iPad (23 each): full dates, a 4-traveler booking with three distinct requests, a companion set from a tag, removing one request, the three offline cases, the Find Trains handoff, a dependent Pass Rider with two travelers' assistance, and Profile.
   - A density check: the same booking is shortest in Compact.
   - All earlier suites, and accessibility checks in light and dark mode at 100% and 140% text.
+
+## Date picker: one month at a time, with a fare heat map (all versions)
+
+- **Paging:** the shared calendar shows one month at a time with Previous and Next month buttons.
+  - It opens on the month of the date being picked and stays there after the departure is chosen, so the return can be picked in the same view.
+  - The buttons stop at the current month and at the end of the 335-day window.
+  - The Depart and Return toggle wraps onto two lines, so the full dates fit.
+- **Fare heat map** (`fares.js`, Q20):
+  - Each available day shows the lowest one-way Coach fare per traveler, tinted against the other days of the month on screen: lower (green), typical (no tint) or higher (amber). The colors use the status tokens, so they work in light and dark mode.
+  - Prices show as text and in each day's spoken label ("from $97, lower fare"), so color isn't the only signal. A legend explains the shades.
+  - The return leg is priced for the reverse direction. With *Pay with Points*, values show in points.
+  - With no stations chosen, or for TripLink Corporate and Pass Rider bookings, no prices are shown and the legend says why.
+  - The round-trip range shows as a thin bar under the days, so it doesn't compete with the tints.
+- **Prices are illustrative, not live.** No Sprint 4 story covers a fare calendar, and there's no fare source. The page labels them and Q20 lists what's needed: a fares service, which fare to show, how to show points, and Pass Rider and Corporate.
+- **Checks:**
+  - Calendar suite, 43 checks on iPhone and iPad in all four versions: one month, the limits, next month, three fare levels, spoken prices, picking across months, the range, the end of the window, no route, Pass Rider, and points.
+  - Accessibility in light and dark mode at 100% and 140% text.
+  - The earlier suites, updated to page to later months.

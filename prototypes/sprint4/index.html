@@ -2245,6 +2245,35 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .text-large .fl-offline { grid-template-columns: auto 1fr; }
 .text-large .fl-banner { margin: 0; border-radius: 12px; } /* text zoom scales the bleed margin past the edge */
 
+/* ---------- Date picker: one month at a time, with a fare heat map (fares.js) ---------- */
+.ads-calendar--paged { gap: 10px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.cal-nav__title { margin: 0; flex: 1; text-align: center; font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); }
+.cal-nav__title:focus { outline: none; }
+.cal-nav__title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); border-radius: 4px; }
+.ads-calendar--paged .ads-calendar__weekdays { position: static; }
+.ads-day__n { line-height: 1; }
+.ads-calendar__grid.has-fares { row-gap: 4px; }
+.ads-calendar__grid.has-fares .ads-day { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 1px 2px; border-radius: 10px; }
+.ads-day__p { font-size: 11px; line-height: 1; color: var(--ads-content-text-secondary); font-weight: 400; letter-spacing: -0.2px; }
+.ads-day--fare-low::before { background: var(--ads-background-status-success-subtle); }
+.ads-day--fare-high::before { background: var(--ads-background-status-warning-subtle); }
+.ads-day--fare-low .ads-day__p { color: var(--ads-content-text-primary); }
+.ads-day[aria-pressed="true"] .ads-day__p { color: inherit; }
+.has-fares .ads-day--in-range::after, .has-fares .ads-day--range-start::after, .has-fares .ads-day--range-end::after { content: ""; position: absolute; bottom: 0; height: 3px; background: var(--ads-border-focus); left: 0; right: 0; }
+.has-fares .ads-day--range-start::after { left: 50%; } .has-fares .ads-day--range-end::after { right: 50%; }
+.has-fares .ads-day--in-range, .has-fares .ads-day--range-start, .has-fares .ads-day--range-end { background: none; }
+.cal-legend { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ads-content-text-secondary); }
+.cal-legend--none { margin: 0; }
+.cal-legend__keys { display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-key { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; color: var(--ads-content-text-primary); border: 1px solid var(--ads-border-subtle); }
+.cal-key--low { background: var(--ads-background-status-success-subtle); }
+.cal-key--high { background: var(--ads-background-status-warning-subtle); }
+.text-large .ads-calendar__grid.has-fares .ads-day { height: 64px; }
+.cal-pick > button { height: auto; min-height: 44px; padding: 6px 8px; white-space: normal; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.cal-pick__k { font-size: 12px; color: inherit; opacity: 0.8; }
+
 </style>
 </head>
 <body class="ads-root">
@@ -4077,6 +4106,51 @@ Profile.</li>
 at 100% and 140% text.</li>
 </ul></li>
 </ul>
+<h2
+id="date-picker-one-month-at-a-time-with-a-fare-heat-map-all-versions">Date
+picker: one month at a time, with a fare heat map (all versions)</h2>
+<ul>
+<li><strong>Paging:</strong> the shared calendar shows one month at a
+time with Previous and Next month buttons.
+<ul>
+<li>It opens on the month of the date being picked and stays there after
+the departure is chosen, so the return can be picked in the same
+view.</li>
+<li>The buttons stop at the current month and at the end of the 335-day
+window.</li>
+<li>The Depart and Return toggle wraps onto two lines, so the full dates
+fit.</li>
+</ul></li>
+<li><strong>Fare heat map</strong> (<code>fares.js</code>, Q20):
+<ul>
+<li>Each available day shows the lowest one-way Coach fare per traveler,
+tinted against the other days of the month on screen: lower (green),
+typical (no tint) or higher (amber). The colors use the status tokens,
+so they work in light and dark mode.</li>
+<li>Prices show as text and in each day's spoken label ("from $97, lower
+fare"), so color isn't the only signal. A legend explains the
+shades.</li>
+<li>The return leg is priced for the reverse direction. With <em>Pay
+with Points</em>, values show in points.</li>
+<li>With no stations chosen, or for TripLink Corporate and Pass Rider
+bookings, no prices are shown and the legend says why.</li>
+<li>The round-trip range shows as a thin bar under the days, so it
+doesn't compete with the tints.</li>
+</ul></li>
+<li><strong>Prices are illustrative, not live.</strong> No Sprint 4
+story covers a fare calendar, and there's no fare source. The page
+labels them and Q20 lists what's needed: a fares service, which fare to
+show, how to show points, and Pass Rider and Corporate.</li>
+<li><strong>Checks:</strong>
+<ul>
+<li>Calendar suite, 43 checks on iPhone and iPad in all four versions:
+one month, the limits, next month, three fare levels, spoken prices,
+picking across months, the range, the end of the window, no route, Pass
+Rider, and points.</li>
+<li>Accessibility in light and dark mode at 100% and 140% text.</li>
+<li>The earlier suites, updated to page to later months.</li>
+</ul></li>
+</ul>
 
   </article>
 </div>
@@ -4206,6 +4280,7 @@ const QUESTIONS = {
   15: ['Reauthentication to change email', 'Conflict: NMA-21 BR3 and BR4 ask for Verify it’s you only when the access token (40 minutes) has expired, and go straight to the new email otherwise. NMA-980 scenario 12 always requires signing in again. The prototype follows NMA-21: Scenario › Session token chooses which path you see.'],
   16: ['Pass Rider identifiers', 'NMA-623 says the Pass Rider experience needs a SAP ID and Index Number in the Profile; NMA-20 stores a 9-digit Pass Number and a 3-digit Personal Index Number. The prototype uses NMA-20’s fields. How the relationship (employee, spouse, dependent) is known, and whether the dependent experience differs (NMA-623 AC3–AC6), are open.'],
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
+  20: ['Fares on the calendar', 'No Sprint 4 story covers prices in the date picker, and there’s no fare source. The heat map uses illustrative fares (route, weekday, how soon, holidays): the lowest one-way Coach fare per traveler, shaded lower, typical or higher against the month on screen. Needs a fares service, the fare to show (lowest, per traveler or for the whole party), how points are shown, and what to show for Pass Rider and Corporate.'],
   19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. The prototype lets any traveler be one, and asks who they accompany so the one-each rule can be checked.'],
   18: ['Wheelchair and mobility device details (NMA-29)', 'Partly defined, awaiting clarification: the story asks for device details under “I have a disability and reduced mobility”, its prerequisite names “I do not have a disability, but need assistance”, and most of its table is still Open. Not built beyond the existing wheelchair question.'],
   10: ['Traveler age bands and who can accompany minors', 'Conflict in NMA-611. BR3 and BR4 count Adult, Senior and Young Adult (16–17) as accompanying travelers, but the Child message says “at least one adult who is 18 years old”, and BR4 (Infant) reuses the Youth message. Until this is decided, the prototype requires an Adult or Senior, and a Young Adult alone can’t accompany. Age ranges also aren’t final (Core Flow labels Adult 16–64).'],
@@ -5028,22 +5103,36 @@ function calendarBody(r, ri, field) {
   ref('1060');
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = addDays(b.dep, WINDOW_DAYS);
   const last = parse(picking === 'ret' ? maxRet : maxDep);
-  const months = [];
-  for (let d = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); d <= last; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) months.push(new Date(d));
-  const day = (y, m, dd) => {
-    const s = iso(new Date(y, m, dd));
-    const disabled = s < TODAY_S || (picking === 'dep' && s > maxDep) || (picking === 'ret' && (s < b.dep || s > maxRet));
+  // One month at a time (it opens on the month of the date being picked); fares as a heat map (fares.js)
+  const firstM = iso(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)).slice(0, 7), lastM = iso(last).slice(0, 7);
+  if (!r.u.month || r.u.monthFor !== picking) { r.u.month = monthKey(picking === 'ret' ? (b.ret || b.dep) : b.dep); r.u.monthFor = picking; }
+  if (r.u.month < firstM) r.u.month = firstM; if (r.u.month > lastM) r.u.month = lastM;
+  const [my, mm] = r.u.month.split('-').map(Number), m = new Date(my, mm - 1, 1);
+  const mode = fareMode(b), [legFrom, legTo] = picking === 'ret' ? [b.to, b.from] : [b.from, b.to];
+  const isOff = s => s < TODAY_S || (picking === 'dep' && s > maxDep) || (picking === 'ret' && (s < b.dep || s > maxRet));
+  const nDays = new Date(my, mm, 0).getDate(), fares = {};
+  if (mode.kind !== 'none') for (let dd = 1; dd <= nDays; dd++) { const s = iso(new Date(my, mm - 1, dd)); if (!isOff(s)) fares[s] = dayFare(legFrom, legTo, s); }
+  const level = fareLevels(Object.values(fares));
+  if (mode.kind !== 'none') ref('1060');
+  const day = (y, mo, dd) => {
+    const s = iso(new Date(y, mo, dd));
+    const disabled = isOff(s);
     const isDep = s === b.dep, isRet = b.trip === 'rt' && s === b.ret, inRange = b.trip === 'rt' && b.ret && s > b.dep && s < b.ret;
-    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : ''].filter(Boolean).join(' ');
-    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : ''}`;
-    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
+    const f = fares[s], lv = f != null ? level(f) : null;
+    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : '', lv ? `ads-day--fare-${lv}` : ''].filter(Boolean).join(' ');
+    const price = f != null ? `, ${mode.kind === 'points' ? fareText(f, 'points') + ' points' : 'from ' + fareText(f, 'cash')}, ${FARE_WORD[lv]}` : '';
+    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : price}`;
+    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span>${f != null ? `<span class="ads-day__p" aria-hidden="true">${fareText(f, mode.kind)}</span>` : ''}</button>`;
   };
-  const monthHtml = m => { const y = m.getFullYear(), mo = m.getMonth(), first = m.getDay(), n = new Date(y, mo + 1, 0).getDate(); let g = ''; for (let i = 0; i < first; i++) g += '<span></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd); return `<div class="ads-calendar__month"><h3>${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-label="${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}">${g}</div></div>`; };
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}">Depart · ${fmtShortY(b.dep)}</button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}">Return · ${b.ret ? fmtShortY(b.ret) : 'not set'}</button></div>` : '';
+  const title = m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
+  const nav = `<div class="cal-nav"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="-1" aria-label="Previous month" ${r.u.month <= firstM ? 'disabled' : ''}>${ic('chevron-left', 'ads-icon--sm')}</button><h3 class="cal-nav__title" id="cal-m" tabindex="-1" aria-live="polite">${title}</h3><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="1" aria-label="Next month" ${r.u.month >= lastM ? 'disabled' : ''}>${ic('chevron-right', 'ads-icon--sm')}</button></div>`;
+  const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid${mode.kind !== 'none' ? ' has-fares' : ''}" role="group" aria-labelledby="cal-m">${g}</div></div>`;
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
-  return `${pickSeg}${prompt}${notice}<div class="ads-calendar"><div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div>${months.map(monthHtml).join('')}</div>${limit}`;
+  return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}${fareLegend(mode)}</div>${limit}`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
@@ -5558,6 +5647,49 @@ A['vf-verify'] = () => {
   setTimeout(() => { if (nav().cover !== c) return; c.status = code === '123456' ? 'success' : code === '000000' ? 'expired' : 'invalid'; if (c.status === 'success') clearInterval(cooldownT); pendingFocus = c.status === 'success' ? '.vf-success + *, [data-a="vf-finish"]' : '#vf-code'; render(); }, 900);
 };
 A['vf-finish'] = () => endVerify(true);
+
+/* Sprint 4 prototype: illustrative fares for the date heat map, shared by every date picker.
+   Sprint 4 has no fare data or fare-calendar story (Q20), so these are made up from the route, weekday, how
+   soon the trip is and holiday periods. They're labeled as illustrative wherever they appear. */
+
+const strHash = s => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+// Lowest one-way Coach fare per traveler for a leg on a day, or null when it can't be priced
+function dayFare(from, to, s) {
+  if (!from || !to) return null;
+  const base = 29 + (strHash([from, to].sort().join('')) % 96);           // route
+  const d = parse(s), dow = d.getDay(), m = d.getMonth(), dd = d.getDate();
+  const week = [1.12, 0.96, 0.86, 0.88, 1.02, 1.24, 1.08][dow];              // Fri and Sun cost more, Tue and Wed less
+  const lead = Math.round((d - TODAY) / 864e5), soon = lead < 7 ? 1.3 : lead < 21 ? 1.12 : 1;
+  const holiday = (m === 10 && dd >= 24 && dd <= 30) || (m === 11 && dd >= 19) || (m === 0 && dd <= 3) ? 1.35 : 1;
+  const wobble = 0.93 + (strHash(s + from + to) % 15) / 100;
+  return Math.round(base * week * soon * holiday * wobble);
+}
+// Which fares the calendar can show for this booking: dollars, points, or none (with the reason)
+function fareMode(b) {
+  const it = intentOf(b);
+  if (it === 'corporate') return { kind: 'none', why: 'Prices aren’t shown for TripLink Corporate bookings. Corporate fares apply.' };
+  if (it === 'pr') return { kind: 'none', why: 'Prices aren’t shown for Pass Rider travel. Pass Rider fares apply.' };
+  if (!b.from || !b.to) return { kind: 'none', why: 'Choose your stations to see prices for each day.' };
+  return { kind: D().signedIn && b.pay === 'points' ? 'points' : 'cash' };
+}
+const fareText = (v, kind) => kind === 'points' ? `${(Math.round(v / 0.029 / 10) * 10).toLocaleString('en-US')}` : `$${v}`;
+// Lower / typical / higher, relative to the selectable days of the month on screen
+function fareLevels(values) {
+  const v = values.filter(x => x != null).sort((a, c) => a - c); if (v.length < 3) return () => 'mid';
+  const lo = v[Math.floor(v.length / 3)], hi = v[Math.floor((v.length * 2) / 3)];
+  return x => x == null ? null : x < lo ? 'low' : x >= hi ? 'high' : 'mid';
+}
+const FARE_WORD = { low: 'lower fare', mid: 'typical fare', high: 'higher fare' };
+function fareLegend(mode) {
+  if (mode.kind === 'none') return `<p class="cal-legend cal-legend--none">${esc(mode.why)}</p>`;
+  return `<div class="cal-legend"><span class="cal-legend__keys"><span class="cal-key cal-key--low">Lower</span><span class="cal-key cal-key--mid">Typical</span><span class="cal-key cal-key--high">Higher</span></span><span class="cal-legend__note">Lowest Coach fare per traveler, one way${mode.kind === 'points' ? ', in points' : ''}. Illustrative prices, not live fares. ${q(20)}</span></div>`;
+}
+// Month navigation (one month at a time)
+const monthKey = s => s.slice(0, 7);
+A['cal-month'] = (t, ri) => {
+  const r = routeAt(ri), [y, m] = (r.u.month).split('-').map(Number), d = new Date(y, m - 1 + (+t.dataset.d), 1);
+  r.u.month = iso(d).slice(0, 7); pendingFocus = `[data-a="cal-month"][data-d="${t.dataset.d}"]:not(:disabled), .cal-nav__title`; render();
+};
 
 /* Sprint 4 prototype: Version 3 Fare Finder, CLEAR-inspired.
    A navy header (heading + booking-mode controls) over a rounded light surface (route, trip type, dates,
