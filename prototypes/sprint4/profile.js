@@ -1,8 +1,8 @@
 /* Sprint 4 prototype: Profile additions shared by all four concepts.
    - Amtrak employee pass details (NMA-20). Saving valid details turns on the Pass Rider Fare Finder (NMA-623);
-     removing them turns it off. NMA-623 names the identifiers "SAP ID and Index Number" while NMA-20 uses
-     a 9-digit Pass Number and a 3-digit Personal Index Number: the prototype follows NMA-20 (Q16).
-   - My Coupons (NMA-697): available coupons (soonest expiry first), used and expired coupons, details,
+     removing them turns it off. NMA-623 names the identifiers "SAP ID and Index number" while NMA-20 uses
+     a 9-digit Pass number and a 3-digit Personal index number: the prototype follows NMA-20 (Q16).
+   - My coupons (NMA-697): available coupons (soonest expiry first), used and expired coupons, details,
      adding a coupon, and Apply, which starts a booking with the code. Lounge passes are listed as coupons. */
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
@@ -23,26 +23,26 @@ EDITORS.employee = (r, ri, inline) => {
   const d = D(), cur = d.employee; ref('20');
   if (!r.u.d) r.u.d = { emp: cur ? 'yes' : '', rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
   const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee';
-  prov('NMA-623 identifies Pass Riders by SAP ID and Index Number; NMA-20 by Pass Number and Personal Index Number. The prototype uses NMA-20’s fields (Q16).');
+  prov('NMA-623 identifies Pass Riders by SAP ID and Index number; NMA-20 by Pass number and Personal index number. The prototype uses NMA-20’s fields (Q16).');
   const yes = x.emp === 'yes', primary = x.rel !== 'employee';
   const radios = [['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<label class="ads-choice ads-radio"><input type="radio" name="${idp}-emp" data-f="emp" value="${v}" ${x.emp === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${l}</span></label>`).join('');
   let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
   if (yes) {
     body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
-    body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass Number' : 'Pass Number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
-    body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal Index Number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
-    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can start Pass Rider travel. Your age comes from the date of birth in your Profile.</p>`;
+    body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
+    body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can start Pass Rider travel. Your age comes from the date of birth in your profile.</p>`;
     if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
-  } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your Profile. Pass Rider booking won’t be available.</p>`;
+  } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your profile. Pass Rider booking won’t be available.</p>`;
   const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
-  tip('Employee pass: any 9-digit Pass Number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3).');
+  tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3).');
   return { body, saveDisabled: unchanged, noSaveWhy: 'Make a change to save.' };
 };
 SAVE.employee = (r, ri) => {
   const x = r.u.d, d = D(), e = {};
   if (x.emp === 'yes') {
-    if (!x.pass) e.pass = 'Enter your Pass Number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass Number not recognized. It has 9 numbers.';
-    if (!x.index) e.index = 'Enter your Personal Index Number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal Index Number not recognized. It has 3 numbers.';
+    if (!x.pass) e.pass = 'Enter your Pass number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass number not recognized. It has 9 numbers.';
+    if (!x.index) e.index = 'Enter your Personal index number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal index number not recognized. It has 3 numbers.';
     if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
   }
   r.u.err = e;
@@ -64,7 +64,7 @@ SAVE.employee = (r, ri) => {
   }, () => afterSave(ri, 'Profile has been updated', 'employee'));
 };
 
-// ---------- My Coupons (NMA-697) ----------
+// ---------- My coupons (NMA-697) ----------
 const couponState = c => c.uses && c.uses.length ? 'used' : c.exp < TODAY_S ? 'expired' : 'available';
 const soon = c => couponState(c) === 'available' && c.exp <= addDays(TODAY_S, 30);
 function couponCard(c) {
@@ -87,16 +87,16 @@ SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '';
   ref('697');
   const load = couponLoad(r);
-  if (load === 'loading') return { title: 'My Coupons', kind: 'push', banner: false, body: `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>` };
-  if (load === 'error') return { title: 'My Coupons', kind: 'push', banner: false, body: alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>') };
+  if (load === 'loading') return { title: 'My coupons', kind: 'push', banner: false, body: `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>` };
+  if (load === 'error') return { title: 'My coupons', kind: 'push', banner: false, body: alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>') };
   const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
   const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
   const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div>${r.u.busy ? `<button class="ads-btn ads-btn--secondary" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button>'}</div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
   const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
   const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
-  tip('My Coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
+  tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
   const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided (NMA-697 BR8). ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
-  return { title: 'My Coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
+  return { title: 'My coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
 };
 A['coupon-add'] = (t, ri) => {
   const r = routeAt(ri), d = D(), c = (r.u.d.add || '').trim().toUpperCase();

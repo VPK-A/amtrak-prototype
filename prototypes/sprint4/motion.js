@@ -92,7 +92,7 @@ function openSheetMotion(dev) {
   play('app', '.app', [{ filter: 'blur(0px)', transform: 'scale(1)' }, { filter: 'blur(3px)', transform: 'scale(0.985)' }], { duration: MT.shared, easing: EASE.settle });
   const o = MOTION.origin && performance.now() - MOTION.origin.at < 600 ? MOTION.origin : null; MOTION.origin = null;
   if (o) {
-    // Shared element: the compact "New Booking · Where to?" control grows into the booking surface
+    // Shared element: the compact "New booking · Where to?" control grows into the booking surface
     play('sheet', '.sheet-layer .psheet', [{ clipPath: insetTo(ps, o) }, { clipPath: `inset(0px round ${sheetRadius(ps)})` }], { duration: MT.shared, easing: EASE.settle });
     play('sheet-content', '.sheet-layer .ads-navbar, .sheet-layer .pane__body > *:nth-child(-n+8), .sheet-layer .pane__foot', [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: MT.control, delay: MT.shared * 0.45, easing: EASE.standard }, MT.stagger);
   } else play('sheet', '.sheet-layer .psheet', IPAD() ? [{ opacity: 0, translate: '0 24px' }, { opacity: 1, translate: '0 0' }] : [{ translate: '0 100%' }, { translate: '0 0' }], { duration: MT.panel + 40, easing: EASE.settle });

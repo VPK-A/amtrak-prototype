@@ -41,7 +41,7 @@ function seed(sc) {
     passrider: sc.startsWith('passrider') ? { role: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0 } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
-    // Amtrak employee pass details in Profile (NMA-20). Pass Rider scenarios start with them saved.
+    // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
     employee: sc.startsWith('passrider') ? { rel: sc === 'passrider-spouse' ? 'spouse' : sc === 'passrider-dependent' ? 'dependent' : 'employee', pass: '418200774', index: sc === 'passrider-spouse' ? '002' : sc === 'passrider-dependent' ? '003' : '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }]
   };
@@ -259,7 +259,7 @@ function startCooldown() {
 
 // ---------- Clear recent stations (NMA-1004) ----------
 function clearDialog() {
-  return { id: 'clear', title: 'Clear recent stations?', body: 'All Recent Stations will be removed.', returnFocus: '[data-a="clear-recents"]',
+  return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed.', returnFocus: '[data-a="clear-recents"]',
     actions: [['Cancel', 'secondary', null], ['Confirm', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
 }
 
@@ -299,12 +299,12 @@ function renderDevice() {
   h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
   return h;
 }
-const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train Status', support: 'Support' }[t]);
+const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train status', support: 'Support' }[t]);
 const TAB_ICONS = { book: 'search', trips: 'payment-voucher', 'train-status': 'train', support: 'question-circle' };
 function appHeader() {
   const d = D();
   const who = d.signedIn ? `<span class="ads-avatar">AR</span><span><span class="ads-appheader__name">Hi, Alex</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span><span class="ads-appheader__name">Sign in</span><span class="ads-appheader__meta">Guest</span></span>`;
-  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification Inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
+  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
 }
 function tabBar() {
   const n = nav();
@@ -314,7 +314,7 @@ function ipadNav() {
   const n = nav(), d = D();
   return `<header class="ads-ipad-nav app-ipadnav"><span class="ipad-logo" role="img" aria-label="Amtrak">__LOGO_H__</span>
     <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><button class="ads-tabbar-ipad__button" type="button" aria-label="Show sidebar" aria-pressed="false" data-a="noop" title="Sidebar (not part of Sprint 4)">${ic('sidebar')}</button><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
-    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification Inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span>`}</button></div></header>`;
+    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span>`}</button></div></header>`;
 }
 
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
@@ -372,7 +372,7 @@ function renderSheet(sh, covered) {
       panes = `<div class="navstage navstage--${a.dir}">${a.dir === 'fwd' ? under : ''}<div class="navstage__top nav-${a.dir}">${current}</div>${a.dir === 'back' ? under : ''}</div>`;
     } else panes = current;
   }
-  const label = sh.id === 'booking' ? 'New Booking' : sh.id === 'inbox' ? 'Notification Inbox' : 'Account';
+  const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
   return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
@@ -421,7 +421,7 @@ function wireDevice() {
     else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else closeSheet(); e.preventDefault(); }
   });
 }
-// Inputs inside V3's inline Profile editor write to that editor, not to the Profile route
+// Inputs inside V3's inline Profile editor write to that editor, not to the profile route
 function inputRoute(t) { const ri = riOf(t); const r = routeAt(ri); return t.closest('[data-ri-edit]') && r && r.u.edit ? r.u.edit : r; }
 function setDraft(r, t) {
   r.u.d = r.u.d || {};
@@ -474,7 +474,7 @@ function renderChrome() {
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
 const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
-const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use Points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
+const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;

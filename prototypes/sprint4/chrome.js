@@ -34,3 +34,9 @@ setChrome(false, false);
   };
   for (const sh of document.styleSheets) { try { walk(sh.cssRules); } catch (e) {} }
 })();
+
+// Sentence case everywhere: no labels forced into capitals by CSS (prototype only; the ADS files are untouched)
+(function noForcedCaps() {
+  const walk = list => { for (const r of list) { if (r.cssRules && !r.style) { walk(r.cssRules); continue; } const st = r.style; if (!st) continue; if (/uppercase|capitalize/.test(st.textTransform)) { st.textTransform = 'none'; if (st.letterSpacing) st.letterSpacing = '0'; } } };
+  for (const sh of document.styleSheets) { try { walk(sh.cssRules); } catch (e) {} }
+})();

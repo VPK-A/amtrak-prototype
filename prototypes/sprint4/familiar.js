@@ -18,7 +18,7 @@ function discountRow(b, t, fromProfile) {
   if (!['standard', 'personal'].includes(intentOf(b))) return famRow('Discount', intentOf(b) === 'pr' ? 'Pass Rider fare' : 'Not used for Corporate bookings', '');
   const x = tdiscOf(b, { ...t, n: t.n }), opts = TDISC[t.type], fixed = !opts || ['pwd', 'companion'].includes(x);
   const why = x === 'pwd' ? 'Set by assistance: this traveler has a disability.' : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Infants ride on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults and seniors, so this infant needs a seat and pays the child fare.' : 'One discount per traveler. Proof may be needed when you travel.';
-  const lock = t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your Profile</span>' : '';
+  const lock = t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : '';
   if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
   return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
@@ -29,7 +29,7 @@ function assistanceRow(b, t) {
   const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
   const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
-  const tag = on && t.n === 1 && a.fromProfile ? ' <span class="ads-lock">From your Profile</span>' : '';
+  const tag = on && t.n === 1 && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   return famRow(`Assistance${tag}`, value, details, '', acts);
 }
 function companionRow(b, t) {
@@ -67,7 +67,7 @@ function paxErrorFor(p, k) {
   if ((k === 'child' || k === 'infant') && p[k] && !grown) return 'Children and infants need an adult 18 or older on this booking.';
   return '';
 }
-// Cancel: put back everything Traveler Selection changed, including assistance
+// Cancel: put back everything Traveler selection changed, including assistance
 A['trav-cancel'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, s = r.u.snap;
   if (s) Object.assign(b, clone(s));

@@ -1,7 +1,7 @@
 /* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:
-   - the Travelers row carries one small tag per traveler with their discount, assistance and companion
+   - the travelers row carries one small tag per traveler with their discount, assistance and companion
      pairing; a tag opens that traveler's short edit sheet (shared with Overview);
-   - the Assistance row keeps Add and Remove for the whole booking and gives every traveler one line with
+   - the assistance row keeps Add and Remove for the whole booking and gives every traveler one line with
      their own Add, Edit or Remove;
    - when offline, a first-time questionnaire can't open (NMA-973); the row says so in one line with Try again. */
 

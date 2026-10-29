@@ -2,7 +2,7 @@
    Three stacked rounded sections (Where, When, Who), one expanded at a time. Completed sections
    collapse into short, editable summaries and can be reopened without restarting. Booking intent and
    Cash/Points sit at the top; coupon and promo codes have their own card, apart from passenger
-   discounts. A persistent bottom bar holds Next and Find Trains. All rules come from the shared code. */
+   discounts. A persistent bottom bar holds Next and Find trains. All rules come from the shared code. */
 
 const GS = ['where', 'when', 'who'];
 const GS_Q = { where: 'Where are you traveling?', when: 'When are you traveling?', who: 'Who’s traveling?' };
@@ -28,7 +28,7 @@ function gsSummary(k, b, d) {
   if (k === 'where') return b.from || b.to ? `${b.from ? `${b.from} · ${ST[b.from].city}` : 'Choose departure'} → ${b.to ? `${b.to} · ${ST[b.to].city}` : 'choose arrival'}` : 'Choose stations';
   if (k === 'when') return b.trip === 'ow' ? `One-way · ${fmtShortY(b.dep)}` : `Round-trip · ${fmtShortY(b.dep)} – ${b.ret ? fmtShortY(b.ret) : 'choose return'}`;
   const as = assistShort(b);
-  if (intent === 'corporate') return `1 Adult · Corporate${as ? ' · ' + as : ''}`;
+  if (intent === 'corporate') return `1 adult · Corporate${as ? ' · ' + as : ''}`;
   if (intent === 'pr') return `${prSummary(b, d)}${b.prType ? '' : ' · choose travel type'}${as ? ' · ' + as : ''}`;
   const extras = [discSummary(b) !== 'None chosen' ? 'Discounts' : '', as].filter(Boolean);
   return [paxSummary(b), ...extras].join(' · ');
@@ -89,11 +89,11 @@ function ffGuided(r, ri) {
   else if (std) code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">Not available when paying with points${b.code ? `<small>Your code ${esc(b.code.code)} is kept for a cash search.</small>` : ''}</span></div></section>`;
   else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts, codes and points aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  tip('Open any section to change it; the others keep their answers. Find Trains works at any point and opens the first section that needs attention.');
+  tip('Open any section to change it; the others keep their answers. Find trains works at any point and opens the first section that needs attention.');
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const nextK = r.u.open && GS[GS.indexOf(r.u.open) + 1];
-  const foot = `<div class="gs-foot">${nextK ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="gs-next" aria-label="Next: ${GS_LABEL[nextK]}">Next</button>` : ''}${r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block" type="button" data-a="find-trains">${ic('search')}Find Trains</button>`}</div>`;
-  return { title: 'New Booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}${member && std ? `<section class="gs gs--pay" aria-label="Payment"><div class="gs-paybox">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay')}</div></section>` : ''}</div>${netAlert(r)}`, foot };
+  const foot = `<div class="gs-foot">${nextK ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="gs-next" aria-label="Next: ${GS_LABEL[nextK]}">Next</button>` : ''}${r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block" type="button" data-a="find-trains">${ic('search')}Find trains</button>`}</div>`;
+  return { title: 'New booking', kind: 'root', cls: 'pane--gs', banner: false, body: `${offline}${top}<div class="gs-stack">${sections}${code}${member && std ? `<section class="gs gs--pay" aria-label="Payment"><div class="gs-paybox">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay')}</div></section>` : ''}</div>${netAlert(r)}`, foot };
 }
 A['gs-open'] = (t, ri) => { const r = routeAt(ri); r.u.open = t.dataset.k; pendingFocus = `#gs-${t.dataset.k}-q`; render(); };
 A['gs-next'] = (t, ri) => { const r = routeAt(ri), n = GS[GS.indexOf(r.u.open) + 1]; if (n) { r.u.open = n; pendingFocus = `#gs-${n}-q`; render(); } };
@@ -116,7 +116,7 @@ A['choose-station'] = (t, ri) => {
   const sh = sheet(), b = D().booking;
   if (sh && sh.stack.length === 1 && sh.stack[0].s === 'ff' && b.from && b.to && sh.stack[0].u.open === 'where') { sh.stack[0].u.open = 'when'; pendingFocus = '#gs-when-q'; render(); }
 };
-// Find Trains: open the first section that needs attention, so nothing required stays hidden
+// Find trains: open the first section that needs attention, so nothing required stays hidden
 function findGuided(t, ri) {
   const r = routeAt(ri), b = D().booking;
   r.u.showErr = true;
