@@ -456,7 +456,11 @@ A['clear-recents'] = () => dialog(clearDialog());
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbArchive', String(TB.v)); setSeg('#tbDevice', TB.dev);
+  // Archived concepts (2, 4) stay usable from Archive; a reviewer-facing tag outside the device says so
+  const arch = ARCHIVED.includes(TB.v), tag = $('#archivedTag');
+  if (tag) { tag.hidden = !arch; tag.textContent = arch ? `Archived concept · ${TB.v} · ${VERSION_NAMES[TB.v]} · not in the current review` : ''; }
+  if (arch) $('#tbArchiveBox').open = true; setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
   $('#tbText').value = String(TB.text); $('#tbNotes').checked = TB.notes;
   const v = V();
   $('#tbScenario').value = v.sc; $('#tbNet').value = v.net; $('#tbEntry').value = v.entry; $('#tbToken').value = v.token;
@@ -464,7 +468,8 @@ function renderChrome() {
   $('#scDesc').textContent = SCENARIOS.find(s => s[0] === v.sc)[2];
   const notes = $('#notes');
   const qs = [...NOTES.qs].sort((a, b) => a - b);
-  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
+  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}${ARCHIVED.includes(TB.v) ? ' · archived' : ''}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
+    <p class="nlabel">Review scope</p><p class="nsmall">${ARCHIVED.includes(TB.v) ? 'Archived. Stakeholders asked to advance Concepts 1 and 3; this concept is kept for reference and isn’t updated with them.' : 'In review with Concept ' + (TB.v === 1 ? '3 · Overview' : '1 · Familiar') + '. Both share the same scenarios, rules and data. Handoff › Review scope separates confirmed feedback, documented requirements and proposals.'}</p>
     <p class="nlabel">Location</p><p class="nsmall">${esc(locLabel())}</p>
     ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
     ${qs.length ? `<p class="nlabel">Open questions here</p><ul class="nlist">${qs.map(n => `<li data-qn="${n}"><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
@@ -473,7 +478,9 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
+const VERSION_NAMES = { 1: 'Familiar', 2: 'Guided', 3: 'Overview', 4: 'Compact' };
+// Stakeholder feedback: Concepts 1 and 3 are advanced and reviewed; 2 and 4 are archived (still usable from Archive)
+const REVIEWED = [1, 3], ARCHIVED = [2, 4];
 const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
@@ -489,6 +496,8 @@ function scaleDevice() {
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
   seg('#tbVersion', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
+  // Archived concepts open the same way but aren't remembered, so a reload returns to the review
+  seg('#tbArchive', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });

@@ -2283,13 +2283,29 @@ body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 2
 /* Phones: the launcher sits top-right, above the device, so it doesn't cover the app's tab bar */
 @media (max-width: 700px) { .chrome-toggle { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); transform: none; width: 40px; height: 40px; } .chrome-close { margin-left: 0; } body.chrome-hidden .main { padding-top: 60px; } .top { padding-right: 60px; } }
 
+/* Review scope: archived concepts sit behind Archive; a tag outside the device marks them */
+.tbarchive { position: relative; }
+.tbarchive > summary { cursor: pointer; font-size: 11px; font-weight: 600; opacity: 0.8; list-style: none; padding: 2px 0; }
+.tbarchive > summary::-webkit-details-marker { display: none; }
+.tbarchive > summary::after { content: " ›"; }
+.tbarchive[open] > summary::after { content: " ⌄"; }
+.tbarchive > summary:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: 4px; }
+.tbarchive .tbseg { margin-top: 4px; }
+.stage { flex-direction: column; align-items: center; }
+.archived-tag { margin: 0 0 8px; padding: 4px 12px; border-radius: 999px; background: var(--ads-background-status-warning-subtle); color: var(--ads-content-text-primary); font-size: 13px; font-weight: 600; }
+body.chrome-hidden .archived-tag { display: none; }
+.tbarchive { display: block; min-width: 0; }
+.tbarchive:not([open]) > .tbseg { display: none; }
+.tbarchive .tbseg { flex-wrap: wrap; border-radius: 16px; }
+.archived-wrap { display: contents; }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
 <button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoHeader protoControls protoNotes" aria-label="Show prototype controls and notes" title="Show prototype controls and notes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
 <section class="top" id="protoHeader" aria-label="About this prototype">
   <h1>Amtrak app · Sprint 4 exploration</h1>
-  <p>Four directions, one scope and one App Shell IA, all built with ADS components. Mock data only: nothing is saved or sent.</p>
+  <p>Two concepts in review, 1 · Familiar and 3 · Overview, with the same scope, data and App Shell IA. Concepts 2 and 4 are archived. Built with ADS components; mock data only, nothing is saved or sent.</p>
   <div class="viewtabs" role="tablist" aria-label="View" id="viewTabs">
     <button type="button" role="tab" data-v="proto" aria-selected="true" aria-controls="protoView">Prototype</button>
     <button type="button" role="tab" data-v="handoff" aria-selected="false" aria-controls="handoffView">Handoff</button>
@@ -2299,7 +2315,8 @@ body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 2
 
 <div id="protoView" role="tabpanel">
   <section class="toolbar" id="protoControls" aria-label="Prototype controls (not part of the app)">
-    <div class="tb"><span id="lbV">Version</span><div class="tbseg" id="tbVersion" role="group" aria-labelledby="lbV"><button type="button" data-v="1" aria-pressed="true">1 · Familiar</button><button type="button" data-v="2" aria-pressed="false">2 · Guided</button><button type="button" data-v="3" aria-pressed="false">3 · Overview</button><button type="button" data-v="4" aria-pressed="false">4 · Compact</button></div></div>
+    <div class="tb"><span id="lbV">Version</span><div class="tbseg" id="tbVersion" role="group" aria-labelledby="lbV"><button type="button" data-v="1" aria-pressed="true">1 · Familiar</button><button type="button" data-v="3" aria-pressed="false">3 · Overview</button></div></div>
+    <details class="tbarchive" id="tbArchiveBox"><summary>Archive</summary><div class="tbseg" id="tbArchive" role="group" aria-label="Archived concepts, not in the current review"><button type="button" data-v="2" aria-pressed="false">2 · Guided</button><button type="button" data-v="4" aria-pressed="false">4 · Compact</button></div></details>
     <div class="tb"><span id="lbD">Device</span><div class="tbseg" id="tbDevice" role="group" aria-labelledby="lbD"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="tb"><span id="lbO">Orientation</span><div class="tbseg" id="tbOrient" role="group" aria-labelledby="lbO"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
     <span class="tbsep" aria-hidden="true"></span>
@@ -2316,7 +2333,7 @@ body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 2
     <button class="tbbtn" type="button" id="tbReset">Reset demo</button>
   </section>
   <div class="main">
-    <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
+    <div class="stage" id="stage"><section class="archived-wrap" aria-label="Review status"><p class="archived-tag" id="archivedTag" hidden></p></section><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="notes" id="protoNotes" aria-label="Screen notes">
       <h2>Screen notes</h2>
       <p class="scdesc" id="scDesc"></p>
@@ -2329,6 +2346,147 @@ body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 2
   <article class="doc">
 <h1 id="sprint-4-design-exploration-handoff">Sprint 4 design
 exploration: handoff</h1>
+<h2 id="review-scope-current">Review scope (current)</h2>
+<p>Two concepts are in review: <strong>1 · Familiar</strong> and
+<strong>3 · Overview</strong>. They keep their names, numbers and
+interaction models, and share the same scenarios, business rules and
+booking data, so they can be compared directly. <strong>2 ·
+Guided</strong> and <strong>4 · Compact</strong> are archived. They
+still work from <em>Archive</em> in the toolbar and from the
+<em>Archive</em> groups at the end of the Flow menu, but they aren't
+part of the review and aren't re-checked when the shared code
+changes.</p>
+<p>The sections below this one are the history of the exploration, and
+some still describe all four versions.</p>
+<h3 id="1-confirmed-stakeholder-feedback">1. Confirmed stakeholder
+feedback</h3>
+<ul>
+<li>Advance Concepts 1 (Familiar) and 3 (Overview). Keep their names,
+numbering and distinct approaches, with comparable features and booking
+data.</li>
+<li>Remove Concepts 2 and 4 from the review switcher and keep their
+implementation in an archive.</li>
+</ul>
+<p>Nothing else in this prototype is recorded as
+stakeholder-confirmed.</p>
+<h3 id="2-supported-by-the-supplied-documentation">2. Supported by the
+supplied documentation</h3>
+<p>From <code>NMA_Sprint_4_Combined.docx</code> (66 issues; inventory
+and coverage in <code>PLAN.md</code>), both reviewed concepts cover:</p>
+<ul>
+<li><strong>Stations:</strong> search (NMA-600), favorites and recents
+(118, 984, 1004).</li>
+<li><strong>Trip and dates:</strong> one-way, round trip and Auto Train
+pairing (607, 608); calendar rules (1060).</li>
+<li><strong>Travelers and discounts:</strong> types and counts (611);
+one discount per traveler (612, 43).</li>
+<li><strong>Codes and payment:</strong> coupon and promo codes (613);
+Cash / Points (624).</li>
+<li><strong>Booking modes:</strong> TripLink (622); Pass Rider with
+Business or Leisure, family, Companion Pass and dependents (623,
+1016–1019).</li>
+<li><strong>Assistance:</strong> per traveler (614, 615, 973, 995–997,
+1019), including personal companion needs and the Companion discount
+(997, 43 BR8 AC3).</li>
+<li><strong>Profile:</strong> details (19, 21–23, 919), Amtrak employee
+pass (20), My Coupons (697), assistance (26–28) and discount rules
+(566).</li>
+<li><strong>Verification:</strong> NMA-980 and 21.</li>
+</ul>
+<h3 id="3-proposed-refinements-and-unresolved-requirements">3. Proposed
+refinements and unresolved requirements</h3>
+<p><strong>Design proposals.</strong> These were asked for in earlier
+design rounds or added by the design work. They aren't requirements and
+aren't stakeholder-confirmed:</p>
+<ul>
+<li><strong>Shared:</strong>
+<ul>
+<li>focused station search with Back in the field;</li>
+<li>supporting-information sheets;</li>
+<li>one month at a time in the calendar, with an illustrative fare
+shading (no Sprint 4 story; Q20);</li>
+<li>Pay with placed below the booking modes;</li>
+<li>sentence case; no hover states;</li>
+<li>one-backdrop layering, focus return and scroll memory.</li>
+</ul></li>
+<li><strong>Shared companion and station rules:</strong>
+<ul>
+<li>a personal companion names the traveler they accompany (Q19);</li>
+<li>a separate station-details control (Q3);</li>
+<li>an invalid pairing loses the Companion discount.</li>
+</ul></li>
+<li><strong>Familiar:</strong>
+<ul>
+<li>traveler cards with Discount, Assistance and Personal companion
+rows;</li>
+<li>Cancel and Done on Traveler selection;</li>
+<li>station search continuing until both stations are chosen.</li>
+</ul></li>
+<li><strong>Overview:</strong>
+<ul>
+<li>the travelers overview with chips;</li>
+<li>the single-traveler sheet;</li>
+<li>the Pass Rider eligibility card;</li>
+<li>the iPad split beside it.</li>
+</ul></li>
+</ul>
+<p><strong>Unresolved, shown as Q markers on the screens they
+affect:</strong></p>
+<ul>
+<li><strong>Stations and dates:</strong> Q1 Station ranking, Q2
+Pseudo-stations, Q3 Select or view details, Q4 Maximum booking
+window.</li>
+<li><strong>Profile:</strong> Q5 Country change and the address, Q6
+Phone types and DOB bounds.</li>
+<li><strong>Assistance and discounts:</strong> Q7 Where booking
+assistance starts, Q9 Replacing or removing PWD, Q10 Traveler age bands
+and who can accompany minors.</li>
+<li><strong>Verification:</strong> Q8 Verification channel, Q15
+Reauthentication to change email.</li>
+<li><strong>Codes, points and coupons:</strong> Q11 Discount codes
+before a train is chosen, Q14 Points and other options, Q17 Coupon
+retention and notices.</li>
+<li><strong>Booking modes:</strong> Q12 Corporate and Pass Rider
+restrictions, Q13 Pass Rider travelers, Q16 Pass Rider identifiers.</li>
+<li><strong>Other:</strong> Q18 Wheelchair and mobility device details
+(NMA-29), Q19 Who can be a personal companion, Q20 Fares on the
+calendar.</li>
+</ul>
+<p><strong>Undefined stories:</strong> NMA-620, 621, 628 and 629 are
+labeled placeholders only. NMA-29 is partly defined. NMA-44 and 609 are
+cancelled.</p>
+<h3 id="known-issues-for-the-next-update">Known issues for the next
+update</h3>
+<ul>
+<li><strong>Regression tests aren't in the repository.</strong> The
+scripted suites live in the design session's scratch folder and would
+need to be saved into the repo to keep being run.</li>
+<li><strong>Archived concepts share code with the reviewed
+ones.</strong> Changes to shared components (calendar, station search,
+traveler model, Profile) also change Concepts 2 and 4, and nobody checks
+them any more.</li>
+<li><strong>Load order matters.</strong> Several files override the same
+actions in turn (clear, travelers, overview, interact, motion), so the
+order in <code>scripts/build-sprint4.py</code> is part of the
+behavior.</li>
+<li><strong>Some styles are changed when the page loads.</strong>
+<code>chrome.js</code> removes hover styles and forced capitals from the
+loaded CSS, without editing the ADS files. Styles added dynamically
+later wouldn't be processed.</li>
+<li><strong><code>index.html</code> is built.</strong> Edit the source
+files and run <code>python3 scripts/build-sprint4.py</code>; this
+document is embedded in it.</li>
+<li><strong>Each concept keeps its own copy of the data.</strong> Edits
+in one don't appear in the other, by design for comparison; Reset
+restores all of them.</li>
+<li><strong>File names follow the old concept names:</strong>
+<code>clear.js</code> is Concept 3 (Overview), <code>guided.js</code> is
+Concept 2, and <code>flighty.js</code> and <code>compact.js</code> are
+Concept 4.</li>
+<li><strong>The page remembers only Concepts 1 and 3.</strong> Opening
+an archived concept isn't remembered, so a reload returns to the
+review.</li>
+</ul>
 <p>Four directions for the same Sprint 4 scope, built on the ADS library
 and the App Shell IA. Each one runs on iPhone and iPad, in portrait and
 landscape.</p>
@@ -4355,12 +4513,15 @@ const FLOWS = [
   ['B · Profile details', [['account', 'Account sheet'], ['profile', 'Profile overview'], ['edit:mi', 'Middle initial'], ['edit:phone', 'Phone'], ['edit:address', 'Billing address'], ['edit:dob', 'Date of birth'], ['edit:employee', 'Amtrak employee pass'], ['coupons', 'My coupons']]],
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
-  ['G · Version 3 Fare Finder (CLEAR-inspired)', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['H · Version 4 Fare Finder (Flighty-inspired)', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['I · Version 2 guided Fare Finder (Airbnb-inspired)', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['J · Sprint 4 coverage, every version', [
-    ...[1, 2, 3, 4].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (17)`]])]],
-  ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]]
+  ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]],
+  ['G · Concept 3 · Overview Fare Finder', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['J · Sprint 4 coverage, Concepts 1 and 3', [
+    ...[1, 3].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (17)`]])]],
+  // Archived concepts (stakeholder feedback): kept and usable, listed last
+  ['Archive · Concept 2 · Guided Fare Finder', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['Archive · Concept 4 · Compact Fare Finder', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
+  ['Archive · coverage, Concepts 2 and 4', [
+    ...[2, 4].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (17)`]])]],
 ];
 
 // Traveler types (NMA-611). Age bands aren't final (Q10).
@@ -4840,7 +5001,11 @@ A['clear-recents'] = () => dialog(clearDialog());
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbArchive', String(TB.v)); setSeg('#tbDevice', TB.dev);
+  // Archived concepts (2, 4) stay usable from Archive; a reviewer-facing tag outside the device says so
+  const arch = ARCHIVED.includes(TB.v), tag = $('#archivedTag');
+  if (tag) { tag.hidden = !arch; tag.textContent = arch ? `Archived concept · ${TB.v} · ${VERSION_NAMES[TB.v]} · not in the current review` : ''; }
+  if (arch) $('#tbArchiveBox').open = true; setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
   $('#tbText').value = String(TB.text); $('#tbNotes').checked = TB.notes;
   const v = V();
   $('#tbScenario').value = v.sc; $('#tbNet').value = v.net; $('#tbEntry').value = v.entry; $('#tbToken').value = v.token;
@@ -4848,7 +5013,8 @@ function renderChrome() {
   $('#scDesc').textContent = SCENARIOS.find(s => s[0] === v.sc)[2];
   const notes = $('#notes');
   const qs = [...NOTES.qs].sort((a, b) => a - b);
-  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
+  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}${ARCHIVED.includes(TB.v) ? ' · archived' : ''}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
+    <p class="nlabel">Review scope</p><p class="nsmall">${ARCHIVED.includes(TB.v) ? 'Archived. Stakeholders asked to advance Concepts 1 and 3; this concept is kept for reference and isn’t updated with them.' : 'In review with Concept ' + (TB.v === 1 ? '3 · Overview' : '1 · Familiar') + '. Both share the same scenarios, rules and data. Handoff › Review scope separates confirmed feedback, documented requirements and proposals.'}</p>
     <p class="nlabel">Location</p><p class="nsmall">${esc(locLabel())}</p>
     ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
     ${qs.length ? `<p class="nlabel">Open questions here</p><ul class="nlist">${qs.map(n => `<li data-qn="${n}"><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
@@ -4857,7 +5023,9 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar & direct', 2: 'Guided & focused', 3: 'CLEAR-inspired Fare Finder · quick editing', 4: 'Compact & directly editable (Flighty-inspired)' };
+const VERSION_NAMES = { 1: 'Familiar', 2: 'Guided', 3: 'Overview', 4: 'Compact' };
+// Stakeholder feedback: Concepts 1 and 3 are advanced and reviewed; 2 and 4 are archived (still usable from Archive)
+const REVIEWED = [1, 3], ARCHIVED = [2, 4];
 const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates, travelers, codes and assistance open in rounded sheets over it. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
@@ -4873,6 +5041,8 @@ function scaleDevice() {
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
   seg('#tbVersion', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
+  // Archived concepts open the same way but aren't remembered, so a reload returns to the review
+  seg('#tbArchive', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });
@@ -7166,7 +7336,7 @@ setChrome(false, false);
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-{ const v = store.get('s4-v'); if (['1', '2', '3', '4'].includes(v)) TB.v = +v; const d = store.get('s4-dev'); if (d === 'iphone' || d === 'ipad') TB.dev = d; }
+{ const v = store.get('s4-v'); if (['1', '3'].includes(v)) TB.v = +v; /* only reviewed concepts are restored */ const d = store.get('s4-dev'); if (d === 'iphone' || d === 'ipad') TB.dev = d; }
 const _render = render;
 render = function () { document.documentElement.dataset.theme = TB.theme; _render(); };
 wireToolbar(); wireDevice(); render();

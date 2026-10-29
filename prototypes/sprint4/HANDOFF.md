@@ -1,5 +1,76 @@
 # Sprint 4 design exploration: handoff
 
+## Review scope (current)
+
+Two concepts are in review: **1 · Familiar** and **3 · Overview**. They keep their names, numbers and interaction models, and share the same scenarios, business rules and booking data, so they can be compared directly. **2 · Guided** and **4 · Compact** are archived. They still work from *Archive* in the toolbar and from the *Archive* groups at the end of the Flow menu, but they aren't part of the review and aren't re-checked when the shared code changes.
+
+The sections below this one are the history of the exploration, and some still describe all four versions.
+
+### 1. Confirmed stakeholder feedback
+
+- Advance Concepts 1 (Familiar) and 3 (Overview). Keep their names, numbering and distinct approaches, with comparable features and booking data.
+- Remove Concepts 2 and 4 from the review switcher and keep their implementation in an archive.
+
+Nothing else in this prototype is recorded as stakeholder-confirmed.
+
+### 2. Supported by the supplied documentation
+
+From `NMA_Sprint_4_Combined.docx` (66 issues; inventory and coverage in `PLAN.md`), both reviewed concepts cover:
+- **Stations:** search (NMA-600), favorites and recents (118, 984, 1004).
+- **Trip and dates:** one-way, round trip and Auto Train pairing (607, 608); calendar rules (1060).
+- **Travelers and discounts:** types and counts (611); one discount per traveler (612, 43).
+- **Codes and payment:** coupon and promo codes (613); Cash / Points (624).
+- **Booking modes:** TripLink (622); Pass Rider with Business or Leisure, family, Companion Pass and dependents (623, 1016–1019).
+- **Assistance:** per traveler (614, 615, 973, 995–997, 1019), including personal companion needs and the Companion discount (997, 43 BR8 AC3).
+- **Profile:** details (19, 21–23, 919), Amtrak employee pass (20), My Coupons (697), assistance (26–28) and discount rules (566).
+- **Verification:** NMA-980 and 21.
+
+### 3. Proposed refinements and unresolved requirements
+
+**Design proposals.** These were asked for in earlier design rounds or added by the design work. They aren't requirements and aren't stakeholder-confirmed:
+- **Shared:**
+  - focused station search with Back in the field;
+  - supporting-information sheets;
+  - one month at a time in the calendar, with an illustrative fare shading (no Sprint 4 story; Q20);
+  - Pay with placed below the booking modes;
+  - sentence case; no hover states;
+  - one-backdrop layering, focus return and scroll memory.
+- **Shared companion and station rules:**
+  - a personal companion names the traveler they accompany (Q19);
+  - a separate station-details control (Q3);
+  - an invalid pairing loses the Companion discount.
+- **Familiar:**
+  - traveler cards with Discount, Assistance and Personal companion rows;
+  - Cancel and Done on Traveler selection;
+  - station search continuing until both stations are chosen.
+- **Overview:**
+  - the travelers overview with chips;
+  - the single-traveler sheet;
+  - the Pass Rider eligibility card;
+  - the iPad split beside it.
+
+**Unresolved, shown as Q markers on the screens they affect:**
+- **Stations and dates:** Q1 Station ranking, Q2 Pseudo-stations, Q3 Select or view details, Q4 Maximum booking window.
+- **Profile:** Q5 Country change and the address, Q6 Phone types and DOB bounds.
+- **Assistance and discounts:** Q7 Where booking assistance starts, Q9 Replacing or removing PWD, Q10 Traveler age bands and who can accompany minors.
+- **Verification:** Q8 Verification channel, Q15 Reauthentication to change email.
+- **Codes, points and coupons:** Q11 Discount codes before a train is chosen, Q14 Points and other options, Q17 Coupon retention and notices.
+- **Booking modes:** Q12 Corporate and Pass Rider restrictions, Q13 Pass Rider travelers, Q16 Pass Rider identifiers.
+- **Other:** Q18 Wheelchair and mobility device details (NMA-29), Q19 Who can be a personal companion, Q20 Fares on the calendar.
+
+**Undefined stories:** NMA-620, 621, 628 and 629 are labeled placeholders only. NMA-29 is partly defined. NMA-44 and 609 are cancelled.
+
+### Known issues for the next update
+
+- **Regression tests aren't in the repository.** The scripted suites live in the design session's scratch folder and would need to be saved into the repo to keep being run.
+- **Archived concepts share code with the reviewed ones.** Changes to shared components (calendar, station search, traveler model, Profile) also change Concepts 2 and 4, and nobody checks them any more.
+- **Load order matters.** Several files override the same actions in turn (clear, travelers, overview, interact, motion), so the order in `scripts/build-sprint4.py` is part of the behavior.
+- **Some styles are changed when the page loads.** `chrome.js` removes hover styles and forced capitals from the loaded CSS, without editing the ADS files. Styles added dynamically later wouldn't be processed.
+- **`index.html` is built.** Edit the source files and run `python3 scripts/build-sprint4.py`; this document is embedded in it.
+- **Each concept keeps its own copy of the data.** Edits in one don't appear in the other, by design for comparison; Reset restores all of them.
+- **File names follow the old concept names:** `clear.js` is Concept 3 (Overview), `guided.js` is Concept 2, and `flighty.js` and `compact.js` are Concept 4.
+- **The page remembers only Concepts 1 and 3.** Opening an archived concept isn't remembered, so a reload returns to the review.
+
 Four directions for the same Sprint 4 scope, built on the ADS library and the App Shell IA. Each one runs on iPhone and iPad, in portrait and landscape.
 
 ## Opening and switching
