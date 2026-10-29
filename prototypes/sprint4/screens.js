@@ -1,6 +1,6 @@
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
 const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
-// Versions 3 and 4 share the booking sheets; Versions 2–4 share the Fare Finder variants (codes, TripLink, Pass Rider)
+// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
 const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
@@ -77,8 +77,15 @@ const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disabili
 function codeRowV1(b) {
   if (D().coupons.length) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const info = `<button class="ads-icon-btn ads-icon-btn--sm v1code__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
+  if (b.pay === 'points') return `<div class="ads-group"><div class="ads-group__body v1code"><div class="ads-group__row">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : ''}</span></span></div>${info}</div></div>`;
   if (!b.code) return `<div class="ads-group"><div class="ads-group__body v1code">${grow({ a: 'push', data: 'data-s="code"', icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Add a code', k: 'row-code' })}${info}</div></div>`;
   return `<div class="ads-group"><div class="ads-group__body"><div class="ads-group__row v1code__applied">${ic('payment-voucher', 'ads-group__lead')}<span class="ads-group__text"><span class="ads-group__label">Coupon or promo code</span><span class="ads-group__value">${esc(b.code.code)} · ${esc(b.code.kind)}${b.code.benefit ? `<br>${esc(b.code.benefit)}` : ''}<br>Checked for your trip when you find trains.</span>${b.codeErr ? `<span class="ads-helper ads-helper--error" id="ffc-code-err" role="alert">${ic('alert-diamond')}<span>${b.codeErr}</span></span>` : ''}</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div></div></div>`;
+}
+// Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
+function payV1(b) {
+  if (!D().signedIn) return '';
+  ref('624');
+  return `<div class="v1pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'v1pay')}</div>`;
 }
 function travelersRow(r, opts = {}) {
   const b = D().booking;
@@ -108,7 +115,7 @@ SCR.ff = (r, ri) => {
   if (v1() && D().signedIn && (D().triplink || D().passrider)) tip('Version 1 shows the standard Fare Finder. The TripLink and Pass Rider variants are designed in Versions 2, 3 and 4.');
   if (v2()) return ffGuided(r, ri);
   ref('613');
-  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
+  const body = `${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${payV1(b)}${codeRowV1(b)}${assistBlock(r, ri, 'ff')}${netAlert(r)}`;
   return { title: 'New Booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions

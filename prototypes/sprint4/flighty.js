@@ -4,7 +4,7 @@
    its own Edit action. Stations, dates and traveler details open in focused sheets (shared with Version 3).
    Every action is an existing Fare Finder action; see HANDOFF.md › Version 4 for the mapping. */
 
-// Inline mode control: a labeled native select styled as a pill (TripLink, Pass Rider)
+// Inline mode control: a labeled native select styled as a pill (TripLink, Pass Rider, Cash/Points)
 function flPill(key, label, opts, cur) {
   const id = `fl-${key}`;
   return `<span class="fl-pill"><label class="fl-pill__label" for="${id}">${label}</label><span class="fl-pill__ctl"><select id="${id}" data-f="flmode" data-nodirty data-hook="flmode" data-key="${key}">${opts.map(([v, l]) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${ic('chevron-down', 'ads-icon--sm')}</span></span>`;
@@ -37,7 +37,8 @@ function ffFlighty(r, ri) {
   const ctx = [];
   if (member && d.triplink) ctx.push(flPill('intent', 'Booking for', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent));
   if (member && d.passrider) ctx.push(flPill('intent', 'Book as', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent));
-  const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : 'One way or round trip, up to 8 travelers.';
+  if (member && std) ctx.push(flPill('pay', 'Pay with', [['cash', 'Cash'], ['points', 'Points']], b.pay));
+  const sub = corp ? 'TripLink corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? '12,450 points available.' : 'One way or round trip, up to 8 travelers.';
   const head = `<div class="fl-head"><h3 class="fl-title" tabindex="-1" data-title>Find a train</h3>${ctx.length ? `<div class="fl-ctx">${ctx.join('')}</div>` : ''}<p class="fl-sub">${sub}${corp ? ' ' + q(12) : ''}</p>${b.modeNote ? `<p class="fl-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
   // Route, then trip type and dates
   const errs = ['from', 'to'].filter(f => e[f]).map(f => `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>`).join('');
@@ -64,12 +65,12 @@ function ffFlighty(r, ri) {
   } else rows.push(flRow({ icon: 'assistance', label: `Assistance ${q(7)}`, value: b.assistOn && b.assistDone ? esc(assistSummaryItems(b.assist)[0]) : 'Not requested', sub: 'Set in Travelers.', actions: flAct('pick-travelers', 'Edit', 'Edit assistance in Travelers') }));
   if (std) {
     rows.push(flRow({ icon: 'discount', label: 'Discounts', value: esc(discSummary(b)), sub: 'One per traveler.', actions: flAct('pick-travelers', 'Edit', 'Edit traveler discounts') }));
-    { // Coupon or promo code (NMA-613), kept apart from traveler discounts
+    if (b.pay === 'cash') {
       const info = `<button class="ads-icon-btn ads-icon-btn--sm fl-info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button>`;
       rows.push(b.code ? flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: `${esc(b.code.code)} · ${esc(b.code.kind)}`, sub: `${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.`, err: b.codeErr, errId: 'ffc-code-err', actions: info + flAct('code-remove', 'Remove', `Remove code ${esc(b.code.code)}`) })
         : flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'None', actions: info + flAct('push', 'Add', 'Add a coupon or promo code', 'data-s="code"') }));
-    }
-  } else rows.push(flRow({ icon: 'discount', label: 'Discounts and codes', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
+    } else rows.push(flRow({ icon: 'payment-voucher', label: 'Coupon or promo code', value: 'Not available when paying with points', sub: b.code ? `Your code ${esc(b.code.code)} is kept for a cash search.` : '', muted: true }));
+  } else rows.push(flRow({ icon: 'discount', label: 'Discounts, codes and points', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const offline = v.net === 'offline' ? `<div class="ads-banner fl-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;

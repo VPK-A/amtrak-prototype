@@ -51,15 +51,20 @@ function captureIndicators(dev) {
   return out;
 }
 function placeIndicators(dev, before, animate) {
+  if (!animate) return;
   for (const [gs, ss] of IND_GROUPS) $$(gs, dev).forEach((g, i) => {
-    const s = g.querySelector(ss); if (!s || !s.offsetWidth) return;
-    const c = getComputedStyle(s), cs = { backgroundColor: c.backgroundColor, boxShadow: c.boxShadow, borderRadius: c.borderRadius }; // copy the selected style before has-ind clears it
-    g.classList.add('has-ind'); // the group becomes the positioning parent, so measure after this
+    const s = g.querySelector(ss), p = before[indKey(g, i)]; if (!s || !s.offsetWidth || !p) return;
+    if (p.x === s.offsetLeft && p.w === s.offsetWidth) return;
+    // Only while it moves: a copy of the selected surface slides from the old option to the new one.
+    // At rest the selected option keeps its own styling.
+    const c = getComputedStyle(s), cs = { backgroundColor: c.backgroundColor, boxShadow: c.boxShadow, borderRadius: c.borderRadius };
+    g.classList.add('has-ind');
+    const x = s.offsetLeft, w = s.offsetWidth;
     const ind = document.createElement('span'); ind.className = 'mo-ind'; ind.setAttribute('aria-hidden', 'true');
-    Object.assign(ind.style, { left: s.offsetLeft + 'px', top: s.offsetTop + 'px', width: s.offsetWidth + 'px', height: s.offsetHeight + 'px', background: cs.backgroundColor, boxShadow: cs.boxShadow, borderRadius: cs.borderRadius });
+    Object.assign(ind.style, { left: x + 'px', top: s.offsetTop + 'px', width: w + 'px', height: s.offsetHeight + 'px', background: cs.backgroundColor, boxShadow: cs.boxShadow, borderRadius: cs.borderRadius });
     g.insertBefore(ind, g.firstChild);
-    const p = before[indKey(g, i)];
-    if (animate && p && (p.x !== s.offsetLeft || p.w !== s.offsetWidth)) ind.animate([{ left: p.x + 'px', width: p.w + 'px' }, { left: s.offsetLeft + 'px', width: s.offsetWidth + 'px' }], { duration: MT.control, easing: EASE.standard });
+    const a = ind.animate([{ left: p.x + 'px', width: p.w + 'px' }, { left: x + 'px', width: w + 'px' }], { duration: MT.control, easing: EASE.standard });
+    a.onfinish = a.oncancel = () => { ind.remove(); g.classList.remove('has-ind'); };
   });
 }
 

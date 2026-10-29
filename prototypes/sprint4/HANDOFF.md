@@ -33,7 +33,7 @@ Most of Core Flow is out of Sprint 4 scope: search results, fare families, ancil
 
 Stories with no content: NMA-620 (in-station assistance availability), NMA-621 (about accessible travel), NMA-628 (service animal info), NMA-629 (wheeled mobility device specs). They are shown as labeled placeholders only.
 
-Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. All four versions have the coupon or promo code (Version 1 as a row under Travelers). Version 1 doesn't show the TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.
+Fare Finder stories in Versions 2, 3 and 4: NMA-611 (traveler type and number), NMA-613 (coupon and promo codes), NMA-624 (Use Points), NMA-622 (TripLink) and NMA-623 with NMA-1016–1019 (Pass Rider) are built in the Version 3 Fare Finder. Traveler types and counts (NMA-611) and per-traveler discounts (NMA-612) are in all three versions' Traveler Selection, following Core Flow (node 90:16532): counters per type, *Traveling alone?* on Youth, assistance between travelers and discounts, then one discount per traveler. All four versions have the coupon or promo code (Version 1 as a row under Travelers) and the *Pay with* Cash / Points switch. Version 1 doesn't show the TripLink or Pass Rider variants; Versions 2, 3 and 4 share them.
 
 ## IA conflicts and proposed resolutions
 
@@ -156,6 +156,7 @@ Key: **S** = state shown. Story IDs are in brackets.
 11. Discount-code eligibility before a train is chosen [613] (Q11)
 12. TripLink Auto Train, and whether PWD applies to Corporate or Pass Rider travel [622, 623, 612] (Q12)
 13. Pass Rider traveler counts and family combinations [1017] (Q13)
+14. Whether traveler discounts apply to points searches [624, 612] (Q14)
 
 Not finalized, and not invented: infant seat options ("Lap infant", "Ask for a seat"), companion assistance and the Companion discount, mobility-device and service-animal forms, live station-assistance availability.
 
@@ -209,7 +210,7 @@ All three cover the same requirements and states (see the checklist). The differ
 
 | | V1 Familiar & direct | V2 Guided & focused | V3 CLEAR-inspired Fare Finder · quick editing |
 |---|---|---|---|
-| **Benefits** | Closest to Core Flow and to iOS habits: list, focused editor, Cancel/Save. Each screen does one thing, so states (saving, error, offline) have room. The easiest to build from standard navigation. | Dependencies are explained before they cause errors: Auto Train pairing, return-date rules, PWD replacement, accessible seat vs service animal. Booking assistance only asks the questions that apply (2 steps for station help, up to 5 for a disability). After choosing From, V2 goes straight to To. | Booking: a calm, branded first screen with the mode controls up front; the Fare Finder stays visible behind each sheet, so context is never lost. It's the only version that shows the variants (traveler types, codes, TripLink, Pass Rider). Profile: everything stays in view while you edit one part. |
+| **Benefits** | Closest to Core Flow and to iOS habits: list, focused editor, Cancel/Save. Each screen does one thing, so states (saving, error, offline) have room. The easiest to build from standard navigation. | Dependencies are explained before they cause errors: Auto Train pairing, return-date rules, PWD replacement, accessible seat vs service animal. Booking assistance only asks the questions that apply (2 steps for station help, up to 5 for a disability). After choosing From, V2 goes straight to To. | Booking: a calm, branded first screen with the mode controls up front; the Fare Finder stays visible behind each sheet, so context is never lost. It's the only version that shows the variants (traveler types, codes, points, TripLink, Pass Rider). Profile: everything stays in view while you edit one part. |
 | **Drawbacks** | More back-and-forth: every edit is a round trip to another screen. Dependencies (for example, why Return was cleared) are only explained after they happen. The one-page assistance form gets long once Reduced mobility and wheelchair questions appear. | More reading, and more screens for a quick change. Locked steps ("available after you choose stations") add visual weight. The step count changes as answers change, which can surprise. | The navy header takes vertical space, so on iPhone the options and assistance sit below the fold (Find Trains stays pinned). Sheets over a sheet add a layer to dismiss. Profile: inline edits need careful focus handling for VoiceOver. |
 | **Best use** | Frequent, confident travelers making small edits, and as a low-risk baseline for engineering. | First-time or occasional travelers, and rule-heavy flows: assistance, discounts, first booking. | Returning members reviewing or changing several things at once, and iPad. |
 | **Risk to validate** | Whether the long assistance form causes drop-off | Whether guidance feels slow to experienced users | Whether the options list below the fold (discounts, codes, assistance) is found; whether people notice and finish inline Profile edits |
@@ -234,9 +235,9 @@ All three use the same four tabs, the same global header (Account and Notificati
 
 ## Checks run
 
-- **Version 2 guided Fare Finder:** every Flow › I entry; 23 scripted checks, all passing (defaults, errors opening the right section, quick picks, station search moving on to When, round trip and return clearing, reopening without losing answers, Next, travelers and discounts, the assistance questionnaire, codes, collapsed summaries, handoff, Pass Rider travel type, offline and loading); 280 screens in all four versions with no horizontal overflow at 140% text; axe-core finds no violations on the Version 2 entries in light and dark, iPhone and iPad.
+- **Version 2 guided Fare Finder:** every Flow › I entry; 23 scripted checks, all passing (defaults, errors opening the right section, quick picks, station search moving on to When, round trip and return clearing, reopening without losing answers, Next, travelers and discounts, the assistance questionnaire, codes and points, collapsed summaries, handoff, Pass Rider travel type, offline and loading); 280 screens in all four versions with no horizontal overflow at 140% text; axe-core finds no violations on the Version 2 entries in light and dark, iPhone and iPad.
 
-- **Version 4 Fare Finder:** every Flow › H entry; 18 scripted checks (From then To in sheets, swap, same-station dialog, Add Return, return cleared after a later departure, return-date error, traveler close guard and undo, travelers kept after Done, assistance add/answer/remove/re-add, typed code kept after closing, invalid and valid codes, handoff, Pass Rider travel type required, TripLink Personal restoring the standard options), all passing; 264 screens in all four versions with no horizontal overflow at 140% text; axe-core finds no violations on the Version 4 entries in light and dark, iPhone and iPad.
+- **Version 4 Fare Finder:** every Flow › H entry; 18 scripted checks (From then To in sheets, swap, same-station dialog, Add Return, return cleared after a later departure, return-date error, traveler close guard and undo, travelers kept after Done, assistance add/answer/remove/re-add, typed code kept after closing, invalid and valid codes, points hiding codes, handoff, Pass Rider travel type required, TripLink Personal showing Pay with), all passing; 264 screens in all four versions with no horizontal overflow at 140% text; axe-core finds no violations on the Version 4 entries in light and dark, iPhone and iPad.
 
 - **Version 3 Fare Finder:** every Flow › G entry, plus scripted interactions (station sheets, traveler rules, discounts, codes, companion coupon, TripLink switching, Pass Rider validation and Auto Train block, offline, slow, dark, iPad) with no script errors; 197 screens in all three versions with no horizontal overflow at 140% text; axe-core finds no violations on the 15 Version 3 entries in light and dark, iPhone and iPad.
 
@@ -263,14 +264,14 @@ Replaces the earlier V3 Fare Finder (inline panels). The look follows two CLEAR 
 
 **Layout**
 
-1. **Heading and booking-mode controls** on navy: *New Booking*, one line of context, and only the controls that apply: *Booking for* Corporate / Personal (TripLink members), *Book as* Pass Rider / Personal (Pass Riders).
+1. **Heading and booking-mode controls** on navy: *New Booking*, one line of context, and only the controls that apply: *Booking for* Corporate / Personal (TripLink members), *Book as* Pass Rider / Personal (Pass Riders), *Pay with* Cash / Points (signed-in members on a standard or personal booking).
 2. **Rounded surface:** One-way / Round-trip, From / To with swap, Depart / Return (or Add Return), Travel type for Pass Riders, and Travelers.
 3. **Discounts, codes and assistance:** labeled rows for Traveler discounts and Coupon or promo code (with an information button), and the assistance checkbox and summary (NMA-973). When assistance starts in Traveler Selection, a row points there.
 4. **Find Trains** is pinned at the bottom of the sheet, so it stays reachable while the content scrolls or the keyboard is open.
 
 Stations, dates, travelers, discount codes and assistance open as **rounded sheets** over the Fare Finder. The station sheet keeps the station identification fields (code, city and state, station name), the favorite bookmark, Favorites first, then Recents (10 days), then *View full list* by state, and the same search ranking. No "Popular" section was added.
 
-**Demo:** Flow › *G · Version 3 Fare Finder* lists the default screen, the station sheet, dates, travelers, discount code, assistance, validation errors, Auto Train pairing, TripLink and the Pass Rider variants. Codes to try: V123 (promo), a 14-character coupon, the saved companion coupon with one traveler, EXP1 (rejected), DATE (wrong date range).
+**Demo:** Flow › *G · Version 3 Fare Finder* lists the default screen, the station sheet, dates, travelers, discount code, assistance, points, validation errors, Auto Train pairing, TripLink and the Pass Rider variants. Codes to try: V123 (promo), a 14-character coupon, the saved companion coupon with one traveler, EXP1 (rejected), DATE (wrong date range).
 
 **Rules built (Version 3)**
 
@@ -280,9 +281,10 @@ Stations, dates, travelers, discount codes and assistance open as **rounded shee
 - [x] Up to 8 travelers (infants don't count), at least one traveler, and youths, children and infants need an adult or senior; Done is disabled with the reason shown [611 BR3, BR4]
 - [x] One discount per traveler, choices by traveler type; Senior and Infant fixed; extra infants pay the child fare; Traveler 1 starts from the Profile preference and changes don't touch the Profile [612 BR1–BR6]
 - [x] Passenger with Disability replaces Traveler 1's discount when Assistance says "I have a disability" [612 BR8 AC1]
-- [x] One discount code field; 4 or 14 letters and numbers; "Please enter a valid discount code"; saved profile codes sorted by expiry, with type, benefit and expiry; toast on selection; information pop-up; Remove; two failed attempts lead to the call center [613]
+- [x] One discount code field for cash searches, hidden for points; 4 or 14 letters and numbers; "Please enter a valid discount code"; saved profile codes sorted by expiry, with type, benefit and expiry; toast on selection; information pop-up; Remove; two failed attempts lead to the call center [613]
 - [x] Code checks at Find Trains (mocked): companion coupon needs two travelers, rejected code, invalid date range with Enter New Code / Continue without Discount / Close [613]
-- [x] TripLink: Corporate by default; Corporate means 1 adult, no discounts or codes, assistance allowed; Personal restores the standard options and any travelers set aside [622]
+- [x] Use Points only for signed-in members, Cash by default [624]
+- [x] TripLink: Corporate by default; Corporate means 1 adult, no discounts, codes or points, assistance allowed; Personal restores the standard options and any travelers set aside [622]
 - [x] Pass Rider: Pass Rider by default with a Personal option; Business or Leisure is required when the employee has a Business Pass; Leisure only for employees without one and for spouses; spouse, dependents and companions for Leisure, up to 8 in all; companions only for employees, with passes left shown and the option disabled at 0; no discounts, codes, points or Auto Train; assistance allowed [623, 1016, 1017, 1018, 1019]
 - [x] Loading with Cancel, offline, timeout and server error on Find Trains; validation errors beside the fields [607 network, Mobile App Global Standards]
 
@@ -291,7 +293,7 @@ Stations, dates, travelers, discount codes and assistance open as **rounded shee
 Functional differences:
 
 - **Added in all versions:** traveler types and counts, and a discount per traveler, in Traveler Selection (the baseline used a fixed 1 Adult).
-- **Added in all versions:** the coupon or promo code, with the same checks at Find Trains.
+- **Added in all versions:** the coupon or promo code, with the same checks at Find Trains, and *Pay with* Cash / Points (NMA-624).
 - **Added in V2, V3 and V4:** TripLink and Pass Rider, so Version 1 doesn't cover the same scope.
 - **Core Flow difference:** Core Flow labels Adult as 16–64 and has no Young Adult row; the stories list Young Adult (16–17) separately, and the prototype follows the stories (Q10).
 - **Changed interaction:** V3 no longer edits the Fare Finder in place; each picker opens in a rounded sheet. After choosing From, the To sheet opens straight away (as in V2).
@@ -303,7 +305,7 @@ Unresolved requirements:
 - Assistance is still recorded for Traveler 1 only. NMA-1019 lets any traveler, and more than one, request assistance; NMA-614 attaches the Profile answers to Traveler 1.
 - The personal-companion assistance option (NMA-997) and the Companion discount (612 BR8 AC3) stay unavailable, as in the baseline, because companion rules aren't final.
 - Age bands and who can accompany minors (Q10); infant seat options.
-- Code eligibility for a specific train, live revalidation after a change happen after search results, which are outside Sprint 4 (Q11). The prototype checks codes again on every Find Trains.
+- Code eligibility for a specific train, live revalidation after a change, and points balance rules happen after search results, which are outside Sprint 4 (Q11, Q14). The prototype checks codes again on every Find Trains.
 - Senior eligibility by route or train (612 BR7) isn't known before search; the senior discount is shown as automatic.
 - Pass Rider type comes from the Profile; the prototype simulates employee and spouse. A dependent (16+) initiating travel isn't shown separately (Q13).
 - TripLink Auto Train and rail-pass rules are still to be confirmed (Q12).
@@ -316,7 +318,7 @@ A compact, directly editable Fare Finder. It follows Flighty's *Add Flight* shee
 
 **Layout, top to bottom**
 
-1. **"Find a train"** heading. The booking modes that apply sit right under it as labeled pill menus: *Booking for* Corporate / Personal (TripLink), *Book as* Pass Rider / Personal (Pass Rider). One line of context follows.
+1. **"Find a train"** heading. The booking modes that apply sit right under it as labeled pill menus: *Booking for* Corporate / Personal (TripLink), *Book as* Pass Rider / Personal (Pass Rider), *Pay with* Cash / Points (signed-in members on a standard or personal booking). One line of context follows.
 2. **Route:** two compact controls, *From* and *To*, each with the station code, city and state, and station name, so the code is never the only identification. A swap button sits between them. At larger text sizes they stack and the swap moves to the right edge.
 3. **Trip type and dates:** One-way / Round-trip, then *Depart* and *Return* (or *Add Return*).
 4. **Aligned rows**, each with an icon column, a label, a short summary and its own actions: *Travel type* (Pass Rider), *Travelers*, *Assistance*, *Discounts*, *Coupon or promo code*. Corporate and Pass Rider bookings show one muted row explaining that discounts, codes and points aren't used.
@@ -341,6 +343,7 @@ Stations, dates, traveler details, codes and the assistance questionnaire open a
 | Assistance, Fare Finder entry (973, 614) | Checkbox; checking opens the questionnaire | *Assistance* row: *Add* (= checking), *Answer* or *Edit* (questionnaire), *Remove* (= unchecking, answers kept) |
 | Assistance, Traveler Selection entry (Core Flow, Q7) | Checkbox in Traveler Selection | Same, in the traveler sheet; the row's *Edit* opens it |
 | Discount code (613) | *Coupon or promo code* row under Travelers | *Coupon or promo code* row: *Add* opens the code sheet, *Remove*, information button |
+| Use Points (624) | *Pay with* Cash / Points pill (signed-in members) | *Pay with* pill; codes become unavailable with points |
 | TripLink Corporate / Personal (622) | (not in V1) | *Booking for* pill; Corporate locks travelers to 1 adult |
 | Pass Rider / Personal, travel type, family and companions (623, 1016–1018) | (not in V1) | *Book as* pill, *Travel type* row (required when eligible for both), traveler sheet counters |
 | Find Trains, validation, loading, offline, error (607) | Pinned button; errors beside fields | Same; errors beside the route, dates, travel type, travelers or code |
@@ -348,7 +351,7 @@ Stations, dates, traveler details, codes and the assistance questionnaire open a
 
 **Values kept when editors open and close.** Choices are applied as you make them, so closing a sheet keeps them. Exceptions follow the existing rules: a later departure clears an earlier return (1060); the assistance questionnaire asks before discarding unsaved answers; signing in part-way resets the questionnaire (614 AC4). The traveler sheet can't be left with a selection that can't be searched: you keep editing or undo to the last valid selection. A typed but unadded discount code stays in its field.
 
-**States in Flow › H:** default, populated (round trip, 3 travelers, assistance and a code), validation errors, loading (slow connection), offline, guest, station sheet, dates sheet, traveler sheet, discount code sheet, Auto Train pairing, TripLink Corporate, Pass Rider with a Business Pass, and Pass Rider spouse.
+**States in Flow › H:** default, populated (round trip, 3 travelers, assistance and a code), validation errors, loading (slow connection), offline, guest, station sheet, dates sheet, traveler sheet, discount code sheet, paying with points, Auto Train pairing, TripLink Corporate, Pass Rider with a Business Pass, and Pass Rider spouse.
 
 **Compared with Versions 1–3:** Version 4 shows every booking choice on one screen without scrolling past a header, and each row says what's set and how to change it. The tradeoffs: compact controls truncate long station names (the full name is in the control's accessible label and in the station sheet); the rows rely on short text actions (*Edit*, *Add*, *Remove*), which need to stay at least 44 pt; and assistance is shown as Add/Remove instead of a checkbox, which changes the control but not the rule.
 
@@ -359,11 +362,11 @@ Replaces the earlier V2 Fare Finder (numbered steps revealed in order). The look
 
 **Layout**
 
-- **Top:** the booking modes that apply, as segmented controls (like Airbnb's top tabs): *Booking for* Corporate / Personal (TripLink), *Book as* Pass Rider / Personal (Pass Rider).
+- **Top:** the booking modes that apply, as segmented controls (like Airbnb's top tabs): *Booking for* Corporate / Personal (TripLink), *Book as* Pass Rider / Personal (Pass Rider), *Pay with* Cash / Points (signed-in members on a standard or personal booking).
 - **1. Where are you traveling?** The From / To route field with swap, the Auto Train notice, and two quick picks for the empty field: favorites first, then the most recent station (10 days). Tapping From or To opens the full station search (Favorites, Recents, View full list, every search field). Once both stations are set, When opens.
 - **2. When are you traveling?** One-way / Round-trip and the calendar for exact dates (Depart, then Return). No flexible-date options.
 - **3. Who’s traveling?** Travel type for Pass Riders (required when eligible for both), the traveler counters (the story's categories, not Airbnb's), the assistance checkbox and summary, and each traveler's discount.
-- **Code card:** coupon or promo code, separate from passenger discounts (NMA-613). Replaced by a note for Corporate and Pass Rider.
+- **Code card:** coupon or promo code, separate from passenger discounts (NMA-613). Hidden behind a note for points, Corporate and Pass Rider.
 - **Bottom bar:** *Next* (opens the next section) and *Find Trains*, always available.
 
 **Behavior**
@@ -373,7 +376,7 @@ Replaces the earlier V2 Fare Finder (numbered steps revealed in order). The look
 - **Dependent validation:** choosing a later departure clears an earlier return (1060), with the existing notice. Changing travelers re-applies the traveler rules (limits, accompanied minors, infant ratio), PWD for Traveler 1, and the code checks at Find Trains (for example, a companion coupon needs two travelers).
 - **Nothing required stays hidden:** Find Trains checks Where, When and Who in order, opens the first section that needs attention and moves focus to the problem. A collapsed section with a problem shows a red outline and the message under its summary. Every required control is either in the open section or one tap away on its summary.
 
-**States in Flow › I:** initial (Where open), partly completed (stations chosen, When open), fully populated (all collapsed), reopened section (Where reopened, answers kept), errors (no stations; a child without an adult), station search, Who with assistance and discounts, the assistance questionnaire, the discount code, Auto Train pairing, guest, TripLink Corporate, Pass Rider Leisure travelers, and Pass Rider spouse.
+**States in Flow › I:** initial (Where open), partly completed (stations chosen, When open), fully populated (all collapsed), reopened section (Where reopened, answers kept), errors (no stations; a child without an adult), station search, Who with assistance and discounts, the assistance questionnaire, the discount code, paying with points, Auto Train pairing, guest, TripLink Corporate, Pass Rider Leisure travelers, and Pass Rider spouse.
 
 **Mapping from the previous Version 2**
 
@@ -384,14 +387,9 @@ Replaces the earlier V2 Fare Finder (numbered steps revealed in order). The look
 | Step 3 "Who's traveling?", travelers row pushing Traveler Selection | *Who* section with the traveler counters, assistance and discounts inside it |
 | "Still needed" line above Find Trains | Error outline and message on the section, which opens on Find Trains |
 | Assistance entry: Fare Finder or Traveler Selection (Q7) | In *Who* either way; the setting no longer changes the layout in Version 2 |
-| (not in the previous Version 2) | Code card, TripLink and Pass Rider, shared with Versions 3 and 4 |
+| (not in the previous Version 2) | Code card, Use Points, TripLink and Pass Rider, shared with Versions 3 and 4 |
 
 The assistance questionnaire keeps Version 2's wizard (one question per step, review at the end), opened from *Who*.
-
-
-## Use Points removed from Fare Finder
-
-The *Pay with* Cash / Points control (NMA-624) has been removed from every Fare Finder version. All searches are cash searches, as in Version 1, so the discount code is always available on standard and personal bookings. TripLink Corporate and Pass Rider still use no discounts or codes. Points remain visible in Account (balance and Points activity). If searching with points comes back, it needs a placement decision outside the Fare Finder.
 
 
 ## Station search: Your route

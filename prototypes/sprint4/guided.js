@@ -1,7 +1,7 @@
 /* Sprint 4 prototype: Version 2 Fare Finder, Airbnb-inspired guided search.
    Three stacked rounded sections (Where, When, Who), one expanded at a time. Completed sections
-   collapse into short, editable summaries and can be reopened without restarting. Booking intent sits
-   at the top; coupon and promo codes have their own card, apart from passenger
+   collapse into short, editable summaries and can be reopened without restarting. Booking intent and
+   Cash/Points sit at the top; coupon and promo codes have their own card, apart from passenger
    discounts. A persistent bottom bar holds Next and Find Trains. All rules come from the shared code. */
 
 const GS = ['where', 'when', 'who'];
@@ -50,10 +50,11 @@ function ffGuided(r, ri) {
   if (r.u.open === undefined) r.u.open = 'where'; // Where always opens first, with its suggestions
   ref('607', '608', '1060', '611', '612'); if (std) ref('613'); if (member) ref('624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
-  // Booking intent (TripLink, Pass Rider), at the top like Airbnb's tabs
+  // Booking intent and payment, at the top like Airbnb's tabs
   const modes = [];
   if (member && d.triplink) modes.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent'));
   if (member && d.passrider) modes.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent'));
+  if (member && std) modes.push(gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'pay'));
   const top = modes.length || b.modeNote ? `<div class="gs-top">${modes.join('')}${b.modeNote ? `<p class="gs-note" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}${corp ? q(12) : ''}</div>` : '';
   const content = {
     where: () => {
@@ -82,10 +83,11 @@ function ffGuided(r, ri) {
   }).join('');
   // Coupon and promo codes: a separate card, apart from passenger discounts (NMA-613)
   let code = '';
-  if (std) code = b.code
+  if (std && b.pay === 'cash') code = b.code
     ? `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">${esc(b.code.code)} · ${esc(b.code.kind)}<small>${b.code.benefit ? esc(b.code.benefit) + '. ' : ''}Checked for your trip when you find trains.</small></span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Remove code ${esc(b.code.code)}">Remove</button></div>${b.codeErr ? `<p class="gs__err" id="ffc-code-err" role="alert">${b.codeErr}</p>` : ''}</section>`
     : `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--split"><button class="gs__sumbtn" type="button" data-a="push" data-s="code"><span class="gs__label">Coupon or promo code</span><span class="gs__val">Add</span>${ic('chevron-right', 'gs__chev')}</button><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div></section>`;
-  else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts and codes aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
+  else if (std) code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">Not available when paying with points${b.code ? `<small>Your code ${esc(b.code.code)} is kept for a cash search.</small>` : ''}</span></div></section>`;
+  else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts, codes and points aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   tip('Open any section to change it; the others keep their answers. Find Trains works at any point and opens the first section that needs attention.');
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';

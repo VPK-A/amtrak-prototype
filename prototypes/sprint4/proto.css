@@ -565,6 +565,7 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs .ads-routefield__code { width: auto; min-width: 48px; }
 .gs .ads-routefield__body { flex: 1 1 130px; }
 /* Version 1: coupon or promo code row, with an information button beside it */
+.v1pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
 .v1code { flex-direction: row; align-items: center; }
 .v1code > .ads-group__row { flex: 1; min-width: 0; }
 .v1code__info { margin-right: 6px; color: var(--ads-content-icon-secondary); }
@@ -618,7 +619,8 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* ---------- Motion system (motion.js) ---------- */
 /* Selection indicator: one surface moves between options; text and icon state change immediately */
-.has-ind { position: relative; isolation: isolate; }
+.ads-segmented, .ads-tabbar__tabs, .ads-tabbar-ipad__tabs { position: relative; } /* stable frame for measuring the indicator */
+.has-ind { isolation: isolate; }
 .has-ind > .mo-ind { position: absolute; z-index: -1; pointer-events: none; }
 .ads-segmented.has-ind > button[aria-pressed="true"], .ads-segmented.has-ind > button[aria-selected="true"],
 .has-ind > [aria-current="page"] { background: transparent; box-shadow: none; }
