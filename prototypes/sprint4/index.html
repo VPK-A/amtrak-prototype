@@ -2116,7 +2116,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-back:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
 .ss-search--focus + .ss-route { margin-top: 8px; }
 .device:not(.device--ipad) .info-head { padding-top: 14px; }
-[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover surface */
+[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code, [data-theme="dark"] .ads-stationrow[aria-current="true"] .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover and selected surfaces */
 
 </style>
 </head>
@@ -2428,8 +2428,9 @@ Profile, unchanged.</td>
 <td>Account</td>
 <td>Passenger discounts › <em>Passenger types and discount
 rules</em></td>
-<td>Pushed</td>
-<td>Back</td>
+<td>Supporting-information sheet over Passenger discounts</td>
+<td>Close (or Escape) returns to Passenger discounts at the same scroll
+position</td>
 </tr>
 <tr class="even">
 <td>Profile assistance</td>
@@ -3432,6 +3433,211 @@ already used for the other end is tagged <em>Your departure</em> or
 <em>Your arrival</em>, and the current choice is tagged
 <em>Selected</em>. Choosing the same station for both ends still shows
 the existing dialog (607 BR2.2, BR3.1).</p>
+<h2 id="interaction-and-motion-system-all-versions">Interaction and
+motion system (all versions)</h2>
+<p>One shared set of navigation levels, components and motion tokens,
+applied to every concept. Each concept keeps its own structure, content
+and visual identity. The reference recording (expanding search, guided
+cards, a service-animal info sheet) and the two motion prompts were the
+inputs. Items marked <em>observed</em> come from the recording;
+everything else is a proposed Amtrak adaptation, with timings to tune on
+devices.</p>
+<p><strong>Navigation levels</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Level</th>
+<th>Used for</th>
+<th>Controls</th>
+<th>Motion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Top-level tabs</td>
+<td>Book, Trips, Train Status, Support</td>
+<td>Tab bar (iPhone) or top tabs (iPad)</td>
+<td>No page transition; only the selection indicator moves. Each tab
+keeps its scroll position; reselecting the current tab scrolls it to the
+top</td>
+</tr>
+<tr class="even">
+<td>Modal task</td>
+<td>New Booking, Account, Notification Inbox</td>
+<td><strong>Close</strong> at the root (<em>observed</em>)</td>
+<td>Grows out of the Book control when opened from it; otherwise rises
+from the bottom. Reverses on close</td>
+</tr>
+<tr class="odd">
+<td>Detail inside a task</td>
+<td>Calendar, Travelers, code, assistance, Profile and its editors</td>
+<td><strong>Back</strong> returns one level; <strong>Close</strong> ends
+the whole task</td>
+<td>Pushes in from the right in the same sheet, with the previous screen
+moving 25% behind it</td>
+</tr>
+<tr class="even">
+<td>Focused input (iPhone)</td>
+<td>Station search in every version</td>
+<td><strong>Back</strong> inside the search field (<em>observed</em>);
+Escape also goes back</td>
+<td>The tapped From or To field grows into the view; Back collapses it
+into the field again, now showing the choice</td>
+</tr>
+<tr class="odd">
+<td>Supporting information</td>
+<td>About discount codes, Traveling alone?, Service animals, Accessible
+travel, Discount rules</td>
+<td><strong>Close</strong>; <strong>Back</strong> inside the sheet for a
+deeper level</td>
+<td>Rises from the bottom over a dimmed, inactive task
+(<em>observed</em>); reverses on close</td>
+</tr>
+</tbody>
+</table>
+<p>Back and Close are always separate controls with separate meanings.
+On iPad, station search stays beside the Fare Finder (split view), so it
+keeps the standard header.</p>
+<p><strong>Supporting-information sheet</strong></p>
+<ul>
+<li>Bottom sheet with rounded top corners on iPhone; a centered card on
+iPad. Height follows the content, up to the top 96 px of the screen, and
+long content scrolls inside it.</li>
+<li>The task behind it stays visible under the scrim and is inert.
+Tapping the scrim, Close or Escape dismisses it and restores the exact
+step, selections, scroll position and focus (on the link that opened
+it).</li>
+<li>A deeper level (for example <em>Service animals › accessible travel
+policy</em>) opens inside the same sheet with Back. Sheets never
+stack.</li>
+<li>Entry points: the <em>Bringing a service animal?</em> link under the
+traveler counters (every version), <em>About service animals</em> in the
+assistance questions, the information buttons beside codes,
+<em>Traveling alone?</em> on Youth, and Passenger types and discount
+rules in Account. Service-animal and accessible-travel text is draft
+content, labeled as such, for NMA-628 and NMA-621.</li>
+<li>These replace the earlier alert dialogs for explanations. Dialogs
+remain only for decisions (discard changes, same station twice, clear
+recents).</li>
+</ul>
+<p><strong>Focused station search (iPhone)</strong></p>
+<p>The field becomes the top of the view, with Back in its leading slot
+and focus in the input. The <em>Your route</em> summary and the results
+follow it. Choosing a station returns it to the task, where the field or
+summary row updates; Versions 2 and 3 go straight on to To first, as
+before. Rapid taps can't stack a second view, because the task behind is
+inert during the transition.</p>
+<p><strong>Expandable cards (Version 2 booking)</strong></p>
+<p>Where, When and Who: the active section is a rounded card and the
+others are summary rows with their label and current choice
+(<em>observed</em>). Opening another section collapses the previous one
+while the cards around it move to their new places: height and position
+animate together over 300 ms. Values are kept when switching, and Next
+and Find Trains stay in the bottom action area. Versions 1, 3 and 4 keep
+their single-form Fare Finders, which is what distinguishes those
+concepts. They share the focused search, the sheets and the motion.</p>
+<p><strong>Motion tokens</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Token</th>
+<th>Duration</th>
+<th>Easing</th>
+<th>Used for</th>
+<th>Reduced motion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>tap</td>
+<td>100 ms</td>
+<td>standard</td>
+<td>Press feedback (slight dim, 1.5% compression)</td>
+<td>No compression</td>
+</tr>
+<tr class="even">
+<td>control</td>
+<td>200 ms</td>
+<td>standard</td>
+<td>Segmented and tab indicators, dialog entry, toasts</td>
+<td>Direct change</td>
+</tr>
+<tr class="odd">
+<td>panel</td>
+<td>280 ms</td>
+<td>standard</td>
+<td>Pushes, focused view in and out, sheet-level changes</td>
+<td>120 ms fade</td>
+</tr>
+<tr class="even">
+<td>section</td>
+<td>300 ms</td>
+<td>standard</td>
+<td>Expandable card height and position</td>
+<td>Direct change</td>
+</tr>
+<tr class="odd">
+<td>shared</td>
+<td>360 ms</td>
+<td>settle</td>
+<td>Modal and information sheet presentation</td>
+<td>120 ms fade, no blur or scale</td>
+</tr>
+<tr class="even">
+<td>close</td>
+<td>260 ms</td>
+<td>exit</td>
+<td>Dismissals (reverse of presentation)</td>
+<td>120 ms fade</td>
+</tr>
+<tr class="odd">
+<td>stagger</td>
+<td>35 ms</td>
+<td></td>
+<td>Content reveal after a surface settles</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p>Easing: standard <code>cubic-bezier(.2, 0, 0, 1)</code>, settle
+<code>cubic-bezier(.2, .8, .2, 1)</code>, exit
+<code>cubic-bezier(.4, 0, 1, 1)</code>. There's no bounce. Surfaces
+animate (position, size, clip and corner radius, backdrop opacity), and
+text is never scaled. Reduced motion follows the system setting or the
+toolbar's <em>Motion</em> control.</p>
+<p><strong>Native notes</strong></p>
+<ul>
+<li>iOS: use <code>UISheetPresentationController</code> with detents for
+the information sheet (<code>.medium()</code> and custom content
+heights) and a navigation stack inside the booking sheet. The focused
+search fits a matched-geometry transition (SwiftUI
+<code>matchedGeometryEffect</code>) from the field. Follow the keyboard
+with <code>keyboardLayoutGuide</code>, so the action area stays above
+it.</li>
+<li>Android: <code>ModalBottomSheet</code> for supporting information;
+shared-element transitions (<code>SharedTransitionLayout</code>) for the
+focused search; predictive back reverses each level. Keep the action
+area above the IME with <code>imePadding()</code>.</li>
+</ul>
+<p><strong>QA checklist (scripted, all passing)</strong></p>
+<p>A complete journey in every version on iPhone and iPad (119
+checks):</p>
+<ol type="1">
+<li>Open booking.</li>
+<li>Enter the focused station search and choose From and To.</li>
+<li>Go back from the focused view, keeping the value.</li>
+<li>Add a traveler.</li>
+<li>Open <em>Service animals</em> (focus moves to its title and the task
+behind is inert), then go deeper and back.</li>
+<li>Press Escape, which restores the step, scroll position and
+focus.</li>
+<li>Open the code information and close it.</li>
+<li>Find trains and close, returning to Book with focus on New
+Booking.</li>
+</ol>
+<p>The new states also passed accessibility checks in light and dark
+mode and at 100% and 140% text, with no overflow. Reduced motion uses
+opacity only.</p>
 
   </article>
 </div>

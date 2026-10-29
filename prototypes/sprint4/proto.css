@@ -673,4 +673,4 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-back:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
 .ss-search--focus + .ss-route { margin-top: 8px; }
 .device:not(.device--ipad) .info-head { padding-top: 14px; }
-[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover surface */
+[data-theme="dark"] .ads-stationrow__select:hover .ads-stationrow__code, [data-theme="dark"] .ads-stationrow[aria-current="true"] .ads-stationrow__code { color: var(--ads-content-text-primary); } /* keeps 4.5:1 on the hover and selected surfaces */
