@@ -798,23 +798,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cal-nav__title:focus { outline: none; }
 .cal-nav__title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); border-radius: 4px; }
 .ads-calendar--paged .ads-calendar__weekdays { position: static; }
-.ads-day__n { line-height: 1; }
-.ads-calendar__grid.has-fares { row-gap: 4px; }
-.ads-calendar__grid.has-fares .ads-day::before { width: auto; height: auto; aspect-ratio: auto; inset: 2px; border-radius: 10px; }
-.ads-day__p { font-size: 11px; line-height: 1; color: var(--ads-content-text-secondary); font-weight: 400; letter-spacing: -0.2px; }
-.ads-day--fare-low::before { background: var(--ads-background-status-success-subtle); }
-.ads-day--fare-high::before { background: var(--ads-background-status-warning-subtle); }
-.ads-day--fare-low .ads-day__p { color: var(--ads-content-text-primary); }
-.ads-day[aria-pressed="true"] .ads-day__p { color: inherit; }
-.has-fares .ads-day--in-range::after, .has-fares .ads-day--range-start::after, .has-fares .ads-day--range-end::after { content: ""; position: absolute; bottom: 0; height: 3px; background: var(--ads-border-focus); left: 0; right: 0; }
-.has-fares .ads-day--range-start::after { left: 50%; } .has-fares .ads-day--range-end::after { right: 50%; }
-.has-fares .ads-day--in-range, .has-fares .ads-day--range-start, .has-fares .ads-day--range-end { background: none; }
-.cal-legend { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ads-content-text-secondary); }
-.cal-legend--none { margin: 0; }
-.cal-legend__keys { display: flex; flex-wrap: wrap; gap: 6px; }
-.cal-key { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; color: var(--ads-content-text-primary); border: 1px solid var(--ads-border-subtle); }
-.cal-key--low { background: var(--ads-background-status-success-subtle); }
-.cal-key--high { background: var(--ads-background-status-warning-subtle); }
 .cal-pick > button { height: auto; min-height: 44px; padding: 6px 8px; white-space: normal; line-height: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .cal-pick__k { font-size: 12px; color: inherit; opacity: 0.8; }
 /* Guided: the whole booking modal is stone, including the grabber strip at the top (no lighter edge) */
@@ -855,3 +838,24 @@ body.chrome-hidden .archived-tag { display: none; }
 .tbarchive:not([open]) > .tbseg { display: none; }
 .tbarchive .tbseg { flex-wrap: wrap; border-radius: 16px; }
 .archived-wrap { display: contents; }
+
+/* Fare Finder density (Concepts 1 and 3) */
+.fam-row__value:empty { display: none; }
+.ffc-list--inline { margin-top: 0; }
+.ffc-surface .ffc-pay { margin-top: 0; }
+.ffc-surface .ffc-list--inline .ffc-row { border-radius: 16px; }
+.ver-1 .ads-routefield__station, .ver-3 .ads-routefield__station { white-space: normal; overflow: visible; text-overflow: clip; } /* long station names wrap instead of being cut off */
+
+.device.has-booking .app-tabbar { visibility: hidden; }
+/* Concept 3 density: same type sizes and 44px+ targets, less spacing */
+.pane--clear .ffc-hero { padding-bottom: 14px; gap: 6px; }
+.ffc-sheet { gap: 14px; padding: 14px 14px 24px; }
+.ffc-surface { gap: 10px; padding: 12px; }
+.ffc-surface .ads-routefield__half { min-height: 64px; }
+.ffc-surface .ads-datefield { min-height: 62px; }
+.ffc-trav { min-height: 56px; padding: 8px 14px; }
+.ffc-surface .ffc-list--inline { border-radius: 16px; background: var(--ads-background-surface-page); }
+.ffc-surface .ffc-list--inline .ffc-row { min-height: 52px; padding: 8px 14px; }
+.ffc-surface .ffc-list--inline .ffc-row--split { padding: 0 4px 0 0; min-height: 52px; }
+.ffc-surface .ffc-list--inline .ffc-row__main { padding: 8px 8px 8px 14px; min-height: 52px; gap: 10px; }
+.ffc-surface .ffc-list--inline .ffc-row__label { font-size: 15px; }

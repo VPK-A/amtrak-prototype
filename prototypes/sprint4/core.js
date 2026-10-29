@@ -273,6 +273,8 @@ var render = function () {
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
   dev.dataset.theme = TB.theme;
+  // Booking is a modal flow: the app's bottom navigation is hidden while it's open
+  if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
   dev.innerHTML = renderDevice();
   dev.style.setProperty('--text-zoom', TB.text / 100);
   // Closed layers start fresh next time; open ones get their scroll back, even after a child screen

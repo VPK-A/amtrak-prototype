@@ -68,9 +68,9 @@ function ffClear(r, ri) {
   let modes = '';
   if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
   if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Personal']], b.intent, 'intent');
-  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : 'One way or round trip, up to 8 travelers.';
+  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : ''; // no repeated subtitle for a standard booking
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
-  const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3><p class="ffc-sub">${sub}</p>${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
+  const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3>${sub ? `<p class="ffc-sub">${sub}</p>` : ''}${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
   // 2. Rounded primary surface
   let prType = '';
   if (pr) {
@@ -79,10 +79,11 @@ function ffClear(r, ri) {
       : `<div class="ffc-fixed"><span class="ffc-label">Travel type</span><span>Leisure</span><span class="ads-helper">${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</span></div>`;
   }
   const travVal = corp ? '1 adult · You' : pr ? prSummary(b, d) : paxSummary(b);
-  const travSub = corp ? 'Corporate bookings are for you only.' : pr ? `${prCount(b) > 1 && b.prType !== 'business' ? 'Leisure travel' : 'Pass Rider fare'}` : `Discounts: ${discSummary(b)}`;
-  const paxErr = r.u.showErr && std && paxProblems(b.pax).length ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${paxProblems(b.pax)[0]}</span></p>` : '';
-  const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}. ${esc(travSub)}">${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span><span class="ffc-trav__sub">${esc(travSub)}</span></span>${ic('chevron-right')}</button>${paxErr}`;
-  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}</div>`;
+  // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
+  const travSub = [corp ? 'Corporate bookings are for you only' : pr ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  const paxErr = r.u.showErr && std && paxProblems(b.pax).length ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${paxProblems(b.pax)[0]}</span></p>` : r.u.showErr && assistProblems(b).length ? `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(assistProblems(b)[0])} Open travelers to fix it.</span></p>` : '';
+  const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance">${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
+  // (the surface is built after the code rows, so the coupon sits right after travelers)
   // 3. Discounts, codes and assistance
   const rows = [];
   if (std) {
@@ -93,9 +94,11 @@ function ffClear(r, ri) {
       else rows.push(`<div class="ffc-row ffc-row--split"><button class="ffc-row__main" type="button" data-a="push" data-s="code">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Add a code</span></span>${ic('chevron-right')}</button>${info}</div>`);
     } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('payment-voucher', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Coupon or promo code</span><span class="ffc-row__val">Not available when paying with points${b.code ? `. Your code ${esc(b.code.code)} is kept for a cash search.` : '.'}</span></span></div>`);
   } else rows.push(`<div class="ffc-row ffc-row--static ffc-row--muted">${ic('discount', 'ffc-row__icon')}<span class="ffc-row__text"><span class="ffc-row__label">Discounts, codes and points</span><span class="ffc-row__val">Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></span></div>`);
-  const options = `<section class="ffc-options" aria-labelledby="ffc-opt"><h4 class="ffc-h" id="ffc-opt">${std ? (member ? 'Codes and payment' : 'Coupon or promo code') : 'Discounts and codes'}</h4><div class="ffc-list">${rows.join('')}</div>${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</section>`;
+  // Coupon right after travelers, then Pay with, inside the same card (placement proposed for review, Q21)
+  if (std) q(21); q(22);
+  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}<div class="ffc-list ffc-list--inline">${rows.join('')}</div>${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</div>`;
   if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
-  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${overviewPassRider(b)}${overviewTravelers(r, ri, b)}${options}${netAlert(r)}</div>`, foot: findBtn(r) };
+  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Personal, Cash/Points
 A['ffc-set'] = t => {
@@ -129,6 +132,7 @@ A['find-trains'] = (t, ri) => {
   }
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b), prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
+  if (TB.v === 3 && assistProblems(b).length) { r.u.showErr = true; pendingFocus = '#trav-err'; render(); return; } // shown on the Travelers entry
   if (paxBad) { r.u.showErr = true; pendingFocus = '#ff-trav, [data-a="pick-travelers"]'; render(); return; }
   if (e.from || e.to || e.ret || prMissing) { r.u.showErr = true; pendingFocus = e.from ? '#ff-from' : e.to ? '#ff-to' : e.ret ? '#ff-ret' : '[data-a="pr-type"], #fl-prtype'; render(); return; }
   r.u.showErr = false; searchWithCode(r, ri);
@@ -235,16 +239,16 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? assistBlock(r, ri, aHost, { noList: true }) + travelerCards(b) : assistBlock(r, ri, aHost)}
-      ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
+      ${fam ? travelerCards(b) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
+      ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? assistBlock(r, ri, aHost, { noList: true }) + travelerCards(b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? travelerCards(b) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
   if (fam) return { title: 'Traveler selection', kind: 'editor', cancelA: 'trav-cancel', close: true, banner: false, body: `<div class="travsel">${body}</div>`, foot };
   if (std) return { title: 'Traveler selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
-  body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling and any discounts.'}</p></div>` + body;
+  body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
 A.pax = t => {

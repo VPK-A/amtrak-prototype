@@ -11,6 +11,17 @@ The sections below this one are the history of the exploration, and some still d
 - Advance Concepts 1 (Familiar) and 3 (Overview). Keep their names, numbering and distinct approaches, with comparable features and booking data.
 - Remove Concepts 2 and 4 from the review switcher and keep their implementation in an archive.
 
+- **Latest round, for Concepts 1 and 3:**
+  - assistance per traveler inside traveler selection, with no assistance section on the Fare Finder;
+  - one traveler entry with a concise summary and no empty labels;
+  - the coupon higher on the Fare Finder (its exact position is a proposal, see below);
+  - no prices or fare shading on the calendar;
+  - stacked station fields that fit long names;
+  - booking as a modal with the bottom navigation hidden;
+  - less redundant spacing.
+
+  This round was requested as review direction. The coupon position is explicitly a proposal.
+
 Nothing else in this prototype is recorded as stakeholder-confirmed.
 
 ### 2. Supported by the supplied documentation
@@ -49,6 +60,27 @@ From `NMA_Sprint_4_Combined.docx` (66 issues; inventory and coverage in `PLAN.md
   - the Pass Rider eligibility card;
   - the iPad split beside it.
 
+**Latest round: what changed and what to review**
+- **Assistance:**
+  - Familiar: each traveler card in Traveler selection has *Disability or assistance* with Add, Edit or Remove, using the existing questionnaire.
+  - Overview: each traveler's Edit, inside the Travelers sheet.
+  - Answers are kept when editing again or going back to the Fare Finder.
+  - This conflicts with NMA-973, which places the check on the Fare Finder (Q7). The *Assistance entry* toolbar setting now only affects the archived concepts.
+- **Traveler summary:**
+  - One Travelers entry. Its second line appears only after a choice is made: discounts, assistance, or a problem.
+  - Overview no longer repeats the travelers below its card, and its Pass Rider eligibility moved into the Travelers sheet.
+  - The *No discount* and *No assistance* labels are gone. Options remain in traveler editing.
+- **Coupon:** right after travelers and before Pay with and Find trains, with the same code screen and rules. Proposed position (Q21).
+- **Calendar:** no prices, shading or legend. Selected, range, unavailable and today states unchanged, and still one month at a time. The pricing code is kept in `archive/fares.js` and isn't built.
+- **Stations:** already stacked with the swap on the right. Long station names now wrap instead of being cut off.
+- **Modal:** the bottom navigation is hidden while booking and returns on close. Back and close are unchanged. Account and Inbox sheets still show it (Q22), and iPad has a top tab bar, not bottom navigation, so nothing is hidden there.
+- **Density:**
+  - Familiar's initial form fits a 390 × 844 iPhone almost exactly.
+  - Overview's is about 40px taller, because of its navy title band, so Pay with is partly below the fold.
+  - With TripLink or Pass Rider modes, or larger text, both scroll.
+  - Type sizes and touch targets weren't reduced.
+- **Shared code:** the calendar and the traveler model are shared, so the archived concepts lose the prices too. Their own layouts weren't changed.
+
 **Unresolved, shown as Q markers on the screens they affect:**
 - **Stations and dates:** Q1 Station ranking, Q2 Pseudo-stations, Q3 Select or view details, Q4 Maximum booking window.
 - **Profile:** Q5 Country change and the address, Q6 Phone types and DOB bounds.
@@ -56,7 +88,7 @@ From `NMA_Sprint_4_Combined.docx` (66 issues; inventory and coverage in `PLAN.md
 - **Verification:** Q8 Verification channel, Q15 Reauthentication to change email.
 - **Codes, points and coupons:** Q11 Discount codes before a train is chosen, Q14 Points and other options, Q17 Coupon retention and notices.
 - **Booking modes:** Q12 Corporate and Pass Rider restrictions, Q13 Pass Rider travelers, Q16 Pass Rider identifiers.
-- **Other:** Q18 Wheelchair and mobility device details (NMA-29), Q19 Who can be a personal companion, Q20 Fares on the calendar.
+- **Other:** Q18 Wheelchair and mobility device details (NMA-29), Q19 Who can be a personal companion, Q20 Fares on the calendar (removed), Q21 Coupon placement, Q22 Navigation while booking.
 
 **Undefined stories:** NMA-620, 621, 628 and 629 are labeled placeholders only. NMA-29 is partly defined. NMA-44 and 609 are cancelled.
 

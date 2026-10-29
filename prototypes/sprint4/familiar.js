@@ -25,12 +25,13 @@ function discountRow(b, t, fromProfile) {
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span>${actions ? `<span class="fam-row__acts">${actions}</span>` : ''}</div><span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>${help ? `<span class="ads-helper">${help}</span>` : ''}</div>`;
 function assistanceRow(b, t) {
   const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
-  const value = !on ? 'None' : c === 'none' ? 'No assistance needed' : esc(items[0]);
+  const value = !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
   const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
   const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
   const tag = on && t.n === 1 && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
-  return famRow(`Assistance${tag}`, value, details, '', acts);
+  ref('615', '973');
+  return famRow(`Disability or assistance${tag}`, value, details || (!on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
@@ -50,7 +51,7 @@ function travelerCards(b) {
     const err = travelerError(b, t), id = `tc-${t.key}`;
     return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
-  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3><ul class="fam-cards">${cards}</ul><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${q(7)}</section>`;
+  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3><ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
 // Choosing a companion on the traveler with a disability's card
 HOOKS.famcomp = (r, t) => {

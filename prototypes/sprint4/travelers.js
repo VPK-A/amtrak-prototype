@@ -100,6 +100,15 @@ function assistSummaryLine(b) {
   return `${asked.length} of ${list.length} travelers`;
 }
 
+// Concise traveler summary for the Fare Finder: only selections that were made (no "None chosen" labels)
+function travelerChoices(b) {
+  const it = intentOf(b), parts = [];
+  if (['standard', 'personal'].includes(it)) { const d = discSummary(b); if (d !== 'None chosen') parts.push(d); }
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return b.assistOn && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
+  if (assistProblems(b).length) parts.push('Assistance needs a change');
+  return parts.join(' · ');
+}
 // Short form for summaries: "Assistance for 2 travelers"
 function assistShort(b) {
   if (!b.assistOn) return '';

@@ -90,9 +90,9 @@ function payV1(b) {
 function travelersRow(r, opts = {}) {
   const b = D().booking, it = intentOf(b);
   const label = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
-  const value = it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fares apply' : `Discounts: ${discSummary(b)}`;
-  const err = r.u && r.u.showErr && assistProblems(b).length && V().entry === 'travelers' ? assistProblems(b)[0] : '';
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: esc(value), current: opts.open })]) + (err ? `<p class="ads-helper ads-helper--error" id="trav-err">${ic('alert-diamond')}<span>${esc(err)} Open travelers to fix it.</span></p>` : '');
+  const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fares apply'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
+  const err = r.u && r.u.showErr && assistProblems(b).length ? assistProblems(b)[0] : ''; // assistance lives in Traveler selection
+  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: value == null ? null : esc(value), current: opts.open })]) + (err ? `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(err)} Open travelers to fix it.</span></p>` : '');
 }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
@@ -137,7 +137,8 @@ SCR.ff = (r, ri) => {
   if (v2()) return ffGuided(r, ri);
   ref('613');
   const std = ['standard', 'personal'].includes(intentOf(b));
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${assistBlock(r, ri, 'ff')}${std ? payV1(b) : ''}${netAlert(r)}`;
+  if (std) q(21); q(22);
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRowV1(b) : `<p class="ss-note v1modes__none">Passenger discounts, codes and points aren’t used for ${intentOf(b) === 'corporate' ? 'TripLink Corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`; // assistance lives on each traveler in Traveler selection
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -262,42 +263,42 @@ A['choose-station'] = (t, ri) => {
 // =====================================================================
 // Calendar (NMA-1060)
 // =====================================================================
+// Month navigation (one month at a time)
+const monthKey = s => s.slice(0, 7);
+A['cal-month'] = (t, ri) => {
+  const r = routeAt(ri), [y, m] = (r.u.month).split('-').map(Number), d = new Date(y, m - 1 + (+t.dataset.d), 1);
+  r.u.month = iso(d).slice(0, 7); pendingFocus = `[data-a="cal-month"][data-d="${t.dataset.d}"]:not(:disabled), .cal-nav__title`; render();
+};
 function calendarBody(r, ri, field) {
   const b = D().booking; r.u.picking = r.u.picking || field;
   const picking = b.trip === 'ow' ? 'dep' : r.u.picking;
   ref('1060');
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = addDays(b.dep, WINDOW_DAYS);
   const last = parse(picking === 'ret' ? maxRet : maxDep);
-  // One month at a time (it opens on the month of the date being picked); fares as a heat map (fares.js)
+  // One month at a time (it opens on the month of the date being picked). No fares on the calendar (stakeholder feedback)
   const firstM = iso(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)).slice(0, 7), lastM = iso(last).slice(0, 7);
   if (!r.u.month || r.u.monthFor !== picking) { r.u.month = monthKey(picking === 'ret' ? (b.ret || b.dep) : b.dep); r.u.monthFor = picking; }
   if (r.u.month < firstM) r.u.month = firstM; if (r.u.month > lastM) r.u.month = lastM;
   const [my, mm] = r.u.month.split('-').map(Number), m = new Date(my, mm - 1, 1);
-  const mode = fareMode(b), [legFrom, legTo] = picking === 'ret' ? [b.to, b.from] : [b.from, b.to];
   const isOff = s => s < TODAY_S || (picking === 'dep' && s > maxDep) || (picking === 'ret' && (s < b.dep || s > maxRet));
-  const nDays = new Date(my, mm, 0).getDate(), fares = {};
-  if (mode.kind !== 'none') for (let dd = 1; dd <= nDays; dd++) { const s = iso(new Date(my, mm - 1, dd)); if (!isOff(s)) fares[s] = dayFare(legFrom, legTo, s); }
-  const level = fareLevels(Object.values(fares));
-  if (mode.kind !== 'none') ref('1060');
+  const nDays = new Date(my, mm, 0).getDate();
   const day = (y, mo, dd) => {
     const s = iso(new Date(y, mo, dd));
     const disabled = isOff(s);
     const isDep = s === b.dep, isRet = b.trip === 'rt' && s === b.ret, inRange = b.trip === 'rt' && b.ret && s > b.dep && s < b.ret;
-    const f = fares[s], lv = f != null ? level(f) : null;
-    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : '', lv ? `ads-day--fare-${lv}` : ''].filter(Boolean).join(' ');
-    const price = f != null ? `, ${mode.kind === 'points' ? fareText(f, 'points') + ' points' : 'from ' + fareText(f, 'cash')}, ${FARE_WORD[lv]}` : '';
-    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : price}`;
-    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}"><span class="ads-day__n">${dd}</span></button>`; // price shown by shading only; the label still says it
+    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && b.trip === 'rt' && b.ret && b.ret !== b.dep ? 'ads-day--range-start' : '', isRet && b.ret !== b.dep ? 'ads-day--range-end' : '', inRange ? 'ads-day--in-range' : ''].filter(Boolean).join(' ');
+    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${disabled ? ', not available' : ''}`;
+    return `<button class="${cls}" type="button" data-a="day" data-d="${s}" data-k="day-${s}" ${disabled ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
   };
   const title = m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
   const nav = `<div class="cal-nav"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="-1" aria-label="Previous month" ${r.u.month <= firstM ? 'disabled' : ''}>${ic('chevron-left', 'ads-icon--sm')}</button><h3 class="cal-nav__title" id="cal-m" tabindex="-1" aria-live="polite">${title}</h3><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="1" aria-label="Next month" ${r.u.month >= lastM ? 'disabled' : ''}>${ic('chevron-right', 'ads-icon--sm')}</button></div>`;
-  const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid${mode.kind !== 'none' ? ' has-fares' : ''}" role="group" aria-labelledby="cal-m">${g}</div></div>`;
+  const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid" role="group" aria-labelledby="cal-m">${g}</div></div>`;
   const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
-  return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}${fareLegend(mode)}</div>${limit}`;
+  return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;

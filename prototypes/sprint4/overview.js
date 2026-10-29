@@ -13,15 +13,16 @@ function overviewTravelers(r, ri, b) {
   const rows = list.map(t => {
     const a = assistRec(b, t.key), c = assistCat(b, t.key), err = travelerError(b, t);
     const chips = [];
-    if (std) { const x = tdiscOf(b, t); chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
-    else chips.push(`<span class="ov-chip">${ic('discount', 'ads-icon--sm')}${it === 'pr' ? 'Pass Rider fare' : 'Corporate fare'}</span>`);
-    chips.push(c && c !== 'none' ? `<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>` : `<span class="ov-chip ov-chip--muted">${ic('assistance', 'ads-icon--sm')}No assistance</span>`);
+    // Only what was chosen: no "No discount" or "No assistance" labels (the Edit sheet still offers both)
+    if (std) { const x = tdiscOf(b, t); if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
+    if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
     if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
     if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.n === 1 && a.done && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : ''}</span><span class="ov-chips">${chips.join('')}</span>${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}">Edit</button></li>`;
+    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.n === 1 && a.done && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
   }).join('');
-  const check = V().entry === 'ff' ? assistBlock(r, ri, 'ff', { noList: true }) : '';
-  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><div class="ov-travs__head"><h4 class="ffc-h" id="ov-tr-h">Travelers</h4><button class="ads-link ads-link--sm linkbtn" type="button" data-a="pick-travelers">${it === 'corporate' ? 'View' : 'Change travelers'}</button></div><ul class="ov-list">${rows}</ul>${check}</section>`;
+  q(7); // notes only: assistance moved here from the Fare Finder (stakeholder feedback vs NMA-973)
+  // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
+  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4><ul class="ov-list">${rows}</ul></section>`;
 }
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {
