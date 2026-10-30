@@ -4,10 +4,8 @@
      saved codes can also pick one from a pop-up, soonest expiry first. States: entered, checking, applied,
      invalid format, not eligible, couldn't check (service error), and trip changed (checked again). It is
      hidden for points searches and not used for TripLink Corporate or Pass Rider travel.
-   - "Traveler with disability or need help?" (NMA-973): the Fare Finder check, its explanation and a
-     Continue action. Continue opens Traveler selection, where each traveler answers their own assistance
-     questions (NMA-615 AC1). This mapping is proposed (Q7). While the box is checked, every traveler needs
-     an answer before Find trains (NMA-615 BR1.2).
+   - No assistance check on the Fare Finder (stakeholder feedback): assistance is added per traveler in
+     Traveler selection (Q7).
    Validation responses are simulated (Scenario › Network, and the test codes in the notes). */
 
 // ---------- Discount code ----------
@@ -25,7 +23,7 @@ function codeField(r, b) {
   if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
   ref('613'); q(21); q(23);
   const st = codeStateOf(b), saved = savedCodes(), text = b.codeText || '';
-  const busy = r.u.busy && r.u.busyWhat !== 'assist' && text;
+  const busy = r.u.busy && text;
   const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
   const btn = (a, label, kind = 'tertiary', aria = '') => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${a}"${aria ? ` aria-label="${aria}"` : ''}>${label}</button>`;
   let msg = '';
@@ -66,38 +64,6 @@ function codeFormatError(b) {
   b.codeErr = b.codeTries >= 2 ? 'Please enter a valid discount code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid discount code';
   return true;
 }
-
-// ---------- "Traveler with disability or need help?" ----------
-// Placeholder for the AEM explanation text (NMA-973 BR1); the final copy isn't in the prototype
-const ASSIST_TEXT = 'Let us know if anyone needs help, like a wheelchair space, an accessible seat, station assistance or a personal companion. You’ll answer for each traveler.';
-const assistMissing = b => b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done) : [];
-function assistCheck(r, ri, b) {
-  ref('973', '615'); q(7);
-  const list = travelerList(b), miss = assistMissing(b), done = list.length - miss.length, err = r.u.showErr && miss.length;
-  const busy = r.u.busy && r.u.busyWhat === 'assist';
-  let h = `<div class="ffassist${err ? ' has-error' : ''}" id="ffassist"><label class="ads-choice ads-checkbox"><input type="checkbox" id="ff-assist" data-a="ff-assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="ff-assist-h${err ? ' ffa-err' : ''}"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?</span><span class="ads-choice__supporting" id="ff-assist-h">${ASSIST_TEXT}</span></span></label>`;
-  if (b.assistOn) {
-    const status = !done ? (list.length > 1 ? 'No travelers answered yet' : 'Not answered yet') : miss.length ? `Answered for ${done} of ${list.length} travelers` : list.length > 1 ? `Answered for all ${list.length} travelers` : 'Answered';
-    h += `<div class="ffassist__row"><span class="ffassist__status">${status}</span>${busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>` : `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="ff-assist-continue" aria-label="${miss.length ? 'Continue to assistance questions' : 'Review assistance answers'}">${miss.length ? 'Continue' : 'Review'}</button>`}</div>`;
-  }
-  if (r.u.busyWhat === 'assist') h += netAlert(r);
-  if (err) h += `<p class="ads-helper ads-helper--error" id="ffa-err" tabindex="-1">${ic('alert-diamond')}<span>Choose an assistance option for every traveler (${miss.length} not answered). Select Continue, or uncheck the box if no one needs help.</span></p>`;
-  return h + '</div>';
-}
-// Checking or unchecking works offline (NMA-973). Answers are kept while unchecked, but don't count.
-A['ff-assist-toggle'] = (t, ri) => { const b = D().booking, r = routeAt(ri); b.assistOn = t.checked; if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = '#ff-assist'; render(); };
-// Continue needs a connection; a slow one can be cancelled (NMA-973). Once open, the questions can be
-// finished offline (NMA-996, 997): b.formLoaded remembers that.
-A['ff-assist-continue'] = (t, ri) => {
-  const r = routeAt(ri), b = D().booking; r.u.busyWhat = 'assist';
-  const go = () => {
-    r.u.busyWhat = null; b.formLoaded = true;
-    const miss = assistMissing(b); push('travelers', {}, +ri);
-    pendingFocus = miss.length ? `[data-a="assist-edit"][data-t="${miss[0].key}"], [data-a="ov-traveler"][data-t="${miss[0].key}"]` : '[data-a="assist-edit"], [data-a="ov-traveler"]'; render();
-  };
-  if (b.formLoaded && V().net === 'offline') return go();
-  runNet(r, () => null, go, { what: 'open the assistance questions' });
-};
 
 // Placeholder for the Pass Rider policy (built later, NMA-1081)
 INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-pending"><b>Content not defined yet</b><span>The Pass Rider policy will be added later.</span></div>` };

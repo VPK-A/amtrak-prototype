@@ -120,12 +120,13 @@ function ffClear(r, ri) {
   const travSub = [corp ? 'Corporate bookings are for you only' : pr ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const paxErr = travErr(r, b);
   const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
-  // Under travelers: the assistance check (NMA-973), then the discount code (NMA-613, placement proposed Q21)
+  // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
+  q(7);
   const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and discount codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
   q(22);
-  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${assistCheck(r, ri, b)}${codeField(r, b)}${restricted}${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</div>`;
+  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</div>`;
   if (std) codeTips();
-  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${r.u.busyWhat === 'assist' ? '' : netAlert(r)}</div>`, foot: findBtn(r) };
+  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Shared by Concepts 1 and 3
 const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
@@ -171,13 +172,12 @@ A['find-trains'] = (t, ri) => {
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
   if (TB.v === 1 || TB.v === 3) {
-    r.u.busyWhat = null; r.u.alert = null;
+    r.u.alert = null;
     const inp = document.querySelector('#ff-code'); if (inp) setCodeText(b, inp.value);
     const fail = sel => { r.u.showErr = true; pendingFocus = sel; render(); };
     if (e.from || e.to || e.ret) return fail(e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret');
     if (intentOf(b) === 'pr' && !b.prType) return fail('[data-a="pr-type"]'); // the button is disabled too (NMA-1016 AC2)
     if (travelerProblems(b).length || assistProblems(b).length) return fail('#trav-err');
-    if (assistMissing(b).length) return fail('#ffa-err'); // NMA-615 BR1.2
     if (intentOf(b) === 'corporate' && (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to])) { // NMA-622 AC8: an error after Find trains
       r.u.showErr = false;
       return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, switch to Personal.', returnFocus: '[data-a="find-trains"]',

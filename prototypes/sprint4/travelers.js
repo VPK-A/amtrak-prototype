@@ -106,9 +106,7 @@ function travelerChoices(b) {
   if (['standard', 'personal'].includes(it)) { const d = discSummary(b); if (d !== 'None chosen') parts.push(d); }
   if (it === 'pr' && b.prType !== 'business') { const kids = travelerList(b).filter(t => prKind(b, t.key) === 'child').length; if (kids) parts.push(`${kids} child${kids > 1 ? 'ren' : ''}`); }
   const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return b.assistOn && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
-  const all = travelerList(b).length, miss = b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done).length : 0;
-  if (miss) parts.push(`Assistance answered for ${all - miss} of ${all}`); // NMA-615 BR1.2: everyone answers while checked
-  else if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
+  if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
   if (assistProblems(b).length) parts.push('Assistance needs a change');
   return parts.join(' · ');
 }

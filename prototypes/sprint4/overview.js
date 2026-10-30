@@ -16,7 +16,6 @@ function overviewTravelers(r, ri, b) {
     // Only what was chosen: no "No discount" or "No assistance" labels (the Edit sheet still offers both)
     if (std) { const x = tdiscOf(b, t); if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
     if (it === 'pr' && t.key !== 'pr-you') chips.push(`<span class="ov-chip">${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}</span>`);
-    if (b.assistOn && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
     if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
     if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
     if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }

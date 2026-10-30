@@ -31,13 +31,12 @@ function discountRow(b, t, fromProfile) {
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span>${actions ? `<span class="fam-row__acts">${actions}</span>` : ''}</div><span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>${help ? `<span class="ads-helper">${help}</span>` : ''}</div>`;
 function assistanceRow(b, t) {
   const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
-  const missing = b.assistOn && !a.done; // NMA-615 BR1.2: while the Fare Finder box is checked, everyone answers
-  const value = missing ? 'Not answered yet' : !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
+  const value = !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
   const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
   const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
   ref('615', '973');
-  return famRow('Disability or assistance', value, details || (missing ? 'Choose an option for this traveler.' : !on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
+  return famRow('Disability or assistance', value, details || (!on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);

@@ -147,11 +147,11 @@ function assistBlock(r, ri, host, o = {}) {
   return h;
 }
 function ffNotice(b) { return b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="dismiss-notice" aria-label="Dismiss">${ic('close', 'ads-icon--sm')}</button></div>` : ''; }
-// Find trains: disabled while Business or Leisure isn't chosen (NMA-1016 AC2) or while assistance questions open
+// Find trains: disabled while Business or Leisure isn't chosen (NMA-1016 AC2)
 function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
-  if (r.u.busy && r.u.busyWhat !== 'assist') return busyBtn(r, '', 'Finding trains');
-  const off = needType || (r.u.busy && r.u.busyWhat === 'assist');
+  if (r.u.busy) return busyBtn(r, '', 'Finding trains');
+  const off = needType;
   return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
@@ -164,8 +164,9 @@ SCR.ff = (r, ri) => {
   if (v2()) return ffGuided(r, ri);
   const std = ['standard', 'personal'].includes(intentOf(b));
   q(22); if (std) codeTips();
-  // Travelers, the assistance check (NMA-973), the discount code (NMA-613), then Pay with (proposed order, Q21)
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${assistCheck(r, ri, b)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${r.u.busyWhat === 'assist' ? '' : netAlert(r)}`;
+  // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
+  q(7);
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions

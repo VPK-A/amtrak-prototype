@@ -873,19 +873,10 @@ body.chrome-hidden .archived-tag { display: none; }
 .dcode__msg .ads-icon { flex: none; margin-top: 2px; }
 .dcode__acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .dcode__saved { align-self: flex-start; }
-.ffassist { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--ads-background-surface-sunken); }
-.ffassist .ads-choice__supporting { color: var(--ads-content-text-secondary); }
-.ffassist.has-error { box-shadow: inset 0 0 0 1.5px var(--ads-border-status-error, var(--ads-color-red-500)); }
-.ffassist__row { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-left: 36px; }
-.ffassist__status { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ffassist__busy { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ads-type-body-small-size); }
-.ffassist .ads-helper--error { margin: 0; align-items: flex-start; }
 .ffc-restricted { display: flex; gap: 8px; margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
 .ffc-restricted .ads-icon { flex: none; margin-top: 2px; }
 .prme { margin: 4px 0 8px; }
-.ov-chip--todo { box-shadow: inset 0 0 0 1px var(--ads-border-status-warning, var(--ads-border-default)); background: none; }
 .findwhy { margin: 0 0 8px; text-align: center; }
-.text-large .ffassist__row { padding-left: 0; }
 
 /* ---------- Book landing ---------- */
 .bk { gap: 20px; padding-top: 12px; }
