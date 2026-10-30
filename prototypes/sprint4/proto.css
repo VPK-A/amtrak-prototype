@@ -846,25 +846,11 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .bk-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .bk-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
 .bk-card__media { aspect-ratio: 5 / 3; overflow: hidden; }
-.bk-card__media svg { display: block; width: 100%; height: 100%; }
+.bk-card__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .bk-card__body { display: flex; flex-direction: column; gap: 4px; flex: 1; padding: 12px 14px 14px; }
 .bk-card__title { margin: 0; font-size: 16px; line-height: 1.25; font-weight: 700; }
 .bk-card__sub { margin: 0 0 4px; font-size: 14px; line-height: 1.35; color: var(--ads-content-text-secondary); }
 .bk-card__cta { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; font-weight: 600; min-height: 32px; }
-.bk-a-sky { fill: var(--ads-background-status-info-subtle); }
-.bk-a-sun { fill: var(--ads-color-amber-300, #f5c76a); }
-.bk-a-hill2 { fill: var(--ads-color-green-300, #9cc8a0); }
-.bk-a-hill { fill: var(--ads-color-green-500, #4f8f5a); }
-.bk-a-rail { fill: var(--ads-color-neutral-700, #4a4a4a); }
-.bk-a-train { fill: var(--ads-background-interactive-primary); }
-.bk-a-win { fill: var(--ads-color-neutral-50); }
-.bk-a-map { fill: var(--ads-background-surface-sunken); }
-.bk-a-road { fill: none; stroke: var(--ads-background-surface-default); stroke-width: 9; }
-.bk-a-road2 { fill: none; stroke: var(--ads-background-surface-default); stroke-width: 5; }
-.bk-a-line { fill: none; stroke: var(--ads-background-interactive-primary); stroke-width: 3; stroke-dasharray: 6 5; }
-.bk-a-pin { fill: var(--ads-color-red-500, #c8102e); }
-.bk-a-dot { fill: var(--ads-color-neutral-50); }
-.bk-a-pin2 { fill: var(--ads-background-interactive-primary); }
 .bk-sec { display: flex; flex-direction: column; gap: 10px; }
 .bk-h { margin: 0; font-size: 18px; font-weight: 700; }
 .bk-list { margin: 0; padding: 0; list-style: none; border-radius: 20px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
