@@ -75,10 +75,10 @@ Approved items (assigned or tagged to VK count as approved): NMA-607, 608, 1060,
 
 - **Regression tests aren't in the repository.** The scripted suites live in the design session's scratch folder and would need to be saved into the repo to keep being run.
 - **Archived concepts share code with the reviewed ones.** Changes to shared components (calendar, station search, traveler model, Profile) also change Concepts 2 and 4, and nobody checks them any more.
-- **Load order matters.** Several files override the same actions in turn (clear, travelers, overview, interact, fields, motion), so the order in `scripts/build-sprint4.py` is part of the behavior. `fields.js` (Discount code field) loads after `interact.js` because it adds supporting-information topics.
+- **Load order matters.** Several files override the same actions in turn (clear, travelers, overview, interact, fields, motion), so the order in `scripts/sprint4-assemble.mjs` (`JS_ORDER`) is part of the behavior. `fields.js` (Discount code field) loads after `interact.js` because it adds supporting-information topics.
 - **Find trains checks live in one place** (`A['find-trains']` in `clear.js`) for Concepts 1 and 3. The archived concepts keep their own paths.
 - **Some styles are changed when the page loads.** `chrome.js` removes hover styles and forced capitals from the loaded CSS, without editing the ADS files. Styles added dynamically later wouldn't be processed.
-- **`index.html` is built.** Edit the source files and run `python3 scripts/build-sprint4.py`; this document is embedded in it.
+- **Two ways to run it, one source.** `npm run dev` / `npm run build` serve the source files through Vite (a small React wrapper mounts the prototype unchanged). `npm run build:standalone` writes the self-contained `prototypes/sprint4/index.html`. Both use `scripts/sprint4-assemble.mjs`; this document is embedded in both. Edit the source files, never the built output.
 - **Each concept keeps its own copy of the data.** Edits in one don't appear in the other, by design for comparison; Reset restores all of them.
 - **File names follow the old concept names:** `clear.js` is Concept 3 (Overview), `guided.js` is Concept 2, and `flighty.js` and `compact.js` are Concept 4.
 - **The page remembers only Concepts 1 and 3.** Opening an archived concept isn't remembered, so a reload returns to the review.

@@ -1,3 +1,23 @@
+# Sprint 4 prototype app
+
+The Amtrak app Sprint 4 Fare Finder prototype (Concepts 1 · Familiar and 3 · Overview, with 2 and 4 archived), built on the ADS Next design system in this repository. It's a standard Vite + React project, set up for importing into Figma Make from GitHub or for running locally.
+
+**Requirements:** Node.js 18 or newer and npm. No environment variables, API keys or external services: all data is mocked in the browser, and nothing is saved or sent.
+
+```sh
+npm install          # install dependencies (uses package-lock.json)
+npm run dev          # start the dev server at http://localhost:5173
+npm run build        # production build into build/
+npm run preview      # serve the production build locally
+npm run build:standalone   # optional: rebuild the single-file prototypes/sprint4/index.html
+```
+
+How it fits together: `index.html` and `src/` are a thin React host. `vite.config.js` reads the prototype's source files from `prototypes/sprint4/` and the design system CSS from `css/` (through `scripts/sprint4-assemble.mjs`), and `src/App.jsx` mounts them unchanged. Edit the source files in `prototypes/sprint4/`; the dev server reloads on save. The app builds to `build/` because `dist/` holds the design system's generated tokens.
+
+Prototype controls (concept, device, scenario, network, text size) are behind the round button at the right edge of the page.
+
+---
+
 # ADS Next Design System
 
 A code library built from two Figma files:
@@ -138,4 +158,4 @@ On phones and tablets, keep `.ads-btn--sm` and `.ads-icon-btn--sm` at a 44pt tou
 
 ### Prototype
 
-`prototypes/sprint4/` holds the three-direction prototype (`index.html`, built by `python3 -I scripts/build-sprint4.py` from `src.html`, `proto.css` and the `*.js` files) and the handoff document (`HANDOFF.md`, also shown in the prototype's Handoff tab).
+`prototypes/sprint4/` holds the prototype's source (`src.html` shell, `proto.css` and the `*.js` files), the handoff document (`HANDOFF.md`, also shown in the prototype's Handoff tab) and a self-contained build (`index.html`, from `npm run build:standalone`). See *Sprint 4 prototype app* at the top of this file to run it.
