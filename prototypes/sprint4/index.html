@@ -4790,7 +4790,7 @@ function seed(sc) {
     employee: sc.startsWith('passrider') ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }],
     // Past trips for Book again on the Book landing (mock; none for new members or guests)
-    history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }, { from: 'PHL', to: 'BOS', date: '2026-07-18', train: 'Acela 2153' }]
+    history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }]
   };
   d.booking = freshBooking(d);
   return d;
