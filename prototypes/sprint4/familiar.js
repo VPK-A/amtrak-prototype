@@ -28,7 +28,8 @@ function discountRow(b, t, fromProfile) {
   if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
   return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
-const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span>${actions ? `<span class="fam-row__acts">${actions}</span>` : ''}</div><span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>${help ? `<span class="ads-helper">${help}</span>` : ''}</div>`;
+// Actions sit under the summary they act on
+const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
 function assistanceRow(b, t) {
   const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
   const value = !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request

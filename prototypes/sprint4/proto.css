@@ -940,3 +940,4 @@ body.chrome-hidden .archived-tag { display: none; }
 [data-theme="dark"] .ffc-seg { background: rgb(255 255 255 / 0.16); }
 .ov-disc { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-width: 280px; }
 .ov-disc__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }
+.fam-row__acts--below { gap: 8px; margin-top: 6px; flex-wrap: wrap; }
