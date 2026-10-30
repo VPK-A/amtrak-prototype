@@ -2381,6 +2381,8 @@ body.chrome-hidden .archived-tag { display: none; }
 [data-theme="dark"] { --ffc-navy: var(--ads-color-blue-800); }
 [data-theme="dark"] .pane--clear .ffc-sheet { background: var(--ads-color-blue-950); box-shadow: inset 0 1px 0 var(--ads-color-alpha-white-10); }
 [data-theme="dark"] .ffc-seg { background: rgb(255 255 255 / 0.16); }
+.ov-disc { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-width: 280px; }
+.ov-disc__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }
 
 </style>
 </head>
@@ -2551,6 +2553,25 @@ PWD, saved RPA.</li>
 (<em>Question markers on screen</em> in the toolbar). Story IDs and open
 questions are listed in the notes panel. No Jira IDs appear in the
 app.</li>
+</ul>
+<p><strong>Second core-flow review (this update):</strong></p>
+<ul>
+<li><strong>Assistance belongs to the right person (NMA-615
+AC1):</strong> Traveler 1's record is tied to the account holder (Adult
+1, or <em>You</em> for Pass Rider). Before, it belonged to whoever was
+listed first, so it could move to a senior or a spouse.</li>
+<li><strong>Removed travelers take their selections with them (NMA-612
+BR2, 615 AC1):</strong> a traveler added later starts with no discount,
+assistance or Pass Rider type. Undo in Traveler selection still brings
+them back.</li>
+<li><strong>Discount choice open by default in Overview (NMA-611 BR10,
+612 BR1):</strong> each traveler who can choose a discount has it inline
+in the Travelers sheet; fixed discounts stay as chips, and Edit still
+opens assistance and companion.</li>
+<li><strong>Fare Finder assistance check:</strong> stays removed per
+verbal stakeholder guidance (assistance lives on the travelers screen).
+This conflicts with NMA-973 AC1–AC3 and NMA-615 BR1.2, which need
+updating (Q7).</li>
 </ul>
 <p><strong>Book landing (redesign from the reference):</strong></p>
 <ul>
@@ -4663,7 +4684,7 @@ const QUESTIONS = {
   4: ['Maximum booking window', 'Shown as 335 days, from the story’s note “verify # of days”. It applies to the return date and, as an assumption, to departure.'],
   5: ['Country change and the address', 'The criteria say changing country clears the fields; a note says UX decides. The prototype clears them and offers Undo.'],
   6: ['Phone types and DOB bounds', 'Are Home/Business/Extension the final phone types? Does changing the country code clear the number (the prototype keeps each region’s number)? DOB only rejects future dates.'],
-  7: ['Where booking assistance starts', 'Stakeholder feedback: Concepts 1 and 3 have no “Traveler with disability or need help?” check on the Fare Finder. Each traveler adds assistance in Traveler selection, and only travelers who need help answer. This conflicts with NMA-973 (the check, its AEM explanation and Continue on the Fare Finder) and NMA-615 BR1.2 (every traveler answers once the box is checked), so those stories need updating. Opening the questions needs a connection the first time; once loaded they can be finished offline (NMA-996, 997). Profile prefill, Save to profile and keeping answers after signing in aren’t built: NMA-614 is in grooming. The archived concepts keep their older placement (Scenario › Assistance entry).'],
+  7: ['Where booking assistance starts', 'Stakeholder guidance (confirmed verbally): assistance lives on the travelers screen, so Concepts 1 and 3 have no “Traveler with disability or need help?” check on the Fare Finder. Each traveler adds assistance in Traveler selection, and only travelers who need help answer. This conflicts with NMA-973 (the check, its AEM explanation and Continue on the Fare Finder) and NMA-615 BR1.2 (every traveler answers once the box is checked), so those stories need updating. Opening the questions needs a connection the first time; once loaded they can be finished offline (NMA-996, 997). Profile prefill, Save to profile and keeping answers after signing in aren’t built: NMA-614 is in grooming. The archived concepts keep their older placement (Scenario › Assistance entry).'],
   21: ['Discount code placement', 'Proposed placement, not a confirmed requirement: the always-visible Discount code field sits after the traveler summary and assistance check, before Pay with and Find trains. NMA-613 doesn’t set a position. Saved codes open from “Use a saved code” rather than when the field is tapped, so typing isn’t interrupted (scenario 5 says the pop-up opens “when selecting to add discount”). The label follows sentence case (“Discount code”).'],
   23: ['Discount code format and offline', 'Two conflicts in NMA-613. Format: the front-end rule says “4 or 14 digits” while the Rules say 4- and 14-character alphanumeric codes; the prototype accepts letters and numbers. Offline: the story says “All functionality works offline”, but scenario 15 says a code that can’t be checked must not be applied. The prototype lets you enter and remove a code offline; checking it needs a connection (and so does Find trains).'],
   24: ['Pending approvals: Pass Rider assistance and employee profile', 'NMA-1019 (assistance on Pass Rider bookings) and NMA-20 (employee pass details in profile) are awaiting approval. The prototype keeps assistance available for every Pass Rider traveler (NMA-623 AC4) and keeps the existing employee pass editor; neither is counted as verified coverage.'],
@@ -6364,7 +6385,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -6412,10 +6433,20 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
 }
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
+  const was = g === 'pr' ? b.prPax[k] : b.pax[k];
   if (g === 'pr') b.prPax[k] = Math.max(0, b.prPax[k] + dlt);
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
+  // A removed traveler takes their own selections with them (NMA-612 BR2, NMA-615 AC1): a traveler added
+  // later starts fresh instead of inheriting someone else's discount or assistance
+  if (dlt < 0 && was > 0 && (v1() || v3())) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
   pendingFocus = `[data-a="pax"][data-g="${g}"][data-k="${k}"][data-d="${dlt}"]:not(:disabled), [data-a="pax"][data-g="${g}"][data-k="${k}"]:not(:disabled)`; render();
 };
+function forgetTraveler(b, key) {
+  b.ta = b.ta || {};
+  if (key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; if (key === 'adult-1') b.disc = freshBooking(D()).disc; }
+  delete b.ta[key]; if (b.tdisc) delete b.tdisc[key]; if (b.prKinds) delete b.prKinds[key];
+  if (b.taSeen) delete b.taSeen[key];
+}
 A['pr-me'] = t => { D().booking.prPax.me = t.checked; pendingFocus = '[data-a="pr-me"]'; render(); };
 HOOKS.prkind = (r, t) => { const b = D().booking; b.prKinds = b.prKinds || {}; b.prKinds[t.dataset.key] = t.value; pendingFocus = '#' + CSS.escape(t.id); };
 // Leaving Traveler details with a selection that can't be searched: keep editing, or go back to the last valid one
@@ -6746,21 +6777,25 @@ function travelerList(b) {
   return out.map((t, n) => Object.assign(t, { n: n + 1, label: `Traveler ${n + 1} · ${t.short}` }));
 }
 const firstKey = b => (travelerList(b)[0] || {}).key;
+// Whose record b.assist is. Concepts 1 and 3 tie it to the account holder ('adult-1', or 'pr-you' for Pass
+// Rider), so it can't move to someone else when travelers are removed or the booker leaves themselves off.
+// The archived concepts keep their original rule (whoever is first).
+const holderKey = b => (v1() || v3()) ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
 const travelerLabel = (b, key) => (travelerList(b).find(t => t.key === key) || { label: 'a traveler no longer on this booking' }).label;
 // The assistance record for one traveler: { m, done, fromProfile }
 function assistRec(b, key) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
+  if (!key || key === holderKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
   return b.ta[key] || { m: blankAssist(), done: false };
 }
 function clearAssistRec(b, key) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; }
+  if (!key || key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; }
   else delete b.ta[key];
 }
 function setAssistRec(b, key, m) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
+  if (!key || key === holderKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
   else b.ta[key] = { m, done: true };
 }
 // The assistance type that counts for a traveler: only once answered, and only while the booking asks for help
@@ -7517,12 +7552,15 @@ function overviewTravelers(r, ri, b) {
     const a = assistRec(b, t.key), c = assistCat(b, t.key), err = travelerError(b, t);
     const chips = [];
     // Only what was chosen: no "No discount" or "No assistance" labels (the Edit sheet still offers both)
-    if (std) { const x = tdiscOf(b, t); if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
+    // NMA-611 BR10: the discount choice is open by default, so travelers who can choose one get it inline
+    const opts = std ? discOpts(b, t) : null, dx = std ? tdiscOf(b, t) : null, inlineDisc = opts && !['pwd', 'companion'].includes(dx);
+    const discSel = inlineDisc ? `<div class="ov-disc"><label class="ov-disc__label" for="ovd-${t.key}">Discount</label><div class="ads-control ads-control--select"><select id="ovd-${t.key}" data-f="ovd" data-nodirty data-hook="tdisc" data-key="${t.key}">${opts.map(o => `<option value="${o}" ${dx === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div></div>` : '';
+    if (std && !inlineDisc) { const x = dx; if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
     if (it === 'pr' && t.key !== 'pr-you') chips.push(`<span class="ov-chip">${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}</span>`);
     if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
     if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
     if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
+    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
   }).join('');
   // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
   return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4><ul class="ov-list">${rows}</ul></section>`;

@@ -36,6 +36,12 @@ Approved items (assigned or tagged to VK count as approved): NMA-607, 608, 1060,
 - **Reviewer fixtures** (Scenario menu, outside the app): TripLink, Pass Rider employee with and without Business Pass, retiree, spouse, dependent 16 or older, dependent 15 or younger, guest, saved PWD, saved RPA.
 - **Reviewer interface:** Q markers are off by default (*Question markers on screen* in the toolbar). Story IDs and open questions are listed in the notes panel. No Jira IDs appear in the app.
 
+**Second core-flow review (this update):**
+- **Assistance belongs to the right person (NMA-615 AC1):** Traveler 1's record is tied to the account holder (Adult 1, or *You* for Pass Rider). Before, it belonged to whoever was listed first, so it could move to a senior or a spouse.
+- **Removed travelers take their selections with them (NMA-612 BR2, 615 AC1):** a traveler added later starts with no discount, assistance or Pass Rider type. Undo in Traveler selection still brings them back.
+- **Discount choice open by default in Overview (NMA-611 BR10, 612 BR1):** each traveler who can choose a discount has it inline in the Travelers sheet; fixed discounts stay as chips, and Edit still opens assistance and companion.
+- **Fare Finder assistance check:** stays removed per verbal stakeholder guidance (assistance lives on the travelers screen). This conflicts with NMA-973 AC1–AC3 and NMA-615 BR1.2, which need updating (Q7).
+
 **Book landing (redesign from the reference):**
 - **Header:** the App Shell header with avatar, *Hi, Alex*, tier and points, and the inbox. Guests see *Sign in*.
 - **New booking:** a full-width *New booking · Where to?* entry that opens the Fare Finder modal.

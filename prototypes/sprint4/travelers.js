@@ -25,21 +25,25 @@ function travelerList(b) {
   return out.map((t, n) => Object.assign(t, { n: n + 1, label: `Traveler ${n + 1} · ${t.short}` }));
 }
 const firstKey = b => (travelerList(b)[0] || {}).key;
+// Whose record b.assist is. Concepts 1 and 3 tie it to the account holder ('adult-1', or 'pr-you' for Pass
+// Rider), so it can't move to someone else when travelers are removed or the booker leaves themselves off.
+// The archived concepts keep their original rule (whoever is first).
+const holderKey = b => (v1() || v3()) ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
 const travelerLabel = (b, key) => (travelerList(b).find(t => t.key === key) || { label: 'a traveler no longer on this booking' }).label;
 // The assistance record for one traveler: { m, done, fromProfile }
 function assistRec(b, key) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
+  if (!key || key === holderKey(b)) return { m: b.assist, done: b.assistDone, fromProfile: b.assistFromProfile };
   return b.ta[key] || { m: blankAssist(), done: false };
 }
 function clearAssistRec(b, key) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; }
+  if (!key || key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; }
   else delete b.ta[key];
 }
 function setAssistRec(b, key, m) {
   b.ta = b.ta || {};
-  if (!key || key === firstKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
+  if (!key || key === holderKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
   else b.ta[key] = { m, done: true };
 }
 // The assistance type that counts for a traveler: only once answered, and only while the booking asks for help

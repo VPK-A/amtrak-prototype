@@ -938,3 +938,5 @@ body.chrome-hidden .archived-tag { display: none; }
 [data-theme="dark"] { --ffc-navy: var(--ads-color-blue-800); }
 [data-theme="dark"] .pane--clear .ffc-sheet { background: var(--ads-color-blue-950); box-shadow: inset 0 1px 0 var(--ads-color-alpha-white-10); }
 [data-theme="dark"] .ffc-seg { background: rgb(255 255 255 / 0.16); }
+.ov-disc { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-width: 280px; }
+.ov-disc__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }

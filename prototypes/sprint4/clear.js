@@ -271,7 +271,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -319,10 +319,20 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
 }
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
+  const was = g === 'pr' ? b.prPax[k] : b.pax[k];
   if (g === 'pr') b.prPax[k] = Math.max(0, b.prPax[k] + dlt);
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
+  // A removed traveler takes their own selections with them (NMA-612 BR2, NMA-615 AC1): a traveler added
+  // later starts fresh instead of inheriting someone else's discount or assistance
+  if (dlt < 0 && was > 0 && (v1() || v3())) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
   pendingFocus = `[data-a="pax"][data-g="${g}"][data-k="${k}"][data-d="${dlt}"]:not(:disabled), [data-a="pax"][data-g="${g}"][data-k="${k}"]:not(:disabled)`; render();
 };
+function forgetTraveler(b, key) {
+  b.ta = b.ta || {};
+  if (key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; if (key === 'adult-1') b.disc = freshBooking(D()).disc; }
+  delete b.ta[key]; if (b.tdisc) delete b.tdisc[key]; if (b.prKinds) delete b.prKinds[key];
+  if (b.taSeen) delete b.taSeen[key];
+}
 A['pr-me'] = t => { D().booking.prPax.me = t.checked; pendingFocus = '[data-a="pr-me"]'; render(); };
 HOOKS.prkind = (r, t) => { const b = D().booking; b.prKinds = b.prKinds || {}; b.prKinds[t.dataset.key] = t.value; pendingFocus = '#' + CSS.escape(t.id); };
 // Leaving Traveler details with a selection that can't be searched: keep editing, or go back to the last valid one
