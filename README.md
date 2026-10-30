@@ -14,7 +14,7 @@ npm run build:standalone   # optional: rebuild the single-file prototypes/sprint
 
 How it fits together: `index.html` and `src/` are a thin React host. `vite.config.js` reads the prototype's source files from `prototypes/sprint4/` and the design system CSS from `css/` (through `scripts/sprint4-assemble.mjs`), and `src/App.jsx` mounts them unchanged. Edit the source files in `prototypes/sprint4/`; the dev server reloads on save. The app builds to `build/` because `dist/` holds the design system's generated tokens.
 
-Prototype controls (concept, device, scenario, network, text size) are behind the round button at the right edge of the page.
+Prototype controls (concept, device, orientation, scenario, appearance and reset) open from the round button at the right edge of the page (top right on narrow windows). Screen notes and question markers are always hidden.
 
 ---
 

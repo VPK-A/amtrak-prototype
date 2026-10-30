@@ -1,4 +1,4 @@
-/* Sprint 4 prototype: page chrome (toolbar, notes, device frame) and screen layout.
+/* Sprint 4 prototype: page chrome (device frame, prototype controller) and screen layout.
    Product components come from css/ads.css. Prototype-only things are prefixed p- or use plain names. */
 :root { --pq: #6d28d9; --pq-bg: #f5f3ff; --pq-edge: #8b5cf6; }
 :root[data-theme="dark"] { --pq: #c4b5fd; --pq-bg: #2e1065; --pq-edge: #a78bfa; }
@@ -8,45 +8,11 @@ body { font-family: var(--ads-font-family); color: var(--ads-content-text-primar
 button, input, select, textarea { font-family: inherit; }
 :focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
 
-/* ---------- Page header + view tabs ---------- */
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 12px max(16px, env(safe-area-inset-left)); background: var(--ads-background-surface-default); border-bottom: 1px solid var(--ads-border-subtle); }
-.top h1 { margin: 0; font-size: 17px; font-weight: 600; }
-.top p { margin: 0; color: var(--ads-content-text-secondary); font-size: 13px; flex: 1 1 260px; }
-.viewtabs { display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: var(--ads-background-surface-sunken); }
-.viewtabs button { min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: none; color: var(--ads-content-text-secondary); font-size: 14px; cursor: pointer; }
-.viewtabs button[aria-selected="true"] { background: var(--ads-background-surface-raised); color: var(--ads-content-text-primary); font-weight: 600; box-shadow: var(--ads-shadow-elevation-xs); }
-
-/* ---------- Prototype toolbar (deliberately separate from the app) ---------- */
-.toolbar { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; padding: 10px max(16px, env(safe-area-inset-left)); background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); }
-.toolbar__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-.tb { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.tb > span, .tb > label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
-.tbseg { display: flex; padding: 2px; border-radius: 999px; background: rgb(255 255 255 / 0.12); }
-.tbseg button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
-.tbseg button[aria-pressed="true"] { background: var(--ads-background-surface-raised); color: var(--ads-content-text-primary); font-weight: 600; }
-.tbseg button:focus-visible, .tb select:focus-visible, .tbbtn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.tb select { height: 34px; max-width: 260px; padding: 0 28px 0 10px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 8px; background: rgb(255 255 255 / 0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") right 8px center no-repeat; color: inherit; font-size: 13px; appearance: none; }
-.tb select option, .tb select optgroup { color: #111; background: #fff; }
-.tbcheck { display: flex; align-items: center; gap: 6px; min-height: 34px; font-size: 13px; cursor: pointer; }
-.tbcheck input { width: 18px; height: 18px; accent-color: #fff; }
-.tbbtn { height: 34px; padding: 0 14px; border: 1px solid rgb(255 255 255 / 0.5); border-radius: 8px; background: none; color: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-.tbbtn:hover { background: rgb(255 255 255 / 0.12); }
-.tbsep { width: 1px; align-self: stretch; background: rgb(255 255 255 / 0.2); }
-@media (max-width: 700px) { .tbsep { display: none; } .tb select { max-width: 100%; } .tb--grow { flex: 1 1 100%; } }
-
-/* ---------- Main layout ---------- */
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; padding: 20px max(16px, env(safe-area-inset-left)) 40px; align-items: start; }
-@media (max-width: 960px) { .main { grid-template-columns: minmax(0, 1fr); } }
+/* ---------- Main layout: the device stage, with the prototype controller beside it (chrome.js) ---------- */
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ads-space-24); padding: var(--ads-space-24) calc(var(--ads-space-64) + var(--ads-space-12)) var(--ads-space-40) max(var(--ads-space-16), env(safe-area-inset-left)); align-items: start; }
+body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(--ads-space-80) * 4); }
 .stage { min-width: 0; display: flex; justify-content: center; }
 #deviceBox { position: relative; }
-.notes { position: sticky; top: 140px; max-height: calc(100vh - 160px); overflow: auto; padding: 16px; border-radius: 12px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); font-size: 13px; line-height: 1.45; }
-@media (max-width: 960px) { .notes { position: static; max-height: none; } }
-.notes h2 { margin: 0 0 8px; font-size: 15px; }
-.nlabel { margin: 14px 0 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ads-content-text-secondary); }
-.nsmall { margin: 0; color: var(--ads-content-text-primary); }
-.nlist { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-.nlist li.flash { outline: 2px solid var(--pq-edge); outline-offset: 2px; border-radius: 4px; }
-.scdesc { margin: 6px 0 0; color: var(--ads-content-text-secondary); }
 
 /* ---------- Device frame ---------- */
 .device { position: absolute; top: 0; left: 0; transform-origin: top left; overflow: hidden; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); border-radius: 44px; box-shadow: 0 0 0 10px #111, 0 0 0 11px #444, 0 24px 60px rgb(0 0 0 / 0.3); font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); isolation: isolate; }
@@ -215,8 +181,7 @@ button, input, select, textarea { font-family: inherit; }
 .pq { align-self: flex-start; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; min-height: 24px; margin: 0 2px; padding: 0 6px; border: 1.5px dashed var(--pq-edge); border-radius: 6px; background: var(--pq-bg); color: var(--pq); font: 700 11px/1 var(--ads-font-family); vertical-align: middle; cursor: pointer; }
 .pdemo { display: flex; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 8px; border: 1.5px dashed var(--pq-edge); background: var(--pq-bg); color: var(--ads-content-text-primary); font-size: 12px; line-height: 1.45; }
 .pdemo > .ads-icon { color: var(--pq); margin-top: 1px; flex: none; }
-.notes-off .pq { display: none; }
-.notes-off .pdemo { border-style: solid; }
+.notes-off .pq, .notes-off .pdemo { display: none; } /* annotations are never shown */
 
 /* ---------- Handoff document view ---------- */
 .doc { max-width: 980px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-left)) 64px; font-size: 15px; line-height: 1.55; }
@@ -244,7 +209,6 @@ button, input, select, textarea { font-family: inherit; }
 .device .ads-appheader__account { min-height: 44px; }
 .device .ads-group__foot .ads-link, .device .ads-summary .ads-link { display: inline-block; padding: 12px 0; margin: -12px 0; }
 .ads-calendar > * { flex: none; }
-@media (max-width: 700px) { .toolbar { position: static; } }
 /* iPhone: the app header runs up behind the status bar, so the top of the screen is one surface */
 .device--iphone .app { top: 0; }
 .device--iphone.device--portrait .ads-appheader { padding-top: calc((50px / var(--text-zoom, 1)) + var(--ads-space-8)); }
@@ -809,35 +773,29 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ffc-pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
 .v1pay { margin-top: 4px; }
 
-/* ---------- Prototype shell: collapsible header, controls and notes (chrome.js) ---------- */
-body.chrome-hidden .top, body.chrome-hidden .toolbar, body.chrome-hidden .notes { display: none; }
-body.chrome-hidden .main { grid-template-columns: minmax(0, 1fr); padding-top: 24px; }
-.chrome-toggle { position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 50%; background: var(--ads-background-surface-raised); color: var(--ads-content-icon-secondary); box-shadow: var(--ads-shadow-elevation-sm); opacity: 0.8; cursor: pointer; transition: opacity 120ms, color 120ms; }
-.chrome-toggle:hover, .chrome-toggle:focus-visible { opacity: 1; color: var(--ads-content-icon-primary); }
-.chrome-toggle:focus-visible, .chrome-close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
-.chrome-toggle[aria-expanded="true"] { opacity: 1; background: var(--ads-background-surface-selected); color: var(--ads-content-icon-primary); }
-.chrome-close { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-left: auto; padding: 0 14px; border: 1px solid var(--ads-border-subtle); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: 14px; cursor: pointer; }
-.chrome-close:hover { background: var(--ads-background-surface-hover); }
-/* Open on wider screens: keep a gutter on the right so the launcher never covers the notes or controls */
-@media (min-width: 701px) { body:not(.chrome-hidden) .main, body:not(.chrome-hidden) .top, body:not(.chrome-hidden) .toolbar { padding-right: 76px; } }
-/* Phones: the launcher sits top-right, above the device, so it doesn't cover the app's tab bar */
-@media (max-width: 700px) { .chrome-toggle { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); transform: none; width: 40px; height: 40px; } .chrome-close { margin-left: 0; } body.chrome-hidden .main { padding-top: 60px; } .top { padding-right: 60px; } }
-
-/* Review scope: archived concepts sit behind Archive; a tag outside the device marks them */
-.tbarchive { position: relative; }
-.tbarchive > summary { cursor: pointer; font-size: 11px; font-weight: 600; opacity: 0.8; list-style: none; padding: 2px 0; }
-.tbarchive > summary::-webkit-details-marker { display: none; }
-.tbarchive > summary::after { content: " ›"; }
-.tbarchive[open] > summary::after { content: " ⌄"; }
-.tbarchive > summary:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: 4px; }
-.tbarchive .tbseg { margin-top: 4px; }
+/* ---------- Prototype controller (not part of the app; chrome.js) ---------- */
 .stage { flex-direction: column; align-items: center; }
-.archived-tag { margin: 0 0 8px; padding: 4px 12px; border-radius: 999px; background: var(--ads-background-status-warning-subtle); color: var(--ads-content-text-primary); font-size: 13px; font-weight: 600; }
-body.chrome-hidden .archived-tag { display: none; }
-.tbarchive { display: block; min-width: 0; }
-.tbarchive:not([open]) > .tbseg { display: none; }
-.tbarchive .tbseg { flex-wrap: wrap; border-radius: 16px; }
-.archived-wrap { display: contents; }
+.ctl { position: sticky; top: var(--ads-space-24); display: flex; flex-direction: column; gap: var(--ads-space-16); max-height: calc(100vh - var(--ads-space-48)); overflow-y: auto; overscroll-behavior: contain; padding: var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-raised); color: var(--ads-content-text-primary); box-shadow: var(--ads-shadow-elevation-md); }
+.ctl[hidden] { display: none; }
+.ctl__title:focus { outline: none; }
+.ctl__title:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: var(--ads-radius-4); }
+.ctl__group { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ctl .ads-segmented > button { height: var(--ads-size-interactive-sm); }
+.ctl .ads-btn--secondary:hover { background: var(--ads-background-interactive-secondary-hover); }
+.ctl .ads-segmented > button:hover:not([aria-pressed="true"]) { color: var(--ads-content-text-primary); }
+/* The launcher sits in the right-hand gutter, so it never covers the device or the controller */
+.chrome-toggle { position: fixed; z-index: 40; right: max(var(--ads-space-16), env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); background: var(--ads-background-surface-raised); color: var(--ads-content-icon-secondary); box-shadow: var(--ads-shadow-elevation-sm); cursor: pointer; transition: color 120ms; }
+.chrome-toggle:hover, .chrome-toggle:focus-visible { color: var(--ads-content-icon-primary); }
+.chrome-toggle:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.chrome-toggle[aria-expanded="true"] { background: var(--ads-background-surface-selected); color: var(--ads-content-icon-primary); }
+/* Narrow windows: the launcher sits above the device at the top right, and the controller opens above the
+   device in the page flow, pushing it down instead of covering it */
+@media (max-width: 700px) {
+  .main { padding: calc(var(--ads-space-48) + var(--ads-space-20)) max(var(--ads-space-16), env(safe-area-inset-right)) var(--ads-space-40) max(var(--ads-space-16), env(safe-area-inset-left)); }
+  body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr); }
+  .ctl { order: -1; position: static; max-height: none; }
+  .chrome-toggle { position: absolute; top: max(var(--ads-space-12), env(safe-area-inset-top)); right: max(var(--ads-space-16), env(safe-area-inset-right)); transform: none; }
+}
 
 /* Fare Finder density (Concepts 1 and 3) */
 .fam-row__value:empty { display: none; }

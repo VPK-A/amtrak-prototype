@@ -81,7 +81,8 @@ const resetNotes = () => { NOTES = { refs: new Set(), qs: new Set(), prov: new S
 const ref = (...ids) => ids.forEach(i => NOTES.refs.add(i));
 const prov = t => NOTES.prov.add(t);
 const tip = t => NOTES.tips.add(t);
-function q(n) { NOTES.qs.add(n); return `<button type="button" class="pq" data-a="q" data-q="${n}" aria-label="Open question ${n}: ${esc(QUESTIONS[n][0])}">Q${n}</button>`; }
+// Question markers are never shown in the prototype; the question is still recorded for this screen
+function q(n) { NOTES.qs.add(n); return ''; }
 
 // ---------- Navigation ----------
 let pendingFocus = null;
@@ -275,7 +276,7 @@ var render = function () {
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${TB.notes ? '' : ' notes-off'}`;
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} notes-off`;
   dev.dataset.theme = TB.theme;
   // Booking is a modal flow: the app's bottom navigation is hidden while it's open
   if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
@@ -441,7 +442,6 @@ const toggleIn = (arr, v, on) => on ? [...new Set([...arr, v])] : arr.filter(x =
 const HOOKS = {};
 
 A.noop = () => {};
-A.q = t => { TB.notes = true; renderChrome(); const li = $(`#notes [data-qn="${t.dataset.q}"]`); if (li) { li.classList.add('flash'); li.scrollIntoView({ block: 'nearest' }); setTimeout(() => li.classList.remove('flash'), 1400); } };
 A.tab = t => { nav().tab = t.dataset.tab; pendingFocus = `[data-a="tab"][data-tab="${t.dataset.tab}"]`; render(); };
 A['open-booking'] = () => openSheet('booking', ['ff'], '[data-a="open-booking"]');
 A['open-account'] = () => openSheet('account', ['account'], '[data-a="open-account"]');
@@ -462,25 +462,8 @@ A['clear-recents'] = () => dialog(clearDialog());
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbArchive', String(TB.v)); setSeg('#tbDevice', TB.dev);
-  // Archived concepts (2, 4) stay usable from Archive; a reviewer-facing tag outside the device says so
-  const arch = ARCHIVED.includes(TB.v), tag = $('#archivedTag');
-  if (tag) { tag.hidden = !arch; tag.textContent = arch ? `Archived concept · ${TB.v} · ${VERSION_NAMES[TB.v]} · not in the current review` : ''; }
-  if (arch) $('#tbArchiveBox').open = true; setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbText').value = String(TB.text); $('#tbNotes').checked = TB.notes;
-  const v = V();
-  $('#tbScenario').value = v.sc; $('#tbNet').value = v.net; $('#tbEntry').value = v.entry; $('#tbToken').value = v.token;
-  $('#tbFlow').value = FLOWS.flatMap(g => g[1]).some(([k]) => k === locOf()) ? locOf() : '';
-  $('#scDesc').textContent = SCENARIOS.find(s => s[0] === v.sc)[2];
-  const notes = $('#notes');
-  const qs = [...NOTES.qs].sort((a, b) => a - b);
-  notes.innerHTML = `<p class="nlabel">Version ${TB.v} · ${VERSION_NAMES[TB.v]}${ARCHIVED.includes(TB.v) ? ' · archived' : ''}</p><p class="nsmall">${VERSION_LINES[TB.v]}</p>
-    <p class="nlabel">Review scope</p><p class="nsmall">${ARCHIVED.includes(TB.v) ? 'Archived. Stakeholders asked to advance Concepts 1 and 3; this concept is kept for reference and isn’t updated with them.' : 'In review with Concept ' + (TB.v === 1 ? '3 · Overview' : '1 · Familiar') + '. Both share the same scenarios, rules and data. Handoff › Review scope separates confirmed feedback, documented requirements and proposals.'}</p>
-    <p class="nlabel">Location</p><p class="nsmall">${esc(locLabel())}</p>
-    ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
-    ${qs.length ? `<p class="nlabel">Open questions here</p><ul class="nlist">${qs.map(n => `<li data-qn="${n}"><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
-    ${NOTES.prov.size ? `<p class="nlabel">Provisional</p><ul class="nlist">${[...NOTES.prov].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
-    ${NOTES.tips.size ? `<p class="nlabel">Try</p><ul class="nlist">${[...NOTES.tips].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`;
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  $('#tbScenario').value = V().sc;
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
@@ -501,24 +484,13 @@ function scaleDevice() {
 }
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
-  seg('#tbVersion', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
-  // Archived concepts open the same way but aren't remembered, so a reload returns to the review
-  seg('#tbArchive', v => { const loc = locOf(); TB.v = +v; if (locOf() !== loc) goLoc(loc); else render(); });
+  // Switching concept keeps the current scenario: the other concept's data is reloaded with it if it differs
+  seg('#tbVersion', v => { const loc = locOf(), cur = V(); TB.v = +v; if (V().sc !== cur.sc) VS[TB.v] = Object.assign(makeVS(cur.sc), { net: cur.net, entry: cur.entry, token: cur.token }); if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });
-  $('#tbText').addEventListener('change', e => { TB.text = +e.target.value; render(); });
-  $('#tbNotes').addEventListener('change', e => { TB.notes = e.target.checked; render(); });
-  $('#tbFlow').addEventListener('change', e => { if (e.target.value) goLoc(e.target.value); });
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
-  $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
-  $('#tbEntry').addEventListener('change', e => { V().entry = e.target.value; const loc = locOf(); goLoc(loc); });
-  $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
-  $$('#viewTabs button').forEach(b => b.addEventListener('click', () => { TB.tab = b.dataset.v; $$('#viewTabs button').forEach(x => x.setAttribute('aria-selected', String(x === b))); $('#protoView').hidden = TB.tab !== 'proto'; $('#handoffView').hidden = TB.tab !== 'handoff'; if (TB.tab === 'proto') scaleDevice(); }));
   window.addEventListener('resize', scaleDevice);
-  // Fill selects
   $('#tbScenario').innerHTML = SCENARIOS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
-  $('#tbNet').innerHTML = NETWORKS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
-  $('#tbFlow').innerHTML = '<option value="">Jump to a flow…</option>' + FLOWS.map(([g, items]) => `<optgroup label="${esc(g)}">${items.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</optgroup>`).join('');
 }

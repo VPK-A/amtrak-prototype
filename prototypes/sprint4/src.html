@@ -10,50 +10,21 @@
 </style>
 </head>
 <body class="ads-root chrome-hidden">
-<button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoHeader protoControls protoNotes" aria-label="Show prototype controls and notes" title="Show prototype controls and notes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
-<section class="top" id="protoHeader" aria-label="About this prototype">
-  <h1>Amtrak app · Sprint 4 exploration</h1>
-  <p>Two concepts in review, 1 · Familiar and 3 · Overview, with the same scope, data and App Shell IA. Concepts 2 and 4 are archived. Built with ADS components; mock data only, nothing is saved or sent.</p>
-  <div class="viewtabs" role="tablist" aria-label="View" id="viewTabs">
-    <button type="button" role="tab" data-v="proto" aria-selected="true" aria-controls="protoView">Prototype</button>
-    <button type="button" role="tab" data-v="handoff" aria-selected="false" aria-controls="handoffView">Handoff</button>
-  </div>
-  <button class="chrome-close" type="button" id="chromeClose"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Hide controls and notes</button>
-</section>
+<button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoCtl" aria-label="Show prototype controls" title="Show prototype controls"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
 
-<div id="protoView" role="tabpanel">
-  <section class="toolbar" id="protoControls" aria-label="Prototype controls (not part of the app)">
-    <div class="tb"><span id="lbV">Version</span><div class="tbseg" id="tbVersion" role="group" aria-labelledby="lbV"><button type="button" data-v="1" aria-pressed="true">1 · Familiar</button><button type="button" data-v="3" aria-pressed="false">3 · Overview</button></div></div>
-    <details class="tbarchive" id="tbArchiveBox"><summary>Archive</summary><div class="tbseg" id="tbArchive" role="group" aria-label="Archived concepts, not in the current review"><button type="button" data-v="2" aria-pressed="false">2 · Guided</button><button type="button" data-v="4" aria-pressed="false">4 · Compact</button></div></details>
-    <div class="tb"><span id="lbD">Device</span><div class="tbseg" id="tbDevice" role="group" aria-labelledby="lbD"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
-    <div class="tb"><span id="lbO">Orientation</span><div class="tbseg" id="tbOrient" role="group" aria-labelledby="lbO"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
-    <span class="tbsep" aria-hidden="true"></span>
-    <div class="tb tb--grow"><label for="tbFlow">Flow / screen</label><select id="tbFlow"></select></div>
-    <div class="tb tb--grow"><label for="tbScenario">Scenario</label><select id="tbScenario"></select></div>
-    <div class="tb"><label for="tbNet">Network</label><select id="tbNet"></select></div>
-    <div class="tb"><label for="tbEntry">Assistance entry (Concepts 2, 4)</label><select id="tbEntry"><option value="ff">Fare Finder (NMA-973)</option><option value="travelers">Traveler selection (Core Flow)</option></select></div>
-    <div class="tb"><label for="tbToken">Session token</label><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired</option></select></div>
-    <span class="tbsep" aria-hidden="true"></span>
-    <div class="tb"><label for="tbText">Text size</label><select id="tbText"><option value="100">Default</option><option value="120">Larger (120%)</option><option value="140">Largest (140%)</option></select></div>
-    <div class="tb"><span id="lbT">Appearance</span><div class="tbseg" id="tbTheme" role="group" aria-labelledby="lbT"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div></div>
-    <div class="tb"><span id="lbMo">Motion</span><div class="tbseg" id="tbMotion" role="group" aria-labelledby="lbMo"><button type="button" data-v="full" aria-pressed="true">Standard</button><button type="button" data-v="reduced" aria-pressed="false">Reduced</button></div></div>
-    <label class="tbcheck"><input type="checkbox" id="tbNotes">Question markers on screen</label>
-    <button class="tbbtn" type="button" id="tbReset">Reset demo</button>
-  </section>
+<div id="protoView">
   <div class="main">
-    <div class="stage" id="stage"><section class="archived-wrap" aria-label="Review status"><p class="archived-tag" id="archivedTag" hidden></p></section><div id="deviceBox"><div id="device" class="device"></div></div></div>
-    <aside class="notes" id="protoNotes" aria-label="Screen notes">
-      <h2>Screen notes</h2>
-      <p class="scdesc" id="scDesc"></p>
-      <div id="notes" aria-live="polite"></div>
+    <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
+    <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
+      <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
+    <div class="ctl__group"><span class="ads-field__label" id="lbVersion">Concept</span><div class="ads-segmented" id="tbVersion" role="group" aria-labelledby="lbVersion"><button type="button" data-v="1" aria-pressed="true">Familiar</button><button type="button" data-v="3" aria-pressed="false">Overview</button></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbTheme">Appearance</span><div class="ads-segmented" id="tbTheme" role="group" aria-labelledby="lbTheme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div></div>
+      <button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" id="tbReset">Reset demo</button>
     </aside>
   </div>
-</div>
-
-<div id="handoffView" role="tabpanel" hidden>
-  <article class="doc">
-<!--__HANDOFF__-->
-  </article>
 </div>
 
 <script>

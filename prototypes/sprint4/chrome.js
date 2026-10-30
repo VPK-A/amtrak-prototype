@@ -1,17 +1,15 @@
-/* Sprint 4 prototype shell (not part of the app): the header, control panel and screen notes are hidden by
-   default and shown together from a floating launcher. Showing or hiding them never touches the demo state. */
+/* Sprint 4 prototype shell (not part of the app): a compact controller beside the device, collapsed by default
+   and opened from a floating button. Opening or closing it never touches the demo state. */
 function setChrome(open, moveFocus = true) {
-  const btn = $('#chromeToggle'), label = open ? 'Hide prototype controls and notes' : 'Show prototype controls and notes';
+  const btn = $('#chromeToggle'), label = open ? 'Hide prototype controls' : 'Show prototype controls';
   document.body.classList.toggle('chrome-hidden', !open);
+  $('#protoCtl').hidden = !open;
   btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-label', label); btn.title = label;
-  // With the panel hidden only the device shows, so the Prototype view comes back if Handoff was open
-  if (!open && TB.tab !== 'proto') $('#viewTabs [data-v="proto"]').click();
   scaleDevice();
-  if (moveFocus) (open ? $('#chromeClose') : btn).focus();
+  if (moveFocus) (open ? $('#ctlTitle') : btn).focus();
 }
 $('#chromeToggle').addEventListener('click', () => setChrome(document.body.classList.contains('chrome-hidden')));
-$('#chromeClose').addEventListener('click', () => setChrome(false));
-// Escape hides them, unless the key belongs to the app inside the device (sheets, dialogs)
+// Escape closes it, unless the key belongs to the app inside the device (sheets, dialogs)
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape' || e.defaultPrevented || document.body.classList.contains('chrome-hidden')) return;
   if ($('#device').contains(e.target)) return;
@@ -21,7 +19,7 @@ setChrome(false, false);
 // The device is a phone or tablet app, where nothing hovers: drop every hover style except the prototype's
 // own controls outside the device (toolbar, view switch, launcher). Press and focus states stay.
 (function dropAppHover() {
-  const keep = /toolbar|\.tb|viewtabs|chrome-|\.notes|\.doc|\.top\b/;
+  const keep = /\.ctl\b|chrome-/;
   const walk = list => {
     for (let i = list.length - 1; i >= 0; i--) {
       const r = list[i];

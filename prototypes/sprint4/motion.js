@@ -179,7 +179,6 @@ render = function () {
   const cur = { v: TB.v, dev: TB.dev, orient: TB.orient, sheet: n.sheet, dialog: n.dialog, cover: n.cover, toast: V().toast && V().toast.msg, tab: n.tab, info: n.info ? n.info.stack.join('>') : null, gsOpen: open ? open.id.slice(3) : null };
   afterRenderMotion(dev, prev, cur, ghosts, ind);
   MOTION.prev = cur;
-  setSeg('#tbMotion', MOTION.reduced ? 'reduced' : 'full');
 };
 
 // ---------- Actions that need motion context ----------
@@ -215,9 +214,3 @@ A.tab = (t, ri) => {
   tabBeforeMotion(t, ri);
   const m2 = $('#device .app-main'); if (m2) m2.scrollTop = v.tabScroll[to] || 0;
 };
-// Toolbar: Motion Standard / Reduced (also follows the system setting)
-document.getElementById('tbMotion').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  MOTION.reduced = b.dataset.v === 'reduced'; try { localStorage.setItem('s4-motion', MOTION.reduced ? 'reduced' : 'full'); } catch (er) {}
-  render();
-});
