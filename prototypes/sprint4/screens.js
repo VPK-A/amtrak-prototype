@@ -55,10 +55,10 @@ function bookLanding() {
     ${rebook}
     <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="bk-h" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
-// The search bar is the scrolling part of the Book header: it sits flush under the greeting row and scrolls
-// away under it; the pinned row shows a divider once content has scrolled beneath it
+// The search bar is pinned to the Book header; content scrolls behind it, and a divider appears under the
+// header once content is beneath it
 function syncBookHeader() {
-  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .app--book .ads-appheader');
+  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .bk-headx');
   if (m && h) h.classList.toggle('is-scrolled', m.scrollTop > 0);
 }
 document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('app-main')) syncBookHeader(); }, true);

@@ -2368,11 +2368,11 @@ body.chrome-hidden .archived-tag { display: none; }
 .text-large .bk-cards { grid-template-columns: 1fr; }
 @media (max-width: 340px) { .bk-cards { grid-template-columns: 1fr; } }
 .device--ipad .bk-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.app--book .ads-appheader { position: relative; z-index: 1; background: var(--ads-background-surface-page); border-bottom-color: transparent; transition: border-color 160ms, box-shadow 160ms; }
-.app--book .ads-appheader.is-scrolled { border-bottom-color: var(--ads-border-subtle); box-shadow: 0 1px 6px rgb(0 0 0 / 0.06); }
-.mo-reduced .app--book .ads-appheader { transition: none; }
-/* Header extension: same surface as the header, scrolls with the page */
-.bk-headx { margin: 0 -16px; padding: 4px 16px 8px; background: var(--ads-background-surface-page); }
+.app--book .ads-appheader { background: var(--ads-background-surface-page); border-bottom-color: transparent; }
+/* Search bar pinned to the header: same surface, stays put while the content scrolls behind it */
+.bk-headx { position: sticky; top: 0; z-index: 2; margin: 0 -16px; padding: 4px 16px 12px; background: var(--ads-background-surface-page); transition: box-shadow 160ms; }
+.bk-headx.is-scrolled { box-shadow: 0 1px 0 var(--ads-border-subtle), 0 4px 8px -4px rgb(0 0 0 / 0.08); }
+.mo-reduced .bk-headx { transition: none; }
 .device--ipad .bk-headx { padding-top: 12px; }
 .ipad-signin { margin-left: 8px; font-weight: 600; white-space: nowrap; }
 
@@ -5296,10 +5296,10 @@ function bookLanding() {
     ${rebook}
     <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="bk-h" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
-// The search bar is the scrolling part of the Book header: it sits flush under the greeting row and scrolls
-// away under it; the pinned row shows a divider once content has scrolled beneath it
+// The search bar is pinned to the Book header; content scrolls behind it, and a divider appears under the
+// header once content is beneath it
 function syncBookHeader() {
-  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .app--book .ads-appheader');
+  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .bk-headx');
   if (m && h) h.classList.toggle('is-scrolled', m.scrollTop > 0);
 }
 document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('app-main')) syncBookHeader(); }, true);

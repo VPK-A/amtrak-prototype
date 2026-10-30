@@ -925,10 +925,10 @@ body.chrome-hidden .archived-tag { display: none; }
 .text-large .bk-cards { grid-template-columns: 1fr; }
 @media (max-width: 340px) { .bk-cards { grid-template-columns: 1fr; } }
 .device--ipad .bk-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.app--book .ads-appheader { position: relative; z-index: 1; background: var(--ads-background-surface-page); border-bottom-color: transparent; transition: border-color 160ms, box-shadow 160ms; }
-.app--book .ads-appheader.is-scrolled { border-bottom-color: var(--ads-border-subtle); box-shadow: 0 1px 6px rgb(0 0 0 / 0.06); }
-.mo-reduced .app--book .ads-appheader { transition: none; }
-/* Header extension: same surface as the header, scrolls with the page */
-.bk-headx { margin: 0 -16px; padding: 4px 16px 8px; background: var(--ads-background-surface-page); }
+.app--book .ads-appheader { background: var(--ads-background-surface-page); border-bottom-color: transparent; }
+/* Search bar pinned to the header: same surface, stays put while the content scrolls behind it */
+.bk-headx { position: sticky; top: 0; z-index: 2; margin: 0 -16px; padding: 4px 16px 12px; background: var(--ads-background-surface-page); transition: box-shadow 160ms; }
+.bk-headx.is-scrolled { box-shadow: 0 1px 0 var(--ads-border-subtle), 0 4px 8px -4px rgb(0 0 0 / 0.08); }
+.mo-reduced .bk-headx { transition: none; }
 .device--ipad .bk-headx { padding-top: 12px; }
 .ipad-signin { margin-left: 8px; font-weight: 600; white-space: nowrap; }
