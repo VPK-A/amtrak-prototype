@@ -40,8 +40,8 @@ const TABS = {
 // New booking entry, two explore cards, recent trips to rebook (only when there's history) and supporting
 // links. The member header (avatar, greeting, tier and points, inbox) is the App Shell header above it.
 const BK_ART = {
-  trips: '<img src="__IMG_TRIPS__" alt="" decoding="async">',
-  near: '<img src="__IMG_NEAR__" alt="" decoding="async">'
+  trips: `<svg viewBox="0 0 160 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect class="bk-a-sky" width="160" height="96"/><circle class="bk-a-sun" cx="122" cy="26" r="11"/><path class="bk-a-hill2" d="M0 66 L34 40 L60 58 L92 30 L130 62 L160 46 V96 H0 Z"/><path class="bk-a-hill" d="M0 78 Q40 60 80 74 T160 70 V96 H0 Z"/><rect class="bk-a-rail" x="0" y="84" width="160" height="3"/><rect class="bk-a-train" x="40" y="72" width="62" height="12" rx="4"/><rect class="bk-a-win" x="48" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="60" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="72" y="75" width="8" height="5" rx="1"/><rect class="bk-a-win" x="84" y="75" width="8" height="5" rx="1"/></svg>`,
+  near: `<svg viewBox="0 0 160 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect class="bk-a-map" width="160" height="96"/><path class="bk-a-road" d="M-4 70 C40 60 60 30 100 34 S150 20 168 12"/><path class="bk-a-road2" d="M20 -4 L52 100 M110 -4 L96 100"/><path class="bk-a-line" d="M-4 70 C40 60 60 30 100 34 S150 20 168 12"/><path class="bk-a-pin" d="M100 12 a10 10 0 0 1 10 10 c0 8 -10 18 -10 18 s-10 -10 -10 -18 a10 10 0 0 1 10 -10 Z"/><circle class="bk-a-dot" cx="100" cy="22" r="3.5"/><circle class="bk-a-pin2" cx="42" cy="62" r="5"/></svg>`
 };
 function bookLanding() {
   const d = D(), hist = d.signedIn ? (d.history || []) : [];
