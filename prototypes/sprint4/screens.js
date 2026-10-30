@@ -50,11 +50,18 @@ function bookLanding() {
   const rebook = hist.length ? `<section class="bk-sec" aria-labelledby="bk-rebook-h"><h2 class="bk-h" id="bk-rebook-h">Book again</h2><ul class="bk-list bk-rebook">${hist.map((h, i) => `<li class="bk-trip"><div class="bk-trip__text"><span class="bk-trip__route">${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}</span><span class="bk-trip__meta">${h.from} → ${h.to} · ${fmtShort(h.date)} · ${esc(h.train)}</span></div><button class="ads-btn ads-btn--sm bk-trip__btn" type="button" data-a="rebook" data-i="${i}" aria-label="Rebook ${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}">Rebook</button></li>`).join('')}</ul></section>` : '';
   const link = (a, t, sub, icon) => `<li><button class="bk-link" type="button" data-a="${a}">${ic(icon, 'bk-link__icon')}<span class="bk-link__text"><span class="bk-link__title">${t}</span><span class="bk-link__sub">${sub}</span></span>${ic('chevron-right', 'bk-link__chev')}</button></li>`;
   return `<div class="tabpage bk"><h1 class="ads-sr-only">Book</h1>
-    <button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button>
+    <div class="bk-headx"><button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button></div>
     <ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
     ${rebook}
     <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="bk-h" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
+// The search bar is the scrolling part of the Book header: it sits flush under the greeting row and scrolls
+// away under it; the pinned row shows a divider once content has scrolled beneath it
+function syncBookHeader() {
+  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .app--book .ads-appheader');
+  if (m && h) h.classList.toggle('is-scrolled', m.scrollTop > 0);
+}
+document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('app-main')) syncBookHeader(); }, true);
 const bkStub = (t, opener) => openSheet('explore', [R('stub', { t })], opener);
 A['bk-recommended'] = () => bkStub('Recommended trips', '[data-a="bk-recommended"]');
 A['bk-explore'] = () => bkStub('Explore', '[data-a="bk-explore"]');

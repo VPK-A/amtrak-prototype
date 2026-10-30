@@ -2322,7 +2322,7 @@ body.chrome-hidden .archived-tag { display: none; }
 .findwhy { margin: 0 0 8px; text-align: center; }
 
 /* ---------- Book landing ---------- */
-.bk { gap: 20px; padding-top: 12px; }
+.bk { gap: 20px; padding-top: 0; }
 .bk-new { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 18px; border: 1px solid var(--ads-border-subtle); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); box-shadow: var(--ads-shadow-elevation-sm, 0 1px 3px rgb(0 0 0 / 0.08)); text-align: left; font: inherit; cursor: pointer; }
 .bk-new__icon { flex: none; color: var(--ads-content-icon-brand, var(--ads-background-interactive-primary)); }
 .bk-new__text { display: flex; flex-direction: column; min-width: 0; }
@@ -2368,7 +2368,12 @@ body.chrome-hidden .archived-tag { display: none; }
 .text-large .bk-cards { grid-template-columns: 1fr; }
 @media (max-width: 340px) { .bk-cards { grid-template-columns: 1fr; } }
 .device--ipad .bk-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.app--book .ads-appheader { background: var(--ads-background-surface-page); border-bottom-color: transparent; }
+.app--book .ads-appheader { position: relative; z-index: 1; background: var(--ads-background-surface-page); border-bottom-color: transparent; transition: border-color 160ms, box-shadow 160ms; }
+.app--book .ads-appheader.is-scrolled { border-bottom-color: var(--ads-border-subtle); box-shadow: 0 1px 6px rgb(0 0 0 / 0.06); }
+.mo-reduced .app--book .ads-appheader { transition: none; }
+/* Header extension: same surface as the header, scrolls with the page */
+.bk-headx { margin: 0 -16px; padding: 4px 16px 8px; background: var(--ads-background-surface-page); }
+.device--ipad .bk-headx { padding-top: 12px; }
 .ipad-signin { margin-left: 8px; font-weight: 600; white-space: nowrap; }
 
 </style>
@@ -5286,11 +5291,18 @@ function bookLanding() {
   const rebook = hist.length ? `<section class="bk-sec" aria-labelledby="bk-rebook-h"><h2 class="bk-h" id="bk-rebook-h">Book again</h2><ul class="bk-list bk-rebook">${hist.map((h, i) => `<li class="bk-trip"><div class="bk-trip__text"><span class="bk-trip__route">${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}</span><span class="bk-trip__meta">${h.from} → ${h.to} · ${fmtShort(h.date)} · ${esc(h.train)}</span></div><button class="ads-btn ads-btn--sm bk-trip__btn" type="button" data-a="rebook" data-i="${i}" aria-label="Rebook ${esc(ST[h.from].city)} to ${esc(ST[h.to].city)}">Rebook</button></li>`).join('')}</ul></section>` : '';
   const link = (a, t, sub, icon) => `<li><button class="bk-link" type="button" data-a="${a}">${ic(icon, 'bk-link__icon')}<span class="bk-link__text"><span class="bk-link__title">${t}</span><span class="bk-link__sub">${sub}</span></span>${ic('chevron-right', 'bk-link__chev')}</button></li>`;
   return `<div class="tabpage bk"><h1 class="ads-sr-only">Book</h1>
-    <button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button>
+    <div class="bk-headx"><button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button></div>
     <ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
     ${rebook}
     <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="bk-h" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
+// The search bar is the scrolling part of the Book header: it sits flush under the greeting row and scrolls
+// away under it; the pinned row shows a divider once content has scrolled beneath it
+function syncBookHeader() {
+  const m = document.querySelector('#device .app-main'), h = document.querySelector('#device .app--book .ads-appheader');
+  if (m && h) h.classList.toggle('is-scrolled', m.scrollTop > 0);
+}
+document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('app-main')) syncBookHeader(); }, true);
 const bkStub = (t, opener) => openSheet('explore', [R('stub', { t })], opener);
 A['bk-recommended'] = () => bkStub('Recommended trips', '[data-a="bk-recommended"]');
 A['bk-explore'] = () => bkStub('Explore', '[data-a="bk-explore"]');
@@ -7642,7 +7654,7 @@ setChrome(false, false);
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 { const v = store.get('s4-v'); if (['1', '3'].includes(v)) TB.v = +v; /* only reviewed concepts are restored */ const d = store.get('s4-dev'); if (d === 'iphone' || d === 'ipad') TB.dev = d; }
 const _render = render;
-render = function () { document.documentElement.dataset.theme = TB.theme; _render(); };
+render = function () { document.documentElement.dataset.theme = TB.theme; _render(); syncBookHeader(); };
 wireToolbar(); wireDevice(); render();
 
 </script>
