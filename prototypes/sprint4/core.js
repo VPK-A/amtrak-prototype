@@ -492,5 +492,5 @@ function wireToolbar() {
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
   window.addEventListener('resize', scaleDevice);
-  $('#tbScenario').innerHTML = SCENARIOS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
+  $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }
