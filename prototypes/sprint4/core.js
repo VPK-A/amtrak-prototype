@@ -319,7 +319,7 @@ function tabBar() {
 function ipadNav() {
   const n = nav(), d = D();
   return `<header class="ads-ipad-nav app-ipadnav"><span class="ipad-logo" role="img" aria-label="Amtrak">__LOGO_H__</span>
-    <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><button class="ads-tabbar-ipad__button" type="button" aria-label="Show sidebar" aria-pressed="false" data-a="noop" title="Sidebar (not part of Sprint 4)">${ic('sidebar')}</button><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
+    <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
     <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
 }
 
