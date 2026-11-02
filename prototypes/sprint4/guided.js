@@ -40,7 +40,7 @@ function gsSeg(label, key, opts, cur, id) {
 function gsQuick(b, d) {
   const f = !b.from ? 'from' : 'to'; // with a full route, the picks offer a different destination
   const other = f === 'from' ? 'to' : 'from';
-  const list = [...d.fav, ...d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, c) => a.d - c.d).map(x => x.c)].filter(c => c !== b[other] && c !== b[f] && !(AUTO_TRAIN[c] && autoTrainBlocked())).slice(0, 2); // two quick picks: favorites first, then the most recent
+  const list = [...favList(d), ...recentList(d).map(x => x.c)].filter(c => c !== b[other] && c !== b[f] && !(AUTO_TRAIN[c] && autoTrainBlocked())).slice(0, 2); // two quick picks: favorites first, then the most recent
   if (!list.length) return '';
   return `<div class="gs-quick"><p class="gs-quick__label" id="gs-ql">${f === 'from' ? 'Leave from' : b.to ? 'Or go to' : 'Go to'} a favorite or recent station</p><div class="gs-quick__list" role="group" aria-labelledby="gs-ql">${list.map(c => `<button class="gs-chip" type="button" data-a="gs-quick" data-field="${f}" data-code="${c}">${d.fav.includes(c) ? ic('bookmark-filled', 'ads-icon--sm') : ic('history', 'ads-icon--sm')}<span><b>${c}</b> ${ST[c].city}, ${ST[c].st}</span></button>`).join('')}</div></div>`;
 }

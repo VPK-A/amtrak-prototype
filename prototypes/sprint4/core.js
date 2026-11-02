@@ -38,12 +38,12 @@ function seed(sc) {
     assist: sc === 'assist' ? { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station', 'seat'] } : blankAssist(),
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
-    triplink: sc === 'triplink',
-    passrider: sc.startsWith('passrider') ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, minor: sc === 'passrider-minor' } : null,
+    triplink: sc === 'triplink' || sc === 'triplink-passrider',
+    passrider: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, minor: sc === 'passrider-minor' } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
+    employee: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }],
     // Past trips for Book again on the Book landing (mock; none for new members or guests)
     history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }]
@@ -51,17 +51,22 @@ function seed(sc) {
   d.booking = freshBooking(d);
   return d;
 }
-// Booking assistance isn't prefilled from the profile while NMA-614 is open (Q7). A disability saved in the
-// profile still sets Traveler 1's discount to PWD (NMA-612 BR6); other profile discounts carry over too.
+// Profile carry-over at the start of a booking: assistance for Traveler 1 (NMA-614), the disability discount
+// (NMA-612 BR6) and other profile discounts.
 const profilePwd = () => { const d = D(); return d.signedIn && (d.discount.type === 'pwd' || d.assist.cat === 'disability'); };
 function freshBooking(d) {
   return {
     trip: 'ow', from: null, to: null, dep: TODAY_S, ret: null,
     disc: d.signedIn && ['military', 'rpa'].includes(d.discount.type) ? d.discount.type : 'none',
-    assistOn: false, assist: blankAssist(), assistDone: false, assistFromProfile: false, notice: null,
+    // NMA-614: Traveler 1 (the account holder) starts with the saved assistance; the indication is on when saved
+    // requests or a disability discount exist. Edits here never write back to Profile.
+    assistOn: d.signedIn && (!!d.assist.cat || d.discount.type === 'pwd'),
+    assist: d.signedIn && d.assist.cat ? clone(d.assist) : blankAssist(), assistDone: d.signedIn && !!d.assist.cat, assistFromProfile: d.signedIn && !!d.assist.cat, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
-    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
+    // Each mode defaults on for its eligible members (NMA-622 AC2, NMA-623 AC2). For an account eligible for both,
+    // no precedence is defined, so neither is preselected (Q26).
+    intent: d.signedIn && d.triplink && d.passrider ? 'standard' : d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, fam: 0, dep: 0, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
@@ -264,7 +269,7 @@ function startCooldown() {
 
 // ---------- Clear recent stations (NMA-1004) ----------
 function clearDialog() {
-  return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed.', returnFocus: '[data-a="clear-recents"]',
+  return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed from this device. Your favorites stay.', returnFocus: '[data-a="clear-recents"]',
     actions: [['Cancel', 'secondary', null], ['Confirm', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
 }
 
@@ -463,7 +468,14 @@ A['clear-recents'] = () => dialog(clearDialog());
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net;
+  // Reviewer notes (outside the device): stories on this screen, open questions and things to try
+  const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
+  if (notes) notes.innerHTML = `<p class="nsmall">${esc(SCENARIOS.find(s => s[0] === V().sc)[2])}</p>
+    ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
+    ${qs.length ? `<p class="nlabel">Open questions</p><ul class="nlist">${qs.map(n => `<li><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
+    ${NOTES.prov.size ? `<p class="nlabel">Provisional</p><ul class="nlist">${[...NOTES.prov].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    ${NOTES.tips.size ? `<p class="nlabel">Try</p><ul class="nlist">${[...NOTES.tips].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`;
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
@@ -492,5 +504,7 @@ function wireToolbar() {
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
   window.addEventListener('resize', scaleDevice);
+  $('#tbNet').innerHTML = NETWORKS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+  $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }

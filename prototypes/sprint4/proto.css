@@ -899,3 +899,21 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-disc { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-width: 280px; }
 .ov-disc__label { font-size: 13px; font-weight: 600; color: var(--ads-content-text-secondary); }
 .fam-row__acts--below { gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+
+/* Reviewer notes inside the prototype controller (outside the device) */
+.ctl__notes { border-top: 1px solid var(--ads-border-subtle); padding-top: var(--ads-space-12); }
+.ctl__notes > summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.ctl__notes .nlabel { margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: var(--ads-content-text-secondary); }
+.ctl__notes .nsmall, .ctl__notes .nlist { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ads-content-text-primary); }
+.ctl__notes .nlist { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+
+/* "Traveler with disability or need help?" on the Travelers screen (NMA-973) */
+.ffassist { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 12px; padding: 12px 14px; border-radius: 16px; background: var(--ads-background-surface-sunken); }
+.ffassist .ads-choice__supporting { color: var(--ads-content-text-secondary); }
+.ffassist__row { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-left: 36px; }
+.ffassist__status { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.ffassist__busy { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ads-type-body-small-size); }
+.ffassist__note { margin: 0; padding-left: 36px; }
+.text-large .ffassist__row, .text-large .ffassist__note { padding-left: 0; }
+.ov-chip--todo { box-shadow: inset 0 0 0 1px var(--ads-border-status-warning, var(--ads-border-default)); background: none; }
+.paynote { margin: 6px 0 0; }

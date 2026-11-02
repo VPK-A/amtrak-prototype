@@ -111,9 +111,15 @@ const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented
 const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
 // Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
 function payV1(b) {
-  if (!D().signedIn) return '';
   ref('624');
-  return `<div class="v1pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'v1pay')}</div>`;
+  return `<div class="v1pay">${payControl(b, 'v1pay')}</div>`;
+}
+// NMA-624: Cash or Points for guests and members, cash by default. Members see their balance. Choosing points
+// only changes what the search shops for; a guest signs in later, after choosing a fare.
+function payControl(b, id) {
+  const member = D().signedIn;
+  const seg = gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', member ? 'Points · 12,450' : 'Points']], b.pay, id);
+  return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
 function travelersRow(r, opts = {}) {
   const b = D().booking, it = intentOf(b);
@@ -170,7 +176,7 @@ SCR.ff = (r, ri) => {
   if (v4()) return ffFlighty(r, ri);
   if (v2()) return ffGuided(r, ri);
   const std = ['standard', 'personal'].includes(intentOf(b));
-  q(22); if (std) codeTips();
+  q(22); if (std) codeTips(); ffFlags(b);
   // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
   q(7);
   const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
@@ -230,8 +236,8 @@ A['ss-switch'] = (t, ri) => { const r = routeAt(ri); r.u.d = {}; replaceTop('sta
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
   const qv = r.u.d.q || '';
-  const favs = d.fav.map(c => ST[c]);
-  const recs = d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d).map(x => ST[x.c]);
+  const favs = favList(d).map(c => ST[c]);
+  const recs = recentList(d).map(x => ST[x.c]);
   ref('600', '118', '984');
   // Focused view (iPhone): the search field leads, with Back inside it; the route summary and results follow
   const focus = stationFocus() && !inline;
@@ -246,8 +252,8 @@ function stationSearch(r, ri, field, inline) {
     return h + `<p class="ss-note">${q(3)} Tap a station to choose it.</p>`;
   }
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
-  if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents · last 10 days</span></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
-  if (d.rec.some(x => x.d > 10)) tip('BAL was chosen 12 days ago, so it has dropped out of recents (10-day limit).');
+  if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
+  if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
   const showAll = (!favs.length && !recs.length) || r.u.full;
   if (showAll) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
@@ -327,7 +333,7 @@ function calendarBody(r, ri, field) {
   const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
-  const limit = `<p class="ss-note">Dates up to ${fmtShort(picking === 'ret' ? maxRet : maxDep)} (${WINDOW_DAYS} days). ${q(4)}</p>`;
+  q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy
   return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
 }
 SCR.calendar = (r, ri) => {
@@ -507,7 +513,7 @@ SCR.handoff = () => {
 SCR.account = (r, ri) => {
   const d = D();
   prov('Account › Quick settings › Clear recent stations: NMA-1004 says “Settings”, and the IA only has Quick settings here.');
-  const recCount = d.rec.filter(x => x.d <= 10 && !d.fav.includes(x.c)).length;
+  const recCount = recentList(d).length;
   ref('1004');
   const clearRow = recCount ? grow({ a: 'clear-recents', label: 'Clear recent stations', value: `${recCount} recent station${recCount > 1 ? 's' : ''}`, cls: 'ads-group__row--action', chev: false })
     : `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Clear recent stations</span><span class="ads-group__value">No recent stations</span></span></div>`;
@@ -515,7 +521,7 @@ SCR.account = (r, ri) => {
     `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Trip updates</span><span class="ads-group__value">Delays and track changes</span></span><span class="ads-switch"><input type="checkbox" role="switch" checked><span class="ads-switch__track"></span></span></label>`,
     `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Sign in with Face ID</span></span><span class="ads-switch"><input type="checkbox" role="switch" ${d.signedIn ? 'checked' : 'disabled'}><span class="ads-switch__track"></span></span></label>`,
     `<label class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Dark mode</span></span><span class="ads-switch"><input type="checkbox" role="switch" data-a="dark" ${TB.theme === 'dark' ? 'checked' : ''}><span class="ads-switch__track"></span></span></label>`,
-    clearRow], 'Recent stations are kept on this device for 10 days.');
+    clearRow], `Recent stations are kept on this device for ${RECENT_DAYS} days and cleared when you sign out. Favorites stay.`);
   if (!d.signedIn) {
     return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}`, banner: false };
   }
@@ -524,9 +530,16 @@ SCR.account = (r, ri) => {
       <span class="loyalty__top"><span><b>Alex Rivera</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
     ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, passenger discounts' }), grow({ a: 'push', data: 'data-s="assist-profile"', icon: 'assistance', label: 'Assistance', value: assistVal })])}
     ${group('', [grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Points activity"}\'', icon: 'AGR_points-evergreen', label: 'Points activity' }), grow({ a: 'open-inbox-from-account', icon: 'email', label: 'Inbox', value: '2 new' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Travelers"}\'', icon: 'people', label: 'Travelers', value: '3 saved' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Payment"}\'', icon: 'payment-cash', label: 'Payment', value: 'Visa •••• 4821' })])}
-    ${quick}`;
+    ${quick}
+    <button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="sign-out">Sign out</button>`;
   return { title: 'Account', kind: 'root', body, banner: false };
 };
+// Sign out clears recent stations from this device (NMA-984); favorites are kept locally (NMA-118)
+A['sign-out'] = () => dialog({ title: 'Sign out?', body: 'Recent stations will be cleared from this device. Your favorites stay.', returnFocus: '[data-a="sign-out"]',
+  actions: [['Cancel', 'secondary', null], ['Sign out', 'primary', () => {
+    const d = D(); d.signedIn = false; d.rec = []; d.booking = freshBooking(d); nav().sheet = null; pendingFocus = '[data-a="open-account"]';
+    toast('Signed out. Recent stations were cleared.');
+  }]] });
 A.dark = t => { TB.theme = t.checked ? 'dark' : 'light'; pendingFocus = '[data-a="dark"]'; render(); };
 A['sign-in'] = () => startVerify('sign-in');
 A['open-inbox-from-account'] = (t, ri) => push('inbox', {}, +ri);

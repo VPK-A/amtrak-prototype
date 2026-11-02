@@ -63,8 +63,9 @@ const prRoleLabel = d => ({ employee: 'Employee', retiree: 'Retiree', spouse: 'S
 const PR_FAM = { employee: ['Spouse', 1], retiree: ['Spouse', 1], spouse: ['Employee (your spouse)', 1], dependent: ['Employee or spouse', 2] };
 const prMe = b => b.prType === 'business' || b.prPax.me !== false;
 const prCanComp = d => ['employee'].includes(d.passrider.role); // employees only (NMA-1018 AC1, AC2)
-const prPassesPer = b => b.trip === 'rt' ? 2 : 1; // a round trip uses 2 one-way passes (NMA-1018 BR5.1)
-const prCompMax = (b, d) => Math.floor(d.passrider.compLeft / prPassesPer(b));
+// NMA-1018: how a round trip uses companion passes (per companion or per booking), and the picker limit that
+// follows, are unresolved (Q13). The picker only stops at the remaining balance; searching never uses passes.
+const prCompMax = (b, d) => d.passrider.compLeft;
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
   const f = b.prPax, parts = prMe(b) ? ['You'] : [];
@@ -85,7 +86,7 @@ function prProblems(b) {
   const family = list.filter(t => !t.key.startsWith('pr-comp'));
   if (f.comp && !family.length) out.push('Companions must travel with you, your spouse or a dependent.');
   else if (!list.some(t => prKind(b, t.key) === 'adult')) out.push('Pass Rider travel can’t be booked for children only. Add an adult traveler.');
-  if (f.comp > prCompMax(b, d)) out.push(`You have ${d.passrider.compLeft} companion pass${d.passrider.compLeft === 1 ? '' : 'es'} left. ${b.trip === 'rt' ? 'A round trip uses 2 per companion.' : ''}`.trim());
+  if (f.comp > prCompMax(b, d)) out.push(`You have ${d.passrider.compLeft} companion pass${d.passrider.compLeft === 1 ? '' : 'es'} left.`);
   return out;
 }
 const travelerCount = b => intentOf(b) === 'corporate' ? 1 : intentOf(b) === 'pr' ? prCount(b) : paxAll(b.pax);
@@ -99,7 +100,7 @@ function ffcSeg(label, key, opts, cur, id) {
 function ffClear(r, ri) {
   const d = D(), b = d.booking, v = V(), member = d.signedIn;
   const corp = b.intent === 'corporate', pr = b.intent === 'pr', std = !corp && !pr;
-  ref('607', '608', '1060', '611', '612'); if (std) ref('613'); if (member) ref('624');
+  ref('607', '608', '1060', '611', '612'); if (std) ref('613', '624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
   // 1. Heading and booking-mode controls
   let modes = '';
@@ -124,17 +125,20 @@ function ffClear(r, ri) {
   q(7);
   const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and discount codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
   q(22);
-  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${member && std ? `<div class="ffc-pay">${gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', 'Points · 12,450']], b.pay, 'ffcpay')}</div>` : ''}</div>`;
-  if (std) codeTips();
+  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
+  if (std) codeTips(); ffFlags(b);
   return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${netAlert(r)}</div>`, foot: findBtn(r) };
 }
 // Shared by Concepts 1 and 3
+// Reviewer flags for unresolved rules that affect the Fare Finder (shown in Screen notes, never in the app)
+function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (d.signedIn && d.triplink && d.passrider) q(26); if (intentOf(b) === 'pr') q(13); }
 const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {
-  const tp = travelerProblems(b), ap = assistProblems(b);
-  if (!r.u.showErr || (!tp.length && !ap.length)) return '';
-  return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(tp[0] || ap[0])} Open travelers to fix it.</span></p>`;
+  const tp = travelerProblems(b), ap = assistProblems(b), am = assistMissing(b);
+  const msg = tp[0] || ap[0] || (am.length ? `Assistance is on, so each traveler needs an answer (${am.length} not answered yet).` : '');
+  if (!r.u.showErr || !msg) return '';
+  return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
 function codeTips() {
   tip('Discount code: type V123 (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
@@ -177,7 +181,7 @@ A['find-trains'] = (t, ri) => {
     const fail = sel => { r.u.showErr = true; pendingFocus = sel; render(); };
     if (e.from || e.to || e.ret) return fail(e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret');
     if (intentOf(b) === 'pr' && !b.prType) return fail('[data-a="pr-type"]'); // the button is disabled too (NMA-1016 AC2)
-    if (travelerProblems(b).length || assistProblems(b).length) return fail('#trav-err');
+    if (travelerProblems(b).length || assistProblems(b).length || assistMissing(b).length) return fail('#trav-err'); // NMA-615 BR1.2: everyone answers while assistance is on
     if (intentOf(b) === 'corporate' && (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to])) { // NMA-622 AC8: an error after Find trains
       r.u.showErr = false;
       return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, switch to Personal.', returnFocus: '[data-a="find-trains"]',
@@ -283,7 +287,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
       const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>I’m traveling (${prRoleLabel(d).toLowerCase()})</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
-      const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year${b.trip === 'rt' ? '. A round trip uses 2 for each companion' : ''}`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? (compMax ? '' : 'Not enough passes left for a round trip.') : 'No companion passes left this year.') : '';
+      const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
       body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${counter('fam', famLabel, 'On your pass', f.fam, f.fam > 0, f.fam < famMax && room, 'pr')}${counter('dep', role === 'dependent' ? 'Other dependents' : 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}${comp}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you, your spouse or a dependent.</p>' : ''}
@@ -305,10 +309,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? travelerCards(b) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
+      ${fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
       ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? travelerCards(b) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? overviewPassRider(b) + assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -366,7 +370,7 @@ function handoffExtra(b) {
   if (intent === 'corporate') rows.push(['Booking', 'Corporate (TripLink)']);
   else if (intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
   else if (intent === 'personal') rows.push(['Booking', 'Personal']);
-  if (d.signedIn && (intent === 'standard' || intent === 'personal')) rows.push(['Pay with', b.pay === 'points' ? 'Points' : 'Cash']);
+  if (intent === 'standard' || intent === 'personal') rows.push(['Pay with', b.pay === 'points' ? (d.signedIn ? 'Points' : 'Points (guest signs in after choosing a fare)') : 'Cash']);
   if (intent === 'pr') rows.push(['Travelers', travelerList(b).map(t => `${esc(t.label)}${t.key === 'pr-you' ? '' : ` · ${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}`}`).join('<br>')]);
   else if (intent === 'corporate') rows.push(['Travelers', '1 adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => { const x = tdiscOf(b, t); return `Traveler ${t.n} · ${PAX_LABEL[t.type]}${x === 'none' ? '' : ` · ${TDISC_LABEL[x]}`}`; }).join('<br>')]);

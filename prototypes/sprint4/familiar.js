@@ -30,14 +30,17 @@ function discountRow(b, t, fromProfile) {
 }
 // Actions sit under the summary they act on
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
+// Shown while "Traveler with disability or need help?" is checked (NMA-973): every traveler answers (NMA-615 BR1.2)
 function assistanceRow(b, t) {
-  const a = assistRec(b, t.key), on = b.assistOn && a.done, c = on ? a.m.cat : null, items = on ? assistSummaryItems(a.m) : [];
-  const value = !on ? '' : c === 'none' ? 'No assistance needed' : esc(items[0]); // nothing shown until there's a request
-  const details = on ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
+  if (!b.assistOn) return '';
+  const a = assistRec(b, t.key), done = a.done, c = done ? a.m.cat : null, items = done ? assistSummaryItems(a.m) : [];
+  const value = !done ? 'Not answered yet' : c === 'none' ? 'No assistance needed' : esc(items[0]);
+  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : 'Choose an option for this traveler.';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
-  const acts = on ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Add');
+  const acts = done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Answer');
+  const tag = done && t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   ref('615', '973');
-  return famRow('Disability or assistance', value, details || (!on ? 'Passengers with disabilities questions for this traveler' : ''), '', acts);
+  return famRow(`Disability or assistance${tag}`, value, details, '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
