@@ -44,7 +44,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'returning', 'calendar:dep'); await ev(() => { D().booking.trip = 'rt'; D().booking.ret = D().booking.dep; render(); }); ok(!/Choosing/.test(await ev(() => document.querySelector('#device').innerHTML)), `${T} 8 calendar without "Choosing" (incl. labels)`);
     // 9-10 favorites star, selected state
     await go(v, 'returning', 'stations:from'); await ev(() => { D().booking.from = 'NYP'; render(); });
-    ok(await p.locator(D + '[data-a="fav"] .ads-icon--star-filled').count() >= 1 && await p.locator(D + '.ads-icon--bookmark, .ads-icon--bookmark-filled').count() === 0, `${T} 9 star icons, no bookmark`);
+    ok(await p.locator(D + '[data-a="fav"] .ads-icon--bookmark-filled').count() >= 1 && await p.locator(D + '.ads-icon--star, .ads-icon--star-filled').count() === 0, `${T} 9 bookmark icons, no star`);
     await dclick('[data-a="fav"][data-code="PHL"]'); ok(await ev(() => favList(D()).join()) === 'NYP,PHL', `${T} 9 favorite add keeps alphabetical order`);
     await dclick('[data-a="fav"][data-code="PHL"]'); ok(await ev(() => !D().fav.includes('PHL')), `${T} 9 favorite remove`);
     const sel = await ev(() => { const li = document.querySelector('#device .ads-stationrow[aria-current="true"]'); return li && { check: !!li.querySelector('.ss-check'), sr: /selected/.test(li.innerText), bg: getComputedStyle(li.querySelector('.ads-stationrow__select')).backgroundColor }; });

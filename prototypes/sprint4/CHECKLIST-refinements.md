@@ -14,7 +14,7 @@
 | 6 | Saved-code entry | Underlined text link "Use a saved code (3)" | DS grouped row "Saved codes" with a count and chevron (`grow`) | Same, keyboard and touch | Done, verified |
 | 7 | Pay with (`payControl`) | Full-width segmented control styled like a primary choice | Compact inline DS radio group (`ads-choice ads-radio`), small legend, cash default; guest note kept | Guest and member, cash and points; hidden in Pass Rider and TripLink | Done, verified |
 | 8 | Station search route summary (`stationRoute`) and calendar | "Choosing now", "Choosing" and "Changing" badges; calendar group "Choosing" | Direct "From" and "To" labels only; calendar uses "Dates" and "Departure date" / "Return date" | Station search From and To; round-trip calendar | Done, verified |
-| 9 | Station row favorite (`stationRow`) | Bookmark icon | DS star / filled star; label "Favorite: …" with the pressed state | Add and remove a favorite; order and persistence unchanged | Done, verified |
+| 9 | Station row favorite (`stationRow`) | Bookmark icon, later a star | DS bookmark / filled bookmark (star reverted by request); label "Favorite: …" with the pressed state | Add and remove a favorite; order and persistence unchanged | Done, verified |
 | 10 | Selected station row | Selected background plus a "Selected" badge | DS selected surface plus a check icon and screen-reader "selected" text; pressed and disabled states styled; focus ring kept | Station search with a chosen station; Auto Train row disabled in Business | Done, verified |
 | 11 | Travelers screen | Standalone "Bringing a service animal?" link | Removed. Service-animal guidance stays only in the disability branch of the questionnaire, next to *Large service animal* (NMA-995). Detailed animal questions (NMA-628) stay out of Fare Finder. | Travelers screen: no link; questionnaire › I have a disability: guidance link present | Done, verified |
 | 12 | Assistance questionnaire title (`SCR.assist`) | "Assistance · Traveler 1 · Adult" (Familiar); sheet heading plus a long subtitle (Brand forward) | Title "Assistance"; compact secondary label "For Traveler 1 · Adult" in both | Two travelers: each questionnaire shows its own traveler | Done, verified |
@@ -40,7 +40,7 @@ All 15 items are implemented and were exercised in the browser in Familiar and B
 | 5, 6 | Saved codes sheet ("Saved codes" / "Choose a coupon or promotion code for this trip.") opened from a DS row "Saved codes · 3 available ›" | Picking fills the field with "selected", not "applied", until Find trains |
 | 7 | Inline DS radio group "Pay with: Cash / Points" | Shorter than Find trains; cash default; guest note; hidden in Pass Rider and TripLink |
 | 8 | Route summary shows only From / To; calendar labels "Dates" and "Departure date" / "Return date" | No "Choosing", "Choosing now" or "Changing" in text or labels |
-| 9 | Star / filled star | Add and remove keep alphabetical order |
+| 9 | Bookmark / filled bookmark (reverted from star by request) | Add and remove keep alphabetical order |
 | 10 | Selected row: DS selected surface, left accent, check icon, screen-reader "selected"; pressed and disabled styles | Disabled Auto Train row in Business; focus ring unchanged |
 | 11 | Standalone link removed; guidance stays in the disability branch | Present next to *Large service animal* |
 | 12 | Title "Assistance"; "For Traveler N · Type" label; question reads "Type of help" | Each traveler's questionnaire names that traveler |
