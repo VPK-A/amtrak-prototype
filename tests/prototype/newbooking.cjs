@@ -19,7 +19,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
       ok(s && s.h === 60 && s.borderTopWidth === '1px' && s.borderTopColor === def && s.borderTopLeftRadius === '4px', `${T} ${id} rest: 60px field, 1px border/default, radius/4`);
     }
     const code = await css('.dcode .ads-control', P); ok(code.h === 44 && code.borderTopLeftRadius === '4px' && code.boxShadow.includes(def.replace(/\)$/, '')), `${T} coupon input rest: 44px, radius/4, border/default`);
-    const saved = await css('.dcode .ads-group__body', P); ok(saved && saved.borderTopLeftRadius === '8px' && saved.borderTopColor === sub, `${T} saved codes container: radius/8, border/subtle`);
+    const saved = await css('.dcode .ads-group__body', P); ok(saved && saved.borderTopLeftRadius === '4px' && saved.borderTopColor === sub, `${T} saved codes List surface: radius/4, border/subtle`);
     const find = await css('[data-a="find-trains"]', P); ok(find.h === 44 && find.borderTopLeftRadius === '4px', `${T} Find trains: Primary, Default 44px, radius/4`);
     const swap = await css('[data-a="swap"]', P); ok(swap.h === 44 && swap.borderTopLeftRadius === '4px' && swap.borderTopWidth === '1px', `${T} swap: Tertiary icon-only Button 44px, radius/4`);
     const close = await css('.psheet .ads-navbar [data-a="close"]', ['borderTopWidth', 'backgroundColor']); ok(close.h === 44 && close.borderTopWidth === '0px' && close.backgroundColor === 'rgba(0, 0, 0, 0)', `${T} close: borderless Icon Button, 44px target`);
