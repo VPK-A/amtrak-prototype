@@ -16,7 +16,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(!/Recommended trips|Favorite stations|Book again|Rebook|Explore/.test(t) && await p.locator(D + '.bk-card, .bk-trip').count() === 0, `${T} no discovery, rebooking or Explore`);
     if (dev === 'iphone') ok(/Hi, Alex/.test(t) && /Select Plus · 12,450 pts/.test(t) && await p.locator(D + '.app-tabbar [data-tab="book"][aria-current="page"]').count() === 1, `${T} member header, Book active`);
     await p.click(D + '[data-a="open-booking"]'); await w(600); ok((await stack()) === 'booking:ff', `${T} New booking opens the Fare Finder`);
-    await p.click(D + '.sheet-layer [data-a="close"]'); await w(300); await p.locator(D + '[data-dlg="1"]').click(); await w(600);
+    await p.click(D + '.sheet-layer [data-a="close"]'); await w(300); if (await p.locator(D + '[data-dlg="1"]').count()) await p.locator(D + '[data-dlg="1"]').click(); await w(600);
     ok(!(await stack()) && await p.evaluate(() => document.activeElement && document.activeElement.dataset.a) === 'open-booking', `${T} exit returns to Book, focus on the entry`);
     await p.click(D + '[data-a="bk-passes"]'); await w(500); ok((await stack()) === 'explore:stub', `${T} Passes opens its placeholder`); await p.click(D + '.sheet-layer [data-a="close"]'); await w(500);
     await go(v, 'guest', dev); await w(200); ok(/Sign in/.test(await txt()), `${T} guest header`);

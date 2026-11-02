@@ -45,7 +45,7 @@ All 15 items are implemented and were exercised in the browser in Familiar and B
 | 11 | Standalone link removed; guidance stays in the disability branch | Present next to *Large service animal* |
 | 12 | Title "Assistance"; "For Traveler N · Type" label; question reads "Type of help" | Each traveler's questionnaire names that traveler |
 | 13 | Unmodified DS `.ads-counter` | Square DS stepper, 42px steps (DS size token), labeled; min, default and 8-seat limits |
-| 14 | "Exit booking?" with Keep booking (primary) and Exit booking | Close, scrim and Escape at the root ask; Back doesn't; Keep keeps the step and values; Exit keeps trip details per the retention policy |
+| 14 | "Exit booking?" with Keep booking (primary) and Exit booking; asked only when something is filled out (changed from a new booking's starting values, Profile prefills excluded) | Close, scrim and Escape at the root ask when something is filled out and close directly otherwise; Back doesn't; Keep keeps the step and values; Exit keeps trip details per the retention policy |
 | 15 | One "Booking type" entry and a sheet listing only eligible modes; Business/Leisure only for eligible Pass Rider travel | Every eligibility group shows only its modes; dual eligibility preselects nothing special; minors see the reason |
 
 **Left for the separate pass:** the arrow motif and the member/loyalty card redesign weren't touched.
