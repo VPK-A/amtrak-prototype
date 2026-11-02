@@ -31,7 +31,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'returning'); await ev(() => { D().fav = ['WAS', 'BOS', 'NYP', 'BOS']; goLoc('stations:from'); }); await w(300);
     const favs = await ev(() => [...document.querySelectorAll('#device [aria-label="Favorite stations"] .ads-stationrow__code')].map(e => e.textContent).join(','));
     ok(favs === 'BOS,NYP,WAS', `${T} 118 favorites alphabetical by city, no duplicates (${favs})`);
-    const order = await ev(() => { const s = [...document.querySelectorAll('#device .stsection')].map(x => x.querySelector('[aria-label]').getAttribute('aria-label')); return s.join('|'); });
+    const order = await ev(() => { const s = [...document.querySelectorAll('#device .stsection')].map(x => x.querySelector('.stlist[aria-label]').getAttribute('aria-label')); return s.join('|'); });
     ok(/^Favorite stations\|Recent stations/.test(order), `${T} 118 favorites above recents`);
     const recs = await ev(() => [...document.querySelectorAll('#device [aria-label="Recent stations"] .ads-stationrow__code')].map(e => e.textContent).join(','));
     ok(recs === 'PHL', `${T} 984 recents: within ${''}retention, not duplicating favorites, most recent first (${recs})`);

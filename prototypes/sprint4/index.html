@@ -2408,6 +2408,12 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .mode-opts { border: 0; margin: 0; padding: 0; }
 .bk { gap: 12px; }
 .bk-headx { padding-bottom: 8px; }
+/* Clear recents text link in the station search Recents header (NMA-1004) */
+.ss-clearrec { padding: 12px 0; margin: -12px 0; border: 0; background: none; font: inherit; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); letter-spacing: 0; text-transform: none; cursor: pointer; min-height: 44px; }
+/* ADS tabs as a single-choice switch (trip type, calendar dates, Trips): equal-width tabs filling the row */
+.ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; min-height: 44px; }
+.device .ads-tabs--fill .ads-tab { height: auto; }
+.cal-pick.ads-tabs .ads-tab { flex-direction: column; gap: 1px; padding-block: 6px; line-height: 1.2; }
 
 </style>
 </head>
@@ -3052,6 +3058,14 @@ function wireDevice() {
     if (t.type === 'text' || t.type === 'tel' || t.type === 'email' || t.type === 'search' || t.type === 'password' || t.tagName === 'TEXTAREA') { if (r.u.touched) r.u.touched[t.dataset.f] = true; setTimeout(render, 0); }
     else render();
   });
+  // ADS tabs: Left/Right/Home/End move between tabs and select (automatic activation)
+  dev.addEventListener('keydown', e => {
+    const tab = e.target.closest && e.target.closest('.ads-tabs [role="tab"]'); if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    const tabs = [...tab.parentElement.querySelectorAll('[role="tab"]:not([disabled])')], i = tabs.indexOf(tab);
+    const next = tabs[e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    e.preventDefault(); if (next === tab) return;
+    if (next.dataset.a) next.click(); else { tabs.forEach(x => { x.setAttribute('aria-selected', String(x === next)); x.tabIndex = x === next ? 0 : -1; }); next.focus(); }
+  });
   dev.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const n = nav();
@@ -3091,7 +3105,7 @@ A.push = (t, ri) => { const p = t.dataset.p ? JSON.parse(t.dataset.p) : {}; push
 A.retry = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r && r.u.retry) r.u.retry(); };
 A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was sent. Your entries are kept.' }; render(); } };
 A['cover-cancel'] = () => endVerify(false);
-A['clear-recents'] = () => dialog(clearDialog());
+A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && t.dataset.ret ? { returnFocus: t.dataset.ret } : {})); // from station search, focus returns to the search field
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
@@ -3172,7 +3186,7 @@ const stLabel = c => c ? `${ST[c].city}, ${ST[c].st} (${c})` : '';
 // ---------- Tabs (App Shell destinations; only Book has Sprint 4 content) ----------
 const TABS = {
   book: () => bookLanding(),
-  trips: () => `<div class="tabpage"><h1 class="ads-h3">Trips</h1><div class="ads-segmented" role="group" aria-label="Trips"><button type="button" aria-pressed="false">Active</button><button type="button" aria-pressed="true">Upcoming</button><button type="button" aria-pressed="false">Past</button></div><div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No upcoming trips</p><p class="ads-body-small">Trips you book show up here. Trip management is outside Sprint 4.</p></div></div>`,
+  trips: () => `<div class="tabpage"><h1 class="ads-h3">Trips</h1><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trips"><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Active</button><button class="ads-tab" type="button" role="tab" aria-selected="true" tabindex="0">Upcoming</button><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Past</button></div><div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No upcoming trips</p><p class="ads-body-small">Trips you book show up here. Trip management is outside Sprint 4.</p></div></div>`,
   'train-status': () => `<div class="tabpage"><h1 class="ads-h3">Train status</h1><div class="ads-summary"><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div><p class="ads-body-small ads-text-secondary">Train status isn’t part of Sprint 4. Its station search will reuse the Book station search.</p></div></div>`,
   support: () => `<div class="tabpage"><h1 class="ads-h3">Support</h1>${group('', [grow({ label: 'Issue with your trip?', value: 'Disruptions and cancellations' }), grow({ label: 'Know before booking', value: 'Accessible travel and station help' }), grow({ label: 'Contact Amtrak', value: 'Text · Call · Email · Live chat' })])}<p class="ads-body-small ads-text-secondary">Support content isn’t part of Sprint 4.</p></div>`
 };
@@ -3249,7 +3263,9 @@ function dateFields(r, opts = {}) {
   };
   return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
 }
-const tripSeg = () => { const b = D().booking; return `<div class="ads-segmented" role="group" aria-label="Trip type"><button type="button" data-a="trip" data-v="ow" aria-pressed="${b.trip === 'ow'}">One-way</button><button type="button" data-a="trip" data-v="rt" aria-pressed="${b.trip === 'rt'}">Round-trip</button></div>`; };
+// ADS tabs used as a single-choice switch: roving tabindex, arrow keys handled in core.js
+const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
+const tripSeg = () => { const b = D().booking; return `<div class="ads-tabs ads-tabs--fill trip-tabs" role="tablist" aria-label="Trip type">${tabBtn(b.trip === 'ow', 'data-a="trip" data-v="ow"', 'One-way')}${tabBtn(b.trip === 'rt', 'data-a="trip" data-v="rt"', 'Round-trip')}</div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
 // Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
@@ -3391,7 +3407,7 @@ function stationSearch(r, ri, field, inline) {
     return h + `<p class="ss-note">${q(3)} Tap a station to choose it.</p>`;
   }
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
-  if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
+  if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
   const showAll = (!favs.length && !recs.length) || r.u.full;
   if (showAll) {
@@ -3469,7 +3485,7 @@ function calendarBody(r, ri, field) {
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
   const nav = `<div class="cal-nav"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="-1" aria-label="Previous month" ${r.u.month <= firstM ? 'disabled' : ''}>${ic('chevron-left', 'ads-icon--sm')}</button><h3 class="cal-nav__title" id="cal-m" tabindex="-1" aria-live="polite">${title}</h3><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="1" aria-label="Next month" ${r.u.month >= lastM ? 'disabled' : ''}>${ic('chevron-right', 'ads-icon--sm')}</button></div>`;
   const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid" role="group" aria-labelledby="cal-m">${g}</div></div>`;
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Dates"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-tabs ads-tabs--fill cal-pick" role="tablist" aria-label="Dates">${tabBtn(picking === 'dep', 'data-a="picking" data-v="dep"', `<span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span>`)}${tabBtn(picking === 'ret', 'data-a="picking" data-v="ret"', `<span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span>`)}</div>` : '';
   const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">${picking === 'dep' ? 'Departure date' : 'Return date'}</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy

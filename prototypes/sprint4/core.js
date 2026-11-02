@@ -428,6 +428,14 @@ function wireDevice() {
     if (t.type === 'text' || t.type === 'tel' || t.type === 'email' || t.type === 'search' || t.type === 'password' || t.tagName === 'TEXTAREA') { if (r.u.touched) r.u.touched[t.dataset.f] = true; setTimeout(render, 0); }
     else render();
   });
+  // ADS tabs: Left/Right/Home/End move between tabs and select (automatic activation)
+  dev.addEventListener('keydown', e => {
+    const tab = e.target.closest && e.target.closest('.ads-tabs [role="tab"]'); if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    const tabs = [...tab.parentElement.querySelectorAll('[role="tab"]:not([disabled])')], i = tabs.indexOf(tab);
+    const next = tabs[e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    e.preventDefault(); if (next === tab) return;
+    if (next.dataset.a) next.click(); else { tabs.forEach(x => { x.setAttribute('aria-selected', String(x === next)); x.tabIndex = x === next ? 0 : -1; }); next.focus(); }
+  });
   dev.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const n = nav();
@@ -467,7 +475,7 @@ A.push = (t, ri) => { const p = t.dataset.p ? JSON.parse(t.dataset.p) : {}; push
 A.retry = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r && r.u.retry) r.u.retry(); };
 A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was sent. Your entries are kept.' }; render(); } };
 A['cover-cancel'] = () => endVerify(false);
-A['clear-recents'] = () => dialog(clearDialog());
+A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && t.dataset.ret ? { returnFocus: t.dataset.ret } : {})); // from station search, focus returns to the search field
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
