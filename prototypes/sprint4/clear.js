@@ -103,10 +103,8 @@ function ffClear(r, ri) {
   ref('607', '608', '1060', '611', '612'); if (std) ref('613', '624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
   // 1. Heading and booking-mode controls
-  let modes = '';
-  if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
-  if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Regular']], b.intent, 'intent'); // NMA-623 AC3
-  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : ''; // no repeated subtitle for a standard booking
+  const modes = modeEntry(b, 'v3'); // one compact Booking type entry (only for members eligible for a mode)
+  const sub = '';
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
   const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3>${sub ? `<p class="ffc-sub">${sub}</p>` : ''}${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
   // 2. Rounded primary surface
@@ -114,7 +112,7 @@ function ffClear(r, ri) {
   if (pr) {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
     prType = elig ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
-      : `<div class="ffc-fixed"><span class="ffc-label">Travel type</span><span>Leisure</span><span class="ads-helper">${prLeisureWhy(d)}</span></div>`;
+      : ''; // Leisure only: shown in the Booking type entry
   }
   const travVal = corp ? '1 adult · You' : pr ? prSummary(b, d) : paxSummary(b);
   // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
@@ -123,7 +121,7 @@ function ffClear(r, ri) {
   const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
-  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and discount codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
+  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and coupon codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
   q(22);
   const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
   if (std) codeTips(); ffFlags(b);
@@ -164,7 +162,7 @@ function clearAutoTrainIfBlocked(b) {
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Regular, Cash/Points
 A['ffc-set'] = t => {
   const d = D(), b = d.booking, k = t.dataset.key, val = t.dataset.v; b.modeNote = null;
-  if (k === 'pay') { if (val === 'points' && b.pay !== 'points' && (b.codeText || b.code)) toast('Discount codes can’t be used with points. Your code is kept for a cash search.', 'info'); b.pay = val; }
+  if (k === 'pay') { if (val === 'points' && b.pay !== 'points' && (b.codeText || b.code)) toast('Coupon and promotion codes can’t be used with points. Your code is kept for a cash search.', 'info'); b.pay = val; }
   if (k === 'intent' && val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = `[data-a="ffc-set"][data-key="intent"][data-v="pr"], #fl-intent`; render(); return; }
   if (k === 'intent') setIntent(b, val);
   pendingFocus = `[data-a="ffc-set"][data-key="${k}"][data-v="${val}"]`; render();
@@ -308,7 +306,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
       ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
@@ -403,5 +401,5 @@ SCR.calendar = (r, ri) => {
 const assistBase = SCR.assist;
 SCR.assist = (r, ri) => {
   const o = assistBase(r, ri); if (!rich()) return o;
-  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', `${esc(assistWho(r).label)}. Tell us what help they need for this trip.`) + o.body });
+  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', '') + o.body });
 };

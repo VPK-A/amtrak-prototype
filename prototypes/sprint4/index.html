@@ -1757,8 +1757,7 @@ button.ffc-row:hover, .ffc-row__main:hover { background: var(--ads-background-su
 .ffc-count__label { margin: 0; font-weight: 600; }
 .ffc-count__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
 .ffc-count__why { color: var(--ads-content-text-warning); font-size: var(--ads-type-caption-size); }
-.ffc-count .ads-counter { flex: none; border-radius: 999px; }
-.ffc-count .ads-counter__step { border-radius: 999px; }
+.ffc-count .ads-counter { flex: none; }
 .ffc-limit { display: flex; gap: 8px; margin: 10px 0 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.45; }
 .ffc-limit .ads-icon { flex: none; margin-top: 2px; color: var(--ads-content-icon-info); }
 .ffc-problems { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
@@ -2361,6 +2360,55 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-chip--todo { box-shadow: inset 0 0 0 1px var(--ads-border-status-warning, var(--ads-border-default)); background: none; }
 .paynote { margin: 6px 0 0; }
 
+/* Mock emails (reviewer-only, outside the device) */
+.ctl-mails { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ctl-mail { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 8px 10px; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ctl-mail__title { font-size: 13px; font-weight: 600; }
+.ctl-mail__sub { font-size: 12px; color: var(--ads-content-text-secondary); }
+.ctl-mail__acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.mailprev { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 16px; border: 0; border-radius: var(--ads-radius-12, 12px); background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); box-shadow: var(--ads-shadow-elevation-xl); font-family: var(--ads-font-family); }
+.mailprev::backdrop { background: rgb(0 0 0 / 0.45); }
+.mailprev__bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.mailprev__tag { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--ads-background-status-warning-subtle); color: var(--ads-content-text-primary); }
+.mailprev__meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 12px 0; font-size: 13px; }
+.mailprev__meta dt { color: var(--ads-content-text-secondary); }
+.mailprev__meta dd { margin: 0; }
+.mail { border-radius: var(--ads-radius-8); background: #fff; color: #051231; border: 1px solid #ded7d2; overflow: hidden; }
+.mail__head { padding: 16px 20px; background: #051231; color: #fff; }
+.mail__logo svg { height: 18px; width: auto; display: block; }
+.mail__body { padding: 16px 20px; font-size: 15px; line-height: 1.5; }
+.mail__alert { margin: 12px 0; padding: 12px 14px; border-left: 4px solid #c8102e; background: #fdf1f2; }
+.mail__alert ol { margin: 6px 0 0; padding-left: 20px; }
+.mail__foot { margin: 0; padding: 12px 20px; font-size: 12px; color: #534b45; border-top: 1px solid #ded7d2; }
+.mailprev__note { margin: 12px 0 0; font-size: 12px; color: var(--ads-content-text-secondary); }
+.rules .pending { color: var(--ads-content-text-secondary); font-style: italic; }
+
+/* Refinements (2026-11-02) */
+.device .ads-appheader .ads-avatar:not([style]), .device .app-ipadnav .ads-avatar:not([style]) { background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); } /* avatar: surface token, not a text token */
+.ss-check { flex: none; margin-left: auto; color: var(--ads-content-icon-brand); }
+.ads-stationrow[aria-current="true"] .ads-stationrow__select { box-shadow: inset 4px 0 0 var(--ads-background-interactive-selected); }
+.ads-stationrow[aria-current="true"] .ads-stationrow__name { font-weight: var(--ads-font-weight-semibold); }
+.ads-stationrow__select:active { background: var(--ads-background-surface-active); }
+.ads-stationrow__select:disabled { cursor: not-allowed; color: var(--ads-content-text-disabled, var(--ads-content-text-secondary)); background: var(--ads-background-surface-default); }
+.ads-stationrow__select:disabled .ads-stationrow__code, .ads-stationrow__select:disabled .ads-stationrow__name { opacity: 0.6; }
+.assist-who { margin: 0 0 4px; font-size: var(--ads-type-body-small-size); font-weight: 600; color: var(--ads-content-text-secondary); }
+.payset { margin: 0; padding: 0; border: 0; display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap; }
+.payset__legend { margin: 0 4px 0 0; padding: 0; font-size: var(--ads-type-body-small-size); font-weight: 600; color: var(--ads-content-text-secondary); }
+.payset .paychoice { min-height: 36px; font-size: var(--ads-type-body-small-size); padding-block: 4px; }
+.payset .paychoice .ads-choice__label { font-size: var(--ads-type-body-small-size); }
+.ffc-surface .ffc-pay, .v1pay { margin-top: 0; }
+/* Compact booking type entry */
+.mode-entry { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 40px; padding: 6px 12px; border: 1px solid var(--ads-border-default); border-radius: 999px; background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: var(--ads-type-body-small-size); cursor: pointer; align-self: flex-start; }
+.mode-entry__label { color: var(--ads-content-text-secondary); }
+.mode-entry__val { font-weight: 600; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+.mode-entry--v3 { border-color: rgb(255 255 255 / 0.4); background: rgb(255 255 255 / 0.12); color: var(--ffc-on-navy); }
+.mode-entry--v3 .mode-entry__label { color: var(--ffc-on-navy); opacity: 0.85; }
+.v1modes { display: flex; flex-direction: column; gap: 8px; }
+.modes-type .ads-helper { margin: 4px 0 0; }
+.mode-opts { border: 0; margin: 0; padding: 0; }
+.bk { gap: 12px; }
+.bk-headx { padding-bottom: 8px; }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -2376,9 +2424,11 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbNet">Network</label><div class="ads-control ads-control--select"><select id="tbNet"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbToken">Session token</label><div class="ads-control ads-control--select"><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired (asks “Verify it’s you” before Change email)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbTheme">Appearance</span><div class="ads-segmented" id="tbTheme" role="group" aria-labelledby="lbTheme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div></div>
       <button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" id="tbReset">Reset demo</button>
       <details class="ctl__notes" id="ctlNotes"><summary class="ads-body-small-emphasis">Screen notes</summary><div id="notes" aria-live="polite"></div></details>
+      <details class="ctl__notes" id="ctlEmails"><summary class="ads-body-small-emphasis">Mock emails</summary><div id="emails"></div></details>
     </aside>
   </div>
 </div>
@@ -2387,6 +2437,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Sprint 4 prototype: deterministic mock data. Nothing here is live. */
 const TODAY = new Date(2026, 9, 28); // Wed, Oct 28, 2026 (fixed so the calendar is repeatable)
 const WINDOW_DAYS = 335;             // NMA-1060 BR4.1 "verify # of days": unresolved (Q4), configurable here
+const PASS_RENEWS = '2027-01-01';    // NMA-20 BR3: mock renewal date of new passes (the pass file supplies the real one)
 const RECENT_DAYS = 10;              // NMA-984: recent stations are kept this many days (configurable)
 // Recent stations to show: within the retention period, not already a favorite, most recent first
 const recentList = d => d.rec.filter(x => x.d <= RECENT_DAYS && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d);
@@ -2453,8 +2504,8 @@ const DIAL = [['GB', 'United Kingdom', '+44', '🇬🇧'], ['MX', 'Mexico', '+52
 // Discount content stands in for AEM copy (NMA-43 BR6, NMA-566 BR2). It is placeholder text, not approved content.
 const DISCOUNTS = {
   none: { label: 'No discount preference', info: 'You can still choose a discount when you book.' },
-  military: { label: 'Military', info: 'For active U.S. military and veterans. Proof of military status may be required.' },
-  rpa: { label: 'Rail Passenger Association', info: 'For members of the Rail Passengers Association. Your membership ID is required.' },
+  military: { label: 'Military', info: 'Proof of status may be required. Eligibility details: content pending.' },
+  rpa: { label: 'Rail Passenger Association', info: 'Your 6 to 10 digit membership ID is required. Eligibility details: content pending.' },
   pwd: { label: 'Passenger with disability', info: 'Saved automatically when your assistance says you have a disability.' }
 };
 const RULE_GROUPS = [
@@ -2498,6 +2549,7 @@ const SCENARIOS = [
   ['passrider-retiree', 'Pass Rider retiree', 'Retiree: Leisure only, can bring a spouse and dependents, no companion passes (NMA-1016 AC3, NMA-1017 AC2, NMA-1018 AC2).'],
   ['passrider-spouse', 'Pass Rider spouse', 'Spouse Pass Rider: Leisure only, can bring the employee and dependents, no companion passes (NMA-1016 AC3, NMA-1017 AC3, NMA-1018 AC2).'],
   ['passrider-dependent', 'Pass Rider dependent, 16 or older', 'Dependent 16 or older: Leisure only, can book on their own and bring the employee, their spouse and other dependents (NMA-1017 AC4). The age comes from this fixture: the pass file has no date of birth.'],
+  ['passrider-removed', 'Pass Rider employee, pass removed', 'The backend found this member is no longer eligible, so their Pass number, Personal index number and designation were removed from the app (NMA-20 BR4 AC4). Profile shows no pass details and Pass Rider booking isn’t offered.'],
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
@@ -2611,11 +2663,12 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, minor: sc === 'passrider-minor' } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor' } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
+    empRemoved: sc === 'passrider-removed',
+    employee: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }],
     // Past trips for Book again on the Book landing (mock; none for new members or guests)
     history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }]
@@ -2643,7 +2696,7 @@ function freshBooking(d) {
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
-const makeVS = (sc = 'returning') => ({ sc, net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
+const makeVS = (sc = 'returning') => ({ sc, outbox: [], net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
 let VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() };
 const V = () => VS[TB.v];
 const D = () => V().data;
@@ -2824,7 +2877,10 @@ function startVerify(trigger, opts = {}, silent) {
 function endVerify(ok) {
   const v = V(), c = v.nav.cover, d = v.data; v.nav.cover = null; clearInterval(cooldownT);
   if (!ok) { pendingFocus = 'title'; render(); if (c.trigger === 'change-email') toast('Email not changed', 'info'); return; }
-  if (c.trigger === 'change-email') { d.profile.email = c.u.d.newEmail; pendingFocus = 'title'; toast('Your email has been updated'); }
+  if (c.trigger === 'change-email') { // NMA-21 BR10: both the old and the new address are notified (mock emails)
+    const old = d.profile.email; d.profile.email = c.u.d.newEmail;
+    mockEmail('email-changed-old', { to: old, newEmail: c.u.d.newEmail, first: d.profile.first }); mockEmail('email-changed-new', { to: c.u.d.newEmail, first: d.profile.first });
+    pendingFocus = 'title'; toast('Your email has been updated. We let your old and new addresses know.'); }
   else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast('Signed in as Alex Rivera'); }
   else { d.verified = true; pendingFocus = 'title'; render(); if (c.resume) c.resume(); }
 }
@@ -3002,7 +3058,7 @@ function wireDevice() {
     if (n.dialog) { closeDialog(); e.preventDefault(); }
     else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
-    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else closeSheet(); e.preventDefault(); }
+    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else A.close(null, i); e.preventDefault(); }
   });
 }
 // Inputs inside V3's inline Profile editor write to that editor, not to the profile route
@@ -3040,7 +3096,8 @@ A['clear-recents'] = () => dialog(clearDialog());
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
+  { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
   if (notes) notes.innerHTML = `<p class="nsmall">${esc(SCENARIOS.find(s => s[0] === V().sc)[2])}</p>
@@ -3078,6 +3135,7 @@ function wireToolbar() {
   window.addEventListener('resize', scaleDevice);
   $('#tbNet').innerHTML = NETWORKS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
+  $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }
 
@@ -3126,6 +3184,8 @@ const BK_ART = {
   trips: '<img src="data:image/jpeg;base64,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" alt="" decoding="async">',
   near: '<img src="data:image/jpeg;base64,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" alt="" decoding="async">'
 };
+// Sprint 4 review focus: discovery cards, Book again and Explore are hidden (kept below for later restoration)
+const BK_REVIEW_FOCUS = true;
 function bookLanding() {
   const d = D(), hist = d.signedIn ? (d.history || []) : [];
   const card = (a, art, title, sub) => `<li class="bk-card"><div class="bk-card__media">${BK_ART[art]}</div><div class="bk-card__body"><h2 class="bk-card__title">${title}</h2><p class="bk-card__sub">${sub}</p><button class="ads-link ads-link--sm linkbtn bk-card__cta" type="button" data-a="${a}" aria-label="Explore ${title.toLowerCase()}">Explore ${ic('chevron-right', 'ads-icon--sm')}</button></div></li>`;
@@ -3134,9 +3194,9 @@ function bookLanding() {
   const link = (a, t, sub, icon) => `<li><button class="bk-link" type="button" data-a="${a}">${ic(icon, 'bk-link__icon')}<span class="bk-link__text"><span class="bk-link__title">${t}</span><span class="bk-link__sub">${sub}</span></span>${ic('chevron-right', 'bk-link__chev')}</button></li>`;
   return `<div class="tabpage bk"><h1 class="ads-sr-only">Book</h1>
     <div class="bk-headx"><button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button></div>
-    <ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
-    ${rebook}
-    <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="ads-sr-only" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
+    ${BK_REVIEW_FOCUS ? '' : `<ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
+    ${rebook}`}
+    <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="ads-sr-only" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${BK_REVIEW_FOCUS ? '' : link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
 // The search bar is pinned to the Book header; content scrolls behind it, and a divider appears under the
 // header once content is beneath it
@@ -3201,7 +3261,9 @@ function payV1(b) {
 // only changes what the search shops for; a guest signs in later, after choosing a fare.
 function payControl(b, id) {
   const member = D().signedIn;
-  const seg = gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', member ? 'Points · 12,450' : 'Points']], b.pay, id);
+  // Compact DS radio group, subordinate to Find trains
+  const opt = (v, label) => `<label class="ads-choice ads-radio paychoice"><input type="radio" name="${id}" data-a="ffc-set" data-key="pay" data-v="${v}" value="${v}" ${b.pay === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${label}</span></label>`;
+  const seg = `<div class="payset" role="radiogroup" aria-labelledby="${id}-l"><span class="payset__legend" id="${id}-l">Pay with</span>${opt('cash', 'Cash')}${opt('points', member ? 'Points · 12,450' : 'Points')}</div>`;
   return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
 function travelersRow(r, opts = {}) {
@@ -3212,20 +3274,14 @@ function travelersRow(r, opts = {}) {
 }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
-  const d = D(); if (!d.signedIn) return '';
-  const out = [];
-  if (d.triplink) { ref('622'); out.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'v1intent')); }
-  if (d.passrider) {
-    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Regular']], b.intent, 'v1intent'));
-    if (b.intent === 'pr') {
-      const elig = d.passrider.role === 'employee' && d.passrider.business;
-      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>`
-        : `<p class="ads-helper">Travel type: Leisure. ${prLeisureWhy(d)}</p>`);
-    }
+  const d = D(), entry = modeEntry(b, 'v1'); if (!entry) return '';
+  let extra = '';
+  if (b.intent === 'pr') {
+    const elig = d.passrider.role === 'employee' && d.passrider.business;
+    extra = elig ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
   }
-  if (!out.length) return '';
   if (b.intent === 'corporate') q(12);
-  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  return `<div class="v1modes">${entry}${extra}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -3262,7 +3318,7 @@ SCR.ff = (r, ri) => {
   q(22); if (std) codeTips(); ffFlags(b);
   // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
   q(7);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and coupon codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -3299,16 +3355,16 @@ function stationRow(s, field, sec) {
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
   const blocked = s.tag && autoTrainBlocked();
   const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
-  const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'From' : 'To'}</span>` : ''; // the other end of the trip
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'star-filled' : 'star')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 function stationRoute(field) {
   const b = D().booking;
   const item = f => {
     const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
-    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">${active ? 'Choosing now' : 'Not chosen yet'}</span>`;
-    const state = active ? `<span class="ss-route__state">${s ? 'Changing' : 'Choosing'}</span>` : '';
+    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">Not chosen yet</span>`;
+    const state = '';
     return active
       ? `<div class="ss-route__item is-active" aria-current="step"><span class="ss-route__label">${label}${state}</span><span class="ss-route__val">${val}</span></div>`
       : `<button class="ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead"><span class="ss-route__label">${label}</span><span class="ss-route__val">${val}</span></button>`;
@@ -3342,7 +3398,7 @@ function stationSearch(r, ri, field, inline) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   } else h += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>`;
-  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Bookmark a station to keep it in favorites.</p>`;
+  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Star a station to keep it in favorites.</p>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -3413,8 +3469,8 @@ function calendarBody(r, ri, field) {
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
   const nav = `<div class="cal-nav"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="-1" aria-label="Previous month" ${r.u.month <= firstM ? 'disabled' : ''}>${ic('chevron-left', 'ads-icon--sm')}</button><h3 class="cal-nav__title" id="cal-m" tabindex="-1" aria-live="polite">${title}</h3><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="1" aria-label="Next month" ${r.u.month >= lastM ? 'disabled' : ''}>${ic('chevron-right', 'ads-icon--sm')}</button></div>`;
   const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid" role="group" aria-labelledby="cal-m">${g}</div></div>`;
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
-  const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Dates"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
+  const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">${picking === 'dep' ? 'Departure date' : 'Return date'}</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy
   return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
@@ -3488,7 +3544,7 @@ function catBlock(r, x, idp, mode, e) {
   const opts = cats.map(k => k === 'companion'
     ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
     : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? ((v1() || v3()) ? 'Type of help' : `${esc(who.label)} needs`) : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
@@ -3577,7 +3633,7 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '',
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
-  return { title: `Assistance · ${who}`, kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
+  return { title: 'Assistance', kind: 'push', body: `<p class="assist-who">For ${esc(who)}</p>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
 };
 
 // =====================================================================
@@ -3608,10 +3664,9 @@ SCR.account = (r, ri) => {
   if (!d.signedIn) {
     return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}`, banner: false };
   }
-  const assistVal = d.assist.cat ? (d.assist.cat === 'disability' ? 'I have a disability' : 'Station assistance') : 'Not set';
   const body = `<button class="loyalty" type="button" data-a="push" data-s="profile" aria-label="Profile: Alex Rivera, Guest Rewards 7012 3456 78, Select Plus, 12,450 points">
       <span class="loyalty__top"><span><b>Alex Rivera</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
-    ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, passenger discounts' }), grow({ a: 'push', data: 'data-s="assist-profile"', icon: 'assistance', label: 'Assistance', value: assistVal })])}
+    ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, discounts, assistance' })])}
     ${group('', [grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Points activity"}\'', icon: 'AGR_points-evergreen', label: 'Points activity' }), grow({ a: 'open-inbox-from-account', icon: 'email', label: 'Inbox', value: '2 new' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Travelers"}\'', icon: 'people', label: 'Travelers', value: '3 saved' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Payment"}\'', icon: 'payment-cash', label: 'Payment', value: 'Visa •••• 4821' })])}
     ${quick}
     <button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="sign-out">Sign out</button>`;
@@ -3633,6 +3688,7 @@ SCR.inbox = () => ({ title: 'Notification inbox', kind: 'root', banner: false, b
 // B. Profile
 // =====================================================================
 const PFIELDS = { mi: 'Middle initial', phone: 'Phone', address: 'Billing address', dob: 'Date of birth' };
+const assistProfileValue = d => d.assist.cat === 'disability' ? 'I have a disability' : d.assist.cat === 'station' ? 'Station assistance' : 'Not added';
 function profileRows(r, ri, opts = {}) {
   const d = D(), p = d.profile, cur = opts.current;
   const helper = t => v2() ? `<span class="rowhint">${t}</span>` : '';
@@ -3642,8 +3698,9 @@ function profileRows(r, ri, opts = {}) {
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</span></span>${lockChip}</div>`,
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
-    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: fmtAddress(p.address), current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
+    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Add', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
     ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}
+    ${group('Assistance', [grow({ a: 'push', data: 'data-s="assist-profile"', label: 'Assistance requests', value: assistProfileValue(d), k: 'row-assist' })], 'Used for you as Traveler 1 when you book. Changes for one trip don’t change it.')}
     ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
     ${group('Coupons', [grow({ a: 'push', data: 'data-s="coupons"', label: 'My coupons', value: `${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}`, k: 'row-coupons' })])}`;
 }
@@ -3666,13 +3723,14 @@ function profileV3(r, ri) {
   const card = (key, title, value, locked) => {
     const editing = f === key;
     const ed = editing && !IPAD() ? `<div class="edpane">${editorInline(r, ri, key)}</div>` : '';
-    return `<div class="ads-summary${editing ? ' ads-summary--editing' : ''}" id="card-${key}"><div class="ads-summary__head"><div><p class="ads-summary__title">${title}</p>${!editing || IPAD() ? `<p class="ads-body-small ads-text-secondary">${value}</p>` : ''}</div>${locked ? lockChip : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="${key}" data-k="row-${key}" aria-expanded="${editing}">${editing ? 'Close' : (key === 'mi' || key === 'dob') && !p[key] ? 'Add' : 'Edit'}</button>`}</div>${ed}</div>`;
+    return `<div class="ads-summary${editing ? ' ads-summary--editing' : ''}" id="card-${key}"><div class="ads-summary__head"><div><p class="ads-summary__title">${title}</p>${!editing || IPAD() ? `<p class="ads-body-small ads-text-secondary">${value}</p>` : ''}</div>${locked ? lockChip : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="${key}" data-k="row-${key}" aria-expanded="${editing}">${editing ? 'Close' : ((key === 'mi' || key === 'dob') && !p[key]) || (key === 'address' && !p.address.street) || (key === 'employee' && !D().employee) ? 'Add' : 'Edit'}</button>`}</div>${ed}</div>`;
   };
   const main = `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</p><p class="ads-body-small ads-text-secondary">Guest Rewards 7012 3456 78</p></div>${lockChip}</div><p class="ads-body-small">Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a></p></div>
     ${card('mi', 'Middle initial', p.mi ? esc(p.mi) : 'Not added. You can add it once.', !!p.mi)}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Email</p><p class="ads-body-small ads-text-secondary">${esc(p.email)}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="change-email">Change</button></div></div>
     ${card('phone', 'Phone', esc(fmtPhone(p.phone)))}${card('address', 'Billing address', fmtAddress(p.address))}${card('dob', 'Date of birth', p.dob || 'Optional. Not added.')}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Assistance requests</p><p class="ads-body-small ads-text-secondary">${esc(assistProfileValue(d))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="assist-profile" data-k="row-assist">${d.assist.cat ? 'Edit' : 'Add'}</button></div></div>
     ${card('employee', 'Amtrak employee pass', esc(empSummary(d.employee)))}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">My coupons</p><p class="ads-body-small ads-text-secondary">${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="coupons" data-k="row-coupons">View</button></div></div>`;
   if (!IPAD()) return { title: 'Profile', kind: 'push', body: main, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
@@ -3768,9 +3826,13 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-street', f: 'street', label: 'Street address', value: x.street, req: true, max: 32, autocomplete: 'address-line1', help: '2 to 32 characters.', err: e.street })}
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
-    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>`;
-  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: 'Make a change to save.' };
+    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>
+    ${a.street ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
+  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
 };
+// NMA-23: delete, with confirmation; the row then offers Add
+A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
+  actions: [['Cancel', 'secondary', null], ['Remove', 'destructive', () => { const r = edRoute(ri); runSave(r, () => { D().profile.address = { country: 'US', street: '', apt: '', city: '', state: '', zip: '' }; }, () => afterSave(ri, 'Billing address removed', 'address')); }]] });
 A['addr-undo'] = (t, ri) => { const r = edRoute(ri); Object.assign(r.u.d, r.u.undo); r.u.prevCountry = r.u.undo.country; r.u.undo = null; pendingFocus = '#ad-country'; render(); };
 SAVE.address = (r, ri) => {
   const x = r.u.d, e = {}, usca = x.country === 'US' || x.country === 'CA';
@@ -3819,7 +3881,7 @@ SCR.discounts = (r, ri) => {
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
 };
-A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
+A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('profile'), R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
   if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
@@ -3829,8 +3891,8 @@ A['disc-save'] = (t, ri) => {
 };
 SCR.rules = () => {
   ref('566');
-  const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd>From AEM. Not finalized in this prototype.</dd><dt>Applicable discount</dt><dd>From AEM.</dd><dt>Restrictions</dt><dd>From AEM.</dd></dl></div></details>`;
-  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Content comes from AEM unchanged. It’s grouped by type so passenger-type benefits and traveler discounts aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
+  const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd class="pending">Content pending</dd><dt>Applicable discount</dt><dd class="pending">Content pending</dd><dt>Restrictions</dt><dd class="pending">Content pending</dd></dl></div></details>`;
+  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Passenger types and traveler discounts, grouped so benefits aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
 };
 
 // =====================================================================
@@ -4045,10 +4107,8 @@ function ffClear(r, ri) {
   ref('607', '608', '1060', '611', '612'); if (std) ref('613', '624');
   if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
   // 1. Heading and booking-mode controls
-  let modes = '';
-  if (member && d.triplink) modes += ffcSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'intent');
-  if (member && d.passrider) modes += ffcSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Regular']], b.intent, 'intent'); // NMA-623 AC3
-  const sub = corp ? 'TripLink corporate booking. Corporate fares for you.' : pr ? 'Pass Rider travel with your employee benefits.' : b.pay === 'points' ? 'Searching with points · 12,450 available' : ''; // no repeated subtitle for a standard booking
+  const modes = modeEntry(b, 'v3'); // one compact Booking type entry (only for members eligible for a mode)
+  const sub = '';
   const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
   const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3>${sub ? `<p class="ffc-sub">${sub}</p>` : ''}${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
   // 2. Rounded primary surface
@@ -4056,7 +4116,7 @@ function ffClear(r, ri) {
   if (pr) {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
     prType = elig ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
-      : `<div class="ffc-fixed"><span class="ffc-label">Travel type</span><span>Leisure</span><span class="ads-helper">${prLeisureWhy(d)}</span></div>`;
+      : ''; // Leisure only: shown in the Booking type entry
   }
   const travVal = corp ? '1 adult · You' : pr ? prSummary(b, d) : paxSummary(b);
   // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
@@ -4065,7 +4125,7 @@ function ffClear(r, ri) {
   const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
-  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and discount codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
+  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and coupon codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
   q(22);
   const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
   if (std) codeTips(); ffFlags(b);
@@ -4106,7 +4166,7 @@ function clearAutoTrainIfBlocked(b) {
 // Mode controls: TripLink Corporate/Personal, Pass Rider/Regular, Cash/Points
 A['ffc-set'] = t => {
   const d = D(), b = d.booking, k = t.dataset.key, val = t.dataset.v; b.modeNote = null;
-  if (k === 'pay') { if (val === 'points' && b.pay !== 'points' && (b.codeText || b.code)) toast('Discount codes can’t be used with points. Your code is kept for a cash search.', 'info'); b.pay = val; }
+  if (k === 'pay') { if (val === 'points' && b.pay !== 'points' && (b.codeText || b.code)) toast('Coupon and promotion codes can’t be used with points. Your code is kept for a cash search.', 'info'); b.pay = val; }
   if (k === 'intent' && val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = `[data-a="ffc-set"][data-key="intent"][data-v="pr"], #fl-intent`; render(); return; }
   if (k === 'intent') setIntent(b, val);
   pendingFocus = `[data-a="ffc-set"][data-key="${k}"][data-v="${val}"]`; render();
@@ -4250,7 +4310,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div><p class="info-entry">${infoLink('service-animals', 'Bringing a service animal?')}</p>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
       ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
@@ -4345,7 +4405,7 @@ SCR.calendar = (r, ri) => {
 const assistBase = SCR.assist;
 SCR.assist = (r, ri) => {
   const o = assistBase(r, ri); if (!rich()) return o;
-  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', `${esc(assistWho(r).label)}. Tell us what help they need for this trip.`) + o.body });
+  return Object.assign(o, { title: 'Assistance', srTitle: true, cls: 'pane--sheet', body: sheetHead('Assistance', '') + o.body });
 };
 
 /* Sprint 4 prototype: Version 4 Fare Finder, Flighty-inspired.
@@ -5056,7 +5116,7 @@ A.tab = (t, ri) => {
 // ---------- Supporting information content ----------
 const INFO = {
   codes: {
-    title: 'About discount codes',
+    title: 'About coupon and promotion codes',
     body: () => `<p>Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion.</p><p>Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains.</p><p>Codes can’t be used when you pay with points, for TripLink Corporate bookings or for Pass Rider travel.</p>`
   },
   'youth-alone': {
@@ -5152,21 +5212,23 @@ function codeField(r, b) {
   else if (st === 'applied') msg = `<p class="ads-helper ads-helper--success dcode__msg" id="ff-code-h">${ic('check-circle', 'ads-icon--sm')}<span>Code applied${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`;
   else if (st === 'changed') msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
   else if (b.code && b.code.benefit) msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${esc(b.code.kind)}: ${esc(b.code.benefit)}. Expires ${fmtExp(b.code.exp)}.</p>`;
-  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}">${ic('payment-voucher')}<input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter discount code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
-  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove discount code ${esc(text)}`) : '';
-  const pick = saved.length ? `<button class="ads-link ads-link--sm linkbtn dcode__saved" type="button" data-a="code-saved">Use a saved code (${saved.length})</button>` : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Discount code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
+  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
+  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
+  // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
+  const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
+  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Coupon or promotion code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
 }
 INFO['saved-codes'] = {
-  title: 'Your saved codes',
-  body: () => `<p>Choose a code from your profile, soonest to expire first. Expired and used codes aren’t shown.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p>Whether a code works for your train is checked when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
+  title: 'Saved codes',
+  body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
 };
 HOOKS.ffcode = (r, t) => setCodeText(D().booking, t.value);
 A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
+// Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
 A['dcode-pick'] = t => {
   const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
   Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '' });
-  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} added: ${c.benefit}`);
+  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
 };
 A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
@@ -5181,12 +5243,40 @@ A['code-skip'] = () => { const b = D().booking; Object.assign(b, { code: null, c
 function codeFormatError(b) {
   if (!codeApplies(b) || !b.codeText || CODE_FORMAT.test(b.codeText)) return false;
   b.codeTries++; b.codeState = 'invalid';
-  b.codeErr = b.codeTries >= 2 ? 'Please enter a valid discount code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid discount code';
+  b.codeErr = b.codeTries >= 2 ? 'Please enter a valid coupon or promotion code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid coupon or promotion code';
   return true;
 }
 
 // Placeholder for the Pass Rider policy (built later, NMA-1081)
 INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-pending"><b>Content not defined yet</b><span>The Pass Rider policy will be added later.</span></div>` };
+
+// ---------- Booking type (NMA-622, 623, 1016) ----------
+// One compact entry showing the current mode; a sheet lists only the modes this member can use. Regular travel
+// is always available to them. Business or Leisure appears only inside eligible Pass Rider travel. An account
+// eligible for both TripLink and Pass Rider starts as Regular with no special mode preselected (Q26).
+function modeOptions(d) {
+  const o = [];
+  if (d.triplink) o.push(['corporate', 'Corporate (TripLink)', 'Corporate fares for you only. Points, discounts and coupons aren’t used.']);
+  if (d.passrider) o.push(['pr', 'Pass Rider', 'Employee pass travel for you and eligible family. Points, discounts and coupons aren’t used.']);
+  o.push(['personal', d.triplink && !d.passrider ? 'Personal' : 'Regular', 'Regular fares, with points, discounts and coupons.']);
+  return o;
+}
+const modeLabel = (b, d) => { const o = modeOptions(d), cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : 'personal'; const m = o.find(x => x[0] === cur); return m[1] + (b.intent === 'pr' && b.prType ? ` · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : ''); };
+function modeEntry(b, where) {
+  const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
+  if (d.triplink) ref('622'); if (d.passrider) ref('623', '1016');
+  return `<button class="mode-entry mode-entry--${where}" type="button" data-a="mode-open" aria-label="Booking type: ${esc(modeLabel(b, d))}. Change booking type"><span class="mode-entry__label">Booking type</span><span class="mode-entry__val">${esc(modeLabel(b, d))}</span>${ic('chevron-down', 'ads-icon--sm')}</button>`;
+}
+INFO['booking-type'] = {
+  title: 'Booking type',
+  body: () => { const d = D(), b = d.booking, cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : (b.intent === 'personal' ? 'personal' : ''); return `<fieldset class="ads-fieldset mode-opts"><legend class="ads-sr-only">Booking type</legend><div class="ads-fieldset__options">${modeOptions(d).map(([v, l, sub]) => `<label class="ads-choice ads-radio"><input type="radio" name="mode-pick" data-a="mode-pick" data-v="${v}" ${cur === v || (!cur && v === 'personal') ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(l)}</span><span class="ads-choice__supporting">${esc(sub)}</span></span></label>`).join('')}</div></fieldset>${b.modeNote ? `<p class="ads-helper" role="status">${esc(b.modeNote)}</p>` : ''}`; }
+};
+A['mode-open'] = () => openInfo('booking-type', '[data-a="mode-open"]');
+A['mode-pick'] = t => {
+  const d = D(), b = d.booking, val = t.dataset.v; b.modeNote = null;
+  if (val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; render(); return; } // stays open with the reason
+  setIntent(b, val); nav().info = null; pendingFocus = '[data-a="mode-open"]'; render();
+};
 
 /* Sprint 4 prototype: Profile additions shared by all four concepts.
    - Amtrak employee pass details (NMA-20). Saving valid details turns on the Pass Rider Fare Finder (NMA-623);
@@ -5204,54 +5294,45 @@ const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}•�
 function empStatus(d) {
   const e = d.employee, p = d.passrider; if (!e || !p) return '';
   const can = prCanStart(d), rows = [['Pass Rider booking', can.ok ? 'On' : 'Not available']];
-  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]); }
+  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Remaining passes', `${p.compLeft} of 16 one-way passes`]); rows.push(['Renewal', `New passes are issued ${fmtExp(p.renews || PASS_RENEWS)}`]); }
   else rows.push(['Travel type', 'Leisure only']);
   if (p.role === 'dependent' && !can.ok) rows.push(['Booking on your own', can.text]);
   return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
 }
+// Add or update only: there's no user-facing way to delete pass details (NMA-20 AC6, decision closed).
+// The backend can remove them when the customer is no longer eligible (BR4 AC4): see the "pass removed" scenario.
 EDITORS.employee = (r, ri, inline) => {
   const d = D(), cur = d.employee; ref('20');
-  if (!r.u.d) r.u.d = { emp: cur ? 'yes' : '', rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
-  const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee';
+  if (!r.u.d) r.u.d = { rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
+  const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee', primary = x.rel !== 'employee' && x.rel !== 'retiree';
   prov('NMA-623 identifies Pass Riders by SAP ID and Index number; NMA-20 by Pass number and Personal index number. The prototype uses NMA-20’s fields (Q16).');
-  const yes = x.emp === 'yes', primary = x.rel !== 'employee';
-  const radios = [['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<label class="ads-choice ads-radio"><input type="radio" name="${idp}-emp" data-f="emp" value="${v}" ${x.emp === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${l}</span></label>`).join('');
-  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
-  if (yes) {
-    body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
-    body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
-    body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
-    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
-    if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
-  } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your profile. Pass Rider booking won’t be available.</p>`;
-  const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
-  tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3).');
-  return { body, saveDisabled: unchanged, noSaveWhy: 'Make a change to save.' };
+  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}`;
+  body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
+  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
+  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+  if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
+  if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
+  const unchanged = cur ? (x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : !x.pass && !x.index;
+  tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3). Scenario › Pass Rider employee, pass removed shows details the backend removed (BR4 AC4).');
+  return { body, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
 };
 SAVE.employee = (r, ri) => {
   const x = r.u.d, d = D(), e = {};
-  if (x.emp === 'yes') {
-    if (!x.pass) e.pass = 'Enter your Pass number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass number not recognized. It has 9 numbers.';
-    if (!x.index) e.index = 'Enter your Personal index number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal index number not recognized. It has 3 numbers.';
-    if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
-  }
+  if (!x.pass) e.pass = 'Enter your Pass number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass number not recognized. It has 9 numbers.';
+  if (!x.index) e.index = 'Enter your Personal index number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal index number not recognized. It has 3 numbers.';
+  if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
   r.u.err = e;
   if (Object.keys(e).length) { pendingFocus = e.pass ? '[data-f="pass"]' : e.index ? '[data-f="index"]' : '.ads-alert--error'; render(); return; }
+  const added = !d.employee;
   runSave(r, () => {
-    const b = d.booking;
-    if (x.emp === 'yes') {
-      const was = d.passrider;
-      d.employee = { rel: x.rel, pass: x.pass, index: x.index };
-      // Business Pass and companion passes come from the pass record; newly added details start without them
-      d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, minor: !!(was && was.minor && x.rel === 'dependent') };
-      b.prType = d.passrider.business ? b.prType : 'leisure';
-      if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
-      if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
-    } else {
-      d.employee = null; d.passrider = null;
-      if (b.intent === 'pr') { b.intent = 'standard'; b.prType = null; }
-    }
-  }, () => afterSave(ri, 'Profile has been updated', 'employee'));
+    const b = d.booking, was = d.passrider;
+    d.employee = { rel: x.rel, pass: x.pass, index: x.index }; d.empRemoved = false;
+    // Business Pass, companion passes and renewal come from the pass record; newly added details start without them
+    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent') };
+    b.prType = d.passrider.business ? b.prType : 'leisure';
+    if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
+    if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
+  }, () => afterSave(ri, added ? 'Pass details added' : 'Pass details updated', 'employee'));
 };
 
 // ---------- My coupons (NMA-697) ----------
@@ -5311,6 +5392,86 @@ function couponInfo(code) {
   const st = couponState(c);
   return { title: c.name || c.kind, body: () => `<dl class="cpn-dl"><dt>Benefit</dt><dd>${esc(c.benefit)}</dd><dt>Type</dt><dd>${esc(c.kind)}</dd><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd><dt>Status</dt><dd>${st === 'used' ? 'Used' : st === 'expired' ? 'Expired' : 'Available'}</dd></dl>${st === 'used' ? `<h3 class="ads-h5">Uses</h3><ul class="cpn-uses">${[...c.uses].sort((x, y) => y.date.localeCompare(x.date)).map(u => `<li>Reservation ${u.pnr} · ${fmtDate(u.date)}</li>`).join('')}</ul>` : ''}<p class="info-draft">Eligibility and restrictions come with each coupon and are checked when you find trains. ${c.companion ? 'A companion coupon needs at least two travelers.' : ''}</p>` };
 }
+
+/* Sprint 4 prototype: mock email artifacts (reviewer-only, never sent).
+   - NMA-21 BR10: after a verified email change, a notification goes to the old address and to the new one.
+     The final copy "remains as-is" from the existing templates, which aren't in this baseline, so the text
+     here is a placeholder layout.
+   - NMA-992: a password reset confirmation is generated only after a successful reset (AC1, AC2). It states
+     the change, its date and time, what to do if it wasn't the customer, how to reach Customer Care, and that
+     immediate action is needed (AC3, AC4). It never contains the password, part of it, hints or security
+     answers (AC5). If delivery fails the reset stays successful and the failure is recorded (AC6).
+   The password reset itself isn't a Sprint 4 screen (sign-in screens stay unchanged), so reviewers trigger it
+   from the controller. Emails are listed in the controller and open in a preview outside the device. */
+
+const fmtStamp = d => d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+const NOW = () => { const n = new Date(); return new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), n.getHours(), n.getMinutes()); };
+const EMAILS = {
+  'email-changed-old': (x = {}) => ({
+    subject: 'Your Amtrak email address was changed', story: 'NMA-21 BR10 AC2', to: x.to || 'alex.rivera@example.com',
+    body: `<p>Hi ${esc(x.first || 'Alex')},</p><p>The email address for your Amtrak Guest Rewards account was changed to <b>${esc(maskEmail(x.newEmail || 'alex.new@example.com'))}</b> on ${esc(x.when || fmtStamp(NOW()))}.</p><p>We’ll send account messages to the new address from now on.</p><p><b>Didn’t make this change?</b> Call Amtrak Customer Care at 1-800-USA-RAIL (1-800-872-7245) right away.</p>`,
+    note: 'Placeholder layout. NMA-21 says the notification content stays as in the existing template, which isn’t in this baseline.'
+  }),
+  'email-changed-new': (x = {}) => ({
+    subject: 'Your new email address is confirmed', story: 'NMA-21 BR10 AC1', to: x.to || 'alex.new@example.com',
+    body: `<p>Hi ${esc(x.first || 'Alex')},</p><p>This is now the email address for your Amtrak Guest Rewards account. The change was made on ${esc(x.when || fmtStamp(NOW()))}.</p><p>Use this address to sign in from now on.</p><p><b>Didn’t make this change?</b> Call Amtrak Customer Care at 1-800-USA-RAIL (1-800-872-7245).</p>`,
+    note: 'Placeholder layout. NMA-21 says the notification content stays as in the existing template, which isn’t in this baseline.'
+  }),
+  'password-reset': (x = {}) => ({
+    subject: 'Your Amtrak password was changed', story: 'NMA-992 AC1, AC3–AC5', to: x.to || 'alex.rivera@example.com',
+    body: `<p>Hi ${esc(x.first || 'Alex')},</p><p>The password for your Amtrak Guest Rewards account was changed on <b>${esc(x.when || fmtStamp(NOW()))}</b>.</p><p>If you made this change, you don’t need to do anything.</p><div class="mail__alert"><p><b>Didn’t change your password? Act now.</b></p><ol><li>Reset your password again from the Amtrak app or Amtrak.com.</li><li>Call Amtrak Customer Care at 1-800-USA-RAIL (1-800-872-7245) so we can help secure your account.</li></ol></div><p>For your security, we never include your password in emails.</p>`,
+    note: 'Contains no password, part of a password, hint or security answer (AC5). Final wording follows content guidance.'
+  })
+};
+// Record an email for this demo. Delivery is simulated: "failed" means the send didn't go through.
+function mockEmail(kind, x, status = 'delivered') {
+  const e = Object.assign({ id: Math.random().toString(36).slice(2, 8), kind, status, at: fmtStamp(NOW()) }, EMAILS[kind](Object.assign({ when: fmtStamp(NOW()) }, x)));
+  V().outbox = [e, ...(V().outbox || [])];
+  return e;
+}
+// NMA-992: simulate the end of a password reset (completed or abandoned)
+function simulateReset(done) {
+  const d = D(), fail = $('#tbMail') && $('#tbMail').value === 'fail';
+  if (!done) { toast('Reset not completed: no confirmation email is generated', 'info'); renderChrome(); return; } // AC2
+  mockEmail('password-reset', { to: d.profile.email, first: d.profile.first }, fail ? 'failed' : 'delivered');
+  toast(fail ? 'Password reset complete. The confirmation email failed to send; the failure was recorded.' : 'Password reset complete. A confirmation email was sent.');
+  renderChrome();
+}
+
+// ---------- Reviewer list and preview (outside the device) ----------
+function renderEmails() {
+  const box = $('#emails'); if (!box) return;
+  const out = V().outbox || [];
+  const row = (id, title, sub, attr) => `<li><button class="ctl-mail" type="button" ${attr}><span class="ctl-mail__title">${esc(title)}</span><span class="ctl-mail__sub">${esc(sub)}</span></button></li>`;
+  box.innerHTML = `<p class="nsmall">Mock emails are shown here only. Nothing is sent.</p>
+    <p class="nlabel">Password reset (NMA-992)</p>
+    <div class="ads-field"><label class="ads-field__label" for="tbMail">Email delivery</label><div class="ads-control ads-control--select"><select id="tbMail"><option value="ok">Delivered</option><option value="fail">Fails</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+    <div class="ctl-mail__acts"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-mail-reset="1">Complete a reset</button><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-mail-reset="0">Abandon a reset</button></div>
+    <p class="nlabel">Generated in this demo</p>
+    ${out.length ? `<ul class="ctl-mails">${out.map(e => row(e.id, e.subject, `${e.status === 'failed' ? 'Not delivered · failure recorded' : 'To ' + e.to} · ${e.at}`, `data-mail-id="${e.id}"`)).join('')}</ul>` : '<p class="nsmall">None yet. Change your email in Profile, or complete a reset above.</p>'}
+    <p class="nlabel">Email designs</p>
+    <ul class="ctl-mails">${Object.keys(EMAILS).map(k => { const t = EMAILS[k](); return row(k, t.subject, t.story, `data-mail-kind="${k}"`); }).join('')}</ul>`;
+  const keep = window.__tbMail; if (keep) $('#tbMail').value = keep;
+}
+function openEmail(e) {
+  let dlg = $('#mailPreview');
+  if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'mailPreview'; dlg.className = 'mailprev'; dlg.setAttribute('aria-labelledby', 'mailSubj'); document.body.appendChild(dlg); }
+  const failed = e.status === 'failed';
+  dlg.innerHTML = `<div class="mailprev__bar"><span class="mailprev__tag">Mock email · not sent</span><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-mail-close aria-label="Close email preview">${ic('close', 'ads-icon--sm')}</button></div>
+    ${failed ? `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Delivery failed</p><p class="ads-alert__description ads-body-small">The password reset stayed successful. The failure was recorded for monitoring and support (NMA-992 AC6). The customer didn’t receive this email.</p></div></div>` : ''}
+    <dl class="mailprev__meta"><dt>From</dt><dd>Amtrak &lt;no-reply@amtrak.example&gt;</dd><dt>To</dt><dd>${esc(e.to)}</dd><dt>Subject</dt><dd id="mailSubj">${esc(e.subject)}</dd>${e.at ? `<dt>Generated</dt><dd>${esc(e.at)}</dd>` : ''}</dl>
+    <article class="mail"><div class="mail__head"><span class="mail__logo" role="img" aria-label="Amtrak"><svg aria-hidden="true" focusable="false" viewBox="0 0 151 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amtrak"><path d="M47.4 0.2C36.9 4.8 31.2 9.7 28.1 16C25.8 15.3 23.2 14.4 20.5 13.3L19.4 12.9C25.5 6.3 34 3.7 47.4 0V0.2ZM56 14H51.8L51 12.6H45.1L44.3 14H40.5L46.1 5.7H50.4L56 14ZM68.5 11.4L71.8 5.7H76L78.5 14H74.7L73.4 8.7L70.4 14H66.7L63.6 8.7L62.4 14H58.5L61.1 5.7H65.3L68.5 11.4ZM93.8 7.6H89.2V14H85.3V7.6H80.2L80.7 5.7H94.2L93.8 7.6ZM103.6 5.7C105.3 5.7 107.1 5.7 108.4 6.1C109.7 6.5 110.6 7.2 110.6 8.4C110.6 9.5 109.9 10.5 108.3 10.9L111.2 14H106.8L104.8 11.5H101.5V14H97.7V5.7H103.6ZM129.4 14H125.3L124.4 12.6H118.5L117.7 14H113.9L119.5 5.7H123.8L129.4 14ZM136.6 9.4L141.1 5.7H145.8L140.6 9.7L146.2 14H141.1L136.6 10.1V14H132.7V5.7H136.6V9.4ZM40.1 1.7C31.3 3.5 22.7 5.9 16.2 11.5C13.8 10.4 11.5 9.3 9.2 8.2C15.4 4.3 26.3 2.6 32.4 1.9C34.5 2 37.9 1.8 40.1 1.5V1.7ZM46.1 11H50L48.1 7.6L46.1 11ZM119.5 11H123.5L121.5 7.6L119.5 11ZM101.5 10H103.8C104.6 10 105 9.9 105.5 9.8C106.2 9.7 106.7 9.3 106.7 8.6C106.7 7.8 105.9 7.4 104 7.4H101.5V10ZM148.9 5.7C149.4 5.7 149.9 5.9 150.3 6.3C150.7 6.7 150.9 7.2 150.9 7.8C150.9 8.4 150.7 8.8 150.3 9.2C149.9 9.6 149.4 9.8 148.9 9.8C148.3 9.8 147.8 9.6 147.4 9.2C147 8.8 146.8 8.4 146.8 7.8C146.8 7.2 147 6.7 147.4 6.3C147.8 5.9 148.3 5.7 148.9 5.7ZM148.8 6C148.3 6 147.9 6.2 147.6 6.5C147.2 6.9 147.1 7.3 147.1 7.8C147.1 8.3 147.2 8.7 147.6 9.1C147.9 9.4 148.3 9.6 148.8 9.6C149.3 9.6 149.8 9.4 150.1 9.1C150.5 8.7 150.6 8.3 150.6 7.8C150.6 7.3 150.5 6.9 150.1 6.5C149.8 6.2 149.3 6 148.8 6ZM148 6.7H148.8C149.1 6.7 149.3 6.7 149.4 6.7C149.7 6.8 149.8 7 149.8 7.3C149.8 7.5 149.7 7.7 149.6 7.8C149.5 7.8 149.4 7.8 149.2 7.9C149.4 7.9 149.5 8 149.6 8.1C149.7 8.2 149.8 8.3 149.8 8.4V8.8C149.8 8.8 149.8 8.9 149.8 8.9V8.9H149.4V8.9C149.4 8.9 149.4 8.9 149.4 8.9V8.6C149.4 8.4 149.3 8.2 149.2 8.1C149.1 8 148.9 8 148.7 8H148.4V8.9H148V6.7ZM148.4 6.9V7.7H148.8C148.9 7.7 149.1 7.7 149.2 7.7C149.3 7.6 149.4 7.5 149.4 7.4L149.4 7.3C149.4 7.2 149.3 7.1 149.2 7C149.1 7 149 6.9 148.7 6.9H148.4ZM0 3.1C6.9 0.2 22.5 0.5 25.4 0.7C26.8 1.1 28.6 1.4 30.2 1.6V1.8C22 2.3 13.1 3.4 6.2 6.6C3.9 5.4 1.9 4.3 0 3.1Z" fill="currentColor"/></svg></span></div><div class="mail__body">${e.body}</div><p class="mail__foot">Amtrak Guest Rewards · This is an automated message.</p></article>
+    <p class="mailprev__note">${esc(e.story)}. ${esc(e.note)}</p>`;
+  dlg.showModal();
+}
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-mail-reset], [data-mail-id], [data-mail-kind], [data-mail-close]'); if (!t) return;
+  if (t.dataset.mailReset != null) { window.__tbMail = $('#tbMail').value; simulateReset(t.dataset.mailReset === '1'); }
+  else if (t.dataset.mailId) openEmail((V().outbox || []).find(e => e.id === t.dataset.mailId));
+  else if (t.dataset.mailKind) openEmail(Object.assign({ kind: t.dataset.mailKind, status: 'design' }, EMAILS[t.dataset.mailKind]()));
+  else if (t.dataset.mailClose != null) $('#mailPreview').close();
+});
+document.addEventListener('change', ev => { if (ev.target.id === 'tbMail') window.__tbMail = ev.target.value; });
 
 /* Sprint 4 prototype: Version 1 (Familiar) traveler details.
    A conventional, explicit structure: one card per traveler with labeled rows for Discount, Assistance and,
@@ -5465,6 +5626,20 @@ A.close = A.scrim = (t, ri) => {
   const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1];
   if (top && cancelActionFor(top) && top.u.snap && !(top.s === 'travelers' && paxProblems(D().booking.pax).length)) Object.assign(D().booking, clone(top.u.snap));
   return closeBeforeCancel(t, ri);
+};
+
+// ---------- Exit booking? (Concepts 1 and 3) ----------
+// Anything that closes the whole booking modal (close button, scrim, Escape at the root) asks first. Back
+// between booking levels doesn't. Keep booking leaves every value and the current step as they are. Trip
+// details stay for New booking (the established retention); unconfirmed edits on a Cancel step aren't kept.
+const closeBeforeExit = A.close;
+A.close = A.scrim = (t, ri) => {
+  const sh = sheet();
+  if (!sh || sh.id !== 'booking' || !(v1() || v3()) || nav().dialog) return closeBeforeExit(t, ri);
+  const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
+  dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
+    body: `Your trip details are kept, so you can pick up from New booking.${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
+    actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
 };
 
 /* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:

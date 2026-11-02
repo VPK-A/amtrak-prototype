@@ -1,6 +1,7 @@
 /* Sprint 4 prototype: deterministic mock data. Nothing here is live. */
 const TODAY = new Date(2026, 9, 28); // Wed, Oct 28, 2026 (fixed so the calendar is repeatable)
 const WINDOW_DAYS = 335;             // NMA-1060 BR4.1 "verify # of days": unresolved (Q4), configurable here
+const PASS_RENEWS = '2027-01-01';    // NMA-20 BR3: mock renewal date of new passes (the pass file supplies the real one)
 const RECENT_DAYS = 10;              // NMA-984: recent stations are kept this many days (configurable)
 // Recent stations to show: within the retention period, not already a favorite, most recent first
 const recentList = d => d.rec.filter(x => x.d <= RECENT_DAYS && !d.fav.includes(x.c)).sort((a, b) => a.d - b.d);
@@ -67,8 +68,8 @@ const DIAL = [['GB', 'United Kingdom', '+44', '🇬🇧'], ['MX', 'Mexico', '+52
 // Discount content stands in for AEM copy (NMA-43 BR6, NMA-566 BR2). It is placeholder text, not approved content.
 const DISCOUNTS = {
   none: { label: 'No discount preference', info: 'You can still choose a discount when you book.' },
-  military: { label: 'Military', info: 'For active U.S. military and veterans. Proof of military status may be required.' },
-  rpa: { label: 'Rail Passenger Association', info: 'For members of the Rail Passengers Association. Your membership ID is required.' },
+  military: { label: 'Military', info: 'Proof of status may be required. Eligibility details: content pending.' },
+  rpa: { label: 'Rail Passenger Association', info: 'Your 6 to 10 digit membership ID is required. Eligibility details: content pending.' },
   pwd: { label: 'Passenger with disability', info: 'Saved automatically when your assistance says you have a disability.' }
 };
 const RULE_GROUPS = [
@@ -112,6 +113,7 @@ const SCENARIOS = [
   ['passrider-retiree', 'Pass Rider retiree', 'Retiree: Leisure only, can bring a spouse and dependents, no companion passes (NMA-1016 AC3, NMA-1017 AC2, NMA-1018 AC2).'],
   ['passrider-spouse', 'Pass Rider spouse', 'Spouse Pass Rider: Leisure only, can bring the employee and dependents, no companion passes (NMA-1016 AC3, NMA-1017 AC3, NMA-1018 AC2).'],
   ['passrider-dependent', 'Pass Rider dependent, 16 or older', 'Dependent 16 or older: Leisure only, can book on their own and bring the employee, their spouse and other dependents (NMA-1017 AC4). The age comes from this fixture: the pass file has no date of birth.'],
+  ['passrider-removed', 'Pass Rider employee, pass removed', 'The backend found this member is no longer eligible, so their Pass number, Personal index number and designation were removed from the app (NMA-20 BR4 AC4). Profile shows no pass details and Pass Rider booking isn’t offered.'],
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];

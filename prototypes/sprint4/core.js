@@ -39,11 +39,12 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, minor: sc === 'passrider-minor' } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor' } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
-    employee: sc.startsWith('passrider') || sc === 'triplink-passrider' ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
+    empRemoved: sc === 'passrider-removed',
+    employee: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { rel: PR_ROLE[sc] || 'employee', pass: '418200774', index: { 'passrider-spouse': '002', 'passrider-dependent': '003', 'passrider-minor': '004' }[sc] || '001' } : null,
     rec: sc === 'new' ? [] : [{ c: 'WAS', d: 2 }, { c: 'PHL', d: 5 }, { c: 'BOS', d: 9 }, { c: 'BAL', d: 12 }],
     // Past trips for Book again on the Book landing (mock; none for new members or guests)
     history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }]
@@ -71,7 +72,7 @@ function freshBooking(d) {
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
-const makeVS = (sc = 'returning') => ({ sc, net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
+const makeVS = (sc = 'returning') => ({ sc, outbox: [], net: 'online', entry: 'ff', token: 'valid', data: seed(sc), nav: { tab: 'book', sheet: null, cover: null, dialog: null }, toast: null });
 let VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() };
 const V = () => VS[TB.v];
 const D = () => V().data;
@@ -252,7 +253,10 @@ function startVerify(trigger, opts = {}, silent) {
 function endVerify(ok) {
   const v = V(), c = v.nav.cover, d = v.data; v.nav.cover = null; clearInterval(cooldownT);
   if (!ok) { pendingFocus = 'title'; render(); if (c.trigger === 'change-email') toast('Email not changed', 'info'); return; }
-  if (c.trigger === 'change-email') { d.profile.email = c.u.d.newEmail; pendingFocus = 'title'; toast('Your email has been updated'); }
+  if (c.trigger === 'change-email') { // NMA-21 BR10: both the old and the new address are notified (mock emails)
+    const old = d.profile.email; d.profile.email = c.u.d.newEmail;
+    mockEmail('email-changed-old', { to: old, newEmail: c.u.d.newEmail, first: d.profile.first }); mockEmail('email-changed-new', { to: c.u.d.newEmail, first: d.profile.first });
+    pendingFocus = 'title'; toast('Your email has been updated. We let your old and new addresses know.'); }
   else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast('Signed in as Alex Rivera'); }
   else { d.verified = true; pendingFocus = 'title'; render(); if (c.resume) c.resume(); }
 }
@@ -430,7 +434,7 @@ function wireDevice() {
     if (n.dialog) { closeDialog(); e.preventDefault(); }
     else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }
-    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else closeSheet(); e.preventDefault(); }
+    else if (n.sheet) { const top = topR(), i = String(n.sheet.stack.length - 1), cancel = cancelActionFor(top); if (n.sheet.stack.length > 1) (cancel ? A[cancel] : A.back)(null, i); else A.close(null, i); e.preventDefault(); }
   });
 }
 // Inputs inside V3's inline Profile editor write to that editor, not to the profile route
@@ -468,7 +472,8 @@ A['clear-recents'] = () => dialog(clearDialog());
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
+  { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
   if (notes) notes.innerHTML = `<p class="nsmall">${esc(SCENARIOS.find(s => s[0] === V().sc)[2])}</p>
@@ -506,5 +511,6 @@ function wireToolbar() {
   window.addEventListener('resize', scaleDevice);
   $('#tbNet').innerHTML = NETWORKS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
+  $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }

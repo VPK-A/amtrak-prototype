@@ -13,7 +13,7 @@
 // ---------- Supporting information content ----------
 const INFO = {
   codes: {
-    title: 'About discount codes',
+    title: 'About coupon and promotion codes',
     body: () => `<p>Promo codes have 4 letters or numbers. Coupon codes have 14 and can give a percentage or dollar amount off, or a free companion.</p><p>Each code has a type, benefit, expiry date and its own restrictions, and most can’t be combined with other discounts. We check the code against your train, dates and travelers when you find trains.</p><p>Codes can’t be used when you pay with points, for TripLink Corporate bookings or for Pass Rider travel.</p>`
   },
   'youth-alone': {

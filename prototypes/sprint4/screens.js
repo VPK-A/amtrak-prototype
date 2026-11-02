@@ -43,6 +43,8 @@ const BK_ART = {
   trips: '<img src="__IMG_TRIPS__" alt="" decoding="async">',
   near: '<img src="__IMG_NEAR__" alt="" decoding="async">'
 };
+// Sprint 4 review focus: discovery cards, Book again and Explore are hidden (kept below for later restoration)
+const BK_REVIEW_FOCUS = true;
 function bookLanding() {
   const d = D(), hist = d.signedIn ? (d.history || []) : [];
   const card = (a, art, title, sub) => `<li class="bk-card"><div class="bk-card__media">${BK_ART[art]}</div><div class="bk-card__body"><h2 class="bk-card__title">${title}</h2><p class="bk-card__sub">${sub}</p><button class="ads-link ads-link--sm linkbtn bk-card__cta" type="button" data-a="${a}" aria-label="Explore ${title.toLowerCase()}">Explore ${ic('chevron-right', 'ads-icon--sm')}</button></div></li>`;
@@ -51,9 +53,9 @@ function bookLanding() {
   const link = (a, t, sub, icon) => `<li><button class="bk-link" type="button" data-a="${a}">${ic(icon, 'bk-link__icon')}<span class="bk-link__text"><span class="bk-link__title">${t}</span><span class="bk-link__sub">${sub}</span></span>${ic('chevron-right', 'bk-link__chev')}</button></li>`;
   return `<div class="tabpage bk"><h1 class="ads-sr-only">Book</h1>
     <div class="bk-headx"><button class="bk-new" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button></div>
-    <ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
-    ${rebook}
-    <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="ads-sr-only" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
+    ${BK_REVIEW_FOCUS ? '' : `<ul class="bk-cards" aria-label="Explore trips">${card('bk-recommended', 'trips', 'Recommended trips', 'Scenic routes like the Pacific Surfliner and Adirondack')}${card('bk-near', 'near', near[0], near[1])}</ul>
+    ${rebook}`}
+    <section class="bk-sec" aria-labelledby="bk-more-h"><h2 class="ads-sr-only" id="bk-more-h">More ways to travel</h2><ul class="bk-list">${BK_REVIEW_FOCUS ? '' : link('bk-explore', 'Explore', 'Destinations, deals and travel ideas', 'map')}${link('bk-passes', 'Passes', 'Rail passes and multi-ride tickets', 'trip-multiple-train')}</ul></section></div>`;
 }
 // The search bar is pinned to the Book header; content scrolls behind it, and a divider appears under the
 // header once content is beneath it
@@ -118,7 +120,9 @@ function payV1(b) {
 // only changes what the search shops for; a guest signs in later, after choosing a fare.
 function payControl(b, id) {
   const member = D().signedIn;
-  const seg = gsSeg('Pay with', 'pay', [['cash', 'Cash'], ['points', member ? 'Points · 12,450' : 'Points']], b.pay, id);
+  // Compact DS radio group, subordinate to Find trains
+  const opt = (v, label) => `<label class="ads-choice ads-radio paychoice"><input type="radio" name="${id}" data-a="ffc-set" data-key="pay" data-v="${v}" value="${v}" ${b.pay === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${label}</span></label>`;
+  const seg = `<div class="payset" role="radiogroup" aria-labelledby="${id}-l"><span class="payset__legend" id="${id}-l">Pay with</span>${opt('cash', 'Cash')}${opt('points', member ? 'Points · 12,450' : 'Points')}</div>`;
   return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
 function travelersRow(r, opts = {}) {
@@ -129,20 +133,14 @@ function travelersRow(r, opts = {}) {
 }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
-  const d = D(); if (!d.signedIn) return '';
-  const out = [];
-  if (d.triplink) { ref('622'); out.push(gsSeg('Booking for', 'intent', [['corporate', 'Corporate'], ['personal', 'Personal']], b.intent, 'v1intent')); }
-  if (d.passrider) {
-    ref('623', '1016'); out.push(gsSeg('Book as', 'intent', [['pr', 'Pass Rider'], ['personal', 'Regular']], b.intent, 'v1intent'));
-    if (b.intent === 'pr') {
-      const elig = d.passrider.role === 'employee' && d.passrider.business;
-      out.push(elig ? `<div class="gs-mode"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>`
-        : `<p class="ads-helper">Travel type: Leisure. ${prLeisureWhy(d)}</p>`);
-    }
+  const d = D(), entry = modeEntry(b, 'v1'); if (!entry) return '';
+  let extra = '';
+  if (b.intent === 'pr') {
+    const elig = d.passrider.role === 'employee' && d.passrider.business;
+    extra = elig ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
   }
-  if (!out.length) return '';
   if (b.intent === 'corporate') q(12);
-  return `<div class="v1modes">${out.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  return `<div class="v1modes">${entry}${extra}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -179,7 +177,7 @@ SCR.ff = (r, ri) => {
   q(22); if (std) codeTips(); ffFlags(b);
   // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
   q(7);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and discount codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and coupon codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -216,16 +214,16 @@ function stationRow(s, field, sec) {
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
   const blocked = s.tag && autoTrainBlocked();
   const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
-  const roleTag = role ? `<span class="ads-badge ss-roletag${cur ? ' is-current' : ''}">${cur ? 'Selected' : 'Your ' + role.toLowerCase()} </span>` : '';
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span></button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'From' : 'To'}</span>` : ''; // the other end of the trip
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'star-filled' : 'star')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 function stationRoute(field) {
   const b = D().booking;
   const item = f => {
     const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
-    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">${active ? 'Choosing now' : 'Not chosen yet'}</span>`;
-    const state = active ? `<span class="ss-route__state">${s ? 'Changing' : 'Choosing'}</span>` : '';
+    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">Not chosen yet</span>`;
+    const state = '';
     return active
       ? `<div class="ss-route__item is-active" aria-current="step"><span class="ss-route__label">${label}${state}</span><span class="ss-route__val">${val}</span></div>`
       : `<button class="ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead"><span class="ss-route__label">${label}</span><span class="ss-route__val">${val}</span></button>`;
@@ -259,7 +257,7 @@ function stationSearch(r, ri, field, inline) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   } else h += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>`;
-  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Bookmark a station to keep it in favorites.</p>`;
+  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Star a station to keep it in favorites.</p>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -330,8 +328,8 @@ function calendarBody(r, ri, field) {
   let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span></span>'; for (let dd = 1; dd <= nDays; dd++) g += day(my, mm - 1, dd);
   const nav = `<div class="cal-nav"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="-1" aria-label="Previous month" ${r.u.month <= firstM ? 'disabled' : ''}>${ic('chevron-left', 'ads-icon--sm')}</button><h3 class="cal-nav__title" id="cal-m" tabindex="-1" aria-live="polite">${title}</h3><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="cal-month" data-d="1" aria-label="Next month" ${r.u.month >= lastM ? 'disabled' : ''}>${ic('chevron-right', 'ads-icon--sm')}</button></div>`;
   const monthHtml = `<div class="ads-calendar__month">${nav}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div><div class="ads-calendar__grid" role="group" aria-labelledby="cal-m">${g}</div></div>`;
-  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Choosing"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
-  const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">Choosing ${picking === 'dep' ? 'departure' : 'return'} date</p>`;
+  const pickSeg = b.trip === 'rt' ? `<div class="ads-segmented cal-pick" role="group" aria-label="Dates"><button type="button" data-a="picking" data-v="dep" aria-pressed="${picking === 'dep'}"><span class="cal-pick__k">Depart</span><span>${fmtShortY(b.dep)}</span></button><button type="button" data-a="picking" data-v="ret" aria-pressed="${picking === 'ret'}"><span class="cal-pick__k">Return</span><span>${b.ret ? fmtShortY(b.ret) : 'not set'}</span></button></div>` : '';
+  const prompt = v2() ? `<p class="ghint" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${picking === 'dep' ? (b.trip === 'rt' ? 'First, choose your departure date. Then choose your return date in the same calendar.' : 'Choose your departure date. Past dates aren’t available.') : `Now choose your return date. Dates before ${fmtShort(b.dep)} aren’t available.`}</span></p>` : `<p class="ads-sr-only" role="status">${picking === 'dep' ? 'Departure date' : 'Return date'}</p>`;
   const notice = r.u.calNotice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.calNotice}</p></div></div>` : '';
   q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy
   return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
@@ -405,7 +403,7 @@ function catBlock(r, x, idp, mode, e) {
   const opts = cats.map(k => k === 'companion'
     ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
     : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? `${esc(who.label)} needs` : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? ((v1() || v3()) ? 'Type of help' : `${esc(who.label)} needs`) : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
@@ -494,7 +492,7 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '',
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
-  return { title: `Assistance · ${who}`, kind: 'push', body: `${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
+  return { title: 'Assistance', kind: 'push', body: `<p class="assist-who">For ${esc(who)}</p>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
 };
 
 // =====================================================================
@@ -525,10 +523,9 @@ SCR.account = (r, ri) => {
   if (!d.signedIn) {
     return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}`, banner: false };
   }
-  const assistVal = d.assist.cat ? (d.assist.cat === 'disability' ? 'I have a disability' : 'Station assistance') : 'Not set';
   const body = `<button class="loyalty" type="button" data-a="push" data-s="profile" aria-label="Profile: Alex Rivera, Guest Rewards 7012 3456 78, Select Plus, 12,450 points">
       <span class="loyalty__top"><span><b>Alex Rivera</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
-    ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, passenger discounts' }), grow({ a: 'push', data: 'data-s="assist-profile"', icon: 'assistance', label: 'Assistance', value: assistVal })])}
+    ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, discounts, assistance' })])}
     ${group('', [grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Points activity"}\'', icon: 'AGR_points-evergreen', label: 'Points activity' }), grow({ a: 'open-inbox-from-account', icon: 'email', label: 'Inbox', value: '2 new' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Travelers"}\'', icon: 'people', label: 'Travelers', value: '3 saved' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Payment"}\'', icon: 'payment-cash', label: 'Payment', value: 'Visa •••• 4821' })])}
     ${quick}
     <button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="sign-out">Sign out</button>`;
@@ -550,6 +547,7 @@ SCR.inbox = () => ({ title: 'Notification inbox', kind: 'root', banner: false, b
 // B. Profile
 // =====================================================================
 const PFIELDS = { mi: 'Middle initial', phone: 'Phone', address: 'Billing address', dob: 'Date of birth' };
+const assistProfileValue = d => d.assist.cat === 'disability' ? 'I have a disability' : d.assist.cat === 'station' ? 'Station assistance' : 'Not added';
 function profileRows(r, ri, opts = {}) {
   const d = D(), p = d.profile, cur = opts.current;
   const helper = t => v2() ? `<span class="rowhint">${t}</span>` : '';
@@ -559,8 +557,9 @@ function profileRows(r, ri, opts = {}) {
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</span></span>${lockChip}</div>`,
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
-    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: fmtAddress(p.address), current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
+    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), meta: 'Change', k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Add', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
     ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}
+    ${group('Assistance', [grow({ a: 'push', data: 'data-s="assist-profile"', label: 'Assistance requests', value: assistProfileValue(d), k: 'row-assist' })], 'Used for you as Traveler 1 when you book. Changes for one trip don’t change it.')}
     ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
     ${group('Coupons', [grow({ a: 'push', data: 'data-s="coupons"', label: 'My coupons', value: `${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}`, k: 'row-coupons' })])}`;
 }
@@ -583,13 +582,14 @@ function profileV3(r, ri) {
   const card = (key, title, value, locked) => {
     const editing = f === key;
     const ed = editing && !IPAD() ? `<div class="edpane">${editorInline(r, ri, key)}</div>` : '';
-    return `<div class="ads-summary${editing ? ' ads-summary--editing' : ''}" id="card-${key}"><div class="ads-summary__head"><div><p class="ads-summary__title">${title}</p>${!editing || IPAD() ? `<p class="ads-body-small ads-text-secondary">${value}</p>` : ''}</div>${locked ? lockChip : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="${key}" data-k="row-${key}" aria-expanded="${editing}">${editing ? 'Close' : (key === 'mi' || key === 'dob') && !p[key] ? 'Add' : 'Edit'}</button>`}</div>${ed}</div>`;
+    return `<div class="ads-summary${editing ? ' ads-summary--editing' : ''}" id="card-${key}"><div class="ads-summary__head"><div><p class="ads-summary__title">${title}</p>${!editing || IPAD() ? `<p class="ads-body-small ads-text-secondary">${value}</p>` : ''}</div>${locked ? lockChip : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="edit" data-field="${key}" data-k="row-${key}" aria-expanded="${editing}">${editing ? 'Close' : ((key === 'mi' || key === 'dob') && !p[key]) || (key === 'address' && !p.address.street) || (key === 'employee' && !D().employee) ? 'Add' : 'Edit'}</button>`}</div>${ed}</div>`;
   };
   const main = `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</p><p class="ads-body-small ads-text-secondary">Guest Rewards 7012 3456 78</p></div>${lockChip}</div><p class="ads-body-small">Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a></p></div>
     ${card('mi', 'Middle initial', p.mi ? esc(p.mi) : 'Not added. You can add it once.', !!p.mi)}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Email</p><p class="ads-body-small ads-text-secondary">${esc(p.email)}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="change-email">Change</button></div></div>
     ${card('phone', 'Phone', esc(fmtPhone(p.phone)))}${card('address', 'Billing address', fmtAddress(p.address))}${card('dob', 'Date of birth', p.dob || 'Optional. Not added.')}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Passenger discounts</p><p class="ads-body-small ads-text-secondary">${d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="discounts">Edit</button></div></div>
+    <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Assistance requests</p><p class="ads-body-small ads-text-secondary">${esc(assistProfileValue(d))}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="assist-profile" data-k="row-assist">${d.assist.cat ? 'Edit' : 'Add'}</button></div></div>
     ${card('employee', 'Amtrak employee pass', esc(empSummary(d.employee)))}
     <div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">My coupons</p><p class="ads-body-small ads-text-secondary">${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}</p></div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="push" data-s="coupons" data-k="row-coupons">View</button></div></div>`;
   if (!IPAD()) return { title: 'Profile', kind: 'push', body: main, offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
@@ -685,9 +685,13 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-street', f: 'street', label: 'Street address', value: x.street, req: true, max: 32, autocomplete: 'address-line1', help: '2 to 32 characters.', err: e.street })}
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
-    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>`;
-  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: 'Make a change to save.' };
+    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>
+    ${a.street ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
+  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
 };
+// NMA-23: delete, with confirmation; the row then offers Add
+A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
+  actions: [['Cancel', 'secondary', null], ['Remove', 'destructive', () => { const r = edRoute(ri); runSave(r, () => { D().profile.address = { country: 'US', street: '', apt: '', city: '', state: '', zip: '' }; }, () => afterSave(ri, 'Billing address removed', 'address')); }]] });
 A['addr-undo'] = (t, ri) => { const r = edRoute(ri); Object.assign(r.u.d, r.u.undo); r.u.prevCountry = r.u.undo.country; r.u.undo = null; pendingFocus = '#ad-country'; render(); };
 SAVE.address = (r, ri) => {
   const x = r.u.d, e = {}, usca = x.country === 'US' || x.country === 'CA';
@@ -736,7 +740,7 @@ SCR.discounts = (r, ri) => {
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
 };
-A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
+A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('profile'), R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
   if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
@@ -746,8 +750,8 @@ A['disc-save'] = (t, ri) => {
 };
 SCR.rules = () => {
   ref('566');
-  const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd>From AEM. Not finalized in this prototype.</dd><dt>Applicable discount</dt><dd>From AEM.</dd><dt>Restrictions</dt><dd>From AEM.</dd></dl></div></details>`;
-  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Content comes from AEM unchanged. It’s grouped by type so passenger-type benefits and traveler discounts aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
+  const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd class="pending">Content pending</dd><dt>Applicable discount</dt><dd class="pending">Content pending</dd><dt>Restrictions</dt><dd class="pending">Content pending</dd></dl></div></details>`;
+  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Passenger types and traveler discounts, grouped so benefits aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
 };
 
 // =====================================================================

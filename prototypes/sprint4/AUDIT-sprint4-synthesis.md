@@ -1,6 +1,6 @@
 # Sprint 4 coverage audit: `figma-make/sprint-4` against the User Story Synthesis
 
-- **Branch audited:** `figma-make/sprint-4`. First pass at `97ba999` (latest Figma Make import). Updated after the round 2 implementation on 2026-11-02.
+- **Branch audited:** `figma-make/sprint-4`. First pass at `97ba999` (latest Figma Make import). Updated after rounds 2 and 3 on 2026-11-02 (round 3: Profile stories, saved preferences, refinements and the final browser review).
 - **Authority:** *NMA Sprint 4 User Story Synthesis*, approval baseline of October 30, 2026. Page 03's sketches show placement only.
 - **Scope:** 34 approved stories. Out of target: NMA-600, 1084, 1085, 29, 628, 621, 697, 620.
 - **Concepts:** both exist in this branch: **Familiar** (Concept 1) and **Brand forward** (Concept 3, formerly Overview). Concepts 2 and 4 are archived and not audited.
@@ -48,8 +48,8 @@
 |---|---|---|---|---|---|---|---|
 | **NMA-611** Who's traveling | Counts for Adult 18–64, Senior 65+, Young adult 16–17, Youth 13–15, Child 2–12 and Infant 0–1. One adult by default. At most 8 occupied seats, using the source infant-seating rules. · Travelers, with a summary on the Fare Finder | `travelersClear` counters; `paxProblems`, `paxOccupied`, `lapCap`, `canAdd` (`clear.js`); summary in `travelersRow` / `ffc-trav` | The Young adult with infant case is blocked under BR9 but not decided. | Blocked | Blocked | Young adult accompaniment conflict (synthesis p08, p25) | Seat limit and lap ratio in `clear.js`. The fix suite passed 32/32 and the requirements suite covers the limits. |
 | **NMA-612** Discount per traveler | One eligible discount per traveler, including several travelers of the same type. Saved defaults and assistance-related overrides from the source matrix. · Each traveler under Travelers | Familiar: `discountRow` on each card. Brand forward: inline select in `overviewTravelers` and `discountRow` in the traveler sheet. Rules: `tdiscOf`, `discOpts`. | The source matrix needs reconciling: approved under the VK rule, but the latest review comment still asks for fixes. | Blocked | Blocked | Synthesis p08, p25 | Per-traveler keys in `b.tdisc`. A removed traveler's selections are cleared by `forgetTraveler`. Tested. |
-| **NMA-43** Saved passenger discount | Saved Military, Rail Passenger Association (6–10 digit ID) or Passenger with disability, connected to profile assistance. · Profile › Passenger discounts | `SCR.discounts`, `A['disc-save']` | None found | Complete | Complete | — | RPA check `/^\d{6,10}$/`. PWD requires assistance "I have a disability" (`go-assist`). The Fare Finder uses it as the Traveler 1 default (`freshBooking.disc`, `profilePwd`). |
-| **NMA-566** Benefit and eligibility guidance | Readable groups of passenger and discount guidance from the content system. · Profile › Passenger discounts | `SCR.rules` (info sheet *Passenger types and discount rules*), `RULE_GROUPS` | Content is placeholder text, by design. | Complete | Complete | AEM content | Grouped accordions in `SCR.rules`, linked from `SCR.discounts`. |
+| **NMA-43** Saved passenger discount | Military, Rail Passenger Association (6–10 digit ID) or Passenger with disability; disability linked to Profile assistance. · Profile › Passenger discounts | `SCR.discounts`, `A['disc-save']`, `go-assist` (now into Profile › Assistance) | None | Complete | Complete | — | Final suite: RPA “123” rejected; PWD requires saved disability assistance; Fare Finder uses it for Traveler 1. |
+| **NMA-566** Benefit and eligibility guidance | Readable groups of guidance using content from the content system. · Profile › Passenger discounts | `SCR.rules` groups; option descriptions | **Content isn't supplied.** Groups are designed and every missing item says *Content pending*; no policy copy was invented. | Blocked | Blocked | AEM content (policy copy) | Final suite: rules sheet shows “Content pending”. |
 | **NMA-624** Cash or points | *Use points* for guests and members, cash by default, member balance shown; guests sign in after choosing a fare; hidden for TripLink and Pass Rider. · Fare Finder | `payControl()` used by `payV1` (Familiar) and `.ffc-pay` (Brand forward) | None | Complete | Complete | Discounts on points searches undefined (Q14) | Coverage suite: guest sees Cash/Points, chooses Points without a sign-in prompt, carried into the search; member sees “Points · 12,450”; hidden in Pass Rider and TripLink. |
 | **NMA-613** Coupon or promotion | Visible optional field, manual entry, saved-code choice, validation, applied and error states, information, removal; recheck after edits; hidden for points and restricted modes; removing it doesn't delete the profile coupon. · Fare Finder, after Travelers | `codeField` (`fields.js`), `INFO['saved-codes']`, `searchWithCode` / `checkCode` | None. The mocked responses are listed under *Try* in Screen notes, and the service error is reachable with *Network › Server error*. | Complete | Complete | Code format and offline checking undecided (Q23) | Requirements suite (selected vs applied, invalid, ineligible, recheck, error, remove, points hidden). |
 
@@ -79,27 +79,37 @@
 
 | Story | Required behavior · IA home | Existing screen / component · how to reach it | Missing screens, interactions or states | Familiar | Brand forward | Unresolved or dependency | Evidence |
 |---|---|---|---|---|---|---|---|
-| **NMA-19** Name and membership number | Read-only name and AGR number; optional middle initial added once; Customer Care guidance for name changes. · Profile personal details | `profileRows` (Familiar), `profileV3` cards (Brand forward), `EDITORS.mi` | Make removed the *Middle initial already added* scenario from the menu. The locked state is still reachable by adding one. | Complete | Complete | — | `lockChip` on name and number; MI locked after saving; call-us line. |
-| **NMA-919** Date of birth | Optional DOB, valid date entry, saved value, save and error feedback, one display format. · Profile personal details | `EDITORS.dob`, `SAVE.dob` | None found | Complete | Complete | Date bounds not defined (old Q6) | `validDob`, MM/DD/YYYY, "Please enter a valid date". |
-| **NMA-20** Employee pass details | 9-digit pass number and 3-digit personal index; existing values, validation and save feedback; remaining passes and **renewal information**; dependents don't see pass counts; **no delete control**. · Profile › Employee details | `EDITORS.employee`, `SAVE.employee`, `empStatus` (`profile.js`) | **Renewal information is missing. A delete path exists:** the *Are you an employee? No* option removes the saved details (probe confirmed), which contradicts "offer no delete control". Backend ineligibility removing the details isn't modeled. | Partial | Partial | Was pending; now approved | `PASS_RE`, `INDEX_RE`. `x.emp === 'no' && cur` adds removal text. |
-| **NMA-21** Change email | Verification steps for the current account state, new-email validation, code verification, success and error, return to Profile, **notifications to the old and new addresses**. · Profile contact details › verification flow | `startVerify('change-email')`, `SCR.verify`, `endVerify` | **The old/new address notifications aren't shown or described.** The expired-session (re-authentication) and unverified paths exist, but Make removed the Session token control and the Unverified scenario, so they can't be reached. | Partial | Partial | NMA-980 (verification) outside this list | Steps by token state in `startVerify`. "Your email has been updated" toast. No notification copy anywhere. |
-| **NMA-22** Change phone | Country code, US/Canada and international formats, saved values and validation; no ownership check; a number isn't rejected for being on another account. · Profile contact details | `EDITORS.phone`, `SAVE.phone`, `DIAL` | Make removed the *International member* scenario from the menu; switching to International in the editor still demonstrates it. | Complete | Complete | Phone types not final (old Q6) | 10-digit US check, 5–15 digits international, country-code select. |
-| **NMA-23** Billing address | **Add, edit and delete** states, country-specific fields, required-field and format errors, saved values, confirmation, source field limits. · Profile billing details | `EDITORS.address`, `SAVE.address`, `HOOKS.country` | **No delete** (probe: no remove-address control in either concept) | Partial | Partial | Clear-on-country-change rule (old Q5) | Street limit 2–32 characters, ZIP/postal patterns, state/province selects, Undo. |
-| **NMA-992** Password reset email | Confirmation email sent only after a successful reset, with security guidance, no password, and delivery-failure behavior. · Account email channel (not a booking screen) | **Nothing:** no email template, reset flow or delivery-failure handling | Email artifact (template), delivery-failure behavior | Missing | Missing | — | No "reset" code found. |
-| **NMA-26** Saved assistance type | Two choices (disability, or station assistance without disability); review and change; no companion or no-assistance options. · **Profile › Assistance requests** (account holder) | `SCR['assist-profile']` (profile mode `catBlock`). Reached from **Account › Assistance**, not from inside Profile. | The IA home differs: page 03 places Assistance inside Profile. | Partial | Partial | — | `catBlock` profile mode uses `['disability','station']` only. |
-| **NMA-27** Saved disability needs | Disability branch using the 995 rules, Profile save, confirmation, error and retry; completed before saving. · Profile assistance questionnaire | `assistForm` (profile), `A['assist-save']` via `runSave` | The error and retry states exist (`runNet`), but Make removed the Network control, so they can't be triggered. IA home as in NMA-26. | Partial | Partial | Device and animal subquestions belong to out-of-target NMA-29 and NMA-628 | Same `assistErrors` rules; success message; PWD side effect (`pwdPreview`). |
-| **NMA-28** Saved station needs | No-disability station branch with accessible seat, Profile save, retry without losing selections. · Profile assistance questionnaire | Same as NMA-27 | Retry can't be triggered (no Network control). IA home as in NMA-26. | Partial | Partial | Device and animal detail are out of target (NMA-29, NMA-628) | Station branch keeps `seat`. |
+| **NMA-19** Name and membership number | Read-only name and AGR number; optional middle initial added once; Customer Care guidance. · Account › Profile | `profileRows` (Familiar), `profileV3` (Brand forward), `EDITORS.mi` with a one-time confirmation | None | Complete | Complete | — | Final suite: name and number locked, call-us line; MI saved after confirming, then no edit control. |
+| **NMA-919** Date of birth | Optional DOB, valid-date entry, save and error feedback, one display format. · Profile | `EDITORS.dob`, `SAVE.dob` | Date bounds not defined (old Q6); the prototype rejects future dates | Complete | Complete | — | Final suite: 02/30/1990 shows “Please enter a valid date”; 04/15/1988 saves. |
+| **NMA-20** Employee pass details | 9-digit pass and 3-digit index; add/update, existing values, validation, save feedback; remaining passes and renewal; dependents don't see counts; no delete control; backend ineligibility removes details. · Profile › Amtrak employee pass | `EDITORS.employee` (add/update only), `empStatus`; *Pass Rider employee, pass removed* scenario | The renewal date is mock data (the pass file supplies it). How the app learns relationship and dependent age is still Q16. | Complete | Complete | Q16 | Final suite: no delete choice; “Remaining passes 5 of 16” and “New passes are issued Jan 1, 2027” for employees; none for dependent, spouse or retiree; validation; “Pass details added”; removal scenario shows Not added and turns Pass Rider off. |
+| **NMA-21** Change email | Verification steps for the account state, new-email validation, code verification, success and error, return to Profile, notifications to old and new addresses. · Profile › Email › verification | `startVerify('change-email')`, `SCR.verify`, `endVerify` → `mockEmail` ×2; reviewer *Session token* control restored for the re-authentication path | Final notification copy comes from the existing template (not in this baseline); the mock layout says so. | Complete | Complete | NMA-980 verification channel (old Q8) | Final suite: email changed; mock emails to the old and new addresses in *Mock emails*. Token expired → steps reauth › newemail › code (both concepts). |
+| **NMA-22** Change phone | Country code, US/Canada and international formats, validation, saved values; no ownership check; another account's number allowed. · Profile | `EDITORS.phone`, `SAVE.phone`, `DIAL` | None | Complete | Complete | Phone types not final (old Q6) | Final suite: international number too short → error; country-code select present. |
+| **NMA-23** Billing address | Add, edit and delete; country-specific fields; required and format errors; saved values; confirmation; source field limits. · Profile | `EDITORS.address`, `SAVE.address`, *Remove billing address* (`A['addr-remove']`) | Clearing fields on country change (old Q5) | Complete | Complete | — | Final suite: delete asks first, removes, toast “Billing address removed”; the row then reads Add. |
+| **NMA-992** Password reset email | Confirmation email only after a successful reset; date and time; security guidance and immediate-action message; Customer Care; never the password; delivery failure keeps the reset and is recorded. · Account email channel (not a screen) | `emails.js`: `EMAILS['password-reset']`, `simulateReset`; reviewer *Mock emails* (Complete a reset / Abandon a reset / Email delivery: Fails) | The reset flow itself isn't a Sprint 4 screen and sign-in screens stay unchanged, so reviewers trigger it. No real email is sent. | Complete | Complete | Final wording follows content guidance | Final suite: abandoned → no email; completed → email; failure → recorded, reset successful; preview labeled “Mock email · not sent”, no password. |
+| **NMA-26** Saved assistance type | Two Profile choices (disability; station assistance without disability); review and change; no companion or no-assistance options. · Account › Profile › Assistance requests | `SCR['assist-profile']`, now inside Profile (row in Familiar, card in Brand forward) | None | Complete | Complete | — | Final suite: Profile shows *Assistance requests*; the questionnaire offers exactly two types. |
+| **NMA-27** Saved disability needs | Disability branch with NMA-995 rules, save, confirmation, error and retry; complete before saving. · Profile assistance questionnaire | `assistForm` (profile), `A['assist-save']` via `runSave` (Network › Server error shows failure and retry) | Device detail under reduced mobility (NMA-29) stays pending and isn't part of this story's completion. | Complete | Complete | NMA-29 pending (child detail) | Final suite: disability without a disability choice isn't saved; failure and retry covered under NMA-28 (same save path). |
+| **NMA-28** Saved station needs | Station branch with accessible seat, save, retry without losing selections; Profile also combines applicable device and animal detail. · Profile assistance questionnaire | Same as NMA-27 | **Applicable device and animal detail depends on NMA-29 and NMA-628, which are pending.** The seat need, save, failure and retry are done. | Blocked | Blocked | NMA-29, NMA-628 (pending child detail) | Final suite: server error keeps the answers; Retry saves station assistance with an accessible seat. |
 
 ## Status count (34 stories)
 
 | Status | Count | Stories |
 |---|---|---|
-| Complete | 22 | 607, 608, 118, 984, 1004, 43, 566, 624, 613, 615, 614, 995, 996, 997, 623, 1016, 622, 1017, 1019, 19, 919, 22 |
-| Partial | 6 | 20, 21, 23, 26, 27, 28 |
-| Missing | 1 | 992 |
-| Blocked | 5 | 1060, 611, 612, 973, 1018 |
+| Complete | 27 | 607, 608, 118, 984, 1004, 43, 624, 613, 615, 614, 995, 996, 997, 623, 1016, 622, 1017, 1019, 19, 919, 20, 21, 22, 23, 992, 26, 27 |
+| Partial | 0 | — |
+| Missing | 0 | — |
+| Blocked | 7 | 1060, 611, 612, 973, 1018, 566, 28 |
 
-*Round 2 (2026-11-02) moved 118, 984, 624, 614 to Complete. 973 and 1018 stay Blocked, with their clear parts implemented. The Profile stories (19–28, 992) weren't part of this round.*
+*Round 3 (2026-11-02) moved 19–23, 992, 43, 26 and 27 to Complete. 566 and 28 are Blocked by pending content and pending child detail. Design coverage only: see* Production integration readiness.
+
+### Why each Blocked story is blocked
+
+- **NMA-1060:** the 335-day window and its reference date, and the missing-return treatment, aren't confirmed (Q4, Q25).
+- **NMA-611:** Young adult with infant precedence (BR7 vs BR9) is unresolved (Q10).
+- **NMA-612:** the source matrix still has an open review comment.
+- **NMA-973:** the indication's entry and CTA mapping needs agreement. The Travelers-screen mapping is a proposal (Q7). The explanation text is an AEM placeholder.
+- **NMA-1018:** round-trip companion pass use and the picker limit that follows are unresolved (Q13).
+- **NMA-566:** the guidance content isn't supplied; items show *Content pending*.
+- **NMA-28 (approved parent, partly blocked by pending detail):** device detail (NMA-29) and service-animal detail (NMA-628) are pending. The approved seat need, save, failure and retry are done.
 
 Both concepts reach the same status on every story. The traveler, discount, assistance and booking-mode rules share one code path (`clear.js`, `travelers.js`, `fields.js`). The concepts differ only in presentation: cards versus overview and sheets; pushed editors versus inline editing in Profile.
 
@@ -189,3 +199,47 @@ Order: restore the ability to demonstrate and review first, then decisions, then
 - Stage 1: Network control and Screen notes **done**. Session token, Text size and hidden scenarios still to restore (NMA-21 evidence).
 - Stage 3: 624, 118, 984 and 614 (clear part) **done**. 23, 20, 21 and 992 remain.
 - Stage 5: 1060 and 1018 customer wording removed pending decisions; 973 proposed mapping implemented pending agreement.
+
+
+## Round 3 changes (2026-11-02)
+
+- **Profile (NMA-19–23, 992):**
+  - Employee pass is add/update only, shows renewal, keeps pass counts from dependents, spouses and retirees, and has a backend-removal scenario.
+  - Change email sends mock notifications to the old and new addresses, and the Session token control is restored for re-authentication.
+  - Billing address can be removed.
+  - Password-reset confirmation email, with its delivery failure, is reviewable from the controller.
+- **Saved preferences (NMA-43, 566, 26–28):**
+  - Assistance requests now sit inside Account › Profile.
+  - Missing guidance is marked *Content pending*.
+  - A failed Profile assistance save keeps the answers, and Retry saves them.
+- **Refinements:** see `CHECKLIST-refinements.md` (avatar token, Book landing focus, coupon field, saved codes, compact cash/points, station states, assistance title, DS stepper, Exit booking?, compact booking type).
+
+## How reviewers inspect every artifact
+
+| Artifact | How to reach it |
+|---|---|
+| Booking flows | Book › *New booking*. Concept: controller › Concept (Familiar / Brand forward). |
+| Booking type | Signed-in eligible member › Fare Finder › *Booking type* entry. Scenarios: TripLink member, Pass Rider employee/no pass/retiree/spouse/dependent/minor, TripLink and Pass Rider. |
+| Assistance | Fare Finder › Travelers › *Traveler with disability or need help?* › Continue. |
+| Profile stories | Account (avatar) › Profile. |
+| Assistance requests (Profile) | Account › Profile › *Assistance requests*. |
+| Employee details | Account › Profile › *Amtrak employee pass*. Scenario *Pass Rider employee, pass removed* shows the backend removal. |
+| Email change notifications (NMA-21) | Profile › Email › Change. Then controller › *Mock emails* › Generated in this demo. Session token › Expired shows re-authentication. |
+| Password reset email (NMA-992) | Controller › *Mock emails* › Complete a reset or Abandon a reset; Email delivery › Fails for the failure. *Email designs* opens every template. |
+| Service states | Controller › Network (offline, slow, server error). |
+| Open questions and stories | Controller › *Screen notes* (never shown in the app). |
+
+## Production integration readiness (separate from design coverage)
+
+Design coverage above means the approved behavior is designed and demonstrable in the prototype. **None of it is production-integrated.** Everything below is mocked or missing:
+
+- **Services:**
+  - Station data, train search and results are a fixed set and a handoff screen.
+  - Discount-code validation follows fixed rules (EXP1, DATE, companion, server error).
+  - TripLink/Concur linkage, the pass file (Business Pass, companion balance, renewal, dependent age, eligibility) and Guest Rewards points are mocked.
+  - Authentication and verification codes are mocked (123456 works).
+- **Email:** no email is sent. The templates are placeholder layouts; final copy, sending service and failure monitoring aren't built.
+- **Content:** AEM copy (assistance explanation, passenger rules, service animals, accessibility guidance, Pass Rider policy) is placeholder or *Content pending*.
+- **Persistence:** everything lives in the browser session; nothing is saved to an account, and favorites and recents aren't stored on a device.
+- **Analytics:** the analytics events described in the stories aren't implemented.
+- **Platform:** this is a web prototype in a device frame, not native iOS or Android code.

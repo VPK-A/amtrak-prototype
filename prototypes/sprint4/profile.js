@@ -14,54 +14,45 @@ const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}•�
 function empStatus(d) {
   const e = d.employee, p = d.passrider; if (!e || !p) return '';
   const can = prCanStart(d), rows = [['Pass Rider booking', can.ok ? 'On' : 'Not available']];
-  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]); }
+  if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Remaining passes', `${p.compLeft} of 16 one-way passes`]); rows.push(['Renewal', `New passes are issued ${fmtExp(p.renews || PASS_RENEWS)}`]); }
   else rows.push(['Travel type', 'Leisure only']);
   if (p.role === 'dependent' && !can.ok) rows.push(['Booking on your own', can.text]);
   return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
 }
+// Add or update only: there's no user-facing way to delete pass details (NMA-20 AC6, decision closed).
+// The backend can remove them when the customer is no longer eligible (BR4 AC4): see the "pass removed" scenario.
 EDITORS.employee = (r, ri, inline) => {
   const d = D(), cur = d.employee; ref('20');
-  if (!r.u.d) r.u.d = { emp: cur ? 'yes' : '', rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
-  const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee';
+  if (!r.u.d) r.u.d = { rel: cur ? cur.rel : 'employee', pass: cur ? cur.pass : '', index: cur ? cur.index : '' };
+  const x = r.u.d, e = r.u.err || {}, idp = inline ? 'ie' : 'ee', primary = x.rel !== 'employee' && x.rel !== 'retiree';
   prov('NMA-623 identifies Pass Riders by SAP ID and Index number; NMA-20 by Pass number and Personal index number. The prototype uses NMA-20’s fields (Q16).');
-  const yes = x.emp === 'yes', primary = x.rel !== 'employee';
-  const radios = [['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<label class="ads-choice ads-radio"><input type="radio" name="${idp}-emp" data-f="emp" value="${v}" ${x.emp === v ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label">${l}</span></label>`).join('');
-  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">Are you an Amtrak employee, or a spouse or dependent of one?</legend><div class="ads-fieldset__options">${radios}</div></fieldset>`;
-  if (yes) {
-    body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
-    body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
-    body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
-    if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
-    if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
-  } else if (x.emp === 'no' && cur) body += `<p class="ads-body-small">Saving removes your pass details from your profile. Pass Rider booking won’t be available.</p>`;
-  const unchanged = cur ? (yes && x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : x.emp !== 'yes';
-  tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3).');
-  return { body, saveDisabled: unchanged, noSaveWhy: 'Make a change to save.' };
+  let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}`;
+  body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
+  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
+  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+  if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
+  if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
+  const unchanged = cur ? (x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : !x.pass && !x.index;
+  tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3). Scenario › Pass Rider employee, pass removed shows details the backend removed (BR4 AC4).');
+  return { body, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
 };
 SAVE.employee = (r, ri) => {
   const x = r.u.d, d = D(), e = {};
-  if (x.emp === 'yes') {
-    if (!x.pass) e.pass = 'Enter your Pass number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass number not recognized. It has 9 numbers.';
-    if (!x.index) e.index = 'Enter your Personal index number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal index number not recognized. It has 3 numbers.';
-    if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
-  }
+  if (!x.pass) e.pass = 'Enter your Pass number.'; else if (!PASS_RE.test(x.pass)) e.pass = 'Pass number not recognized. It has 9 numbers.';
+  if (!x.index) e.index = 'Enter your Personal index number.'; else if (!INDEX_RE.test(x.index)) e.index = 'Personal index number not recognized. It has 3 numbers.';
+  if (!e.pass && !e.index && x.pass === '999999999') e.match = 'These details don’t belong to your account, so they weren’t saved. Check them, or contact Employee Services.';
   r.u.err = e;
   if (Object.keys(e).length) { pendingFocus = e.pass ? '[data-f="pass"]' : e.index ? '[data-f="index"]' : '.ads-alert--error'; render(); return; }
+  const added = !d.employee;
   runSave(r, () => {
-    const b = d.booking;
-    if (x.emp === 'yes') {
-      const was = d.passrider;
-      d.employee = { rel: x.rel, pass: x.pass, index: x.index };
-      // Business Pass and companion passes come from the pass record; newly added details start without them
-      d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, minor: !!(was && was.minor && x.rel === 'dependent') };
-      b.prType = d.passrider.business ? b.prType : 'leisure';
-      if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
-      if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
-    } else {
-      d.employee = null; d.passrider = null;
-      if (b.intent === 'pr') { b.intent = 'standard'; b.prType = null; }
-    }
-  }, () => afterSave(ri, 'Profile has been updated', 'employee'));
+    const b = d.booking, was = d.passrider;
+    d.employee = { rel: x.rel, pass: x.pass, index: x.index }; d.empRemoved = false;
+    // Business Pass, companion passes and renewal come from the pass record; newly added details start without them
+    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent') };
+    b.prType = d.passrider.business ? b.prType : 'leisure';
+    if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
+    if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
+  }, () => afterSave(ri, added ? 'Pass details added' : 'Pass details updated', 'employee'));
 };
 
 // ---------- My coupons (NMA-697) ----------

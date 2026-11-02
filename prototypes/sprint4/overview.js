@@ -66,3 +66,17 @@ A.close = A.scrim = (t, ri) => {
   if (top && cancelActionFor(top) && top.u.snap && !(top.s === 'travelers' && paxProblems(D().booking.pax).length)) Object.assign(D().booking, clone(top.u.snap));
   return closeBeforeCancel(t, ri);
 };
+
+// ---------- Exit booking? (Concepts 1 and 3) ----------
+// Anything that closes the whole booking modal (close button, scrim, Escape at the root) asks first. Back
+// between booking levels doesn't. Keep booking leaves every value and the current step as they are. Trip
+// details stay for New booking (the established retention); unconfirmed edits on a Cancel step aren't kept.
+const closeBeforeExit = A.close;
+A.close = A.scrim = (t, ri) => {
+  const sh = sheet();
+  if (!sh || sh.id !== 'booking' || !(v1() || v3()) || nav().dialog) return closeBeforeExit(t, ri);
+  const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
+  dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
+    body: `Your trip details are kept, so you can pick up from New booking.${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
+    actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
+};

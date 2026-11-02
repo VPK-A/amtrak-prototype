@@ -32,21 +32,23 @@ function codeField(r, b) {
   else if (st === 'applied') msg = `<p class="ads-helper ads-helper--success dcode__msg" id="ff-code-h">${ic('check-circle', 'ads-icon--sm')}<span>Code applied${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`;
   else if (st === 'changed') msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
   else if (b.code && b.code.benefit) msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${esc(b.code.kind)}: ${esc(b.code.benefit)}. Expires ${fmtExp(b.code.exp)}.</p>`;
-  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}">${ic('payment-voucher')}<input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter discount code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
-  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove discount code ${esc(text)}`) : '';
-  const pick = saved.length ? `<button class="ads-link ads-link--sm linkbtn dcode__saved" type="button" data-a="code-saved">Use a saved code (${saved.length})</button>` : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Discount code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
+  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
+  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
+  // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
+  const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
+  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Coupon or promotion code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
 }
 INFO['saved-codes'] = {
-  title: 'Your saved codes',
-  body: () => `<p>Choose a code from your profile, soonest to expire first. Expired and used codes aren’t shown.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p>Whether a code works for your train is checked when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
+  title: 'Saved codes',
+  body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
 };
 HOOKS.ffcode = (r, t) => setCodeText(D().booking, t.value);
 A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
+// Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
 A['dcode-pick'] = t => {
   const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
   Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '' });
-  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} added: ${c.benefit}`);
+  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
 };
 A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
@@ -61,9 +63,37 @@ A['code-skip'] = () => { const b = D().booking; Object.assign(b, { code: null, c
 function codeFormatError(b) {
   if (!codeApplies(b) || !b.codeText || CODE_FORMAT.test(b.codeText)) return false;
   b.codeTries++; b.codeState = 'invalid';
-  b.codeErr = b.codeTries >= 2 ? 'Please enter a valid discount code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid discount code';
+  b.codeErr = b.codeTries >= 2 ? 'Please enter a valid coupon or promotion code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid coupon or promotion code';
   return true;
 }
 
 // Placeholder for the Pass Rider policy (built later, NMA-1081)
 INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-pending"><b>Content not defined yet</b><span>The Pass Rider policy will be added later.</span></div>` };
+
+// ---------- Booking type (NMA-622, 623, 1016) ----------
+// One compact entry showing the current mode; a sheet lists only the modes this member can use. Regular travel
+// is always available to them. Business or Leisure appears only inside eligible Pass Rider travel. An account
+// eligible for both TripLink and Pass Rider starts as Regular with no special mode preselected (Q26).
+function modeOptions(d) {
+  const o = [];
+  if (d.triplink) o.push(['corporate', 'Corporate (TripLink)', 'Corporate fares for you only. Points, discounts and coupons aren’t used.']);
+  if (d.passrider) o.push(['pr', 'Pass Rider', 'Employee pass travel for you and eligible family. Points, discounts and coupons aren’t used.']);
+  o.push(['personal', d.triplink && !d.passrider ? 'Personal' : 'Regular', 'Regular fares, with points, discounts and coupons.']);
+  return o;
+}
+const modeLabel = (b, d) => { const o = modeOptions(d), cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : 'personal'; const m = o.find(x => x[0] === cur); return m[1] + (b.intent === 'pr' && b.prType ? ` · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : ''); };
+function modeEntry(b, where) {
+  const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
+  if (d.triplink) ref('622'); if (d.passrider) ref('623', '1016');
+  return `<button class="mode-entry mode-entry--${where}" type="button" data-a="mode-open" aria-label="Booking type: ${esc(modeLabel(b, d))}. Change booking type"><span class="mode-entry__label">Booking type</span><span class="mode-entry__val">${esc(modeLabel(b, d))}</span>${ic('chevron-down', 'ads-icon--sm')}</button>`;
+}
+INFO['booking-type'] = {
+  title: 'Booking type',
+  body: () => { const d = D(), b = d.booking, cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : (b.intent === 'personal' ? 'personal' : ''); return `<fieldset class="ads-fieldset mode-opts"><legend class="ads-sr-only">Booking type</legend><div class="ads-fieldset__options">${modeOptions(d).map(([v, l, sub]) => `<label class="ads-choice ads-radio"><input type="radio" name="mode-pick" data-a="mode-pick" data-v="${v}" ${cur === v || (!cur && v === 'personal') ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(l)}</span><span class="ads-choice__supporting">${esc(sub)}</span></span></label>`).join('')}</div></fieldset>${b.modeNote ? `<p class="ads-helper" role="status">${esc(b.modeNote)}</p>` : ''}`; }
+};
+A['mode-open'] = () => openInfo('booking-type', '[data-a="mode-open"]');
+A['mode-pick'] = t => {
+  const d = D(), b = d.booking, val = t.dataset.v; b.modeNote = null;
+  if (val === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; render(); return; } // stays open with the reason
+  setIntent(b, val); nav().info = null; pendingFocus = '[data-a="mode-open"]'; render();
+};
