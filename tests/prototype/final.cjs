@@ -36,7 +36,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await p.locator(D + '#ff-code').inputValue() === 'V123', `${T} 3 manual field shows the selected code`);
     // 7 cash/points radio group
     const pay = await ev(() => { const f = document.querySelector('#device .payset'); if (!f) return null; const fb = document.querySelector('#device [data-a="find-trains"]').getBoundingClientRect(), r = f.getBoundingClientRect(); return { radios: f.querySelectorAll('input[type=radio]').length, h: Math.round(r.height), btnH: Math.round(fb.height), checked: f.querySelector('input:checked').dataset.v }; });
-    ok(pay && pay.radios === 2 && pay.checked === 'cash' && pay.h <= pay.btnH, `${T} 7 cash/points is a compact radio group (no taller than Find trains), cash default (${JSON.stringify(pay)})`);
+    ok(pay && pay.radios === 2 && pay.checked === 'cash' && pay.h < pay.btnH, `${T} 7 cash/points is a compact radio group, cash default (${JSON.stringify(pay)})`);
     await dclick('.payset input[data-v="points"]'); ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D + '#ff-code').count() === 0, `${T} 7 points hides the code field`);
     await go(v, 'guest'); await dclick('.payset input[data-v="points"]'); ok(/sign in to use your points after you choose a fare/.test(await txt()), `${T} 7 guest points kept`);
     // 8 no "Choosing"

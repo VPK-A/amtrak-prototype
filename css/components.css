@@ -68,7 +68,7 @@
 }
 .ads-btn:hover  { background: var(--_bg-hover); }
 .ads-btn:active { background: var(--_bg-active); }
-.ads-root .ads-btn:focus-visible, .ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
+.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-focus-ring-offset); }
 .ads-btn--secondary { --_bg: var(--ads-background-interactive-secondary); --_bg-hover: var(--ads-background-interactive-secondary-hover); --_bg-active: var(--ads-background-interactive-secondary-active); --_fg: var(--ads-content-text-link); --_border: var(--ads-border-brand); }
 .ads-btn--tertiary  { --_bg: transparent; --_bg-hover: var(--ads-background-surface-hover); --_bg-active: var(--ads-background-surface-active); --_fg: var(--ads-content-text-secondary); --_border: var(--ads-border-default); }
 .ads-btn--destructive { --_bg: var(--ads-background-interactive-destructive); --_bg-hover: var(--ads-background-interactive-destructive-hover); --_bg-active: var(--ads-background-interactive-destructive-active); --_fg: var(--ads-content-text-on-error); }
@@ -486,7 +486,7 @@ dialog.ads-modal { padding: 0; }
    a read-only value, or a locked value. Locked shows a "Can't be changed" label, so the state never relies on color. */
 .ads-group { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ads-group__title { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
-.ads-group__body { display: flex; flex-direction: column; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
+.ads-group__body { display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
 .ads-group__foot { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); }
 .ads-group__row { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 52px; padding: var(--ads-space-8) var(--ads-space-16);
   border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; }
@@ -529,41 +529,36 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-stationrow__header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-8); min-height: 36px; padding: var(--ads-space-8) var(--ads-space-16);
   background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--ads-border-subtle); }
 
-/* ---------- Text Input · field/large and field/station as a picker trigger ----------
-   ADS Next Text Input, field/large and field/station (60px, size/interactive-lg): the Fare Finder's origin,
-   destination, dates and travelers. The label sits outside the field. radius/4, border/default at rest;
-   focus thickens the field's own border to 2px border/focus without moving anything; selected (its picker
-   is open) is border/brand; error is border/status-error with the message on the helper below. */
-.ads-fieldbtn { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: var(--ads-size-interactive-lg); padding: var(--ads-space-8) var(--ads-space-12);
-  border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
-.ads-fieldbtn[aria-expanded="true"], .ads-fieldbtn[aria-current="true"] { border-color: var(--ads-border-brand); }
-.ads-fieldbtn[aria-invalid="true"] { border-color: var(--ads-border-status-error); }
-.ads-root .ads-fieldbtn:focus-visible, .ads-fieldbtn:focus-visible { outline: none; border-color: var(--ads-border-focus); box-shadow: inset 0 0 0 1px var(--ads-border-focus); }
-.ads-fieldbtn:disabled { cursor: not-allowed; border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); }
-.ads-fieldbtn__trail { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
-
 /* ---------- Route field ----------
-   From and To are two station fields (field/station) with their labels outside. Swap is a Tertiary Button,
-   icon only, beside them: it acts on both fields, so it isn't an Icon Button inside one of them. */
-.ads-routefield { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "from swap" "to swap"; column-gap: var(--ads-space-8); row-gap: var(--ads-space-12); align-items: start; }
-.ads-routefield__from { grid-area: from; }
-.ads-routefield__to { grid-area: to; }
-.ads-routefield__swap { grid-area: swap; align-self: center; margin-top: var(--ads-space-24); }
-.ads-routefield__code { flex: none; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); }
+   From/To pair with a swap button (Core Flow). Each half is a button that opens station search. */
+.ads-routefield { position: relative; display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); }
+.ads-routefield__half { display: flex; align-items: center; gap: var(--ads-space-12); min-height: 68px; padding: var(--ads-space-8) 64px var(--ads-space-8) var(--ads-space-16);
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--ads-radius-12); width: 100%; }
+.ads-routefield__half + .ads-routefield__half { border-top: 1px solid var(--ads-border-subtle); border-radius: 0 0 var(--ads-radius-12) var(--ads-radius-12); }
+.ads-routefield__half:hover { background: var(--ads-background-surface-hover); }
+.ads-routefield__half:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-routefield__half[aria-invalid="true"] { box-shadow: inset 3px 0 0 var(--ads-border-status-error); }
+.ads-routefield__half[aria-expanded="true"] { background: var(--ads-background-surface-selected); }
+.ads-routefield__half[aria-expanded="true"] .ads-routefield__city { color: var(--ads-content-text-primary); }
+.ads-routefield__label { display: block; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
+.ads-routefield__code { flex: none; width: 48px; font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-font-weight-semibold); }
 .ads-routefield__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ads-routefield__city { font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); line-height: 1.25; }
+.ads-routefield__city { font-size: var(--ads-type-body-size); color: var(--ads-content-text-link); line-height: 1.25; }
 .ads-routefield__station { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-routefield__hint { color: var(--ads-content-text-tertiary); }
+.ads-routefield__swap { position: absolute; right: var(--ads-space-8); top: 50%; transform: translateY(-50%); z-index: 1; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); }
 
 /* ---------- Date field ----------
-   A date field is Text Input with a trailing calendar icon (field/large); Depart and Return sit side by side. */
-.ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); }
-@container ffcol (max-width: 420px) { .ads-datefields { grid-template-columns: minmax(0, 1fr); } } /* a phone-width column stacks Depart and Return, so the full date and day name fit without truncating */
-.ads-datefield { min-width: 0; }
-.ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ads-datefield__value, .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* fields truncate rather than wrap */
+   Tappable date: label, day name and full date. Empty shows an "Add" action. */
+.ads-datefields { display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); overflow: hidden; }
+.ads-datefield { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 68px; padding: var(--ads-space-8) var(--ads-space-16); border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.ads-datefield + .ads-datefield { border-left: 1px solid var(--ads-border-subtle); }
+.ads-datefield:hover { background: var(--ads-background-surface-hover); }
+.ads-datefield:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ads-datefield[aria-expanded="true"], .ads-datefield[aria-current="true"] { background: var(--ads-background-surface-selected); }
+.ads-datefield__label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
 .ads-datefield__value { font-size: var(--ads-type-body-size); line-height: 1.25; }
-.ads-datefield__day { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.3; }
+.ads-datefield__day { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
 .ads-datefield__add { display: inline-flex; align-items: center; gap: var(--ads-space-4); color: var(--ads-content-text-link); }
 
 /* ---------- Calendar ----------

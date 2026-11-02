@@ -48,10 +48,10 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .cover-layer { z-index: 14; background: var(--ads-background-surface-scrim); }
 .dialog-layer { z-index: 18; display: grid; place-items: center; padding: 24px; background: var(--ads-background-surface-scrim); }
 .sheet-scrim { position: absolute; inset: 0; background: var(--ads-background-surface-scrim); }
-.psheet { position: absolute; left: 0; right: 0; bottom: 0; top: 56px; display: flex; flex-direction: column; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
+.psheet { position: absolute; left: 0; right: 0; bottom: 0; top: 56px; display: flex; flex-direction: column; border-radius: 14px 14px 0 0; background: var(--ads-background-surface-page); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
 .device--iphone.device--landscape .psheet { top: 12px; left: 64px; right: 64px; }
 .psheet .ads-sheet__grabber { display: block; flex: none; margin: 6px auto 0; }
-.device--ipad .psheet { top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); width: min(620px, 92%); height: 86%; border-radius: var(--ads-radius-12); }
+.device--ipad .psheet { top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); width: min(620px, 92%); height: 86%; border-radius: var(--ads-radius-16); }
 .device--ipad .psheet--split { width: min(1000px, 94%); }
 .device--ipad.device--landscape .psheet { height: 90%; }
 .psheet__panes { flex: 1; min-height: 0; display: flex; }
@@ -89,6 +89,7 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 
 /* ---------- Screen pieces ---------- */
 .ptitle { margin: 0; font-size: var(--ads-type-body-size); }
+.ads-routefield + .ads-helper, .ads-datefields + .ads-helper { margin-top: -10px; }
 .assistbox { display: flex; flex-direction: column; gap: var(--ads-space-12); padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-status-info-subtle); border: 1px solid var(--ads-border-status-info-subtle); }
 .assistform { display: flex; flex-direction: column; gap: var(--ads-space-20); }
 .wcq { padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
@@ -221,16 +222,27 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ffc-modenote { display: flex; gap: var(--ads-space-8); margin: 2px 0 0; padding: 10px var(--ads-space-12); border-radius: var(--ads-radius-12); background: rgb(255 255 255 / 0.12); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
 .ffc-modenote .ads-icon { flex: none; margin-top: 2px; }
 .ffc-banner { margin: 0 var(--ads-space-16) 14px; border-radius: var(--ads-radius-12); }
-.ffc-sheet { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 22px var(--ads-space-16) var(--ads-space-32); border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); }
-.ffc-surface { display: flex; flex-direction: column; gap: var(--ads-space-16); padding: var(--ads-space-16); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); box-shadow: var(--ads-shadow-elevation-xs); }
+.ffc-sheet { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 22px var(--ads-space-16) var(--ads-space-32); border-radius: 28px 28px 0 0; background: var(--ads-background-surface-page); }
+.ffc-surface { display: flex; flex-direction: column; gap: var(--ads-space-16); padding: var(--ads-space-16); border-radius: 24px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); box-shadow: var(--ads-shadow-elevation-xs); }
+.ffc-surface .ads-routefield, .ffc-surface .ads-datefields { border-radius: var(--ads-radius-16); border-color: var(--ads-border-subtle); background: var(--ads-background-surface-page); }
+.ffc-surface .ads-routefield__half { min-height: 76px; }
+.ffc-surface .ads-routefield__half:first-child { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
+.ffc-surface .ads-routefield__code { width: 58px; font-size: 26px; font-weight: var(--ads-font-weight-light); letter-spacing: 0.02em; }
+.ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-primary); }
+.ffc-surface .ads-routefield__swap { background: var(--ads-background-surface-default); }
+.ffc-surface .ads-datefield { min-height: 72px; }
+.ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-semibold); }
 .ffc-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
 .ffc-field, .ffc-fixed { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ffc-fixed > span:nth-child(2) { font-weight: 600; }
-.ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ffc-trav { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 72px; padding: 10px var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-16); background: var(--ads-background-surface-page); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ffc-trav:hover { background: var(--ads-background-surface-hover); }
+.ffc-trav:focus-visible, .ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
 .ffc-trav__icon { flex: none; color: var(--ads-content-icon-brand); }
 .ffc-trav__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ffc-trav__val { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.3; }
 .ffc-trav__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; }
+.ffc-trav > .ads-icon--chevron-right { flex: none; color: var(--ads-content-icon-tertiary); }
 .ffc-h { display: flex; align-items: center; gap: var(--ads-space-4); margin: 0 var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-overline-size); line-height: var(--ads-type-overline-line-height); letter-spacing: var(--ads-type-overline-letter-spacing); font-weight: var(--ads-type-overline-weight); text-transform: uppercase; }
 
 /* Rounded sheet over the Fare Finder */
@@ -296,6 +308,9 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ffc-title:focus-visible, .ffc-sheettitle:focus-visible { outline: none; }
 /* Larger text: let rows wrap instead of overflowing */
 .pane--sheet .ads-segmented > button { white-space: normal; height: auto; min-height: var(--ads-size-interactive-md); padding-block: 6px; line-height: 1.25; }
+.ffc-surface .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
+.ffc-surface .ads-routefield__code { width: auto; min-width: 52px; }
+.ffc-surface .ads-routefield__body { flex: 1 1 130px; }
 .ffc-count { flex-wrap: wrap; }
 .ffc-count__text { flex: 1 1 140px; }
 .ffc-count .ads-counter { margin-left: auto; }
@@ -604,6 +619,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-dl dd { margin: 0; overflow-wrap: anywhere; }
 .cpn-uses { margin: 0; padding-left: 18px; }
 .text-large .cpn-dl { grid-template-columns: 1fr; }
+[data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */
 .atl__acts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .atl__badge { padding: 1px var(--ads-space-8); border-radius: var(--ads-radius-full); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); }
 .atl__row.is-requested { box-shadow: inset 3px 0 0 var(--ads-border-focus); }
@@ -734,6 +750,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .pane--clear .ffc-hero { padding-bottom: var(--ads-space-16); gap: 6px; }
 .ffc-sheet { gap: var(--ads-space-16); padding: var(--ads-space-16) var(--ads-space-16) var(--ads-space-24); }
 .ffc-surface { gap: 10px; padding: var(--ads-space-12); }
+.ffc-surface .ads-routefield__half { min-height: 64px; }
+.ffc-surface .ads-datefield { min-height: 62px; }
+.ffc-trav { min-height: 56px; padding: var(--ads-space-8) var(--ads-space-16); }
 
 /* ---------- Discount code field and assistance check (Concepts 1 and 3) ---------- */
 .dcode { display: flex; flex-direction: column; gap: 6px; margin: 0; }
@@ -856,7 +875,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-who { margin: 0 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
 .payset { margin: 0; padding: 0; border: 0; display: flex; align-items: center; gap: var(--ads-space-4) var(--ads-space-12); flex-wrap: wrap; }
 .payset__legend { margin: 0 var(--ads-space-4) 0 0; padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
-.payset .paychoice { font-size: var(--ads-type-body-small-size); }
+.payset .paychoice { min-height: var(--ads-size-interactive-sm); font-size: var(--ads-type-body-small-size); padding-block: var(--ads-space-4); }
 .payset .paychoice .ads-choice__label { font-size: var(--ads-type-body-small-size); }
 .ffc-surface .ffc-pay, .v1pay { margin-top: 0; }
 /* Compact booking type entry */
@@ -876,6 +895,3 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; min-height: var(--ads-size-interactive-md); }
 .device .ads-tabs--fill .ads-tab { height: auto; }
 .cal-pick.ads-tabs .ads-tab { flex-direction: column; gap: 1px; padding-block: 6px; line-height: 1.2; }
-
-/* The Fare Finder column is a size container, so its fields can adapt to the split pane on iPad */
-.ffc-surface, .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
