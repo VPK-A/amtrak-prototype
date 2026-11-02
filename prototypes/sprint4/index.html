@@ -878,7 +878,7 @@
 }
 .ads-btn:hover  { background: var(--_bg-hover); }
 .ads-btn:active { background: var(--_bg-active); }
-.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-focus-ring-offset); }
+.ads-root .ads-btn:focus-visible, .ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
 .ads-btn--secondary { --_bg: var(--ads-background-interactive-secondary); --_bg-hover: var(--ads-background-interactive-secondary-hover); --_bg-active: var(--ads-background-interactive-secondary-active); --_fg: var(--ads-content-text-link); --_border: var(--ads-border-brand); }
 .ads-btn--tertiary  { --_bg: transparent; --_bg-hover: var(--ads-background-surface-hover); --_bg-active: var(--ads-background-surface-active); --_fg: var(--ads-content-text-secondary); --_border: var(--ads-border-default); }
 .ads-btn--destructive { --_bg: var(--ads-background-interactive-destructive); --_bg-hover: var(--ads-background-interactive-destructive-hover); --_bg-active: var(--ads-background-interactive-destructive-active); --_fg: var(--ads-content-text-on-error); }
@@ -1296,7 +1296,7 @@ dialog.ads-modal { padding: 0; }
    a read-only value, or a locked value. Locked shows a "Can't be changed" label, so the state never relies on color. */
 .ads-group { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ads-group__title { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
-.ads-group__body { display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
+.ads-group__body { display: flex; flex-direction: column; border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
 .ads-group__foot { margin: 0 var(--ads-space-16); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); }
 .ads-group__row { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 52px; padding: var(--ads-space-8) var(--ads-space-16);
   border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; }
@@ -1339,36 +1339,41 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-stationrow__header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-8); min-height: 36px; padding: var(--ads-space-8) var(--ads-space-16);
   background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--ads-border-subtle); }
 
+/* ---------- Text Input · field/large and field/station as a picker trigger ----------
+   ADS Next Text Input, field/large and field/station (60px, size/interactive-lg): the Fare Finder's origin,
+   destination, dates and travelers. The label sits outside the field. radius/4, border/default at rest;
+   focus thickens the field's own border to 2px border/focus without moving anything; selected (its picker
+   is open) is border/brand; error is border/status-error with the message on the helper below. */
+.ads-fieldbtn { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: var(--ads-size-interactive-lg); padding: var(--ads-space-8) var(--ads-space-12);
+  border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ads-fieldbtn[aria-expanded="true"], .ads-fieldbtn[aria-current="true"] { border-color: var(--ads-border-brand); }
+.ads-fieldbtn[aria-invalid="true"] { border-color: var(--ads-border-status-error); }
+.ads-root .ads-fieldbtn:focus-visible, .ads-fieldbtn:focus-visible { outline: none; border-color: var(--ads-border-focus); box-shadow: inset 0 0 0 1px var(--ads-border-focus); }
+.ads-fieldbtn:disabled { cursor: not-allowed; border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); }
+.ads-fieldbtn__trail { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
+
 /* ---------- Route field ----------
-   From/To pair with a swap button (Core Flow). Each half is a button that opens station search. */
-.ads-routefield { position: relative; display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); }
-.ads-routefield__half { display: flex; align-items: center; gap: var(--ads-space-12); min-height: 68px; padding: var(--ads-space-8) 64px var(--ads-space-8) var(--ads-space-16);
-  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--ads-radius-12); width: 100%; }
-.ads-routefield__half + .ads-routefield__half { border-top: 1px solid var(--ads-border-subtle); border-radius: 0 0 var(--ads-radius-12) var(--ads-radius-12); }
-.ads-routefield__half:hover { background: var(--ads-background-surface-hover); }
-.ads-routefield__half:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
-.ads-routefield__half[aria-invalid="true"] { box-shadow: inset 3px 0 0 var(--ads-border-status-error); }
-.ads-routefield__half[aria-expanded="true"] { background: var(--ads-background-surface-selected); }
-.ads-routefield__half[aria-expanded="true"] .ads-routefield__city { color: var(--ads-content-text-primary); }
-.ads-routefield__label { display: block; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
-.ads-routefield__code { flex: none; width: 48px; font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-font-weight-semibold); }
+   From and To are two station fields (field/station) with their labels outside. Swap is a Tertiary Button,
+   icon only, beside them: it acts on both fields, so it isn't an Icon Button inside one of them. */
+.ads-routefield { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "from swap" "to swap"; column-gap: var(--ads-space-8); row-gap: var(--ads-space-12); align-items: start; }
+.ads-routefield__from { grid-area: from; }
+.ads-routefield__to { grid-area: to; }
+.ads-routefield__swap { grid-area: swap; align-self: center; margin-top: var(--ads-space-24); }
+.ads-routefield__code { flex: none; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); }
 .ads-routefield__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ads-routefield__city { font-size: var(--ads-type-body-size); color: var(--ads-content-text-link); line-height: 1.25; }
+.ads-routefield__city { font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); line-height: 1.25; }
 .ads-routefield__station { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-routefield__hint { color: var(--ads-content-text-tertiary); }
-.ads-routefield__swap { position: absolute; right: var(--ads-space-8); top: 50%; transform: translateY(-50%); z-index: 1; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); }
 
 /* ---------- Date field ----------
-   Tappable date: label, day name and full date. Empty shows an "Add" action. */
-.ads-datefields { display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-default); overflow: hidden; }
-.ads-datefield { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 68px; padding: var(--ads-space-8) var(--ads-space-16); border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; min-width: 0; }
-.ads-datefield + .ads-datefield { border-left: 1px solid var(--ads-border-subtle); }
-.ads-datefield:hover { background: var(--ads-background-surface-hover); }
-.ads-datefield:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
-.ads-datefield[aria-expanded="true"], .ads-datefield[aria-current="true"] { background: var(--ads-background-surface-selected); }
-.ads-datefield__label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); letter-spacing: 0.06em; text-transform: uppercase; }
+   A date field is Text Input with a trailing calendar icon (field/large); Depart and Return sit side by side. */
+.ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); }
+@container ffcol (max-width: 420px) { .ads-datefields { grid-template-columns: minmax(0, 1fr); } } /* a phone-width column stacks Depart and Return, so the full date and day name fit without truncating */
+.ads-datefield { min-width: 0; }
+.ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ads-datefield__value, .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* fields truncate rather than wrap */
 .ads-datefield__value { font-size: var(--ads-type-body-size); line-height: 1.25; }
-.ads-datefield__day { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.ads-datefield__day { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.3; }
 .ads-datefield__add { display: inline-flex; align-items: center; gap: var(--ads-space-4); color: var(--ads-content-text-link); }
 
 /* ---------- Calendar ----------
@@ -1491,10 +1496,10 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .cover-layer { z-index: 14; background: var(--ads-background-surface-scrim); }
 .dialog-layer { z-index: 18; display: grid; place-items: center; padding: 24px; background: var(--ads-background-surface-scrim); }
 .sheet-scrim { position: absolute; inset: 0; background: var(--ads-background-surface-scrim); }
-.psheet { position: absolute; left: 0; right: 0; bottom: 0; top: 56px; display: flex; flex-direction: column; border-radius: 14px 14px 0 0; background: var(--ads-background-surface-page); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
+.psheet { position: absolute; left: 0; right: 0; bottom: 0; top: 56px; display: flex; flex-direction: column; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); box-shadow: var(--ads-shadow-elevation-xl); overflow: hidden; }
 .device--iphone.device--landscape .psheet { top: 12px; left: 64px; right: 64px; }
 .psheet .ads-sheet__grabber { display: block; flex: none; margin: 6px auto 0; }
-.device--ipad .psheet { top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); width: min(620px, 92%); height: 86%; border-radius: var(--ads-radius-16); }
+.device--ipad .psheet { top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); width: min(620px, 92%); height: 86%; border-radius: var(--ads-radius-12); }
 .device--ipad .psheet--split { width: min(1000px, 94%); }
 .device--ipad.device--landscape .psheet { height: 90%; }
 .psheet__panes { flex: 1; min-height: 0; display: flex; }
@@ -1532,7 +1537,6 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 
 /* ---------- Screen pieces ---------- */
 .ptitle { margin: 0; font-size: var(--ads-type-body-size); }
-.ads-routefield + .ads-helper, .ads-datefields + .ads-helper { margin-top: -10px; }
 .assistbox { display: flex; flex-direction: column; gap: var(--ads-space-12); padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-status-info-subtle); border: 1px solid var(--ads-border-status-info-subtle); }
 .assistform { display: flex; flex-direction: column; gap: var(--ads-space-20); }
 .wcq { padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
@@ -1665,27 +1669,16 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ffc-modenote { display: flex; gap: var(--ads-space-8); margin: 2px 0 0; padding: 10px var(--ads-space-12); border-radius: var(--ads-radius-12); background: rgb(255 255 255 / 0.12); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
 .ffc-modenote .ads-icon { flex: none; margin-top: 2px; }
 .ffc-banner { margin: 0 var(--ads-space-16) 14px; border-radius: var(--ads-radius-12); }
-.ffc-sheet { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 22px var(--ads-space-16) var(--ads-space-32); border-radius: 28px 28px 0 0; background: var(--ads-background-surface-page); }
-.ffc-surface { display: flex; flex-direction: column; gap: var(--ads-space-16); padding: var(--ads-space-16); border-radius: 24px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); box-shadow: var(--ads-shadow-elevation-xs); }
-.ffc-surface .ads-routefield, .ffc-surface .ads-datefields { border-radius: var(--ads-radius-16); border-color: var(--ads-border-subtle); background: var(--ads-background-surface-page); }
-.ffc-surface .ads-routefield__half { min-height: 76px; }
-.ffc-surface .ads-routefield__half:first-child { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
-.ffc-surface .ads-routefield__code { width: 58px; font-size: 26px; font-weight: var(--ads-font-weight-light); letter-spacing: 0.02em; }
-.ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-primary); }
-.ffc-surface .ads-routefield__swap { background: var(--ads-background-surface-default); }
-.ffc-surface .ads-datefield { min-height: 72px; }
-.ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-semibold); }
+.ffc-sheet { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 22px var(--ads-space-16) var(--ads-space-32); border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); }
+.ffc-surface { display: flex; flex-direction: column; gap: var(--ads-space-16); padding: var(--ads-space-16); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); box-shadow: var(--ads-shadow-elevation-xs); }
 .ffc-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
 .ffc-field, .ffc-fixed { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ffc-fixed > span:nth-child(2) { font-weight: 600; }
-.ffc-trav { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 72px; padding: 10px var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-16); background: var(--ads-background-surface-page); color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.ffc-trav:hover { background: var(--ads-background-surface-hover); }
-.ffc-trav:focus-visible, .ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
+.ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
 .ffc-trav__icon { flex: none; color: var(--ads-content-icon-brand); }
 .ffc-trav__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ffc-trav__val { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.3; }
 .ffc-trav__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; }
-.ffc-trav > .ads-icon--chevron-right { flex: none; color: var(--ads-content-icon-tertiary); }
 .ffc-h { display: flex; align-items: center; gap: var(--ads-space-4); margin: 0 var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-overline-size); line-height: var(--ads-type-overline-line-height); letter-spacing: var(--ads-type-overline-letter-spacing); font-weight: var(--ads-type-overline-weight); text-transform: uppercase; }
 
 /* Rounded sheet over the Fare Finder */
@@ -1751,9 +1744,6 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ffc-title:focus-visible, .ffc-sheettitle:focus-visible { outline: none; }
 /* Larger text: let rows wrap instead of overflowing */
 .pane--sheet .ads-segmented > button { white-space: normal; height: auto; min-height: var(--ads-size-interactive-md); padding-block: 6px; line-height: 1.25; }
-.ffc-surface .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
-.ffc-surface .ads-routefield__code { width: auto; min-width: 52px; }
-.ffc-surface .ads-routefield__body { flex: 1 1 130px; }
 .ffc-count { flex-wrap: wrap; }
 .ffc-count__text { flex: 1 1 140px; }
 .ffc-count .ads-counter { margin-left: auto; }
@@ -2062,7 +2052,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cpn-dl dd { margin: 0; overflow-wrap: anywhere; }
 .cpn-uses { margin: 0; padding-left: 18px; }
 .text-large .cpn-dl { grid-template-columns: 1fr; }
-[data-theme="dark"] .ads-routefield__half:hover .ads-routefield__hint { color: var(--ads-content-text-primary); } /* 4.5:1 on the hover surface */
 .atl__acts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .atl__badge { padding: 1px var(--ads-space-8); border-radius: var(--ads-radius-full); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); background: var(--ads-background-surface-selected); color: var(--ads-content-text-primary); }
 .atl__row.is-requested { box-shadow: inset 3px 0 0 var(--ads-border-focus); }
@@ -2193,9 +2182,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .pane--clear .ffc-hero { padding-bottom: var(--ads-space-16); gap: 6px; }
 .ffc-sheet { gap: var(--ads-space-16); padding: var(--ads-space-16) var(--ads-space-16) var(--ads-space-24); }
 .ffc-surface { gap: 10px; padding: var(--ads-space-12); }
-.ffc-surface .ads-routefield__half { min-height: 64px; }
-.ffc-surface .ads-datefield { min-height: 62px; }
-.ffc-trav { min-height: 56px; padding: var(--ads-space-8) var(--ads-space-16); }
 
 /* ---------- Discount code field and assistance check (Concepts 1 and 3) ---------- */
 .dcode { display: flex; flex-direction: column; gap: 6px; margin: 0; }
@@ -2318,7 +2304,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-who { margin: 0 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
 .payset { margin: 0; padding: 0; border: 0; display: flex; align-items: center; gap: var(--ads-space-4) var(--ads-space-12); flex-wrap: wrap; }
 .payset__legend { margin: 0 var(--ads-space-4) 0 0; padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
-.payset .paychoice { min-height: var(--ads-size-interactive-sm); font-size: var(--ads-type-body-small-size); padding-block: var(--ads-space-4); }
+.payset .paychoice { font-size: var(--ads-type-body-small-size); }
 .payset .paychoice .ads-choice__label { font-size: var(--ads-type-body-small-size); }
 .ffc-surface .ffc-pay, .v1pay { margin-top: 0; }
 /* Compact booking type entry */
@@ -2338,6 +2324,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; min-height: var(--ads-size-interactive-md); }
 .device .ads-tabs--fill .ads-tab { height: auto; }
 .cal-pick.ads-tabs .ads-tab { flex-direction: column; gap: 1px; padding-block: 6px; line-height: 1.2; }
+
+/* The Fare Finder column is a size container, so its fields can adapt to the split pane on iPad */
+.ffc-surface, .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
 
 </style>
 </head>
@@ -2897,7 +2886,7 @@ function ipadNav() {
 function navbar(o, ri, ctx) {
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
-  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
+  const close = `<button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
     if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
@@ -3175,23 +3164,37 @@ const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) ||
 // A. Fare Finder
 // =====================================================================
 function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
+// From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
+// triggers: the label sits outside the field; the accessible name stays on the button.
+const fieldWrap = (cls, label, btn) => `<div class="ads-field ${cls}"><span class="ads-field__label" aria-hidden="true">${label}</span>${btn}</div>`;
+// The picker a field opened (iPad keeps the Fare Finder beside it): that field shows as selected
+const openPicker = s => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.s === s ? (top.p.field || true) : null; };
 function routeField(r, ri, opts = {}) {
-  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
+  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
   const half = (f, label) => {
     const c = b[f], s = c && ST[c];
-    return `<button class="ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body"><span class="ads-routefield__label">${label}</span>${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>`;
+    return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body">${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>${e[f] ? `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>` : ''}`);
   };
-  const errs = ['from', 'to'].filter(f => e[f]).map(f => `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>`).join('');
-  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-icon-btn ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
+  const errs = '';
+  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-btn ads-btn--tertiary ads-btn--icon-only ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
 }
 function dateFields(r, opts = {}) {
-  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
+  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('calendar');
+  const cal = ic('calendar', 'ads-fieldbtn__trail');
   const df = (f, label) => {
     const val = b[f];
-    if (f === 'ret' && b.trip === 'ow') return `<button class="ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__label">Return</span><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></button>`;
-    return `<button class="ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__label">${label}</span>${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-datefield__add">${ic('calendar', 'ads-icon--sm')}Choose date</span>`}</button>`;
+    if (f === 'ret' && b.trip === 'ow') return fieldWrap('', 'Return', `<button class="ads-fieldbtn ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__text"><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></span></button>`);
+    return fieldWrap('', label, `<button class="ads-fieldbtn ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__text">${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-routefield__hint">Choose date</span>`}</span>${cal}</button>`);
   };
   return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
+}
+// Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
+function travField(r, b, opts = {}) {
+  const d = D(), it = intentOf(b);
+  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, d) : paxSummary(b);
+  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  const err = travErr(r, b);
+  return fieldWrap('ffc-travfield', 'Travelers', `<button class="ads-fieldbtn ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(val)}${sub ? '. ' + esc(sub) : ''}. Edit travelers, discounts and assistance"${err ? ' aria-invalid="true" aria-describedby="trav-err"' : ''}${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-trav__val">${esc(val)}</span>${sub ? `<span class="ffc-trav__sub">${esc(sub)}</span>` : ''}</span>${ic('chevron-right', 'ads-fieldbtn__trail')}</button>`) + err;
 }
 // ADS tabs used as a single-choice switch: roving tabindex, arrow keys handled in core.js
 const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
@@ -3212,12 +3215,7 @@ function payControl(b, id) {
   const seg = `<div class="payset" role="radiogroup" aria-labelledby="${id}-l"><span class="payset__legend" id="${id}-l">Pay with</span>${opt('cash', 'Cash')}${opt('points', member ? 'Points · 12,450' : 'Points')}</div>`;
   return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
-function travelersRow(r, opts = {}) {
-  const b = D().booking, it = intentOf(b);
-  const label = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
-  const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fare'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: value == null ? null : esc(value), current: opts.open })]) + travErr(r, b);
-}
+function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
   const d = D(), entry = modeEntry(b, 'v1'); if (!entry) return '';
@@ -3250,7 +3248,7 @@ function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
   if (r.u.busy) return busyBtn(r, '', 'Finding trains');
   const off = needType;
-  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
 SCR.ff = (r, ri) => {
@@ -4061,11 +4059,7 @@ function ffClear(r, ri) {
     prType = elig ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
       : ''; // Leisure only: shown in the Booking type entry
   }
-  const travVal = corp ? '1 adult · You' : pr ? prSummary(b, d) : paxSummary(b);
-  // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
-  const travSub = [corp ? 'Corporate bookings are for you only' : pr ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
-  const paxErr = travErr(r, b);
-  const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
+  const trav = travField(r, b);
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
   const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
@@ -5165,7 +5159,7 @@ function codeField(r, b) {
   else if (st === 'changed') msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
   else if (b.code && b.code.benefit) msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${esc(b.code.kind)}: ${esc(b.code.benefit)}. Expires ${fmtExp(b.code.exp)}.</p>`;
   const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
-  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
+  const remove = text ? `<button class="ads-btn ads-btn--tertiary" type="button" data-a="code-remove" aria-label="Remove code ${esc(text)}">Remove</button>` : '';
   // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
   const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
   return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Coupon or promotion code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
