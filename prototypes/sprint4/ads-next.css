@@ -50,3 +50,17 @@
 .ds-next.device--ipad .psheet { border-radius: var(--ads-radius-12); }
 .ds-next .ffc-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
 .ds-next .ffc-surface { border-radius: var(--ads-radius-8); }
+
+/* Saved codes: List with one .list/row (ADS Next List anatomy)
+   Surface background/surface-raised, 1px border/subtle, radius/4. Row 44px (size/interactive-md), space/12 at
+   the sides and space/8 between parts. First line Body 16px content/text-primary, second line Caption 12px
+   content/text-tertiary; both truncate rather than wrap. Trailing slot: the 24px chevron. Hover
+   background/surface-hover; focus is a 2px border/focus ring inset on the row's own bounds. */
+.ds-next .dcode .ads-group__body { border-radius: var(--ads-radius-4); border: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-raised); }
+.ds-next .dcode .ads-group__row { min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-12); gap: var(--ads-space-8); border-radius: 0; }
+.ds-next .dcode button.ads-group__row:hover { background: var(--ads-background-surface-hover); }
+.ads-root .ds-next .dcode button.ads-group__row:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
+.ds-next .dcode .ads-group__text { gap: 0; }
+.ds-next .dcode .ads-group__label { font-size: var(--ads-type-body-size); line-height: 1.25; color: var(--ads-content-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-next .dcode .ads-group__value { font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); color: var(--ads-content-text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-next .dcode .ads-group__row > .ads-icon--chevron-right { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-secondary); }

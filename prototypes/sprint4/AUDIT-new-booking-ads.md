@@ -27,7 +27,7 @@
 | Travelers (passenger selection) | Text Input · `field/large` as a picker trigger, leading people icon, trailing chevron *(recommendation; see gaps)* | As From/To | As From/To | `border/brand` while Traveler selection is open beside it | `border/status-error`; message on the helper below | n/a |
 | Coupon or promotion code | Text Input · `field/default` (44px) with Optional marker | `border/default` 1px, `radius/4` | Border to 2px `border/focus` (inset, no shift) | n/a | `border/status-error` + helper (existing) | Read only while checking (existing) |
 | Remove (code) | Button · Tertiary · Default (44px, matches the field beside it) | `border/default`, `radius/4` | Button ring | n/a | n/a | n/a |
-| Saved codes | List row in a card container *(recommendation; see gaps)* | Container `radius/8`, 1px `border/subtle`; row with count and chevron | Inset ring inside the container | n/a | n/a | n/a |
+| Saved codes | List with one `.list/row` (ADS Next List anatomy) | Surface `background/surface-raised`, 1px `border/subtle`, `radius/4`; row 44px (`size/interactive-md`), `space/12` sides; first line Body 16px `content/text-primary`, second line Caption 12px `content/text-tertiary`, both truncate; 24px trailing chevron | 2px `border/focus` ring inset on the row's own bounds | n/a | n/a | n/a |
 | Trip type | Tabs | Unchanged (normalized earlier) | Inset ring | `border/brand` underline | n/a | n/a |
 | Pay with | Radio Group | 44px choice boxes (local 4px padding override removed) | Inset ring | Checked glyph | n/a | n/a |
 | Close | Icon Button · Default (44px), borderless, no rest fill | Transparent; icon `content/icon-primary` (white on Brand forward's navy) | Default focus ring | n/a | n/a | n/a |
@@ -68,7 +68,7 @@
    - Global and Mobile both say to prefer not disabling, and to explain what's missing when pressed.
    - Pass Rider disables Find trains until Business or Leisure is chosen, with the reason shown above it.
    - That behavior is part of the approved flow, so it was kept and flagged.
-3. **Saved codes (gap).** There's no library pattern for "a count that opens a chooser" under a field. It's mapped as a List row in a `radius/8` card with `border/subtle` (recommendation).
+3. **Saved codes (gap, now mapped to List).** There's no library pattern for "a count that opens a chooser" under a field. It's mapped as a List row in a `radius/8` card with `border/subtle` (recommendation).
 4. **Travelers entry (gap).**
    - The library has no picker-trigger field that opens a full screen.
    - It's mapped to Text Input `field/large` with a leading icon and trailing chevron (recommendation).

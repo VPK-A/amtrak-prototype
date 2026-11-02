@@ -11,6 +11,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `tabs.cjs` | ADS tabs for trip type, calendar dates and Trips: selection, arrow keys, axe in light and dark |
 | `exit.cjs` | "Exit booking?" appears only when something is filled out (close, scrim, Escape), across scenarios in both concepts |
 | `newbooking.cjs` | Design system › ADS Next: New booking radius, borders and rest, focus, selected, error and disabled states |
+| `savedcodes.cjs` | Design system › ADS Next: Saved codes as an ADS Next List row; Current unchanged |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:
