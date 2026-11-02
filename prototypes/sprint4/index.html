@@ -2339,6 +2339,59 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .device .ads-tabs--fill .ads-tab { height: auto; }
 .cal-pick.ads-tabs .ads-tab { flex-direction: column; gap: 1px; padding-block: 6px; line-height: 1.2; }
 
+/* ADS Next exploration (reviewer switch: Design system › ADS Next)
+   The New booking screen normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to
+   .ds-next on the device, so the current design is untouched when the switch is off.
+   - Text Input field/station and field/large (60px) as picker triggers, labels outside: radius/4,
+     border/default 1px; focus thickens the field's own border to 2px border/focus with no layout or corner
+     change; border/brand while its picker is open; border/status-error with the message on that field's helper.
+   - Swap: Tertiary Button, icon only. Close: borderless Icon Button. Find trains: Primary, Default 44px.
+   - Button focus ring 2px, 4px outside. Sheet and iPad modal radius/12; cards and grouped rows radius/8. */
+
+/* Text Input · field/large and field/station as a picker trigger */
+.ds-next .ads-fieldbtn { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: var(--ads-size-interactive-lg); padding: var(--ads-space-8) var(--ads-space-12); flex-wrap: nowrap;
+  border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.ds-next .ads-fieldbtn:hover { background: var(--ads-background-surface-default); }
+.ds-next .ads-fieldbtn[aria-expanded="true"], .ds-next .ads-fieldbtn[aria-current="true"] { border-color: var(--ads-border-brand); background: var(--ads-background-surface-default); }
+.ds-next .ads-fieldbtn[aria-invalid="true"] { border-color: var(--ads-border-status-error); box-shadow: none; }
+.ads-root .ds-next .ads-fieldbtn:focus-visible, .ds-next .ads-fieldbtn.ads-fieldbtn:focus-visible { outline: none; border-color: var(--ads-border-focus); box-shadow: inset 0 0 0 1px var(--ads-border-focus); }
+.ds-next .ads-fieldbtn:disabled { cursor: not-allowed; border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); }
+.ds-next .ads-fieldbtn__trail { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
+
+/* Route field: two labelled station fields and a Tertiary icon-only swap Button beside them */
+.ds-next .ads-routefield { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "from swap" "to swap"; column-gap: var(--ads-space-8); row-gap: var(--ads-space-12); align-items: start; border: 0; border-radius: 0; background: none; }
+.ds-next .ads-routefield__from { grid-area: from; }
+.ds-next .ads-routefield__to { grid-area: to; }
+.ds-next .ads-routefield__swap { grid-area: swap; position: static; transform: none; align-self: center; margin-top: var(--ads-space-24); z-index: auto; border: 1px solid var(--_border); border-radius: var(--ads-radius-4); background: var(--_bg); }
+.ds-next .ads-routefield__swap:hover { background: var(--_bg-hover); }
+.ds-next .ads-routefield__swap:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); }
+.ds-next .ads-routefield__code, .ds-next .ffc-surface .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
+.ds-next .ads-routefield__body, .ds-next .ffc-surface .ads-routefield__body { flex: 1; min-width: 0; }
+.ds-next .ads-routefield__city, .ds-next .ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+
+/* Date fields: Text Input with a trailing calendar icon; stacked at phone width so nothing truncates */
+.ds-next .ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); border: 0; border-radius: 0; background: none; overflow: visible; }
+.ds-next .ffc-surface, .ds-next .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
+@container ffcol (max-width: 420px) { .ds-next .ads-datefields { grid-template-columns: minmax(0, 1fr); } }
+.ds-next .ads-datefield { min-width: 0; flex-direction: row; justify-content: flex-start; }
+.ds-next .ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-next .ads-datefield__value, .ds-next .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-next .ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-regular); }
+.ds-next .ads-datefield__day { line-height: 1.3; }
+.ds-next .ads-routefield + .ads-helper, .ds-next .ads-datefields + .ads-helper { margin-top: 0; }
+
+/* Travelers: field/large with a leading icon and trailing chevron */
+.ds-next .ffc-trav > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
+
+/* Buttons, Radio Group, cards and surfaces */
+.ads-root .ds-next .ads-btn:focus-visible, .ds-next .ads-btn.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
+.ds-next .payset .paychoice { min-height: 0; padding-block: 0; }
+.ds-next .ads-group__body { border-radius: var(--ads-radius-8); }
+.ds-next .psheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next.device--ipad .psheet { border-radius: var(--ads-radius-12); }
+.ds-next .ffc-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next .ffc-surface { border-radius: var(--ads-radius-8); }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -2355,6 +2408,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbNet">Network</label><div class="ads-control ads-control--select"><select id="tbNet"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbToken">Session token</label><div class="ads-control ads-control--select"><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired (asks “Verify it’s you” before Change email)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbDs">Design system</span><div class="ads-segmented" id="tbDs" role="group" aria-labelledby="lbDs"><button type="button" data-v="current" aria-pressed="true">Current</button><button type="button" data-v="next" aria-pressed="false">ADS Next</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbTheme">Appearance</span><div class="ads-segmented" id="tbTheme" role="group" aria-labelledby="lbTheme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div></div>
       <button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" id="tbReset">Reset demo</button>
       <details class="ctl__notes" id="ctlNotes"><summary class="ads-body-small-emphasis">Screen notes</summary><div id="notes" aria-live="polite"></div></details>
@@ -2575,7 +2629,9 @@ const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' }
 const TODAY_S = iso(TODAY);
 
 // ---------- Toolbar state (shared) and per-version state ----------
-const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto' };
+const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto', ds: 'current' };
+// Design system switch: the current design, or the ADS Next exploration of New booking
+const dsNext = () => TB.ds === 'next';
 const blankAssist = () => ({ cat: null, dis: [], wc: null, needs: [] });
 const PR_ROLE = { 'passrider-spouse': 'spouse', 'passrider-dependent': 'dependent', 'passrider-minor': 'dependent', 'passrider-retiree': 'retiree' };
 function seed(sc) {
@@ -2844,7 +2900,7 @@ var render = function () {
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} notes-off`;
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${dsNext() ? ' ds-next' : ''} notes-off`;
   dev.dataset.theme = TB.theme;
   // Booking is a modal flow: the app's bottom navigation is hidden while it's open
   if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
@@ -2897,7 +2953,7 @@ function ipadNav() {
 function navbar(o, ri, ctx) {
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
-  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
+  const close = `<button class="ads-icon-btn ads-icon-btn--sm${dsNext() ? '' : ' ads-icon-btn--round'}" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
     if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
@@ -3038,7 +3094,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme); setSeg('#tbDs', TB.ds);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -3074,6 +3130,7 @@ function wireToolbar() {
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });
+  seg('#tbDs', v => { TB.ds = v; render(); });
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
   window.addEventListener('resize', scaleDevice);
@@ -3175,7 +3232,43 @@ const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) ||
 // A. Fare Finder
 // =====================================================================
 function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
+// ---------- ADS Next exploration (reviewer switch: Design system › ADS Next) ----------
+// The New booking screen normalized against ADS Next and Mobile ADS. Only used while dsNext() is on; the
+// current design below is untouched.
+// From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
+// triggers: the label sits outside the field; the accessible name stays on the button.
+const fieldWrap = (cls, label, btn) => `<div class="ads-field ${cls}"><span class="ads-field__label" aria-hidden="true">${label}</span>${btn}</div>`;
+// The picker a field opened (iPad keeps the Fare Finder beside it): that field shows as selected
+const openPicker = s => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.s === s ? (top.p.field || true) : null; };
+function routeFieldNext(r, ri, opts = {}) {
+  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
+  const half = (f, label) => {
+    const c = b[f], s = c && ST[c];
+    return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body">${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>${e[f] ? `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>` : ''}`);
+  };
+  const errs = '';
+  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-btn ads-btn--tertiary ads-btn--icon-only ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
+}
+function dateFieldsNext(r, opts = {}) {
+  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('calendar');
+  const cal = ic('calendar', 'ads-fieldbtn__trail');
+  const df = (f, label) => {
+    const val = b[f];
+    if (f === 'ret' && b.trip === 'ow') return fieldWrap('', 'Return', `<button class="ads-fieldbtn ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__text"><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></span></button>`);
+    return fieldWrap('', label, `<button class="ads-fieldbtn ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__text">${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-routefield__hint">Choose date</span>`}</span>${cal}</button>`);
+  };
+  return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
+}
+// Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
+function travField(r, b, opts = {}) {
+  const d = D(), it = intentOf(b);
+  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, d) : paxSummary(b);
+  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  const err = travErr(r, b);
+  return fieldWrap('ffc-travfield', 'Travelers', `<button class="ads-fieldbtn ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(val)}${sub ? '. ' + esc(sub) : ''}. Edit travelers, discounts and assistance"${err ? ' aria-invalid="true" aria-describedby="trav-err"' : ''}${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-trav__val">${esc(val)}</span>${sub ? `<span class="ffc-trav__sub">${esc(sub)}</span>` : ''}</span>${ic('chevron-right', 'ads-fieldbtn__trail')}</button>`) + err;
+}
 function routeField(r, ri, opts = {}) {
+  if (dsNext()) return routeFieldNext(r, ri, opts);
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
   const half = (f, label) => {
     const c = b[f], s = c && ST[c];
@@ -3185,6 +3278,7 @@ function routeField(r, ri, opts = {}) {
   return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-icon-btn ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
 }
 function dateFields(r, opts = {}) {
+  if (dsNext()) return dateFieldsNext(r, opts);
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
   const df = (f, label) => {
     const val = b[f];
@@ -3213,6 +3307,7 @@ function payControl(b, id) {
   return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
 function travelersRow(r, opts = {}) {
+  if (dsNext()) return travField(r, D().booking, opts);
   const b = D().booking, it = intentOf(b);
   const label = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
   const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fare'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
@@ -3250,7 +3345,7 @@ function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
   if (r.u.busy) return busyBtn(r, '', 'Finding trains');
   const off = needType;
-  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block${dsNext() ? '' : ' ads-btn--lg'}" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
 SCR.ff = (r, ri) => {
@@ -4065,7 +4160,7 @@ function ffClear(r, ri) {
   // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
   const travSub = [corp ? 'Corporate bookings are for you only' : pr ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const paxErr = travErr(r, b);
-  const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
+  const trav = dsNext() ? travField(r, b) : `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
   const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;

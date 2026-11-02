@@ -115,7 +115,7 @@ function ffClear(r, ri) {
   // One traveler entry point with a concise summary: only selections that were made (Q21 for the layout)
   const travSub = [corp ? 'Corporate bookings are for you only' : pr ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const paxErr = travErr(r, b);
-  const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
+  const trav = dsNext() ? travField(r, b) : `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
   const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;

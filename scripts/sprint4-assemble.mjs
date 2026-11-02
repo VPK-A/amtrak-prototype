@@ -10,7 +10,7 @@ import { marked } from 'marked';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROTO = join(ROOT, 'prototypes/sprint4');
-export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'));
+export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'), join(PROTO, 'ads-next.css'));
 export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'familiar', 'overview', 'compact', 'chrome', 'boot'];
 export const JS_FILES = JS_ORDER.map(n => join(PROTO, `${n}.js`));
 export const SHELL = join(PROTO, 'src.html');
@@ -39,6 +39,6 @@ export function assemble() {
 export function standalone() {
   const { js, shell } = assemble();
   return shell.replace('/*__ADS_CSS__*/', () => CSS_FILES.slice(0, 3).map(read).join('\n'))
-    .replace('/*__PROTO_CSS__*/', () => read(CSS_FILES[3]))
+    .replace('/*__PROTO_CSS__*/', () => CSS_FILES.slice(3).map(read).join('\n'))
     .replace('/*__JS__*/', () => js);
 }

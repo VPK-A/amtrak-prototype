@@ -21,7 +21,9 @@ const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' }
 const TODAY_S = iso(TODAY);
 
 // ---------- Toolbar state (shared) and per-version state ----------
-const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto' };
+const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto', ds: 'current' };
+// Design system switch: the current design, or the ADS Next exploration of New booking
+const dsNext = () => TB.ds === 'next';
 const blankAssist = () => ({ cat: null, dis: [], wc: null, needs: [] });
 const PR_ROLE = { 'passrider-spouse': 'spouse', 'passrider-dependent': 'dependent', 'passrider-minor': 'dependent', 'passrider-retiree': 'retiree' };
 function seed(sc) {
@@ -290,7 +292,7 @@ var render = function () {
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} notes-off`;
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''}${dsNext() ? ' ds-next' : ''} notes-off`;
   dev.dataset.theme = TB.theme;
   // Booking is a modal flow: the app's bottom navigation is hidden while it's open
   if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
@@ -343,7 +345,7 @@ function ipadNav() {
 function navbar(o, ri, ctx) {
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
-  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
+  const close = `<button class="ads-icon-btn ads-icon-btn--sm${dsNext() ? '' : ' ads-icon-btn--round'}" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
     if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
@@ -484,7 +486,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme); setSeg('#tbDs', TB.ds);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -520,6 +522,7 @@ function wireToolbar() {
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });
+  seg('#tbDs', v => { TB.ds = v; render(); });
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
   window.addEventListener('resize', scaleDevice);

@@ -1,0 +1,52 @@
+/* ADS Next exploration (reviewer switch: Design system › ADS Next)
+   The New booking screen normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to
+   .ds-next on the device, so the current design is untouched when the switch is off.
+   - Text Input field/station and field/large (60px) as picker triggers, labels outside: radius/4,
+     border/default 1px; focus thickens the field's own border to 2px border/focus with no layout or corner
+     change; border/brand while its picker is open; border/status-error with the message on that field's helper.
+   - Swap: Tertiary Button, icon only. Close: borderless Icon Button. Find trains: Primary, Default 44px.
+   - Button focus ring 2px, 4px outside. Sheet and iPad modal radius/12; cards and grouped rows radius/8. */
+
+/* Text Input · field/large and field/station as a picker trigger */
+.ds-next .ads-fieldbtn { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: var(--ads-size-interactive-lg); padding: var(--ads-space-8) var(--ads-space-12); flex-wrap: nowrap;
+  border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.ds-next .ads-fieldbtn:hover { background: var(--ads-background-surface-default); }
+.ds-next .ads-fieldbtn[aria-expanded="true"], .ds-next .ads-fieldbtn[aria-current="true"] { border-color: var(--ads-border-brand); background: var(--ads-background-surface-default); }
+.ds-next .ads-fieldbtn[aria-invalid="true"] { border-color: var(--ads-border-status-error); box-shadow: none; }
+.ads-root .ds-next .ads-fieldbtn:focus-visible, .ds-next .ads-fieldbtn.ads-fieldbtn:focus-visible { outline: none; border-color: var(--ads-border-focus); box-shadow: inset 0 0 0 1px var(--ads-border-focus); }
+.ds-next .ads-fieldbtn:disabled { cursor: not-allowed; border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); }
+.ds-next .ads-fieldbtn__trail { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
+
+/* Route field: two labelled station fields and a Tertiary icon-only swap Button beside them */
+.ds-next .ads-routefield { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "from swap" "to swap"; column-gap: var(--ads-space-8); row-gap: var(--ads-space-12); align-items: start; border: 0; border-radius: 0; background: none; }
+.ds-next .ads-routefield__from { grid-area: from; }
+.ds-next .ads-routefield__to { grid-area: to; }
+.ds-next .ads-routefield__swap { grid-area: swap; position: static; transform: none; align-self: center; margin-top: var(--ads-space-24); z-index: auto; border: 1px solid var(--_border); border-radius: var(--ads-radius-4); background: var(--_bg); }
+.ds-next .ads-routefield__swap:hover { background: var(--_bg-hover); }
+.ds-next .ads-routefield__swap:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); }
+.ds-next .ads-routefield__code, .ds-next .ffc-surface .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
+.ds-next .ads-routefield__body, .ds-next .ffc-surface .ads-routefield__body { flex: 1; min-width: 0; }
+.ds-next .ads-routefield__city, .ds-next .ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+
+/* Date fields: Text Input with a trailing calendar icon; stacked at phone width so nothing truncates */
+.ds-next .ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); border: 0; border-radius: 0; background: none; overflow: visible; }
+.ds-next .ffc-surface, .ds-next .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
+@container ffcol (max-width: 420px) { .ds-next .ads-datefields { grid-template-columns: minmax(0, 1fr); } }
+.ds-next .ads-datefield { min-width: 0; flex-direction: row; justify-content: flex-start; }
+.ds-next .ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-next .ads-datefield__value, .ds-next .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-next .ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-regular); }
+.ds-next .ads-datefield__day { line-height: 1.3; }
+.ds-next .ads-routefield + .ads-helper, .ds-next .ads-datefields + .ads-helper { margin-top: 0; }
+
+/* Travelers: field/large with a leading icon and trailing chevron */
+.ds-next .ffc-trav > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
+
+/* Buttons, Radio Group, cards and surfaces */
+.ads-root .ds-next .ads-btn:focus-visible, .ds-next .ads-btn.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
+.ds-next .payset .paychoice { min-height: 0; padding-block: 0; }
+.ds-next .ads-group__body { border-radius: var(--ads-radius-8); }
+.ds-next .psheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next.device--ipad .psheet { border-radius: var(--ads-radius-12); }
+.ds-next .ffc-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next .ffc-surface { border-radius: var(--ads-radius-8); }
