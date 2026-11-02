@@ -62,6 +62,8 @@ function freshBooking(d) {
     // NMA-614: Traveler 1 (the account holder) starts with the saved assistance; the indication is on when saved
     // requests or a disability discount exist. Edits here never write back to Profile.
     assistOn: d.signedIn && (!!d.assist.cat || d.discount.type === 'pwd'),
+    // Concepts 1 and 3: who asked for help, per traveler (the account holder starts checked when the indication is on)
+    ask: d.signedIn && (!!d.assist.cat || d.discount.type === 'pwd') ? { 'adult-1': true, 'pr-you': true } : {},
     assist: d.signedIn && d.assist.cat ? clone(d.assist) : blankAssist(), assistDone: d.signedIn && !!d.assist.cat, assistFromProfile: d.signedIn && !!d.assist.cat, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
@@ -160,7 +162,7 @@ function goLoc(loc) {
   // Guests have no Profile: those locations land on the guest Account sheet instead of signing in silently
   const guestBlocked = () => { if (d.signedIn) return false; account([]); return true; };
   const sampleRoute = () => { if (!b.from) b.from = 'NYP'; if (!b.to || b.to === b.from) b.to = 'WAS'; };
-  const sampleAssist = () => { if (!b.assistDone) { b.assist = { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station'] }; b.assistDone = true; } b.assistOn = true; };
+  const sampleAssist = () => { if (!b.assistDone) { b.assist = { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station'] }; b.assistDone = true; } b.assistOn = true; setAsk(b, holderKey(b), true); };
   switch (k) {
     case 'tab': v.nav.tab = arg; break;
     case 'ff': b.trip = 'ow'; booking([]); break;
@@ -172,7 +174,7 @@ function goLoc(loc) {
     case 'code': booking([R('code')]); break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
-      if (k === 'assist-review') sampleAssist(); else b.assistOn = true;
+      if (k === 'assist-review') sampleAssist(); else { b.assistOn = true; setAsk(b, firstKey(b), true); }
       const viaT = v.entry === 'travelers';
       if (TB.v !== 2) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
@@ -280,6 +282,7 @@ function clearDialog() {
 // ---------- Rendering shell ----------
 var render = function () {
   const dev = $('#device'); if (!dev) return;
+  if (VS[TB.v] && D().booking) syncAsk(D().booking);
   resetNotes();
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));

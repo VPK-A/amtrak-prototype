@@ -4,7 +4,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
 (async () => {
   const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1100 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href);
+  await p.goto('file:///home/user/ads-design-system/prototypes/sprint4/index.html');
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   const w = ms => p.waitForTimeout(ms), D = '#device ', ev = (f, a) => p.evaluate(f, a);
   const go = (v, sc, loc = 'ff', net = 'online') => ev(([v, sc, loc, net]) => { TB.v = v; TB.dev = 'iphone'; TB.text = 100; TB.theme = 'light'; VS[v] = makeVS(sc); VS[v].net = net; V().toast = null; goLoc(loc); }, [v, sc, loc, net]);
@@ -53,7 +53,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await p.locator(D + '[data-a="choose-station"][data-code="LOR"]').first().isDisabled(), `${T} 10 disabled station state (Auto Train in Business)`);
     // 11 service animal inside the questionnaire only
     await go(v, 'returning', 'travelers'); ok(!/Bringing a service animal/.test(await txt()), `${T} 11 no standalone service-animal shortcut on Travelers`);
-    await dclick('#ff-assist'); await ev(() => { V().net = 'online'; }); await dclick('[data-a="ff-assist-continue"]'); await w(800);
+    await p.evaluate(() => { const b = D().booking, on = !travelerList(b).some(t => asks(b, t.key)); travelerList(b).forEach(t => setAsk(b, t.key, on)); render(); }); await ev(() => { V().net = 'online'; }); await dclick('[data-a="assist-answer"][data-t="adult-1"]'); await w(950);
     await ev(() => { const r = sheet().stack[sheet().stack.length - 1]; r.u.d = { cat: 'disability', dis: ['vision'], wc: '', needs: [], for: '' }; render(); }); await w(150);
     ok(await p.locator(D + '[data-topic="service-animals"]').count() === 1 && /Large service animal/.test(await txt()), `${T} 11 service-animal guidance inside the disability branch`);
     // 12 title Assistance + traveler label
@@ -166,6 +166,6 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   for (const v of [1, 3]) for (const sc of ['returning', 'passrider', 'triplink', 'guest']) { await go(v, sc); const h = await ev(() => document.querySelector('#device').innerText); ok(!/NMA-\d/.test(h) && await p.locator('#device .pq:visible').count() === 0, `C${v} ${sc}: no Jira IDs or question markers in the app`); }
   console.log('errors:', errs.length ? errs.join('\n') : 'none');
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
-  
+  require('fs').writeFileSync('final-results.json', JSON.stringify(res));
   await br.close();
 })();

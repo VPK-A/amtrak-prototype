@@ -96,7 +96,6 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ptitle { margin: 0; font-size: 15px; }
 .ads-routefield + .ads-helper, .ads-datefields + .ads-helper { margin-top: -10px; }
 .assistbox { display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 12px; background: var(--ads-background-status-info-subtle); border: 1px solid var(--ads-border-status-info-subtle); }
-.assistbox .ads-choice__supporting { color: var(--ads-content-text-secondary); }
 .assistform { display: flex; flex-direction: column; gap: 20px; }
 .wcq { padding: 12px; border-radius: 12px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
 .wcq legend { display: flex; align-items: center; gap: 6px; float: left; width: 100%; margin-bottom: 4px; }
@@ -710,7 +709,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-travs { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
 .ov-travs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .ov-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 14px; background: var(--ads-background-surface-default); }
-.ov-trav { display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 14px; }
+.ov-trav { display: flex; align-items: flex-start; gap: 8px; padding: 12px 8px 12px 14px; }
 .ov-trav + .ov-trav { border-top: 1px solid var(--ads-border-subtle); }
 .ov-trav.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
 .ov-trav__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -907,13 +906,16 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ctl__notes .nlist { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 
 /* "Traveler with disability or need help?" on the Travelers screen (NMA-973) */
-.ffassist { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 12px; padding: 12px 14px; border-radius: 16px; background: var(--ads-background-surface-sunken); }
-.ffassist .ads-choice__supporting { color: var(--ads-content-text-secondary); }
-.ffassist__row { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-left: 36px; }
-.ffassist__status { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ffassist__busy { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ads-type-body-small-size); }
-.ffassist__note { margin: 0; padding-left: 36px; }
-.text-large .ffassist__row, .text-large .ffassist__note { padding-left: 0; }
+/* Each traveler's "Traveler with disability or need help?" inside Traveler details (NMA-973) */
+.tassist { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+/* the DS control box is larger than its glyph: pull it out so the glyph lines up with the card's text */
+.tassist .ads-choice { margin-left: calc((var(--ads-size-icon-md) - var(--ads-size-interactive-md)) / 2); }
+.tassist__row { display: flex; align-items: center; gap: var(--ads-space-8) var(--ads-space-12); flex-wrap: wrap; padding-left: calc(var(--ads-size-icon-md) + var(--ads-space-4) + (var(--ads-size-interactive-md) - var(--ads-size-icon-md)) / 2); }
+.ffassist__busy { display: inline-flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+.tassist__note { margin: 0; padding-left: calc(var(--ads-size-icon-md) + var(--ads-space-4) + (var(--ads-size-interactive-md) - var(--ads-size-icon-md)) / 2); }
+.text-large .tassist__row, .text-large .tassist__note { padding-left: 0; }
+.ov-trav__answer { display: flex; }
+.text-large .ov-trav__answer { padding-left: 0; }
 .ov-chip--todo { box-shadow: inset 0 0 0 1px var(--ads-border-status-warning, var(--ads-border-default)); background: none; }
 .paynote { margin: 6px 0 0; }
 

@@ -1539,7 +1539,6 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ptitle { margin: 0; font-size: 15px; }
 .ads-routefield + .ads-helper, .ads-datefields + .ads-helper { margin-top: -10px; }
 .assistbox { display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 12px; background: var(--ads-background-status-info-subtle); border: 1px solid var(--ads-border-status-info-subtle); }
-.assistbox .ads-choice__supporting { color: var(--ads-content-text-secondary); }
 .assistform { display: flex; flex-direction: column; gap: 20px; }
 .wcq { padding: 12px; border-radius: 12px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
 .wcq legend { display: flex; align-items: center; gap: 6px; float: left; width: 100%; margin-bottom: 4px; }
@@ -2153,7 +2152,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-travs { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
 .ov-travs__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .ov-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: 14px; background: var(--ads-background-surface-default); }
-.ov-trav { display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 14px; }
+.ov-trav { display: flex; align-items: flex-start; gap: 8px; padding: 12px 8px 12px 14px; }
 .ov-trav + .ov-trav { border-top: 1px solid var(--ads-border-subtle); }
 .ov-trav.has-error { box-shadow: inset 3px 0 0 var(--ads-border-error, #c0262d); }
 .ov-trav__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -2350,13 +2349,16 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ctl__notes .nlist { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 
 /* "Traveler with disability or need help?" on the Travelers screen (NMA-973) */
-.ffassist { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 12px; padding: 12px 14px; border-radius: 16px; background: var(--ads-background-surface-sunken); }
-.ffassist .ads-choice__supporting { color: var(--ads-content-text-secondary); }
-.ffassist__row { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-left: 36px; }
-.ffassist__status { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ffassist__busy { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ads-type-body-small-size); }
-.ffassist__note { margin: 0; padding-left: 36px; }
-.text-large .ffassist__row, .text-large .ffassist__note { padding-left: 0; }
+/* Each traveler's "Traveler with disability or need help?" inside Traveler details (NMA-973) */
+.tassist { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+/* the DS control box is larger than its glyph: pull it out so the glyph lines up with the card's text */
+.tassist .ads-choice { margin-left: calc((var(--ads-size-icon-md) - var(--ads-size-interactive-md)) / 2); }
+.tassist__row { display: flex; align-items: center; gap: var(--ads-space-8) var(--ads-space-12); flex-wrap: wrap; padding-left: calc(var(--ads-size-icon-md) + var(--ads-space-4) + (var(--ads-size-interactive-md) - var(--ads-size-icon-md)) / 2); }
+.ffassist__busy { display: inline-flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+.tassist__note { margin: 0; padding-left: calc(var(--ads-size-icon-md) + var(--ads-space-4) + (var(--ads-size-interactive-md) - var(--ads-size-icon-md)) / 2); }
+.text-large .tassist__row, .text-large .tassist__note { padding-left: 0; }
+.ov-trav__answer { display: flex; }
+.text-large .ov-trav__answer { padding-left: 0; }
 .ov-chip--todo { box-shadow: inset 0 0 0 1px var(--ads-border-status-warning, var(--ads-border-default)); background: none; }
 .paynote { margin: 6px 0 0; }
 
@@ -2569,7 +2571,7 @@ const QUESTIONS = {
   4: ['Booking window (NMA-1060)', 'Unresolved: the 335-day limit and its reference date need confirmation. The prototype keeps 335 days as a setting (WINDOW_DAYS), disables dates beyond it and doesn’t state a limit to customers.'],
   5: ['Country change and the address', 'The criteria say changing country clears the fields; a note says UX decides. The prototype clears them and offers Undo.'],
   6: ['Phone types and DOB bounds', 'Are Home/Business/Extension the final phone types? Does changing the country code clear the number (the prototype keeps each region’s number)? DOB only rejects future dates.'],
-  7: ['Assistance entry: proposed mapping (NMA-973)', 'Proposed, not approved: the “Traveler with disability or need help?” indication, its explanation and Continue live on the Travelers screen, inside the Fare Finder journey (verbal guidance: assistance lives with travelers). Continue opens the first unanswered traveler’s questions and needs a connection the first time; once loaded they can be finished offline. While it’s checked every traveler answers, and the Fare Finder’s Travelers summary shows how many have. Signed-in members start with Traveler 1 prefilled from Profile and the indication on when saved requests or a disability discount exist (NMA-614); trip changes never write back. The exact entry and CTA mapping still needs agreement. Save to Profile (NMA-1051) and later Traveler Info aren’t part of Sprint 4.'],
+  7: ['Assistance entry: proposed mapping (NMA-973)', 'Proposed, not approved: each traveler has their own “Traveler with disability or need help?” checkbox inside Traveler details on the Travelers screen (direction: per traveler, not one checkbox for the whole Travelers section). Checking it shows Answer for that traveler; Answer opens their questions and needs a connection the first time; once loaded they can be finished offline. Only checked travelers answer (NMA-615 BR1.2 said every traveler answers once assistance is on: confirm this per-traveler reading). Unchecking keeps that traveler’s answers for the trip but stops them counting. The Fare Finder’s Travelers summary shows how many have answered. Signed-in members start with the account holder checked and prefilled from Profile when saved requests or a disability discount exist (NMA-614); trip changes never write back. The explanation text is an AEM placeholder. Save to Profile (NMA-1051) and later Traveler Info aren’t part of Sprint 4.'],
   21: ['Discount code placement', 'Proposed placement, not a confirmed requirement: the always-visible Discount code field sits after the traveler summary and assistance check, before Pay with and Find trains. NMA-613 doesn’t set a position. Saved codes open from “Use a saved code” rather than when the field is tapped, so typing isn’t interrupted (scenario 5 says the pop-up opens “when selecting to add discount”). The label follows sentence case (“Discount code”).'],
   23: ['Discount code format and offline', 'Two conflicts in NMA-613. Format: the front-end rule says “4 or 14 digits” while the Rules say 4- and 14-character alphanumeric codes; the prototype accepts letters and numbers. Offline: the story says “All functionality works offline”, but scenario 15 says a code that can’t be checked must not be applied. The prototype lets you enter and remove a code offline; checking it needs a connection (and so does Find trains).'],
   24: ['Pending approvals: Pass Rider assistance and employee profile', 'NMA-1019 (assistance on Pass Rider bookings) and NMA-20 (employee pass details in profile) are awaiting approval. The prototype keeps assistance available for every Pass Rider traveler (NMA-623 AC4) and keeps the existing employee pass editor; neither is counted as verified coverage.'],
@@ -2692,6 +2694,8 @@ function freshBooking(d) {
     // NMA-614: Traveler 1 (the account holder) starts with the saved assistance; the indication is on when saved
     // requests or a disability discount exist. Edits here never write back to Profile.
     assistOn: d.signedIn && (!!d.assist.cat || d.discount.type === 'pwd'),
+    // Concepts 1 and 3: who asked for help, per traveler (the account holder starts checked when the indication is on)
+    ask: d.signedIn && (!!d.assist.cat || d.discount.type === 'pwd') ? { 'adult-1': true, 'pr-you': true } : {},
     assist: d.signedIn && d.assist.cat ? clone(d.assist) : blankAssist(), assistDone: d.signedIn && !!d.assist.cat, assistFromProfile: d.signedIn && !!d.assist.cat, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
@@ -2790,7 +2794,7 @@ function goLoc(loc) {
   // Guests have no Profile: those locations land on the guest Account sheet instead of signing in silently
   const guestBlocked = () => { if (d.signedIn) return false; account([]); return true; };
   const sampleRoute = () => { if (!b.from) b.from = 'NYP'; if (!b.to || b.to === b.from) b.to = 'WAS'; };
-  const sampleAssist = () => { if (!b.assistDone) { b.assist = { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station'] }; b.assistDone = true; } b.assistOn = true; };
+  const sampleAssist = () => { if (!b.assistDone) { b.assist = { cat: 'disability', dis: ['mobility'], wc: true, needs: ['station'] }; b.assistDone = true; } b.assistOn = true; setAsk(b, holderKey(b), true); };
   switch (k) {
     case 'tab': v.nav.tab = arg; break;
     case 'ff': b.trip = 'ow'; booking([]); break;
@@ -2802,7 +2806,7 @@ function goLoc(loc) {
     case 'code': booking([R('code')]); break;
     case 'handoff': sampleRoute(); booking([R('handoff')]); break;
     case 'assist-booking': case 'assist-review': {
-      if (k === 'assist-review') sampleAssist(); else b.assistOn = true;
+      if (k === 'assist-review') sampleAssist(); else { b.assistOn = true; setAsk(b, firstKey(b), true); }
       const viaT = v.entry === 'travelers';
       if (TB.v !== 2) {
         if (k === 'assist-review') { booking(viaT ? [R('travelers')] : []); const st = v.nav.sheet.stack; st[st.length - 1].u.reviewFocus = true; }
@@ -2910,6 +2914,7 @@ function clearDialog() {
 // ---------- Rendering shell ----------
 var render = function () {
   const dev = $('#device'); if (!dev) return;
+  if (VS[TB.v] && D().booking) syncAsk(D().booking);
   resetNotes();
   const ae = document.activeElement, keep = ae && dev.contains(ae) ? openerSel(ae) : null; // any control, so focus survives redraws
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
@@ -3267,7 +3272,7 @@ function dateFields(r, opts = {}) {
 const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
 const tripSeg = () => { const b = D().booking; return `<div class="ads-tabs ads-tabs--fill trip-tabs" role="tablist" aria-label="Trip type">${tabBtn(b.trip === 'ow', 'data-a="trip" data-v="ow"', 'One-way')}${tabBtn(b.trip === 'rt', 'data-a="trip" data-v="rt"', 'Round-trip')}</div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
-const pwdApplies = b => b.assistOn && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+const pwdApplies = b => asks(b, holderKey(b)) && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
 // Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
 function payV1(b) {
   ref('624');
@@ -3945,7 +3950,7 @@ A['assist-save'] = (t, ri) => {
     const before = d.discount.type; let msg = m.cat ? 'Your assistance is saved to your profile.' : 'Assistance cleared. Nothing is saved.';
     if (m.cat === 'disability' && before !== 'pwd') { d.discount = { type: 'pwd', rpa: '' }; msg += ` Your discount is now Passenger with disability${before !== 'none' ? `, which replaced ${DISCOUNTS[before].label}` : ''}.`; }
     if (m.cat !== 'disability' && before === 'pwd') { d.discount = { type: 'none', rpa: '' }; msg += ' The Passenger with disability discount was removed.'; }
-    d.assist = m; if (!d.booking.assistDone || d.booking.assistFromProfile) { d.booking.assist = clone(m); d.booking.assistDone = !!m.cat; d.booking.assistOn = !!m.cat; d.booking.assistFromProfile = !!m.cat; }
+    d.assist = m; if (!d.booking.assistDone || d.booking.assistFromProfile) { d.booking.assist = clone(m); d.booking.assistDone = !!m.cat; d.booking.assistOn = !!m.cat; d.booking.assistFromProfile = !!m.cat; d.booking.ask = m.cat ? { 'adult-1': true, 'pr-you': true } : {}; }
     return msg;
   }, msg => { r.u.editing = false; r.u.d = undefined; r.u.dirty = false; r.u.step = null; r.u.savedMsg = msg; r.u.returnTo = r.p.returnTo; pendingFocus = 'title'; render(); });
 };
@@ -4066,7 +4071,7 @@ function tdiscOf(b, t) {
   const fromAssist = assistDiscount(b, t.key); if (fromAssist) return fromAssist; // PWD or Companion (NMA-43 BR8)
   if (t.type === 'senior') return 'senior';
   if (t.type === 'infant') return t.i > lapCap(b.pax) ? (b.tdisc[t.key] === 'military' ? 'military' : 'infantchild') : 'infant';
-  if (t.key === 'adult-1' && profilePwd() && ['standard', 'personal'].includes(intentOf(b)) && !(b.assistOn && assistRec(b, t.key).done)) return 'pwd'; // profile disability (NMA-612 BR6)
+  if (t.key === 'adult-1' && profilePwd() && ['standard', 'personal'].includes(intentOf(b)) && !(asks(b, t.key) && assistRec(b, t.key).done)) return 'pwd'; // profile disability (NMA-612 BR6)
   if (t.key === 'adult-1') return b.disc;
   return b.tdisc[t.key] || TDISC[t.type][0];
 }
@@ -4154,7 +4159,7 @@ const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you al
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {
   const tp = travelerProblems(b), ap = assistProblems(b), am = assistMissing(b);
-  const msg = tp[0] || ap[0] || (am.length ? `Assistance is on, so each traveler needs an answer (${am.length} not answered yet).` : '');
+  const msg = tp[0] || ap[0] || (am.length ? `Answer the assistance questions for ${am.length > 1 ? `${am.length} travelers` : am[0].label}, or uncheck “Traveler with disability or need help?” in Travelers.` : '');
   if (!r.u.showErr || !msg) return '';
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
@@ -4293,7 +4298,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -4327,10 +4332,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
+      ${fam ? travelerCards(b, r) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
       ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? overviewPassRider(b) + assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? travelerCards(b, r) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -4354,6 +4359,7 @@ function forgetTraveler(b, key) {
   if (key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; if (key === 'adult-1') b.disc = freshBooking(D()).disc; }
   delete b.ta[key]; if (b.tdisc) delete b.tdisc[key]; if (b.prKinds) delete b.prKinds[key];
   if (b.taSeen) delete b.taSeen[key];
+  if (b.ask) delete b.ask[key];
 }
 A['pr-me'] = t => { D().booking.prPax.me = t.checked; pendingFocus = '[data-a="pr-me"]'; render(); };
 HOOKS.prkind = (r, t) => { const b = D().booking; b.prKinds = b.prKinds || {}; b.prKinds[t.dataset.key] = t.value; pendingFocus = '#' + CSS.escape(t.id); };
@@ -4705,9 +4711,17 @@ function setAssistRec(b, key, m) {
   b.ta = b.ta || {};
   if (!key || key === holderKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
   else b.ta[key] = { m, done: true };
+  if (perTraveler()) setAsk(b, key || holderKey(b), true);
 }
-// The assistance type that counts for a traveler: only once answered, and only while the booking asks for help
-function assistCat(b, key) { const a = assistRec(b, key); return b.assistOn && a.done ? a.m.cat : null; }
+// Concepts 1 and 3: each traveler has their own "Traveler with disability or need help?" checkbox in Traveler
+// details (b.ask). b.assistOn is derived from it (any traveler checked), so shared summaries keep working.
+// The archived concepts keep one booking-level indication (b.assistOn).
+const perTraveler = () => v1() || v3();
+const asks = (b, key) => perTraveler() ? !!(b.ask && b.ask[key]) : !!b.assistOn;
+function setAsk(b, key, on) { b.ask = b.ask || {}; if (on) b.ask[key] = true; else delete b.ask[key]; syncAsk(b); }
+function syncAsk(b) { if (perTraveler()) b.assistOn = travelerList(b).some(t => asks(b, t.key)); }
+// The assistance type that counts for a traveler: only once answered, and only while that traveler asks for help
+function assistCat(b, key) { const a = assistRec(b, key); return asks(b, key) && a.done ? a.m.cat : null; }
 const catCount = (b, cat, except) => travelerList(b).filter(t => t.key !== except && assistCat(b, t.key) === cat).length;
 // NMA-615 BR2.1–2.2: a personal companion accompanies one traveler with a disability, and each of them may
 // bring one companion. The companion names who they accompany, so the pairing is explicit.
@@ -4751,7 +4765,7 @@ function assistDiscount(b, key) {
 }
 function assistLine(b, key) {
   const a = assistRec(b, key);
-  if (!b.assistOn) return 'Not requested';
+  if (!asks(b, key)) return 'Not requested';
   if (!a.done) return 'Not answered';
   return a.m.cat === 'none' ? 'No assistance needed' : CATS[a.m.cat];
 }
@@ -4769,9 +4783,9 @@ function travelerChoices(b) {
   const it = intentOf(b), parts = [];
   if (['standard', 'personal'].includes(it)) { const d = discSummary(b); if (d !== 'None chosen') parts.push(d); }
   if (it === 'pr' && b.prType !== 'business') { const kids = travelerList(b).filter(t => prKind(b, t.key) === 'child').length; if (kids) parts.push(`${kids} child${kids > 1 ? 'ren' : ''}`); }
-  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return b.assistOn && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
-  const all = travelerList(b).length, miss = b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done).length : 0;
-  if (miss) parts.push(`Assistance answered for ${all - miss} of ${all}`);
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const asked = travelerList(b).filter(t => asks(b, t.key)).length, miss = assistMissing(b).length;
+  if (miss) parts.push(`Assistance answered for ${asked - miss} of ${asked}`);
   else if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
   if (assistProblems(b).length) parts.push('Assistance needs a change');
   return parts.join(' · ');
@@ -4779,7 +4793,7 @@ function travelerChoices(b) {
 // Short form for summaries: "Assistance for 2 travelers"
 function assistShort(b) {
   if (!b.assistOn) return '';
-  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
   return n ? `Assistance for ${n} traveler${n > 1 ? 's' : ''}` : 'Assistance not answered yet';
 }
 // ---------- Shared component: every traveler's assistance, with Add or Edit ----------
@@ -4817,7 +4831,7 @@ function prCanStart(d) {
 V3_PLACES.companion = () => {
   const b = D().booking; b.from = b.from || 'NYP'; b.to = b.to || 'WAS'; b.pax.adult = 2; b.assistOn = true;
   setAssistRec(b, 'adult-1', { cat: 'disability', dis: ['mobility'], wc: false, needs: ['station'] });
-  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true };
+  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true }; setAsk(b, 'adult-2', true);
   if (v2()) sheet().stack[0].u.open = 'who';
   render();
 };
@@ -4828,7 +4842,7 @@ A['assist-remove'] = t => {
   const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
   clearAssistRec(b, key);
   pendingFocus = `[data-a="assist-edit"][data-t="${key}"]`;
-  toast(comp ? `Answer removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Answer removed for ${label}${b.assistOn && (v1() || v3()) ? '. Choose an option again, or turn assistance off.' : ''}`, 'info');
+  toast(comp ? `Answer removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Answer removed for ${label}${perTraveler() && asks(b, key) ? '. Answer again, or uncheck “Traveler with disability or need help?”' : ''}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 // Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
@@ -4840,7 +4854,7 @@ function assistOffline(returnFocus, key) {
   if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.formLoaded = true; b.assistOffline = null; return false; }
   if (assistSeen(b, key) || ((v1() || v3()) && b.formLoaded)) return false; // Concepts 1 and 3: once the questions have loaded, they work offline (NMA-996, 997)
   if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the assistance row
-  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['OK', 'primary', null]], returnFocus });
+  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['Close', 'primary', null]], returnFocus });
   return true;
 }
 A['assist-edit'] = (t, ri) => {
@@ -4868,35 +4882,35 @@ A['assist-confirm'] = (t, ri) => {
   setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`;
   const back = routeAt(+ri - 1); // opened from the Travelers screen: go on to the next unanswered traveler
-  if ((v1() || v3()) && back && back.s === 'travelers' && assistMissing(b).length) pendingFocus = '[data-a="ff-assist-continue"]';
+  const next = perTraveler() && back && back.s === 'travelers' && assistMissing(b)[0]; if (next) pendingFocus = `[data-a="assist-answer"][data-t="${next.key}"]`; // the next traveler still to answer
   render();
 };
 
-// ---------- "Traveler with disability or need help?" on the Travelers screen (NMA-973) ----------
-// Proposed mapping (Q7): the indication, its explanation and Continue live on the Travelers screen inside the
-// Fare Finder journey. Continue opens the first unanswered traveler's questions; the Fare Finder's Travelers
-// summary shows the state. Checking or unchecking works offline; Continue needs a connection the first time.
-const ASSIST_TEXT = 'Let us know if anyone needs help, like a wheelchair space, an accessible seat, station assistance or a personal companion. You’ll answer for each traveler.'; // placeholder for AEM text (NMA-973 BR1)
-const assistMissing = b => b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done) : [];
-function assistIndication(r, ri, b) {
+// ---------- "Traveler with disability or need help?" for each traveler, in Traveler details (NMA-973) ----------
+// Direction: the indication sits inside each traveler's details, not as one checkbox for the whole Travelers
+// section. Checking it asks for that traveler's answers (Answer opens their questions: the first time needs a
+// connection, NMA-973; once loaded they work offline, NMA-996, 997). Unchecking keeps the answers for this
+// trip but stops them counting. The Fare Finder's Travelers summary shows the state.
+const ASSIST_TEXT = 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.'; // placeholder for AEM text (NMA-973 BR1)
+const assistMissing = b => travelerList(b).filter(t => asks(b, t.key) && !assistRec(b, t.key).done);
+function assistAsk(b, t, r) {
   ref('973', '615', '614'); q(7);
-  const list = travelerList(b); if (!list.length) return '';
-  const miss = assistMissing(b), done = list.length - miss.length, busy = r.u.busy && r.u.busyWhat === 'assist';
-  const kept = !b.assistOn && list.some(t => assistRec(b, t.key).done);
-  let h = `<section class="ffassist" id="ffassist" aria-label="Assistance"><label class="ads-choice ads-checkbox"><input type="checkbox" id="ff-assist" data-a="ff-assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="ff-assist-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?</span><span class="ads-choice__supporting" id="ff-assist-h">${ASSIST_TEXT}</span></span></label>`;
-  if (b.assistOn) {
-    const status = !done ? (list.length > 1 ? 'No travelers answered yet' : 'Not answered yet') : miss.length ? `Answered for ${done} of ${list.length} travelers` : list.length > 1 ? `Answered for all ${list.length} travelers` : 'Answered';
-    h += `<div class="ffassist__row"><span class="ffassist__status" role="status">${status}</span>${busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>` : miss.length ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="ff-assist-continue" aria-label="Continue to assistance questions for ${esc(miss[0].label)}">Continue</button>` : ''}</div>`;
-  } else if (kept) h += `<p class="ads-helper ffassist__note">Assistance is off for this trip. Check the box to use the answers again.</p>`;
-  if (r.u.busyWhat === 'assist') h += netAlert(r);
-  return h + '</section>';
+  const on = asks(b, t.key), a = assistRec(b, t.key), id = `ask-${t.key}`;
+  const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
+  let h = `<div class="tassist"><label class="ads-choice ads-checkbox"><input type="checkbox" id="${id}" data-a="assist-ask" data-t="${t.key}" ${on ? 'checked' : ''} aria-describedby="${id}-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?<span class="ads-sr-only"> ${esc(t.label)}</span></span><span class="ads-choice__supporting" id="${id}-h">${ASSIST_TEXT}</span></span></label>`;
+  if (busy) h += `<div class="tassist__row"><span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button></div>`;
+  else if (!on && a.done) h += `<p class="ads-helper tassist__note">Answers are kept for this trip. Check the box to use them again.</p>`;
+  return h + '</div>';
 }
-A['ff-assist-toggle'] = (t, ri) => { const b = D().booking, r = routeAt(ri); b.assistOn = t.checked; if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = '#ff-assist'; render(); };
-A['ff-assist-continue'] = (t, ri) => {
-  const r = routeAt(ri), b = D().booking, miss = assistMissing(b); if (!miss.length) return;
-  r.u.busyWhat = 'assist';
-  const go = () => { r.u.busyWhat = null; b.formLoaded = true; b.taSeen = b.taSeen || {}; b.taSeen[miss[0].key] = true; push('assist', { t: miss[0].key }, +ri); };
-  if (b.formLoaded && V().net === 'offline') return go(); // already loaded: works offline (NMA-996, 997)
+// Network problems opening a traveler's questions show once, above the travelers
+const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';
+A['assist-ask'] = (t, ri) => { const b = D().booking, r = routeAt(ri); setAsk(b, t.dataset.t, t.checked); if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = `#ask-${t.dataset.t}`; render(); };
+// Answer: opens one traveler's questions (needs a connection the first time)
+A['assist-answer'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, key = t.dataset.t;
+  r.u.busyWhat = 'assist'; r.u.busyKey = key;
+  const go = () => { r.u.busyWhat = null; b.formLoaded = true; b.taSeen = b.taSeen || {}; b.taSeen[key] = true; push('assist', { t: key }, +ri); };
+  if ((b.formLoaded || assistSeen(b, key)) && V().net === 'offline') return go(); // already loaded: works offline (NMA-996, 997)
   runNet(r, () => null, go, { what: 'open the assistance questions' });
 };
 
@@ -5521,17 +5535,19 @@ function discountRow(b, t, fromProfile) {
 }
 // Actions sit under the summary they act on
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
-// Shown while "Traveler with disability or need help?" is checked (NMA-973): every traveler answers (NMA-615 BR1.2)
-function assistanceRow(b, t) {
-  if (!b.assistOn) return '';
+// Each traveler's "Traveler with disability or need help?" (NMA-973); once checked, their answers (NMA-615)
+function assistanceRow(b, t, r) {
+  const ask = assistAsk(b, t, r);
+  if (!asks(b, t.key)) return `<div class="fam-row fam-row--assist">${ask}</div>`;
   const a = assistRec(b, t.key), done = a.done, c = done ? a.m.cat : null, items = done ? assistSummaryItems(a.m) : [];
   const value = !done ? 'Not answered yet' : c === 'none' ? 'No assistance needed' : esc(items[0]);
-  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : 'Choose an option for this traveler.';
+  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
-  const acts = done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Answer');
+  const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
+  const acts = busy ? '' : done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-answer', 'Answer');
   const tag = done && t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   ref('615', '973');
-  return famRow(`Disability or assistance${tag}`, value, details, '', acts);
+  return `<div class="fam-row fam-row--assist">${ask}</div>` + famRow(`Assistance${tag}`, value, details, '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
@@ -5544,20 +5560,20 @@ function companionRow(b, t) {
   ref('615', '997');
   return `<div class="fam-row"><label class="fam-row__label" for="cmp-${t.key}">Personal companion <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ads-control ads-control--select"><select id="cmp-${t.key}" data-f="cmp" data-nodirty data-hook="famcomp" data-for="${t.key}" aria-describedby="cmp-${t.key}-h"><option value="">No personal companion</option>${opts.map(o => `<option value="${o.key}" ${cur && cur.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div><p class="ads-helper" id="cmp-${t.key}-h">${opts.length ? 'A traveler with a disability may bring one personal companion. Their discount becomes Companion.' : 'Add another traveler without an assistance request to choose a personal companion.'} ${q(19)}</p></div>`;
 }
-function travelerCards(b) {
+function travelerCards(b, r) {
   const d = D(), list = travelerList(b), fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
-  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3><ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
+  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
 // Choosing a companion on the traveler with a disability's card
 HOOKS.famcomp = (r, t) => {
   const b = D().booking, forKey = t.dataset.for, pick = t.value, cur = companionOf(b, forKey);
   if (cur && cur.key !== pick) clearAssistRec(b, cur.key);
-  if (pick) { setAssistRec(b, pick, { cat: 'companion', for: forKey, dis: [], wc: null, needs: [] }); b.assistOn = true; }
+  if (pick) setAssistRec(b, pick, { cat: 'companion', for: forKey, dis: [], wc: null, needs: [] });
   pendingFocus = `#cmp-${forKey}`;
   toast(pick ? `${travelerLabel(b, pick)} is now ${travelerLabel(b, forKey)}’s personal companion. Companion discount applies.` : `${travelerLabel(b, forKey)} has no personal companion`, pick ? 'success' : 'info');
 };
@@ -5595,15 +5611,15 @@ function overviewTravelers(r, ri, b) {
     const opts = std ? discOpts(b, t) : null, dx = std ? tdiscOf(b, t) : null, inlineDisc = opts && !['pwd', 'companion'].includes(dx);
     const discSel = inlineDisc ? `<div class="ov-disc"><label class="ov-disc__label" for="ovd-${t.key}">Discount</label><div class="ads-control ads-control--select"><select id="ovd-${t.key}" data-f="ovd" data-nodirty data-hook="tdisc" data-key="${t.key}">${opts.map(o => `<option value="${o}" ${dx === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div></div>` : '';
     if (std && !inlineDisc) { const x = dx; if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
-    if (b.assistOn && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
+    if (asks(b, t.key) && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
     if (it === 'pr' && t.key !== 'pr-you') chips.push(`<span class="ov-chip">${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}</span>`);
     if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
     if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
     if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && b.assistOn ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
+    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && asks(b, t.key) ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${assistAsk(b, t, r)}${asks(b, t.key) && !a.done && !(r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy) ? `<span class="ov-trav__answer"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-answer" data-t="${t.key}" aria-label="Answer assistance for ${esc(t.label)}">Answer</button></span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
   }).join('');
   // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
-  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4><ul class="ov-list">${rows}</ul></section>`;
+  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
 }
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {
@@ -5614,7 +5630,7 @@ function overviewPassRider(b) {
 }
 
 // ---------- Editing one traveler from the overview ----------
-const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn });
+const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} });
 A['ov-traveler'] = (t, ri) => {
   const b = D().booking; push('traveler', { t: t.dataset.t }, +ri);
   const r = sheet().stack[sheet().stack.length - 1]; r.u.snap = TRAV_SNAP(b);
@@ -5623,7 +5639,7 @@ SCR.traveler = (r, ri) => {
   const d = D(), b = d.booking, t = travelerList(b).find(x => x.key === r.p.t);
   if (!t) return { title: 'Traveler', kind: 'push', body: '<p class="ads-body-small">This traveler is no longer on the booking.</p>' };
   const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type, err = travelerError(b, t);
-  const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${esc(t.label)}</h3><p class="ffc-sheetsub">Changes show in the overview right away. Cancel puts them back.</p></div><div class="fam-card ov-edit${err ? ' has-error' : ''}">${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</div>`;
+  const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${esc(t.label)}</h3><p class="ffc-sheetsub">Changes show in the overview right away. Cancel puts them back.</p></div>${assistNetAlert(r)}<div class="fam-card ov-edit${err ? ' has-error' : ''}">${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</div>`;
   return { title: t.label, srTitle: true, cls: 'pane--sheet', kind: 'editor', cancelA: 'sheet-cancel', close: true, banner: false, body, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="sheet-done">Done</button>` };
 };
 // Cancel puts back what this sheet changed; Done keeps it (the booking was already updated live)

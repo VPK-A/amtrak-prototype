@@ -45,9 +45,17 @@ function setAssistRec(b, key, m) {
   b.ta = b.ta || {};
   if (!key || key === holderKey(b)) { b.assist = m; b.assistDone = true; b.assistFromProfile = false; }
   else b.ta[key] = { m, done: true };
+  if (perTraveler()) setAsk(b, key || holderKey(b), true);
 }
-// The assistance type that counts for a traveler: only once answered, and only while the booking asks for help
-function assistCat(b, key) { const a = assistRec(b, key); return b.assistOn && a.done ? a.m.cat : null; }
+// Concepts 1 and 3: each traveler has their own "Traveler with disability or need help?" checkbox in Traveler
+// details (b.ask). b.assistOn is derived from it (any traveler checked), so shared summaries keep working.
+// The archived concepts keep one booking-level indication (b.assistOn).
+const perTraveler = () => v1() || v3();
+const asks = (b, key) => perTraveler() ? !!(b.ask && b.ask[key]) : !!b.assistOn;
+function setAsk(b, key, on) { b.ask = b.ask || {}; if (on) b.ask[key] = true; else delete b.ask[key]; syncAsk(b); }
+function syncAsk(b) { if (perTraveler()) b.assistOn = travelerList(b).some(t => asks(b, t.key)); }
+// The assistance type that counts for a traveler: only once answered, and only while that traveler asks for help
+function assistCat(b, key) { const a = assistRec(b, key); return asks(b, key) && a.done ? a.m.cat : null; }
 const catCount = (b, cat, except) => travelerList(b).filter(t => t.key !== except && assistCat(b, t.key) === cat).length;
 // NMA-615 BR2.1–2.2: a personal companion accompanies one traveler with a disability, and each of them may
 // bring one companion. The companion names who they accompany, so the pairing is explicit.
@@ -91,7 +99,7 @@ function assistDiscount(b, key) {
 }
 function assistLine(b, key) {
   const a = assistRec(b, key);
-  if (!b.assistOn) return 'Not requested';
+  if (!asks(b, key)) return 'Not requested';
   if (!a.done) return 'Not answered';
   return a.m.cat === 'none' ? 'No assistance needed' : CATS[a.m.cat];
 }
@@ -109,9 +117,9 @@ function travelerChoices(b) {
   const it = intentOf(b), parts = [];
   if (['standard', 'personal'].includes(it)) { const d = discSummary(b); if (d !== 'None chosen') parts.push(d); }
   if (it === 'pr' && b.prType !== 'business') { const kids = travelerList(b).filter(t => prKind(b, t.key) === 'child').length; if (kids) parts.push(`${kids} child${kids > 1 ? 'ren' : ''}`); }
-  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return b.assistOn && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
-  const all = travelerList(b).length, miss = b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done).length : 0;
-  if (miss) parts.push(`Assistance answered for ${all - miss} of ${all}`);
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const asked = travelerList(b).filter(t => asks(b, t.key)).length, miss = assistMissing(b).length;
+  if (miss) parts.push(`Assistance answered for ${asked - miss} of ${asked}`);
   else if (n) parts.push(`Assistance for ${n} traveler${n > 1 ? 's' : ''}`);
   if (assistProblems(b).length) parts.push('Assistance needs a change');
   return parts.join(' · ');
@@ -119,7 +127,7 @@ function travelerChoices(b) {
 // Short form for summaries: "Assistance for 2 travelers"
 function assistShort(b) {
   if (!b.assistOn) return '';
-  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const n = travelerList(b).filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
   return n ? `Assistance for ${n} traveler${n > 1 ? 's' : ''}` : 'Assistance not answered yet';
 }
 // ---------- Shared component: every traveler's assistance, with Add or Edit ----------
@@ -157,7 +165,7 @@ function prCanStart(d) {
 V3_PLACES.companion = () => {
   const b = D().booking; b.from = b.from || 'NYP'; b.to = b.to || 'WAS'; b.pax.adult = 2; b.assistOn = true;
   setAssistRec(b, 'adult-1', { cat: 'disability', dis: ['mobility'], wc: false, needs: ['station'] });
-  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true };
+  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true }; setAsk(b, 'adult-2', true);
   if (v2()) sheet().stack[0].u.open = 'who';
   render();
 };
@@ -168,7 +176,7 @@ A['assist-remove'] = t => {
   const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
   clearAssistRec(b, key);
   pendingFocus = `[data-a="assist-edit"][data-t="${key}"]`;
-  toast(comp ? `Answer removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Answer removed for ${label}${b.assistOn && (v1() || v3()) ? '. Choose an option again, or turn assistance off.' : ''}`, 'info');
+  toast(comp ? `Answer removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Answer removed for ${label}${perTraveler() && asks(b, key) ? '. Answer again, or uncheck “Traveler with disability or need help?”' : ''}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 // Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
@@ -180,7 +188,7 @@ function assistOffline(returnFocus, key) {
   if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.formLoaded = true; b.assistOffline = null; return false; }
   if (assistSeen(b, key) || ((v1() || v3()) && b.formLoaded)) return false; // Concepts 1 and 3: once the questions have loaded, they work offline (NMA-996, 997)
   if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the assistance row
-  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['OK', 'primary', null]], returnFocus });
+  dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['Close', 'primary', null]], returnFocus });
   return true;
 }
 A['assist-edit'] = (t, ri) => {
@@ -208,34 +216,34 @@ A['assist-confirm'] = (t, ri) => {
   setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`;
   const back = routeAt(+ri - 1); // opened from the Travelers screen: go on to the next unanswered traveler
-  if ((v1() || v3()) && back && back.s === 'travelers' && assistMissing(b).length) pendingFocus = '[data-a="ff-assist-continue"]';
+  const next = perTraveler() && back && back.s === 'travelers' && assistMissing(b)[0]; if (next) pendingFocus = `[data-a="assist-answer"][data-t="${next.key}"]`; // the next traveler still to answer
   render();
 };
 
-// ---------- "Traveler with disability or need help?" on the Travelers screen (NMA-973) ----------
-// Proposed mapping (Q7): the indication, its explanation and Continue live on the Travelers screen inside the
-// Fare Finder journey. Continue opens the first unanswered traveler's questions; the Fare Finder's Travelers
-// summary shows the state. Checking or unchecking works offline; Continue needs a connection the first time.
-const ASSIST_TEXT = 'Let us know if anyone needs help, like a wheelchair space, an accessible seat, station assistance or a personal companion. You’ll answer for each traveler.'; // placeholder for AEM text (NMA-973 BR1)
-const assistMissing = b => b.assistOn ? travelerList(b).filter(t => !assistRec(b, t.key).done) : [];
-function assistIndication(r, ri, b) {
+// ---------- "Traveler with disability or need help?" for each traveler, in Traveler details (NMA-973) ----------
+// Direction: the indication sits inside each traveler's details, not as one checkbox for the whole Travelers
+// section. Checking it asks for that traveler's answers (Answer opens their questions: the first time needs a
+// connection, NMA-973; once loaded they work offline, NMA-996, 997). Unchecking keeps the answers for this
+// trip but stops them counting. The Fare Finder's Travelers summary shows the state.
+const ASSIST_TEXT = 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.'; // placeholder for AEM text (NMA-973 BR1)
+const assistMissing = b => travelerList(b).filter(t => asks(b, t.key) && !assistRec(b, t.key).done);
+function assistAsk(b, t, r) {
   ref('973', '615', '614'); q(7);
-  const list = travelerList(b); if (!list.length) return '';
-  const miss = assistMissing(b), done = list.length - miss.length, busy = r.u.busy && r.u.busyWhat === 'assist';
-  const kept = !b.assistOn && list.some(t => assistRec(b, t.key).done);
-  let h = `<section class="ffassist" id="ffassist" aria-label="Assistance"><label class="ads-choice ads-checkbox"><input type="checkbox" id="ff-assist" data-a="ff-assist-toggle" ${b.assistOn ? 'checked' : ''} aria-describedby="ff-assist-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?</span><span class="ads-choice__supporting" id="ff-assist-h">${ASSIST_TEXT}</span></span></label>`;
-  if (b.assistOn) {
-    const status = !done ? (list.length > 1 ? 'No travelers answered yet' : 'Not answered yet') : miss.length ? `Answered for ${done} of ${list.length} travelers` : list.length > 1 ? `Answered for all ${list.length} travelers` : 'Answered';
-    h += `<div class="ffassist__row"><span class="ffassist__status" role="status">${status}</span>${busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>` : miss.length ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="ff-assist-continue" aria-label="Continue to assistance questions for ${esc(miss[0].label)}">Continue</button>` : ''}</div>`;
-  } else if (kept) h += `<p class="ads-helper ffassist__note">Assistance is off for this trip. Check the box to use the answers again.</p>`;
-  if (r.u.busyWhat === 'assist') h += netAlert(r);
-  return h + '</section>';
+  const on = asks(b, t.key), a = assistRec(b, t.key), id = `ask-${t.key}`;
+  const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
+  let h = `<div class="tassist"><label class="ads-choice ads-checkbox"><input type="checkbox" id="${id}" data-a="assist-ask" data-t="${t.key}" ${on ? 'checked' : ''} aria-describedby="${id}-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?<span class="ads-sr-only"> ${esc(t.label)}</span></span><span class="ads-choice__supporting" id="${id}-h">${ASSIST_TEXT}</span></span></label>`;
+  if (busy) h += `<div class="tassist__row"><span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button></div>`;
+  else if (!on && a.done) h += `<p class="ads-helper tassist__note">Answers are kept for this trip. Check the box to use them again.</p>`;
+  return h + '</div>';
 }
-A['ff-assist-toggle'] = (t, ri) => { const b = D().booking, r = routeAt(ri); b.assistOn = t.checked; if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = '#ff-assist'; render(); };
-A['ff-assist-continue'] = (t, ri) => {
-  const r = routeAt(ri), b = D().booking, miss = assistMissing(b); if (!miss.length) return;
-  r.u.busyWhat = 'assist';
-  const go = () => { r.u.busyWhat = null; b.formLoaded = true; b.taSeen = b.taSeen || {}; b.taSeen[miss[0].key] = true; push('assist', { t: miss[0].key }, +ri); };
-  if (b.formLoaded && V().net === 'offline') return go(); // already loaded: works offline (NMA-996, 997)
+// Network problems opening a traveler's questions show once, above the travelers
+const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';
+A['assist-ask'] = (t, ri) => { const b = D().booking, r = routeAt(ri); setAsk(b, t.dataset.t, t.checked); if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = `#ask-${t.dataset.t}`; render(); };
+// Answer: opens one traveler's questions (needs a connection the first time)
+A['assist-answer'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, key = t.dataset.t;
+  r.u.busyWhat = 'assist'; r.u.busyKey = key;
+  const go = () => { r.u.busyWhat = null; b.formLoaded = true; b.taSeen = b.taSeen || {}; b.taSeen[key] = true; push('assist', { t: key }, +ri); };
+  if ((b.formLoaded || assistSeen(b, key)) && V().net === 'offline') return go(); // already loaded: works offline (NMA-996, 997)
   runNet(r, () => null, go, { what: 'open the assistance questions' });
 };

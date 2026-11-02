@@ -46,7 +46,7 @@ function tdiscOf(b, t) {
   const fromAssist = assistDiscount(b, t.key); if (fromAssist) return fromAssist; // PWD or Companion (NMA-43 BR8)
   if (t.type === 'senior') return 'senior';
   if (t.type === 'infant') return t.i > lapCap(b.pax) ? (b.tdisc[t.key] === 'military' ? 'military' : 'infantchild') : 'infant';
-  if (t.key === 'adult-1' && profilePwd() && ['standard', 'personal'].includes(intentOf(b)) && !(b.assistOn && assistRec(b, t.key).done)) return 'pwd'; // profile disability (NMA-612 BR6)
+  if (t.key === 'adult-1' && profilePwd() && ['standard', 'personal'].includes(intentOf(b)) && !(asks(b, t.key) && assistRec(b, t.key).done)) return 'pwd'; // profile disability (NMA-612 BR6)
   if (t.key === 'adult-1') return b.disc;
   return b.tdisc[t.key] || TDISC[t.type][0];
 }
@@ -134,7 +134,7 @@ const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you al
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {
   const tp = travelerProblems(b), ap = assistProblems(b), am = assistMissing(b);
-  const msg = tp[0] || ap[0] || (am.length ? `Assistance is on, so each traveler needs an answer (${am.length} not answered yet).` : '');
+  const msg = tp[0] || ap[0] || (am.length ? `Answer the assistance questions for ${am.length > 1 ? `${am.length} travelers` : am[0].label}, or uncheck “Traveler with disability or need help?” in Travelers.` : '');
   if (!r.u.showErr || !msg) return '';
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
@@ -273,7 +273,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -307,10 +307,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
+      ${fam ? travelerCards(b, r) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
       ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? assistIndication(r, ri, b) + travelerCards(b) : v3() ? overviewPassRider(b) + assistIndication(r, ri, b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? travelerCards(b, r) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -334,6 +334,7 @@ function forgetTraveler(b, key) {
   if (key === holderKey(b)) { b.assist = blankAssist(); b.assistDone = false; b.assistFromProfile = false; if (key === 'adult-1') b.disc = freshBooking(D()).disc; }
   delete b.ta[key]; if (b.tdisc) delete b.tdisc[key]; if (b.prKinds) delete b.prKinds[key];
   if (b.taSeen) delete b.taSeen[key];
+  if (b.ask) delete b.ask[key];
 }
 A['pr-me'] = t => { D().booking.prPax.me = t.checked; pendingFocus = '[data-a="pr-me"]'; render(); };
 HOOKS.prkind = (r, t) => { const b = D().booking; b.prKinds = b.prKinds || {}; b.prKinds[t.dataset.key] = t.value; pendingFocus = '#' + CSS.escape(t.id); };

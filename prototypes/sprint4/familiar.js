@@ -30,17 +30,19 @@ function discountRow(b, t, fromProfile) {
 }
 // Actions sit under the summary they act on
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
-// Shown while "Traveler with disability or need help?" is checked (NMA-973): every traveler answers (NMA-615 BR1.2)
-function assistanceRow(b, t) {
-  if (!b.assistOn) return '';
+// Each traveler's "Traveler with disability or need help?" (NMA-973); once checked, their answers (NMA-615)
+function assistanceRow(b, t, r) {
+  const ask = assistAsk(b, t, r);
+  if (!asks(b, t.key)) return `<div class="fam-row fam-row--assist">${ask}</div>`;
   const a = assistRec(b, t.key), done = a.done, c = done ? a.m.cat : null, items = done ? assistSummaryItems(a.m) : [];
   const value = !done ? 'Not answered yet' : c === 'none' ? 'No assistance needed' : esc(items[0]);
-  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : 'Choose an option for this traveler.';
+  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
-  const acts = done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-edit', 'Answer');
+  const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
+  const acts = busy ? '' : done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-answer', 'Answer');
   const tag = done && t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   ref('615', '973');
-  return famRow(`Disability or assistance${tag}`, value, details, '', acts);
+  return `<div class="fam-row fam-row--assist">${ask}</div>` + famRow(`Assistance${tag}`, value, details, '', acts);
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
@@ -53,20 +55,20 @@ function companionRow(b, t) {
   ref('615', '997');
   return `<div class="fam-row"><label class="fam-row__label" for="cmp-${t.key}">Personal companion <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ads-control ads-control--select"><select id="cmp-${t.key}" data-f="cmp" data-nodirty data-hook="famcomp" data-for="${t.key}" aria-describedby="cmp-${t.key}-h"><option value="">No personal companion</option>${opts.map(o => `<option value="${o.key}" ${cur && cur.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div><p class="ads-helper" id="cmp-${t.key}-h">${opts.length ? 'A traveler with a disability may bring one personal companion. Their discount becomes Companion.' : 'Add another traveler without an assistance request to choose a personal companion.'} ${q(19)}</p></div>`;
 }
-function travelerCards(b) {
+function travelerCards(b, r) {
   const d = D(), list = travelerList(b), fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
-  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3><ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
+  return `<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
 // Choosing a companion on the traveler with a disability's card
 HOOKS.famcomp = (r, t) => {
   const b = D().booking, forKey = t.dataset.for, pick = t.value, cur = companionOf(b, forKey);
   if (cur && cur.key !== pick) clearAssistRec(b, cur.key);
-  if (pick) { setAssistRec(b, pick, { cat: 'companion', for: forKey, dis: [], wc: null, needs: [] }); b.assistOn = true; }
+  if (pick) setAssistRec(b, pick, { cat: 'companion', for: forKey, dis: [], wc: null, needs: [] });
   pendingFocus = `#cmp-${forKey}`;
   toast(pick ? `${travelerLabel(b, pick)} is now ${travelerLabel(b, forKey)}’s personal companion. Companion discount applies.` : `${travelerLabel(b, forKey)} has no personal companion`, pick ? 'success' : 'info');
 };

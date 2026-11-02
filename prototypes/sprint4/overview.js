@@ -18,15 +18,15 @@ function overviewTravelers(r, ri, b) {
     const opts = std ? discOpts(b, t) : null, dx = std ? tdiscOf(b, t) : null, inlineDisc = opts && !['pwd', 'companion'].includes(dx);
     const discSel = inlineDisc ? `<div class="ov-disc"><label class="ov-disc__label" for="ovd-${t.key}">Discount</label><div class="ads-control ads-control--select"><select id="ovd-${t.key}" data-f="ovd" data-nodirty data-hook="tdisc" data-key="${t.key}">${opts.map(o => `<option value="${o}" ${dx === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div></div>` : '';
     if (std && !inlineDisc) { const x = dx; if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
-    if (b.assistOn && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
+    if (asks(b, t.key) && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
     if (it === 'pr' && t.key !== 'pr-you') chips.push(`<span class="ov-chip">${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}</span>`);
     if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
     if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
     if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && b.assistOn ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
+    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && asks(b, t.key) ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${assistAsk(b, t, r)}${asks(b, t.key) && !a.done && !(r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy) ? `<span class="ov-trav__answer"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-answer" data-t="${t.key}" aria-label="Answer assistance for ${esc(t.label)}">Answer</button></span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ov-traveler" data-t="${t.key}" aria-label="Edit ${esc(t.label)}: discount, assistance and personal companion">Edit</button></li>`;
   }).join('');
   // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
-  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4><ul class="ov-list">${rows}</ul></section>`;
+  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
 }
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {
@@ -37,7 +37,7 @@ function overviewPassRider(b) {
 }
 
 // ---------- Editing one traveler from the overview ----------
-const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn });
+const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} });
 A['ov-traveler'] = (t, ri) => {
   const b = D().booking; push('traveler', { t: t.dataset.t }, +ri);
   const r = sheet().stack[sheet().stack.length - 1]; r.u.snap = TRAV_SNAP(b);
@@ -46,7 +46,7 @@ SCR.traveler = (r, ri) => {
   const d = D(), b = d.booking, t = travelerList(b).find(x => x.key === r.p.t);
   if (!t) return { title: 'Traveler', kind: 'push', body: '<p class="ads-body-small">This traveler is no longer on the booking.</p>' };
   const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type, err = travelerError(b, t);
-  const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${esc(t.label)}</h3><p class="ffc-sheetsub">Changes show in the overview right away. Cancel puts them back.</p></div><div class="fam-card ov-edit${err ? ' has-error' : ''}">${discountRow(b, t, fromProfile)}${assistanceRow(b, t)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</div>`;
+  const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${esc(t.label)}</h3><p class="ffc-sheetsub">Changes show in the overview right away. Cancel puts them back.</p></div>${assistNetAlert(r)}<div class="fam-card ov-edit${err ? ' has-error' : ''}">${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" role="alert">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</div>`;
   return { title: t.label, srTitle: true, cls: 'pane--sheet', kind: 'editor', cancelA: 'sheet-cancel', close: true, banner: false, body, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="sheet-done">Done</button>` };
 };
 // Cancel puts back what this sheet changed; Done keeps it (the booking was already updated live)
