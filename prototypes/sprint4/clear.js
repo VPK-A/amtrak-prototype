@@ -94,9 +94,6 @@ const codeApplies = b => !!(b.code || b.codeText) && ['standard', 'personal'].in
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
-function ffcSeg(label, key, opts, cur, id) {
-  return `<div class="ffc-mode"><span class="ffc-mode__label" id="ffc-${id}">${label}</span><div class="ads-segmented ffc-seg" role="group" aria-labelledby="ffc-${id}">${opts.map(([v, l]) => `<button type="button" data-a="ffc-set" data-key="${key}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div></div>`;
-}
 function ffClear(r, ri) {
   const d = D(), b = d.booking, v = V(), member = d.signedIn;
   const corp = b.intent === 'corporate', pr = b.intent === 'pr', std = !corp && !pr;

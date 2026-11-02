@@ -4,7 +4,7 @@ const SP = require('os').tmpdir() + '/';
 (async () => {
   const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1100 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file:///home/user/ads-design-system/prototypes/sprint4/index.html');
+  await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href);
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   await p.addScriptTag({ path: require.resolve('axe-core/axe.min.js', { paths: [process.cwd(), __dirname] }) });
   const w = ms => p.waitForTimeout(ms), D = '#device ', ev = (f, a) => p.evaluate(f, a);

@@ -3,7 +3,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 (async () => {
   const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1100 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file:///home/user/ads-design-system/prototypes/sprint4/index.html');
+  await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href);
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   const w = ms => p.waitForTimeout(ms), D = '#device ', ev = (f, a) => p.evaluate(f, a);
   for (const v of [1, 3]) for (const dev of ['iphone', 'ipad']) {
