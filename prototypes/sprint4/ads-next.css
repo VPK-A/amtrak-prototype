@@ -62,5 +62,95 @@
 .ads-root .ds-next .dcode button.ads-group__row:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
 .ds-next .dcode .ads-group__text { gap: 0; }
 .ds-next .dcode .ads-group__label { font-size: var(--ads-type-body-size); line-height: 1.25; color: var(--ads-content-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-next .dcode .ads-group__value { font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); color: var(--ads-content-text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-next .dcode .ads-group__value { font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); color: var(--ads-content-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* see the List contrast note */
 .ds-next .dcode .ads-group__row > .ads-icon--chevron-right { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-secondary); }
+
+/* =====================================================================================================
+   ADS Next rollout across the concept (every screen except Top and Bottom Navigation)
+   Shared component definitions, scoped to .ds-next. Navigation (.ads-appheader, .ads-navbar, .app-ipadnav,
+   tab bars) is excluded with the NAV guard below, so it renders exactly as in Current.
+   Verified rules: radius/4 controls, radius/8 cards and message panels, radius/12 modals and sheets;
+   border/default 1px on resting controls, border/subtle on decorative containers and dividers;
+   border/focus 2px only for focus, never changing size or corners.
+   ===================================================================================================== */
+
+/* Controls · Icon Button (radius/4, no rest fill; hover fills the target). Not in navigation. */
+.ds-next .ads-icon-btn:not(:is(.ads-navbar, .ads-appheader, .app-ipadnav, .app-tabbar) *) { border-radius: var(--ads-radius-4); }
+.ds-next .ads-icon-btn--round:not(:is(.ads-navbar, .ads-appheader, .app-ipadnav, .app-tabbar) *) { background: transparent; }
+.ds-next .device .ads-icon-btn--sm.ads-icon-btn--round:not(:is(.ads-navbar, .ads-appheader, .app-ipadnav, .app-tabbar) *)::before,
+.ds-next.device .ads-icon-btn--sm.ads-icon-btn--round:not(:is(.ads-navbar, .ads-appheader, .app-ipadnav, .app-tabbar) *)::before { content: none; }
+.ds-next .ads-control__clear, .ds-next .ss-back { border-radius: var(--ads-radius-4); background: transparent; }
+.ds-next .ads-stationrow__star { border-radius: var(--ads-radius-4); }
+
+/* Controls · Search (station search): Text Input field/default with a leading magnifier; radius/4, border/default */
+.ds-next .ads-control--pill { border-radius: var(--ads-radius-4); }
+.ds-next .pane--sheet .ss-search .ads-control, .ds-next .ss-search .ads-control { height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-12); background: var(--ads-background-surface-default); box-shadow: inset 0 0 0 var(--_border-w) var(--_border); border: 0; }
+.ds-next .pane--sheet .ss-search .ads-control:focus-within { box-shadow: inset 0 0 0 2px var(--ads-border-focus); }
+.ds-next .ss-search--focus .ads-control { padding-left: var(--ads-space-4); }
+
+/* Controls · Select trigger: Booking type entry (opens a sheet) */
+.ds-next .mode-entry { border-radius: var(--ads-radius-4); }
+
+/* Controls · Text Input field/large trigger: Book › New booking entry */
+.ds-next .bk-new { border-radius: var(--ads-radius-4); border: 1px solid var(--ads-border-default); box-shadow: none; min-height: var(--ads-size-interactive-lg); }
+.ds-next .bk-new:focus-visible { outline: none; border-color: var(--ads-border-focus); box-shadow: inset 0 0 0 1px var(--ads-border-focus); }
+
+/* Controls · Text Input as six cells (verification code): radius/4 cells; the field's own border shows focus */
+.ds-next .ads-codeinput__cell { border-radius: var(--ads-radius-4); }
+.ds-next .ads-codeinput:focus-within { outline: none; }
+
+/* Controls · read-only value in place of a select (fixed passenger discount): read-only field, radius/4 */
+.ds-next .ffc-fixedval { border-radius: var(--ads-radius-4); }
+
+/* Controls · segmented choice (Travel type). No ADS segmented control exists (proposed extension):
+   one control boundary at radius/4 with border/default; the chosen option takes background/surface-selected,
+   an inset border/brand and the emphasis weight, so selection never relies on color alone. */
+.ds-next .ads-segmented:not(.ctl *) { border-radius: var(--ads-radius-4); border: 1px solid var(--ads-border-default); background: var(--ads-background-surface-default); padding: 0; }
+.ds-next .ads-segmented:not(.ctl *) > button { border-radius: 0; }
+.ds-next .ads-segmented:not(.ctl *) > button[aria-pressed="true"] { background: var(--ads-background-surface-selected); box-shadow: inset 0 0 0 1px var(--ads-border-brand); color: var(--ads-content-text-primary); font-weight: var(--ads-type-body-emphasis-weight); }
+.ds-next .ads-segmented:not(.ctl *).has-ind > .seg-ind, .ds-next .ads-segmented:not(.ctl *) > .seg-ind { display: none; }
+
+/* Radio Group: no container box around the set (the wheelchair question) */
+.ds-next .wcq { padding: 0; border: 0; border-radius: 0; background: none; }
+
+/* Cards and message panels: radius/8, 1px border/subtle */
+.ds-next :is(.fam-card, .ov-list, .ov-pr, .ffc-fixedcard, .ads-summary, .ss-route, .info-pending, .cpn, .cpn-skel, .atl__list, .bk-card, .bk-list, .inlinepanel, .ads-card) { border-radius: var(--ads-radius-8); }
+.ds-next .info-pending { border-color: var(--ads-border-subtle); }
+.ds-next .fam-card__title { border-radius: 0; }
+
+/* Alert, offline banner and mode notes: message panels at radius/8 */
+.ds-next .ads-alert { border-radius: var(--ads-radius-8); }
+.ds-next .ffc-banner, .ds-next .ffc-modenote { border-radius: var(--ads-radius-8); }
+
+/* Toast: no ADS toast exists (proposed extension) — a short message panel at radius/8 */
+.ds-next .ads-toast { border-radius: var(--ads-radius-8); }
+
+/* Badge: radius/full, status background, no border ("From your profile") */
+.ds-next .ads-lock { border: 0; background: var(--ads-background-status-neutral); color: var(--ads-content-text-on-neutral); }
+
+/* List (every grouped list): surface-raised, 1px border/subtle, radius/4; 44px rows, space/12 sides;
+   first line Body 16 text-primary; second line Caption 12 (text-secondary: see contrast note); dividers border/subtle */
+.ds-next .ads-group__body { border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); border: 1px solid var(--ads-border-subtle); }
+.ds-next .ads-group__row { min-height: var(--ads-size-interactive-md); padding: var(--ads-space-8) var(--ads-space-12); gap: var(--ads-space-8); }
+.ds-next .ads-group__label { font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); }
+.ds-next .ads-group__value { font-size: var(--ads-type-caption-size); line-height: var(--ads-type-caption-line-height); color: var(--ads-content-text-secondary); } /* DS conflict: the List spec says text-tertiary, which falls under 4.5:1 on surface-raised in dark; text-secondary passes in both themes */
+.ads-root .ds-next button.ads-group__row:focus-visible, .ads-root .ds-next a.ads-group__row:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
+.ds-next .ads-group__body.rulesbody { border-radius: var(--ads-radius-8); }
+
+/* Modals and sheets: radius/12 (iPhone sheets on their top corners; iPad centered at radius/12) */
+.ds-next .pcover, .ds-next .info-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next.device--ipad .pcover, .ds-next.device--ipad .info-sheet { border-radius: var(--ads-radius-12); }
+
+/* Icon colour by role (equal roles, equal treatment)
+   decorative leading icon · content/icon-secondary   navigation chevron · content/icon-secondary
+   selected check / chosen favorite · content/icon-brand   info status · content/icon-info (unchanged)
+   error · content/icon-error (unchanged)   disabled · content/icon-disabled (unchanged) */
+.ds-next :is(.ads-group__lead, .ffc-trav__icon) { color: var(--ads-content-icon-secondary); }
+.ds-next :is(.ads-group__row, .ffc-trav, .ads-fieldbtn, .bk-link) > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
+.ds-next .ads-stationrow__star:not([aria-pressed="true"]) { color: var(--ads-content-icon-secondary); }
+.ds-next .ads-stationrow__star[aria-pressed="true"], .ds-next .ss-check { color: var(--ads-content-icon-brand); }
+.ds-next :is(.dcode__info, .ss-details) { color: var(--ads-content-icon-primary); }
+.ds-next .ffc-surface { box-shadow: none; } /* Card: border/subtle, no elevation unless it floats */
+/* List row pressed (proposed extension: the List defines rest, hover, selected and disabled; on touch there is
+   no hover, so pressed uses background/surface-active, the same as the station row's pressed state) */
+.ds-next button.ads-group__row:active, .ds-next a.ads-group__row:active { background: var(--ads-background-surface-active); }

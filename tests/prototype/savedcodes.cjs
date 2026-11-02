@@ -12,7 +12,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     const sub = await tok('--ads-border-subtle'), raised = await p.evaluate(() => { const i = document.createElement('i'); i.style.background = 'var(--ads-background-surface-raised)'; document.querySelector('#device .app').appendChild(i); const c = getComputedStyle(i).backgroundColor; i.remove(); return c; }), prim = await tok('--ads-content-text-primary'), ter = await tok('--ads-content-text-tertiary');
     ok(m.rad === '4px' && m.bw === '1px' && m.bc === sub && m.bg === raised, `${T} surface: radius/4, 1px border/subtle, surface-raised`);
     ok(m.h === 44 && m.pl === '12px', `${T} row: 44px, space/12 sides (h ${m.h})`);
-    ok(m.lfs === '16px' && m.lc === prim && m.sfs === '12px' && m.sc === ter, `${T} lines: Body 16 primary, Caption 12 tertiary`);
+    ok(m.lfs === '16px' && m.lc === prim && m.sfs === '12px' && m.sc === (await tok('--ads-content-text-secondary')), `${T} lines: Body 16 primary, Caption 12 secondary (contrast)`);
     ok(Math.round(m.chw) === 24, `${T} trailing chevron 24px (${m.chw})`);
     await p.focus('#device [data-a="code-saved"]'); await p.keyboard.press('Shift+Tab'); await p.keyboard.press('Tab'); await p.waitForTimeout(200);
     const f = await p.evaluate(() => { const r = document.querySelector('#device [data-a="code-saved"]'), c = getComputedStyle(r); return { a: document.activeElement === r, o: c.outlineStyle + ' ' + c.outlineWidth + ' ' + c.outlineOffset, h: r.offsetHeight }; });

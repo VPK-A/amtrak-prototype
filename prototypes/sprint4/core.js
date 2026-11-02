@@ -345,7 +345,7 @@ function ipadNav() {
 function navbar(o, ri, ctx) {
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
-  const close = `<button class="ads-icon-btn ads-icon-btn--sm${dsNext() ? '' : ' ads-icon-btn--round'}" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
+  const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
     if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
