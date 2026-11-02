@@ -31,7 +31,7 @@ const stLabel = c => c ? `${ST[c].city}, ${ST[c].st} (${c})` : '';
 // ---------- Tabs (App Shell destinations; only Book has Sprint 4 content) ----------
 const TABS = {
   book: () => bookLanding(),
-  trips: () => `<div class="tabpage"><h1 class="ads-h3">Trips</h1><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trips"><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Active</button><button class="ads-tab" type="button" role="tab" aria-selected="true" tabindex="0">Upcoming</button><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Past</button></div><div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No upcoming trips</p><p class="ads-body-small">Trips you book show up here. Trip management is outside Sprint 4.</p></div></div>`,
+  trips: () => `<div class="tabpage"><h1 class="ads-h3">Trips</h1><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trips"><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Active</button><button class="ads-tab" type="button" role="tab" aria-selected="true" tabindex="0">Upcoming</button><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Past</button></div><div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No upcoming trips</p><p class="ads-body-small">Trips you book show up here.${snote('Trip management is outside Sprint 4.')}</p></div></div>`,
   'train-status': () => `<div class="tabpage"><h1 class="ads-h3">Train status</h1><div class="ads-summary"><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div><p class="ads-body-small ads-text-secondary">Train status isn’t part of Sprint 4. Its station search will reuse the Book station search.</p></div></div>`,
   support: () => `<div class="tabpage"><h1 class="ads-h3">Support</h1>${group('', [grow({ label: 'Issue with your trip?', value: 'Disruptions and cancellations' }), grow({ label: 'Know before booking', value: 'Accessible travel and station help' }), grow({ label: 'Contact Amtrak', value: 'Text · Call · Email · Live chat' })])}<p class="ads-body-small ads-text-secondary">Support content isn’t part of Sprint 4.</p></div>`
 };
@@ -179,7 +179,7 @@ SCR.ff = (r, ri) => {
   q(22); if (std) codeTips(); ffFlags(b);
   // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
   q(7);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, discounts and coupon codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
+  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
   return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -249,7 +249,7 @@ function stationSearch(r, ri, field, inline) {
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
     else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
     else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
-    return h + `<p class="ss-note">${q(3)} Tap a station to choose it.</p>`;
+    return h + q(3);
   }
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
@@ -259,7 +259,7 @@ function stationSearch(r, ri, field, inline) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   } else h += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>`;
-  h += `<p class="ss-note">${q(3)} Tap a station to choose it. Bookmark a station to keep it in favorites.</p>`;
+  h += `<p class="ss-note">${q(3)} Bookmark a station to add it to favorites.</p>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -284,7 +284,7 @@ A.fav = t => {
 A['choose-station'] = (t, ri) => {
   const d = D(), b = d.booking, f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
   if (autoTrainBlocked() && AUTO_TRAIN[c]) return;
-  if (b[other] === c) { dialog({ title: 'Select a different station', body: 'Select different origin and destination stations.', actions: [['OK', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
+  if (b[other] === c) { dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
   b[f] = c; b.notice = null;
   if (AUTO_TRAIN[c]) { b[other] = AUTO_TRAIN[c]; b.notice = `${ST[c].city} is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so ${ST[AUTO_TRAIN[c]].city} was added as your ${other === 'to' ? 'arrival' : 'departure'} station.`; }
   else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
@@ -411,7 +411,7 @@ function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="ads-helper">Mobility device details (NMA-29) aren’t part of this exploration.</p></fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
@@ -423,7 +423,7 @@ function assistForm(r, ri, o) {
   if (x.cat === 'disability') { h += disBlock(r, x, idp, e); if (x.dis.includes('mobility')) h += wcBlock(r, x, idp, e); h += needsBlock(r, x, idp, false); }
   if (x.cat === 'station' || x.cat === 'companion') h += needsBlock(r, x, idp, false);
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
-  if (x.cat === 'disability' || x.cat === 'station') h += `<p class="ss-note">Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) are placeholders, not designed here.</p>`;
+  if (x.cat === 'disability' || x.cat === 'station') snote('Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) aren’t designed in Sprint 4.');
   return `<div class="assistform">${h}</div>`;
 }
 function assistSummaryItems(m) {
@@ -716,7 +716,7 @@ A['dob-remove'] = (t, ri) => { const r = edRoute(ri); r.u.d.dob = ''; r.u.dirty 
 HOOKS.dobmask = () => {};
 SAVE.dob = (r, ri) => {
   const x = (r.u.d.dob || '').trim();
-  if (x && !validDob(x)) { r.u.err = { dob: 'Please enter a valid date' }; pendingFocus = '#ed-dob'; render(); return; }
+  if (x && !validDob(x)) { r.u.err = { dob: 'Enter a valid date as MM/DD/YYYY' }; pendingFocus = '#ed-dob'; render(); return; }
   r.u.err = {};
   runSave(r, () => { D().profile.dob = x; }, () => afterSave(ri, 'Profile has been updated', 'dob'));
 };
@@ -753,7 +753,7 @@ A['disc-save'] = (t, ri) => {
 SCR.rules = () => {
   ref('566');
   const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd class="pending">Content pending</dd><dt>Applicable discount</dt><dd class="pending">Content pending</dd><dt>Restrictions</dt><dd class="pending">Content pending</dd></dl></div></details>`;
-  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `<p class="ads-body-small ads-text-secondary">Passenger types and traveler discounts, grouped so benefits aren’t mixed.</p>${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
+  return { title: 'Discount rules', kind: 'push', offlineText: 'Rules saved on this device are shown. Links need a connection.', body: `${RULE_GROUPS.map(([g, items]) => `<div class="ads-group"><h3 class="ads-group__title">${g}</h3><div class="ads-group__body rulesbody">${items.map(item).join('')}</div></div>`).join('')}` };
 };
 
 // =====================================================================
@@ -828,7 +828,7 @@ SCR.verify = (r) => {
     const to = c.trigger === 'change-email' ? x.newEmail : x.channel === 'text' ? '•••-•••-' + d.profile.phone.mobile.slice(-4) : maskEmail(d.profile.email);
     const st = c.status, code = x.code || '';
     const cells = Array.from({ length: 6 }, (_, i) => `<span class="ads-codeinput__cell${i === code.length ? ' is-next' : ''}" aria-hidden="true">${code[i] || ''}</span>`).join('');
-    const err = st === 'invalid' ? 'Verification code does not match. Please enter valid verification code' : st === 'expired' ? 'This code has expired. Request a new code.' : '';
+    const err = st === 'invalid' ? 'This code doesn’t match. Check it and try again, or request a new code.' : st === 'expired' ? 'This code has expired. Request a new code.' : '';
     if (st === 'success') {
       body = `${prog}<div class="vf-success" role="status">${ic('check-circle', 'ads-icon--lg')}<h3 class="ads-h4">Verified</h3><p class="ads-body-small">${c.trigger === 'change-email' ? 'Your new email is confirmed.' : c.trigger === 'sign-in' ? 'You’re signed in on this device.' : 'Your account is verified. We’ll finish saving your change.'}</p></div>`;
       foot = `<button class="ads-btn ads-btn--block" type="button" data-a="vf-finish">${c.trigger === 'unverified' ? 'Continue and save' : 'Continue'}</button>`;

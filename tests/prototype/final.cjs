@@ -113,7 +113,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await ev(() => D().profile.mi === 'J') && await p.locator(D + '[data-a="edit"][data-field="mi"]').count() === 0, `${T} 19 middle initial added once, then read-only`);
     // DOB invalid then valid
     await go(v, 'returning', 'edit:dob'); await p.fill(D + 'input[data-f="dob"]', '02/30/1990'); await p.locator(D + 'input[data-f="dob"]').dispatchEvent('change'); await w(80); await dclick('[data-a="edit-save"]'); await w(300);
-    ok(/Please enter a valid date/.test(await txt()), `${T} 919 invalid date error`);
+    ok(/Enter a valid date as MM\/DD\/YYYY/.test(await txt()), `${T} 919 invalid date error`);
     await p.fill(D + 'input[data-f="dob"]', '04/15/1988'); await p.locator(D + 'input[data-f="dob"]').dispatchEvent('change'); await w(80); await dclick('[data-a="edit-save"]'); await w(1000);
     ok(await ev(() => D().profile.dob) === '04/15/1988', `${T} 919 date saved`);
     // NMA-20

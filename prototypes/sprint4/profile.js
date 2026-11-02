@@ -104,7 +104,7 @@ A['coupon-add'] = (t, ri) => {
 A['coupon-apply'] = t => {
   const d = D(), c = d.coupons.find(x => x.code === t.dataset.code); if (!c) return;
   const b = d.booking; b.code = clone(c); b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
-  nav().sheet = null; openSheet('booking', ['ff'], '[data-a="open-booking"]'); toast(`${c.name || c.kind} applied`);
+  nav().sheet = null; openSheet('booking', ['ff'], '[data-a="open-booking"]'); toast(`${c.name || c.kind} added to your booking. It’s checked when you find trains.`);
 };
 // Coupon details as supporting information: details for available coupons, uses for used ones (BR4 AC2, AC3)
 function couponInfo(code) {

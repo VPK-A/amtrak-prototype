@@ -39,7 +39,7 @@ function assistanceRow(b, t, r) {
   const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
   const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
   const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
-  const acts = busy ? '' : done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-answer', 'Answer');
+  const acts = busy ? '' : done ? btn('assist-edit', 'Change') + btn('assist-remove', 'Remove') : btn('assist-answer', 'Add');
   const tag = done && t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   ref('615', '973');
   return `<div class="fam-row fam-row--assist">${ask}</div>` + famRow(`Assistance${tag}`, value, details, '', acts);

@@ -118,7 +118,7 @@ function ffClear(r, ri) {
   const trav = `<button class="ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(travVal)}${travSub ? '. ' + esc(travSub) : ''}. Edit travelers, discounts and assistance"${paxErr ? ' aria-describedby="trav-err"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-label">Travelers</span><span class="ffc-trav__val">${esc(travVal)}</span>${travSub ? `<span class="ffc-trav__sub">${esc(travSub)}</span>` : ''}</span>${ic('chevron-right')}</button>${paxErr}`;
   // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
   q(7);
-  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, discounts and coupon codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
+  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
   q(22);
   const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
   if (std) codeTips(); ffFlags(b);
@@ -194,9 +194,9 @@ A['find-trains'] = (t, ri) => {
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
   const b = D().booking, inline = v1() || v3(); b.codeErr = '';
-  if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
+  if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
-  if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['OK', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
+  if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const useCode = codeApplies(b), recheck = inline && codeStateOf(b) === 'changed';
   if (inline && useCode) { if (!b.code) b.code = { code: b.codeText, kind: b.codeText.length === 4 ? 'Promo code' : 'Coupon code' }; b.codeState = ''; }
   runNet(r, () => useCode ? checkCode(b) : null, res => {
@@ -218,8 +218,8 @@ function searchWithCode(r, ri) {
 // Mock back end (NMA-613): EXP1 counts as expired or used, DATE is outside its date range, a companion coupon needs two travelers
 function checkCode(b) {
   const c = b.code.code;
-  if (b.code.companion && travelerCount(b) < 2) return { err: 'Add a companion to use this code. This code requires at least two travelers on the reservation.' };
-  if (c === 'EXP1') { b.codeTries++; return { err: b.codeTries >= 2 ? 'This code still can’t be used. Call 1-800-USA-RAIL (1-800-872-7245) and we’ll help.' : 'Please enter a valid discount code' }; }
+  if (b.code.companion && travelerCount(b) < 2) return { err: 'This code needs at least two travelers. Add a traveler to use it.' };
+  if (c === 'EXP1') { b.codeTries++; return { err: b.codeTries >= 2 ? 'This code still can’t be used. Call 1-800-USA-RAIL (1-800-872-7245) for help.' : 'This code can’t be used. Check it and try again.' }; }
   if (c === 'DATE') return { range: true };
   return null;
 }
@@ -272,7 +272,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
   if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
-  if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. Traveler discounts, codes and points aren’t used. You can still request assistance.</p></div>`;
+  if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018', '1081');
     const f = b.prPax, role = d.passrider.role, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, [famLabel, famMax] = PR_FAM[role] || PR_FAM.employee;

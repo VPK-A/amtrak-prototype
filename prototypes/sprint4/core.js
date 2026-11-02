@@ -85,10 +85,12 @@ const WIDE = () => IPAD() && TB.orient === 'landscape';
 
 // ---------- Notes collected while rendering (shown in the side panel) ----------
 let NOTES;
-const resetNotes = () => { NOTES = { refs: new Set(), qs: new Set(), prov: new Set(), tips: new Set() }; };
+const resetNotes = () => { NOTES = { refs: new Set(), qs: new Set(), prov: new Set(), tips: new Set(), scope: new Set() }; };
 const ref = (...ids) => ids.forEach(i => NOTES.refs.add(i));
 const prov = t => NOTES.prov.add(t);
 const tip = t => NOTES.tips.add(t);
+// A reviewer-only screen note from inside markup (renders nothing in the app)
+const snote = t => { NOTES.scope.add(t); return ''; };
 // Question markers are never shown in the prototype; the question is still recorded for this screen
 function q(n) { NOTES.qs.add(n); return ''; }
 
@@ -491,6 +493,7 @@ function renderChrome() {
     ${NOTES.refs.size ? `<p class="nlabel">Stories on this screen</p><p class="nsmall">${[...NOTES.refs].map(r => 'NMA-' + r).join(' · ')}</p>` : ''}
     ${qs.length ? `<p class="nlabel">Open questions</p><ul class="nlist">${qs.map(n => `<li><b>Q${n} · ${esc(QUESTIONS[n][0])}.</b> ${esc(QUESTIONS[n][1])}</li>`).join('')}</ul>` : ''}
     ${NOTES.prov.size ? `<p class="nlabel">Provisional</p><ul class="nlist">${[...NOTES.prov].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    ${NOTES.scope.size ? `<p class="nlabel">Not in Sprint 4</p><ul class="nlist">${[...NOTES.scope].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     ${NOTES.tips.size ? `<p class="nlabel">Try</p><ul class="nlist">${[...NOTES.tips].map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`;
   scaleDevice();
 }

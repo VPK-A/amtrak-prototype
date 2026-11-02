@@ -176,7 +176,7 @@ A['assist-remove'] = t => {
   const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
   clearAssistRec(b, key);
   pendingFocus = `[data-a="assist-edit"][data-t="${key}"]`;
-  toast(comp ? `Answer removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Answer removed for ${label}${perTraveler() && asks(b, key) ? '. Answer again, or uncheck “Traveler with disability or need help?”' : ''}`, 'info');
+  toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}${perTraveler() && asks(b, key) ? '. Add it again, or uncheck “Traveler with disability or need help?”' : ''}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 // Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions

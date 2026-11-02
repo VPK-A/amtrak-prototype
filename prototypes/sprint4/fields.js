@@ -63,12 +63,12 @@ A['code-skip'] = () => { const b = D().booking; Object.assign(b, { code: null, c
 function codeFormatError(b) {
   if (!codeApplies(b) || !b.codeText || CODE_FORMAT.test(b.codeText)) return false;
   b.codeTries++; b.codeState = 'invalid';
-  b.codeErr = b.codeTries >= 2 ? 'Please enter a valid coupon or promotion code. Still having trouble? Call 1-800-USA-RAIL (1-800-872-7245).' : 'Please enter a valid coupon or promotion code';
+  b.codeErr = b.codeTries >= 2 ? 'This code still isn’t valid. Call 1-800-USA-RAIL (1-800-872-7245) for help.' : 'This code isn’t valid. Check it and try again.';
   return true;
 }
 
 // Placeholder for the Pass Rider policy (built later, NMA-1081)
-INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-pending"><b>Content not defined yet</b><span>The Pass Rider policy will be added later.</span></div>` };
+INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-pending"><b>Pass Rider policy</b><span>Content pending</span></div>` };
 
 // ---------- Booking type (NMA-622, 623, 1016) ----------
 // One compact entry showing the current mode; a sheet lists only the modes this member can use. Regular travel
@@ -76,9 +76,9 @@ INFO['pr-policy'] = { title: 'Pass Rider policy', body: () => `<div class="info-
 // eligible for both TripLink and Pass Rider starts as Regular with no special mode preselected (Q26).
 function modeOptions(d) {
   const o = [];
-  if (d.triplink) o.push(['corporate', 'Corporate (TripLink)', 'Corporate fares for you only. Points, discounts and coupons aren’t used.']);
-  if (d.passrider) o.push(['pr', 'Pass Rider', 'Employee pass travel for you and eligible family. Points, discounts and coupons aren’t used.']);
-  o.push(['personal', d.triplink && !d.passrider ? 'Personal' : 'Regular', 'Regular fares, with points, discounts and coupons.']);
+  if (d.triplink) o.push(['corporate', 'Corporate (TripLink)', 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.']);
+  if (d.passrider) o.push(['pr', 'Pass Rider', 'Employee pass travel for you and eligible family. Points, passenger discounts and codes aren’t used.']);
+  o.push(['personal', d.triplink && !d.passrider ? 'Personal' : 'Regular', 'Regular fares. Points, passenger discounts and codes can be used.']);
   return o;
 }
 const modeLabel = (b, d) => { const o = modeOptions(d), cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : 'personal'; const m = o.find(x => x[0] === cur); return m[1] + (b.intent === 'pr' && b.prType ? ` · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : ''); };

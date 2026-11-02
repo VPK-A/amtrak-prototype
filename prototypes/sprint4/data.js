@@ -80,8 +80,8 @@ const RULE_GROUPS = [
 
 // Assistance content (NMA-26, 27, 28, 995, 996, 615). Descriptions come from the Core Flow screens.
 const DISABILITIES = [
-  ['vision', 'Blind/Vision loss', 'I am blind or have vision loss.'],
-  ['hearing', 'Deaf/Hearing loss', 'I am deaf or have hearing loss.'],
+  ['vision', 'Blind/vision loss', 'I am blind or have vision loss.'],
+  ['hearing', 'Deaf/hearing loss', 'I am deaf or have hearing loss.'],
   ['mobility', 'Reduced mobility', 'I have reduced mobility.'],
   ['other', 'Other disability', 'I have accessibility needs not listed here.']
 ];
@@ -175,7 +175,7 @@ const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rp
 const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with disability', companion: 'Companion' };
 // Codes saved to the signed-in member's profile (NMA-613 scenarios 5 and 6; NMA-697)
 const PROFILE_CODES = [
-  { code: 'V123', kind: 'Promo code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
+  { code: 'V123', kind: 'Promotion code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
   { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
   { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' },
   { code: '60778899001122', kind: 'Lounge pass', name: 'Single-visit lounge pass', benefit: 'One visit to a Metropolitan Lounge', issued: '2026-08-20', exp: '2027-02-28', lounge: true }
