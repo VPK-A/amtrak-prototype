@@ -1,6 +1,6 @@
-/* ADS Next exploration (reviewer switch: Design system › ADS Next)
-   The New booking screen normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to
-   .ds-next on the device, so the current design is untouched when the switch is off.
+/* ADS Next: this branch's only design system
+   The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
+   the device always carries on this branch; the shared ADS files underneath stay as they are.
    - Text Input field/station and field/large (60px) as picker triggers, labels outside: radius/4,
      border/default 1px; focus thickens the field's own border to 2px border/focus with no layout or corner
      change; border/brand while its picker is open; border/status-error with the message on that field's helper.

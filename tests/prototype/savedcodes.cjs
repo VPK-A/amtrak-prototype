@@ -1,4 +1,4 @@
-// Design system › ADS Next: Saved codes as an ADS Next List row (surface, row height, lines, chevron, focus); Current unchanged
+// Design system › ADS Next: Saved codes as an ADS Next List row (surface, row height, lines, chevron, focus)
 const { chromium } = require('playwright'); const SP = require('os').tmpdir() + '/';
 const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 (async () => { const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1100 }, reducedMotion: 'reduce' });
@@ -18,7 +18,5 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     const f = await p.evaluate(() => { const r = document.querySelector('#device [data-a="code-saved"]'), c = getComputedStyle(r); return { a: document.activeElement === r, o: c.outlineStyle + ' ' + c.outlineWidth + ' ' + c.outlineOffset, h: r.offsetHeight }; });
     ok(f.a && f.o === 'solid 2px -2px' && f.h === 44, `${T} focus: 2px inset ring, no size change (${f.o})`);
     if (th === 'light') { await p.evaluate(() => document.activeElement.blur()); await p.evaluate(() => document.querySelector('#device #dcode').scrollIntoView({ block: 'center' })); await p.waitForTimeout(200); const bx = await p.locator('#device #dcode').boundingBox(); await p.screenshot({ path: SP + `sc-c${v}.png`, clip: { x: bx.x - 8, y: bx.y - 8, width: bx.width + 16, height: bx.height + 16 } }); }
-    await p.evaluate(() => { TB.ds = 'current'; render(); }); await p.waitForTimeout(200);
-    ok(await p.evaluate(() => getComputedStyle(document.querySelector('#device .dcode .ads-group__body')).borderTopLeftRadius) === '12px', `${T} Current design unchanged (radius 12)`);
   }
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close(); })();

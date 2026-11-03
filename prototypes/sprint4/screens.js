@@ -90,15 +90,13 @@ const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) ||
 // A. Fare Finder
 // =====================================================================
 function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
-// ---------- ADS Next exploration (reviewer switch: Design system › ADS Next) ----------
-// The New booking screen normalized against ADS Next and Mobile ADS. Only used while dsNext() is on; the
-// current design below is untouched.
+// ---------- New booking fields, normalized against ADS Next and Mobile ADS ----------
 // From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
 // triggers: the label sits outside the field; the accessible name stays on the button.
 const fieldWrap = (cls, label, btn) => `<div class="ads-field ${cls}"><span class="ads-field__label" aria-hidden="true">${label}</span>${btn}</div>`;
 // The picker a field opened (iPad keeps the Fare Finder beside it): that field shows as selected
 const openPicker = s => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.s === s ? (top.p.field || true) : null; };
-function routeFieldNext(r, ri, opts = {}) {
+function routeField(r, ri, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
   const half = (f, label) => {
     const c = b[f], s = c && ST[c];
@@ -107,7 +105,7 @@ function routeFieldNext(r, ri, opts = {}) {
   const errs = '';
   return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-btn ads-btn--tertiary ads-btn--icon-only ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
 }
-function dateFieldsNext(r, opts = {}) {
+function dateFields(r, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('calendar');
   const cal = ic('calendar', 'ads-fieldbtn__trail');
   const df = (f, label) => {
@@ -124,26 +122,6 @@ function travField(r, b, opts = {}) {
   const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const err = travErr(r, b);
   return fieldWrap('ffc-travfield', 'Travelers', `<button class="ads-fieldbtn ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(val)}${sub ? '. ' + esc(sub) : ''}. Edit travelers, discounts and assistance"${err ? ' aria-invalid="true" aria-describedby="trav-err"' : ''}${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-trav__val">${esc(val)}</span>${sub ? `<span class="ffc-trav__sub">${esc(sub)}</span>` : ''}</span>${ic('chevron-right', 'ads-fieldbtn__trail')}</button>`) + err;
-}
-function routeField(r, ri, opts = {}) {
-  if (dsNext()) return routeFieldNext(r, ri, opts);
-  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
-  const half = (f, label) => {
-    const c = b[f], s = c && ST[c];
-    return `<button class="ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body"><span class="ads-routefield__label">${label}</span>${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>`;
-  };
-  const errs = ['from', 'to'].filter(f => e[f]).map(f => `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>`).join('');
-  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-icon-btn ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
-}
-function dateFields(r, opts = {}) {
-  if (dsNext()) return dateFieldsNext(r, opts);
-  const b = D().booking, e = r.u.showErr ? ffErrors(b) : {};
-  const df = (f, label) => {
-    const val = b[f];
-    if (f === 'ret' && b.trip === 'ow') return `<button class="ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__label">Return</span><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></button>`;
-    return `<button class="ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}" ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__label">${label}</span>${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-datefield__add">${ic('calendar', 'ads-icon--sm')}Choose date</span>`}</button>`;
-  };
-  return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
 }
 // ADS tabs used as a single-choice switch: roving tabindex, arrow keys handled in core.js
 const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
@@ -164,13 +142,7 @@ function payControl(b, id) {
   const seg = `<div class="payset" role="radiogroup" aria-labelledby="${id}-l"><span class="payset__legend" id="${id}-l">Pay with</span>${opt('cash', 'Cash')}${opt('points', member ? 'Points · 12,450' : 'Points')}</div>`;
   return seg + (b.pay === 'points' && !member ? `<p class="ads-helper paynote">You’ll sign in to use your points after you choose a fare.</p>` : '');
 }
-function travelersRow(r, opts = {}) {
-  if (dsNext()) return travField(r, D().booking, opts);
-  const b = D().booking, it = intentOf(b);
-  const label = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, D()) : paxSummary(b);
-  const value = (it === 'corporate' ? ['Corporate bookings are for you only'] : it === 'pr' ? ['Pass Rider fare'] : []).concat(travelerChoices(b) || []).join(' · ') || null;
-  return group('', [grow({ a: 'pick-travelers', icon: 'people', label: esc(label), value: value == null ? null : esc(value), current: opts.open })]) + travErr(r, b);
-}
+function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 function modesV1(r, b) {
   const d = D(), entry = modeEntry(b, 'v1'); if (!entry) return '';
@@ -203,7 +175,7 @@ function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
   if (r.u.busy) return busyBtn(r, '', 'Finding trains');
   const off = needType;
-  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block${dsNext() ? '' : ' ads-btn--lg'}" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
 SCR.ff = (r, ri) => {

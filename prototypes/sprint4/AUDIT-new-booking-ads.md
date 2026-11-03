@@ -1,6 +1,6 @@
 # New booking: normalized against ADS Next and Mobile ADS
 
-> **Where to see it:** branch `figma-make/ads-next-toggle`. Open Prototype controls › **Design system** and choose **ADS Next**. **Current** shows the existing design unchanged.
+> **Where to see it:** branch `figma-make/ads-next-toggle`, where ADS Next is now the only design system (the switch and the Current design were removed).
 >
 > **How it's built:** the exploration is scoped to `.ds-next` on the device. Styles are in `prototypes/sprint4/ads-next.css` and markup is behind `dsNext()`. `css/components.css` is not modified on this branch, so the sections below that describe edits to it describe the reverted version; their rules now live in `ads-next.css`.
 

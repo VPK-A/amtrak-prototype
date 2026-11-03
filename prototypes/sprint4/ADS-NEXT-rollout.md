@@ -1,7 +1,7 @@
 # ADS Next rollout: shared mapping and coverage
 
 - **Branch:** `figma-make/ads-next-toggle`.
-- **Where to see it:** Prototype controls › Design system › **ADS Next**.
+- **Where to see it:** ADS Next is this branch's only design system. The Design system switch and the Current design were removed, so the prototype always opens in ADS Next.
 - **Scope:** every ADS Next screen in Familiar and Brand forward, except Top Navigation (app header, sheet top bar, iPad top navigation) and Bottom Navigation (tab bars).
 - **Unchanged:** **Current** and both navigation components.
 - **References:**
