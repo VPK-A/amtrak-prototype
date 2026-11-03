@@ -238,7 +238,15 @@ function assistAsk(b, t, r) {
 }
 // Network problems opening a traveler's questions show once, above the travelers
 const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';
-A['assist-ask'] = (t, ri) => { const b = D().booking, r = routeAt(ri); setAsk(b, t.dataset.t, t.checked); if (r) { r.u.busyWhat = null; r.u.alert = null; } pendingFocus = `#ask-${t.dataset.t}`; render(); };
+// Checking the box goes straight to that traveler's questions (same connection handling as Add). If they're
+// abandoned, the box stays checked and the traveler shows Add. Answers already kept for this trip come back
+// without reopening the questions.
+A['assist-ask'] = (t, ri) => {
+  const b = D().booking, r = routeAt(ri), key = t.dataset.t; setAsk(b, key, t.checked); if (r) { r.u.busyWhat = null; r.u.alert = null; }
+  pendingFocus = `#ask-${key}`;
+  if (t.checked && !assistRec(b, key).done) return A['assist-answer']({ dataset: { t: key } }, ri);
+  render();
+};
 // Answer: opens one traveler's questions (needs a connection the first time)
 A['assist-answer'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, key = t.dataset.t;

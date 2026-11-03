@@ -87,7 +87,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await ans('disability', { dis: ['mobility'], wc: 'yes', needs: ['seat'] });
     ok(!(await stack()).endsWith('assist'), `${T} 973 back on Travelers after answering`);
     if (v === 3 && (await stack()).endsWith('traveler')) await dclick('[data-a="sheet-done"]');
-    await dclick('#ask-adult-2'); await w(200);
+    await dclick('#ask-adult-2'); await w(950);
+    ok((await stack()).endsWith('assist') && /Traveler 2/.test(await txt()), `${T} 973 checking Traveler 2 opens their questions`);
     await ev(() => { while (sheet().stack.length > 1) sheet().stack.pop(); render(); }); await w(200);
     ok(/Assistance answered for 1 of 2/.test(await txt()), `${T} 973 Fare Finder summary counts checked travelers`);
     await dclick('[data-a="find-trains"]'); await w(300);

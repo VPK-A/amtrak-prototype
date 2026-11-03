@@ -14,6 +14,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `savedcodes.cjs` | Saved codes as an ADS Next List row |
 | `adsnext-rollout.cjs` | ADS Next across the concept: component geometry, borders, icon roles, pressed/focus/selected/disabled/error states |
 | `sweep-next.cjs` | ADS Next: axe and overflow sweep (24 screens, devices, orientations, themes, text sizes) |
+| `assist-ask.cjs` | Checking "Traveler with disability or need help?" opens that traveler's questions; abandoning shows Add; kept answers return; offline, slow and iPad |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:
