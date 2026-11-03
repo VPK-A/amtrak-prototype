@@ -154,3 +154,11 @@
 /* List row pressed (proposed extension: the List defines rest, hover, selected and disabled; on touch there is
    no hover, so pressed uses background/surface-active, the same as the station row's pressed state) */
 .ds-next button.ads-group__row:active, .ds-next a.ads-group__row:active { background: var(--ads-background-surface-active); }
+
+/* Station search route summary: two Text Input station fields (as New booking), labels outside. The field
+   being chosen is selected (border/brand, aria-current="step"); the other is a resting field that switches
+   to it. Replaces the custom two-row card with a left accent bar, which was not an ADS pattern. */
+.ds-next .ss-route { display: flex; flex-direction: column; gap: var(--ads-space-12); border: 0; border-radius: 0; background: none; overflow: visible; }
+.ds-next .ss-route__item.is-active { background: var(--ads-background-surface-default); box-shadow: none; border-color: var(--ads-border-brand); cursor: default; }
+.ds-next .ss-route__item.is-active .ads-routefield__hint { color: var(--ads-content-text-tertiary); font-weight: var(--ads-font-weight-regular); }
+.ds-next .text-large .ss-route__item, .ds-next.text-large .ss-route__item { flex-wrap: nowrap; }

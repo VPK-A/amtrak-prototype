@@ -30,6 +30,7 @@
 | `.ads-control` text, select, coupon | Text Input · `field/default` 44px | radius/4, 1px `border/default` | focus thickens the field's own border to 2px; error `border/status-error` + helper; disabled tokens | V |
 | From/To, dates, Travelers (`.ads-fieldbtn`) | Text Input · `field/station`, `field/large` 60px, label outside | radius/4, 1px `border/default` | focus 2px; selected `border/brand` (picker open); error `border/status-error` | V (New booking) |
 | Station search field | Search · Default 44px | radius/4, 1px `border/default` (was a 56px borderless pill) | focus 2px inset | V |
+| Station search route summary `.ss-route` | Text Input · `field/station` ×2 (as New booking), labels outside | radius/4, 1px `border/default` each (was a custom two-row card with a left accent bar) | field being chosen: selected `border/brand` with `aria-current="step"`; the other switches to it; focus 2px | V (New booking) |
 | Booking type entry `.mode-entry` | Select trigger (opens a sheet) | radius/4 (was a pill), 44px | focus | V radius · P classification |
 | Book › New booking entry `.bk-new` | Text Input · `field/large` trigger | radius/4, 1px `border/default`, no shadow (was a pill with elevation) | focus thickens the border | V radius · P classification |
 | Verification code cells | Text Input as six cells | radius/4 cells | focus is the next cell's 2px border only (the second outer ring was removed) | V |
@@ -42,7 +43,7 @@
 | `.ads-switch` | Switch | radius/full | on/off | V |
 | `.ads-group` lists (Account, Profile, Book, Saved codes, Discounts) | List + `.list/row` | `surface-raised`, 1px `border/subtle`, radius/4; rows ≥44px, space/12 sides; dividers `border/subtle`; Body 16 first line, Caption 12 second line | pressed `surface-active` (P); focus 2px inset; selected `surface-selected` | V (List anatomy) · second-line colour see conflict 2 |
 | `.ads-stationrow` | List · two lines (station row) | dividers `border/subtle` | selected `surface-selected` + check `content/icon-brand`; disabled | V |
-| Traveler cards `.fam-card`, Brand forward list `.ov-list`, Pass Rider card `.ov-pr`, `.ffc-fixedcard`, `.ads-summary`, route summary `.ss-route`, coupons `.cpn`, `.info-pending`, `.inlinepanel`, form card `.ffc-surface` | Card | radius/8, 1px `border/subtle`, no elevation | — | V (Mobile Card) |
+| Traveler cards `.fam-card`, Brand forward list `.ov-list`, Pass Rider card `.ov-pr`, `.ffc-fixedcard`, `.ads-summary`, coupons `.cpn`, `.info-pending`, `.inlinepanel`, form card `.ffc-surface` | Card | radius/8, 1px `border/subtle`, no elevation | — | V (Mobile Card) |
 | `.ads-alert`, offline banner, mode note | Alert (message panel) | radius/8 | info / success / warning / error with icon | V (radius variable "Cards and message panels") |
 | `.ads-toast` | No ADS toast | radius/8 message panel | — | **P** (gap 2) |
 | `.ads-badge`, `.ads-lock` ("Can't be changed", "From your profile") | Badge · neutral | radius/full, no border, status background | none (a badge never acts) | V |

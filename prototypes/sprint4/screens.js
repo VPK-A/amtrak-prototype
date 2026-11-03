@@ -230,15 +230,16 @@ function stationRow(s, field, sec) {
   return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
+// Route summary in station search: the same Text Input station fields as New booking (field/station, label
+// outside). The field being chosen is selected (border/brand); the other one switches to it.
 function stationRoute(field) {
   const b = D().booking;
   const item = f => {
     const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
-    const val = s ? `<span class="ss-route__code">${c}</span><span class="ss-route__name">${s.city}, ${s.st}<small>${s.name}</small></span>` : `<span class="ss-route__empty">Not chosen yet</span>`;
-    const state = '';
-    return active
-      ? `<div class="ss-route__item is-active" aria-current="step"><span class="ss-route__label">${label}${state}</span><span class="ss-route__val">${val}</span></div>`
-      : `<button class="ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead"><span class="ss-route__label">${label}</span><span class="ss-route__val">${val}</span></button>`;
+    const val = s ? `<span class="ads-routefield__code">${c}</span><span class="ads-routefield__body"><span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span></span>` : `<span class="ads-routefield__body"><span class="ads-routefield__hint">Not chosen yet</span></span>`;
+    return fieldWrap(`ss-route__field ss-route__${f}`, label, active
+      ? `<div class="ads-fieldbtn ads-routefield__half ss-route__item is-active" role="group" aria-current="step" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${val}</div>`
+      : `<button class="ads-fieldbtn ads-routefield__half ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead">${val}</button>`);
   };
   return `<section class="ss-route" aria-label="Your route">${item('from')}${item('to')}</section>`;
 }

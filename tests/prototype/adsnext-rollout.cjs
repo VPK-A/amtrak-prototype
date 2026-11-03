@@ -12,7 +12,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const go = (v, sc, loc, th, dev = 'iphone', js = '') => p.evaluate(([v, sc, loc, th, dev, js]) => { TB.v = v; TB.dev = dev; TB.text = 100; TB.theme = th; TB.ds = 'next'; VS[v] = makeVS(sc); V().toast = null; goLoc(loc); if (js) eval(js); render(); }, [v, sc, loc, th, dev, js]);
   const css = (sel, props = []) => p.evaluate(([s, props]) => { const e = document.querySelector('#device ' + s); if (!e) return null; const c = getComputedStyle(e); const o = { h: e.offsetHeight, r: c.borderTopLeftRadius, bw: c.borderTopWidth, bc: c.borderTopColor, bg: c.backgroundColor, sh: c.boxShadow, col: c.color, ol: c.outlineStyle, oo: c.outlineOffset }; props.forEach(k => o[k] = c[k]); return o; }, [sel, props]);
   const tok = (n, prop = 'color') => p.evaluate(([n, prop]) => { const i = document.createElement('i'); i.style[prop] = `var(${n})`; document.querySelector('#device .app').appendChild(i); const c = getComputedStyle(i)[prop]; i.remove(); return c; }, [n, prop]);
-  const w = ms => p.waitForTimeout(ms);
+  const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a);
   for (const v of [1, 3]) for (const th of ['light', 'dark']) {
     const T = `C${v} ${th}`;
     const DEF = await (go(v, 'returning', 'ff', th), w(200), tok('--ads-border-default')), SUB = await tok('--ads-border-subtle'), FOC = await tok('--ads-border-focus'), BRAND = await tok('--ads-border-brand');
@@ -38,7 +38,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.focus('#device #ss-q'); await w(150); ok((await css('.ss-search .ads-control')).sh.includes('2px inset'), `${T} Search focus: 2px border/focus, no layout change`);
     const star = await css('.ads-stationrow__star:not(.ss-details)'); ok(star.r === '4px', `${T} Icon Button radius/4`);
     ok((await css('.ads-stationrow__star[aria-pressed="true"]') || {}).col === ICONB || !(await css('.ads-stationrow__star[aria-pressed="true"]')), `${T} chosen favorite: content/icon-brand`);
-    ok((await css('.ss-route')).r === '8px', `${T} route summary card: radius/8`);
+    { const a = await css('.ss-route__item.is-active'), o = await css('button.ss-route__item'); ok(a.h >= 60 && a.r === '4px' && a.bc === BRAND && o.r === '4px' && o.bc === DEF && o.bw === '1px', `${T} route summary: station fields, chosen one border/brand, other border/default`); }
+    await p.locator('#device button.ss-route__item').click(); await w(300); ok(await ev(() => sheet().stack[sheet().stack.length - 1].p.field) === 'from', `${T} route summary: tapping From switches to it`);
     // Calendar: month arrows are borderless Icon Buttons; disabled previous month
     await go(v, 'returning', 'calendar:dep', th); await w(250);
     const prev = await css('[data-a="cal-month"][data-d="-1"]'); ok(prev.r === '4px' && prev.bg === 'rgba(0, 0, 0, 0)', `${T} month arrows: radius/4, no rest fill`);
