@@ -86,6 +86,19 @@ A.close = A.scrim = (t, ri) => {
   const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
   if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
   dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
-    body: `Your trip details are kept, so you can pick up from New booking.${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
+    body: `Your trip details are kept, so you can pick up from New booking.${manualCode(D().booking) ? ' The promotion code you entered isn’t kept.' : ''}${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
     actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
+};
+
+// ---------- Abandoning a booking clears a typed promotion code ----------
+// Whatever closes New booking (Exit booking, the close button or Escape with nothing else filled in), the next
+// booking starts with an empty code field. Codes chosen from Saved codes or My coupons are account coupons and
+// stay selected; the account's coupons themselves are never changed here.
+let BOOKING_OPEN = false;
+const renderBeforePromo = render;
+render = function () {
+  const open = !!(nav().sheet && nav().sheet.id === 'booking');
+  if (BOOKING_OPEN && !open && D().booking) clearManualCode(D().booking);
+  BOOKING_OPEN = open;
+  return renderBeforePromo.apply(this, arguments);
 };

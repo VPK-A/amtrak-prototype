@@ -3,7 +3,7 @@
      removing them turns it off. NMA-623 names the identifiers "SAP ID and Index number" while NMA-20 uses
      a 9-digit Pass number and a 3-digit Personal index number: the prototype follows NMA-20 (Q16).
    - My coupons (NMA-697): available coupons (soonest expiry first), used and expired coupons, details,
-     adding a coupon, and Apply, which starts a booking with the code. Lounge passes are listed as coupons. */
+     adding a coupon, and Apply, which starts a booking with the code. Lounge passes are a separate user story and aren't part of this wallet. */
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
 PFIELDS.employee = 'Amtrak employee pass';
@@ -61,7 +61,7 @@ const soon = c => couponState(c) === 'available' && c.exp <= addDays(TODAY_S, 30
 function couponCard(c) {
   const st = couponState(c), done = st !== 'available';
   const badge = st === 'used' ? '<span class="cpn__state cpn__state--used">Used</span>' : st === 'expired' ? '<span class="cpn__state cpn__state--expired">Expired</span>' : soon(c) ? '<span class="cpn__state cpn__state--soon">Expires soon</span>' : '';
-  const apply = !done && !c.lounge ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
+  const apply = !done ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
   return `<li class="cpn${done ? ' cpn--done' : ''}"><div class="cpn__main"><span class="cpn__name">${esc(c.name || c.kind)} ${badge}</span><span class="cpn__benefit">${esc(c.benefit)}</span><span class="cpn__meta">${esc(c.kind)} · ${c.code} · ${st === 'expired' ? 'Expired' : 'Expires'} ${fmtShortY(c.exp)}</span></div><div class="cpn__acts">${apply}<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(c.name || c.kind)}">Details</button></div></li>`;
 }
 // Loading the list follows the toolbar network: online loads at once, slow shows loading, a server error offers
@@ -103,7 +103,7 @@ A['coupon-add'] = (t, ri) => {
 // Apply: start a booking with this code (standard booking, paying cash)
 A['coupon-apply'] = t => {
   const d = D(), c = d.coupons.find(x => x.code === t.dataset.code); if (!c) return;
-  const b = d.booking; b.code = clone(c); b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
+  const b = d.booking; b.code = clone(c); b.codeText = c.code; b.codeSrc = 'saved'; b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
   nav().sheet = null; openSheet('booking', ['ff'], '[data-a="open-booking"]'); toast(`${c.name || c.kind} added to your booking. It’s checked when you find trains.`);
 };
 // Coupon details as supporting information: details for available coupons, uses for used ones (BR4 AC2, AC3)

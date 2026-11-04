@@ -177,8 +177,7 @@ const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Pass
 const PROFILE_CODES = [
   { code: 'V123', kind: 'Promotion code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
   { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
-  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' },
-  { code: '60778899001122', kind: 'Lounge pass', name: 'Single-visit lounge pass', benefit: 'One visit to a Metropolitan Lounge', issued: '2026-08-20', exp: '2027-02-28', lounge: true }
+  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
 ];
 // Used and expired coupons in My coupons (NMA-697 BR1, BR4 AC3: one line per use, newest first)
 const PAST_CODES = [

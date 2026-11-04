@@ -2823,8 +2823,7 @@ const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Pass
 const PROFILE_CODES = [
   { code: 'V123', kind: 'Promotion code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
   { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
-  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' },
-  { code: '60778899001122', kind: 'Lounge pass', name: 'Single-visit lounge pass', benefit: 'One visit to a Metropolitan Lounge', issued: '2026-08-20', exp: '2027-02-28', lounge: true }
+  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
 ];
 // Used and expired coupons in My coupons (NMA-697 BR1, BR4 AC3: one line per use, newest first)
 const PAST_CODES = [
@@ -4482,7 +4481,7 @@ SCR.code = (r, ri) => {
   const d = D(), b = d.booking; r.u.d = r.u.d || { code: b.codeDraft || '' };
   ref('613'); if (d.coupons.length) ref('697');
   const locked = b.codeTries >= 2, err = r.u.err || '';
-  const fare = d.coupons.filter(c => !c.lounge); // lounge passes aren't fare codes
+  const fare = d.coupons;
   const saved = d.signedIn && fare.length ? `<section class="ffc-codes" aria-labelledby="ffc-saved"><h4 class="ffc-h" id="ffc-saved">Your saved codes</h4><ul class="ffc-codelist">${[...fare].sort((x, y) => x.exp.localeCompare(y.exp)).map(c => `<li><button class="ffc-code" type="button" data-a="code-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Expired and used codes aren’t shown. Whether a code works for your train is checked when you find trains. ${q(11)}</p></section>` : '';
   const body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Add a code</h3><p class="ffc-sheetsub">Use one coupon or promo code. Promo codes have 4 letters or numbers, coupon codes have 14.</p></div>
     <div class="ads-field"><label class="ads-field__label" for="code-in">Discount code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ffc-codeentry"><div class="ads-control ads-control--pill${err ? ' ads-control--error' : ''}">${ic('payment-voucher')}<input id="code-in" data-f="code" data-nodirty data-hook="codedraft" value="${esc(r.u.d.code)}" placeholder="Enter discount code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" ${err ? 'aria-invalid="true"' : ''} aria-describedby="code-h" ${locked ? 'disabled' : ''}></div><button class="ads-btn ads-btn--secondary" type="button" data-a="code-add" ${locked ? 'disabled' : ''}>Add</button></div><p class="ads-helper${err ? ' ads-helper--error' : ''}" id="code-h" ${err ? 'role="alert"' : ''}>${err ? ic('alert-diamond') + `<span>${err}</span>` : 'Letters and numbers only.'}</p></div>
@@ -5461,16 +5460,21 @@ A['pick-station'] = (t, ri) => {
 // What the code depends on: changing any of these means the code is checked again (NMA-613 scenario 16)
 const codeSig = b => JSON.stringify([b.from, b.to, b.trip, b.dep, b.ret, b.pax, intentOf(b)]);
 const codeStateOf = b => b.codeState === 'applied' && b.codeSig !== codeSig(b) ? 'changed' : (b.codeState || '');
-const savedCodes = () => D().signedIn ? [...D().coupons.filter(c => !c.lounge)].sort((x, y) => x.exp.localeCompare(y.exp)) : [];
+const savedCodes = () => D().signedIn ? [...D().coupons].sort((x, y) => x.exp.localeCompare(y.exp)) : [];
 function setCodeText(b, v) {
   v = (v || '').trim().toUpperCase();
   if (v === (b.codeText || '')) return;
   const known = savedCodes().find(c => c.code === v);
-  Object.assign(b, { codeText: v, code: known ? clone(known) : null, codeState: '', codeErr: '' });
+  Object.assign(b, { codeText: v, code: known ? clone(known) : null, codeState: '', codeErr: '', codeSrc: v ? 'manual' : '' }); // typed: this booking only, never saved to the account
 }
+// A typed code lasts for the booking it was entered in. Abandoning that booking (closing New booking) clears
+// it, so a new booking starts with an empty field. Account coupons are never touched.
+const manualCode = b => !!(b.codeText && b.codeSrc === 'manual');
+function clearManualCode(b) { if (manualCode(b)) Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); }
 function codeField(r, b) {
   if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
   ref('613'); q(21); q(23);
+  snote('A typed promotion code applies to this booking only: it’s kept while the booking is edited, never added to My coupons or Saved codes, and cleared when the booking is abandoned. Codes chosen from Saved codes or My coupons are account coupons and aren’t changed.');
   const st = codeStateOf(b), saved = savedCodes(), text = b.codeText || '';
   const busy = r.u.busy && text;
   const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
@@ -5496,14 +5500,14 @@ A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
 // Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
 A['dcode-pick'] = t => {
   const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
-  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '' });
+  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '', codeSrc: 'saved' });
   nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
 };
 A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
 A['code-remove'] = () => {
   const b = D().booking, c = b.codeText || (b.code && b.code.code) || '', mine = D().coupons.some(x => x.code === c);
-  Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '' });
+  Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '' }); // the booking only: My coupons is unchanged
   pendingFocus = '#ff-code, [data-s="code"]'; toast(mine ? 'Code removed from this search. It’s still in My coupons.' : `Code ${c} removed`, 'info');
 };
 A['code-retry'] = () => A['find-trains'](null, '0');
@@ -5552,7 +5556,7 @@ A['mode-pick'] = t => {
      removing them turns it off. NMA-623 names the identifiers "SAP ID and Index number" while NMA-20 uses
      a 9-digit Pass number and a 3-digit Personal index number: the prototype follows NMA-20 (Q16).
    - My coupons (NMA-697): available coupons (soonest expiry first), used and expired coupons, details,
-     adding a coupon, and Apply, which starts a booking with the code. Lounge passes are listed as coupons. */
+     adding a coupon, and Apply, which starts a booking with the code. Lounge passes are a separate user story and aren't part of this wallet. */
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
 PFIELDS.employee = 'Amtrak employee pass';
@@ -5610,7 +5614,7 @@ const soon = c => couponState(c) === 'available' && c.exp <= addDays(TODAY_S, 30
 function couponCard(c) {
   const st = couponState(c), done = st !== 'available';
   const badge = st === 'used' ? '<span class="cpn__state cpn__state--used">Used</span>' : st === 'expired' ? '<span class="cpn__state cpn__state--expired">Expired</span>' : soon(c) ? '<span class="cpn__state cpn__state--soon">Expires soon</span>' : '';
-  const apply = !done && !c.lounge ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
+  const apply = !done ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-apply" data-code="${c.code}">Apply</button>` : '';
   return `<li class="cpn${done ? ' cpn--done' : ''}"><div class="cpn__main"><span class="cpn__name">${esc(c.name || c.kind)} ${badge}</span><span class="cpn__benefit">${esc(c.benefit)}</span><span class="cpn__meta">${esc(c.kind)} · ${c.code} · ${st === 'expired' ? 'Expired' : 'Expires'} ${fmtShortY(c.exp)}</span></div><div class="cpn__acts">${apply}<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(c.name || c.kind)}">Details</button></div></li>`;
 }
 // Loading the list follows the toolbar network: online loads at once, slow shows loading, a server error offers
@@ -5652,7 +5656,7 @@ A['coupon-add'] = (t, ri) => {
 // Apply: start a booking with this code (standard booking, paying cash)
 A['coupon-apply'] = t => {
   const d = D(), c = d.coupons.find(x => x.code === t.dataset.code); if (!c) return;
-  const b = d.booking; b.code = clone(c); b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
+  const b = d.booking; b.code = clone(c); b.codeText = c.code; b.codeSrc = 'saved'; b.codeErr = ''; b.pay = 'cash'; if (b.intent === 'corporate' || b.intent === 'pr') { b.intent = 'personal'; b.modeNote = 'Coupons are for Personal bookings, so this booking is Personal.'; }
   nav().sheet = null; openSheet('booking', ['ff'], '[data-a="open-booking"]'); toast(`${c.name || c.kind} added to your booking. It’s checked when you find trains.`);
 };
 // Coupon details as supporting information: details for available coupons, uses for used ones (BR4 AC2, AC3)
@@ -5918,8 +5922,21 @@ A.close = A.scrim = (t, ri) => {
   const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
   if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
   dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
-    body: `Your trip details are kept, so you can pick up from New booking.${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
+    body: `Your trip details are kept, so you can pick up from New booking.${manualCode(D().booking) ? ' The promotion code you entered isn’t kept.' : ''}${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
     actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
+};
+
+// ---------- Abandoning a booking clears a typed promotion code ----------
+// Whatever closes New booking (Exit booking, the close button or Escape with nothing else filled in), the next
+// booking starts with an empty code field. Codes chosen from Saved codes or My coupons are account coupons and
+// stay selected; the account's coupons themselves are never changed here.
+let BOOKING_OPEN = false;
+const renderBeforePromo = render;
+render = function () {
+  const open = !!(nav().sheet && nav().sheet.id === 'booking');
+  if (BOOKING_OPEN && !open && D().booking) clearManualCode(D().booking);
+  BOOKING_OPEN = open;
+  return renderBeforePromo.apply(this, arguments);
 };
 
 /* Sprint 4 prototype: Enhanced station search

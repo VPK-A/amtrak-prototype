@@ -18,6 +18,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `stationsearch.cjs` | NMA-1084 / NMA-1085: shared selector from New booking, Train status and Multi-Ride; map, markers, groups, Details; My Location, permissions (iOS, Android), nearby rule, recovery states, offline |
 | `stationsearch-a11y.cjs` | NMA-1084 / NMA-1085: axe and overflow across the new screens and states |
 | `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
+| `promocode.cjs` | Typed promotion code: this booking only, cleared on abandoning; account coupons untouched; lounge passes removed |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:

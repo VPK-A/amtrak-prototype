@@ -12,16 +12,21 @@
 // What the code depends on: changing any of these means the code is checked again (NMA-613 scenario 16)
 const codeSig = b => JSON.stringify([b.from, b.to, b.trip, b.dep, b.ret, b.pax, intentOf(b)]);
 const codeStateOf = b => b.codeState === 'applied' && b.codeSig !== codeSig(b) ? 'changed' : (b.codeState || '');
-const savedCodes = () => D().signedIn ? [...D().coupons.filter(c => !c.lounge)].sort((x, y) => x.exp.localeCompare(y.exp)) : [];
+const savedCodes = () => D().signedIn ? [...D().coupons].sort((x, y) => x.exp.localeCompare(y.exp)) : [];
 function setCodeText(b, v) {
   v = (v || '').trim().toUpperCase();
   if (v === (b.codeText || '')) return;
   const known = savedCodes().find(c => c.code === v);
-  Object.assign(b, { codeText: v, code: known ? clone(known) : null, codeState: '', codeErr: '' });
+  Object.assign(b, { codeText: v, code: known ? clone(known) : null, codeState: '', codeErr: '', codeSrc: v ? 'manual' : '' }); // typed: this booking only, never saved to the account
 }
+// A typed code lasts for the booking it was entered in. Abandoning that booking (closing New booking) clears
+// it, so a new booking starts with an empty field. Account coupons are never touched.
+const manualCode = b => !!(b.codeText && b.codeSrc === 'manual');
+function clearManualCode(b) { if (manualCode(b)) Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); }
 function codeField(r, b) {
   if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
   ref('613'); q(21); q(23);
+  snote('A typed promotion code applies to this booking only: it’s kept while the booking is edited, never added to My coupons or Saved codes, and cleared when the booking is abandoned. Codes chosen from Saved codes or My coupons are account coupons and aren’t changed.');
   const st = codeStateOf(b), saved = savedCodes(), text = b.codeText || '';
   const busy = r.u.busy && text;
   const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
@@ -47,14 +52,14 @@ A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
 // Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
 A['dcode-pick'] = t => {
   const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
-  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '' });
+  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '', codeSrc: 'saved' });
   nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
 };
 A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
 A['code-remove'] = () => {
   const b = D().booking, c = b.codeText || (b.code && b.code.code) || '', mine = D().coupons.some(x => x.code === c);
-  Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '' });
+  Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '' }); // the booking only: My coupons is unchanged
   pendingFocus = '#ff-code, [data-s="code"]'; toast(mine ? 'Code removed from this search. It’s still in My coupons.' : `Code ${c} removed`, 'info');
 };
 A['code-retry'] = () => A['find-trains'](null, '0');
