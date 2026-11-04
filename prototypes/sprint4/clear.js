@@ -257,6 +257,7 @@ function stationsClear(r, ri) {
 }
 
 // ---------- Travelers sheet ----------
+A['kids-toggle'] = (t, ri) => { const r = routeAt(ri); r.u.kidsOpen = !r.u.kidsOpen; pendingFocus = '#ffc-kids-h'; render(); };
 function counter(k, label, sub, val, minusOk, plusOk, group, why, extra = '') {
   const lab = esc(label);
   return `<div class="ffc-count${!plusOk && !minusOk ? ' is-disabled' : ''}"><div class="ffc-count__text"><span class="ffc-count__label" id="cl-${group}-${k}">${lab}</span>${sub ? `<span class="ffc-count__sub">${sub}${extra}</span>` : ''}${why ? `<span class="ffc-count__why">${why}</span>` : ''}</div><div class="ads-counter" role="group" aria-labelledby="cl-${group}-${k}"><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="-1" aria-label="Remove one: ${lab}" ${minusOk ? '' : 'disabled'}>${ic('minus')}</button><span class="ads-counter__value" aria-live="polite">${val}</span><button class="ads-counter__step" type="button" data-a="pax" data-g="${group}" data-k="${k}" data-d="1" aria-label="Add one: ${lab}" ${plusOk ? '' : 'disabled'}>${ic('plus')}</button></div></div>`;
@@ -287,7 +288,13 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const counts = PAX.map(([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', fam && paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '')).join('');
+    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', fam && paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
+    // Youth, Child and Infant sit under one "Children and infants" row, collapsed each time Traveler selection opens.
+    // Expanding or collapsing only shows or hides the counters; counts are kept and summarised in the header.
+    const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen;
+    const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
+    const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children and infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 and under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
+    const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children and infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
     const limit = paxOccupied(p) >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 seats in the app. Call 1-800-USA-RAIL to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on Amtrak.com.</span></p>` : '';
     const ratio = p.infant > lapCap(p) && !probs.length ? '<p class="ss-note">Each infant beyond the number of adults, seniors and young adults takes a seat and pays the child fare.</p>' : '';
     why = probs.join(' ');

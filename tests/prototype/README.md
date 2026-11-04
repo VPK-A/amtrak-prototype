@@ -17,6 +17,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `assist-ask.cjs` | Checking "Traveler with disability or need help?" opens that traveler's questions; abandoning shows Add; kept answers return; offline, slow and iPad |
 | `stationsearch.cjs` | NMA-1084 / NMA-1085: shared selector from New booking, Train status and Multi-Ride; map, markers, groups, Details; My Location, permissions (iOS, Android), nearby rule, recovery states, offline |
 | `stationsearch-a11y.cjs` | NMA-1084 / NMA-1085: axe and overflow across the new screens and states |
+| `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:

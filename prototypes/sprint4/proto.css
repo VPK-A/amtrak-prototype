@@ -895,3 +895,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; min-height: var(--ads-size-interactive-md); }
 .device .ads-tabs--fill .ads-tab { height: auto; }
 .cal-pick.ads-tabs .ads-tab { flex-direction: column; gap: 1px; padding-block: 6px; line-height: 1.2; }
+/* "Children and infants": the row that reveals Youth, Child and Infant (same spacing and divider as a counter row) */
+.ffc-kids { width: 100%; min-height: var(--ads-size-interactive-md); border: 0; border-bottom: 1px solid var(--ads-border-subtle); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ffc-kids__chev { flex: none; color: var(--ads-content-icon-secondary); transition: transform var(--ads-duration-fast, 150ms) ease; }
+.ffc-kids[aria-expanded="true"] .ffc-kids__chev { transform: rotate(180deg); }
+.ads-root .ffc-kids:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
+.ffc-kids__rows[hidden] { display: none; }
