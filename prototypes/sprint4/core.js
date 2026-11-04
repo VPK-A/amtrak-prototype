@@ -309,13 +309,14 @@ var render = function () {
   renderChrome();
 }
 function renderDevice() {
-  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog || n.info);
+  const n = nav(), overlay = !!(n.sheet || n.cover || n.dialog || n.info || n.native);
   let h = `<div class="dev-status" aria-hidden="true"><span>9:41</span><span class="dev-status__right">${ic('wifi', 'ads-icon--sm')}<span class="dev-batt"></span></span></div>`;
   h += `<div class="app app--${n.tab}" ${overlay ? 'inert' : ''}>${IPAD() ? ipadNav() : appHeader()}<main class="app-main" data-scroll="main" aria-label="${esc(tabLabel(n.tab))}">${TABS[n.tab]()}</main>${IPAD() ? '' : tabBar()}</div>`;
-  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog || n.info));
+  if (n.sheet) h += renderSheet(n.sheet, !!(n.cover || n.dialog || n.info || n.native));
   if (n.cover) h += renderCover(n.cover, !!(n.dialog || n.info));
   if (n.info) h += renderInfo(n.info, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
+  if (n.native) h += renderNative(n.native); // simulated OS permission prompt or Settings (stationmap.js)
   const t = V().toast;
   h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
   return h;
@@ -444,6 +445,7 @@ function wireDevice() {
   dev.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const n = nav();
+    if (n.native) { e.preventDefault(); return; } // OS prompts can't be dismissed with Escape
     if (n.dialog) { closeDialog(); e.preventDefault(); }
     else if (n.info) { A[n.info.stack.length > 1 ? 'info-back' : 'info-close'](); e.preventDefault(); }
     else if (n.cover) { A['cover-cancel'](); e.preventDefault(); }

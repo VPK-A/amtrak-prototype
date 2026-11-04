@@ -220,20 +220,20 @@ function searchStations(qs) {
   };
   return STATIONS.map(s => [rank(s), s]).filter(x => x[0] < 99).sort((a, b) => a[0] - b[0] || a[1].city.localeCompare(b[1].city) || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
 }
-function stationRow(s, field, sec) {
-  const d = D(), fav = d.fav.includes(s.code), cur = d.booking[field] === s.code;
+function stationRow(s, field, sec, near) {
+  const d = D(), ctx = curCtx(), tg = selTarget(ctx), fav = d.fav.includes(s.code), cur = tg[field] === s.code;
   const rec = d.rec.find(x => x.c === s.code);
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
-  const blocked = s.tag && autoTrainBlocked();
-  const b = d.booking, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
+  const blocked = ctx === 'ff' && s.tag && autoTrainBlocked();
+  const b = tg, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
   const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'From' : 'To'}</span>` : ''; // the other end of the trip
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}" ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 // "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
 // Route summary in station search: the same Text Input station fields as New booking (field/station, label
 // outside). The field being chosen is selected (border/brand); the other one switches to it.
 function stationRoute(field) {
-  const b = D().booking;
+  const b = selTarget(curCtx());
   const item = f => {
     const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
     const val = s ? `<span class="ads-routefield__code">${c}</span><span class="ads-routefield__body"><span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span></span>` : `<span class="ads-routefield__body"><span class="ads-routefield__hint">Not chosen yet</span></span>`;
@@ -252,16 +252,20 @@ function stationSearch(r, ri, field, inline) {
   ref('600', '118', '984');
   // Focused view (iPhone): the search field leads, with Back inside it; the route summary and results follow
   const focus = stationFocus() && !inline;
-  const lead = focus ? `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>` : ic('search');
+  const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
   const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
-  let h = focus ? search + stationRoute(field) : stationRoute(field) + search;
+  let h = (focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+  if (!qv.trim() && r.u.view === 'map') return h + mapView(r, ri, field);
+  h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
     else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
     else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
-    return h + q(3);
+    return h + q(3) + '</div>';
   }
+  selNotes(r.p.ctx || 'ff');
+  h += nearSection(r, ri);
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
@@ -270,7 +274,7 @@ function stationSearch(r, ri, field, inline) {
     const byState = {}; STATIONS.forEach(s => (byState[s.state] ||= []).push(s));
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   } else h += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>`;
-  h += `<p class="ss-note">${q(3)} Bookmark a station to add it to favorites.</p>`;
+  h += `<p class="ss-note">${q(3)} Bookmark a station to add it to favorites.</p></div>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -293,18 +297,27 @@ A.fav = t => {
   pendingFocus = `[data-a="fav"][data-code="${c}"]`; render();
 };
 A['choose-station'] = (t, ri) => {
-  const d = D(), b = d.booking, f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
-  if (autoTrainBlocked() && AUTO_TRAIN[c]) return;
+  const d = D(), si = selIndex(), sr = si >= 0 ? sheet().stack[si] : null, ctx = (sr && sr.p.ctx) || 'ff', b = selTarget(ctx);
+  const f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
+  if (ctx === 'ff' && autoTrainBlocked() && AUTO_TRAIN[c]) return;
   if (b[other] === c) { dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
-  b[f] = c; b.notice = null;
-  if (AUTO_TRAIN[c]) { b[other] = AUTO_TRAIN[c]; b.notice = `${ST[c].city} is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so ${ST[AUTO_TRAIN[c]].city} was added as your ${other === 'to' ? 'arrival' : 'departure'} station.`; }
-  else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
+  b[f] = c;
+  if (ctx === 'ff') {
+    b.notice = null;
+    // Existing Auto Train validation (NMA-607): pairing Lorton and Sanford still sets or clears the other end (flagged: conflicts with "only the originating field")
+    if (AUTO_TRAIN[c]) { b[other] = AUTO_TRAIN[c]; b.notice = `${ST[c].city} is an Auto Train station. Auto Train only runs between Lorton, VA and Sanford, FL, so ${ST[AUTO_TRAIN[c]].city} was added as your ${other === 'to' ? 'arrival' : 'departure'} station.`; }
+    else if (b[other] && AUTO_TRAIN[b[other]]) { b.notice = `${ST[b[other]].city} only connects to ${ST[AUTO_TRAIN[b[other]]].city} (Auto Train), so it was cleared. Choose your ${other === 'to' ? 'arrival' : 'departure'} station.`; b[other] = null; }
+  }
   if (!d.fav.includes(c)) d.rec = [{ c, d: 0 }, ...d.rec.filter(x => x.c !== c)];
-  // V2 and V3 keep going: after From, they open To straight away (no needless return to the form)
-  if ((v1() || v2() || rich()) && f === 'from' && !b.to) { replaceTop('stations', { field: 'to' }); pendingFocus = '#ss-q'; render(); return; }
-  // Version 1 stays in station search until both stations are chosen, in either order
-  if (v1() && f === 'to' && !b.from) { replaceTop('stations', { field: 'from' }); pendingFocus = '#ss-q'; render(); return; }
-  popTo(+ri - 1); pendingFocus = `#ff-${f}`; render();
+  if (sr) {
+    sr.u.committed = true;
+    const how = t.dataset.mi ? 'nearby' : sr.u.view === 'map' || /^(map|detail)-/.test(t.dataset.k || '') ? 'map' : 'list';
+    const pos = locKnown() ? devicePos() : null, mi = t.dataset.mi || (pos && geoOf(c) ? miles(pos, geoOf(c)).toFixed(1) : '');
+    track(how === 'map' ? 'map_station_selected' : how === 'nearby' ? 'nearby_station_selected' : 'station_selected', { code: c, ...selProps(sr), ...(mi ? { distance_mi: mi } : {}), ...(t.dataset.rank ? { rank: t.dataset.rank } : {}) });
+  }
+  // Back to the experience that opened station search, with only this field changed
+  if (si <= 0) { closeSheet(true); pendingFocus = `#${ctx}-${f}`; render(); return; }
+  popTo(si - 1); pendingFocus = ctx === 'ff' ? `#ff-${f}` : `#${ctx}-${f}`; render();
 };
 
 // =====================================================================

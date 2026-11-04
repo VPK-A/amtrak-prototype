@@ -18,7 +18,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await p.click(D + '[data-a="open-booking"]'); await w(600); ok((await stack()) === 'booking:ff', `${T} New booking opens the Fare Finder`);
     await p.click(D + '.sheet-layer [data-a="close"]'); await w(300); if (await p.locator(D + '[data-dlg="1"]').count()) await p.locator(D + '[data-dlg="1"]').click(); await w(600);
     ok(!(await stack()) && await p.evaluate(() => document.activeElement && document.activeElement.dataset.a) === 'open-booking', `${T} exit returns to Book, focus on the entry`);
-    await p.click(D + '[data-a="bk-passes"]'); await w(500); ok((await stack()) === 'explore:stub', `${T} Passes opens its placeholder`); await p.click(D + '.sheet-layer [data-a="close"]'); await w(500);
+    await p.click(D + '[data-a="bk-passes"]'); await w(500); ok((await stack()) === 'mr:multiride', `${T} Passes opens Multi-Ride`); await p.click(D + '.sheet-layer [data-a="close"]'); await w(500);
     await go(v, 'guest', dev); await w(200); ok(/Sign in/.test(await txt()), `${T} guest header`);
     for (const [text, theme, orient] of [[140, 'light', 'portrait'], [100, 'dark', 'portrait'], [120, 'light', 'landscape']]) {
       await go(v, 'returning', dev, text, theme, orient); await w(250);
