@@ -275,13 +275,14 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     ref('1017', '1018', '1081');
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
-    if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">${esc(prMeName(d))}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>${policy}`;
+    if (b.prType === 'business') body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling</h3><div class="ffc-counts">${counter('me', esc(prMeName(d)), 'Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.', 1, false, false, 'prme')}</div></section>${policy}`; // Business: you, fixed at 1
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
-      const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(prMeName(d))}</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
+      // The signed-in traveler uses the same 0/1 counter row as everyone else on the pass
+      const me = counter('me', esc(prMeName(d)), 'Set to 0 to book for your family without you.', prMe(b) ? 1 : 0, prMe(b), !prMe(b) && room, 'prme');
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3><div class="ffc-counts">${me}${prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
@@ -322,6 +323,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
 }
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
+  if (g === 'prme') { b.prPax.me = dlt > 0; pendingFocus = `[data-a="pax"][data-g="prme"][data-d="${-dlt}"]:not(:disabled), [data-a="pax"][data-g="prme"]:not(:disabled)`; render(); return; } // the signed-in traveler: 0 or 1
   if (g === 'prp') { // a named person on the pass: 0 or 1; their answers stay with them if they're added again
     b.prPax.people = Object.assign({}, b.prPax.people); if (dlt > 0) b.prPax.people[k] = 1; else delete b.prPax.people[k];
     pendingFocus = `[data-a="pax"][data-g="prp"][data-k="${k}"]:not(:disabled), [data-a="pax"][data-g="prp"][data-k="${k}"]`; render(); return;
