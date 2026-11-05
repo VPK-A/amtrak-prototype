@@ -4490,7 +4490,7 @@ function prSummary(b, d) {
 }
 const prCount = b => b.prType === 'business' ? 1 : (prMe(b) ? 1 : 0) + prPeople(D()).filter(p => prPicked(b)[p.id]).length + b.prPax.comp;
 // Adult or Child for each traveler added to a Pass Rider booking (NMA-1017 AC6, NMA-1018 AC7)
-const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || (prPerson(D(), key) || {}).kind || 'adult'); // saved type from the pass record, unless changed for this trip
+const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || 'adult'); // Adult when added; a choice made for this trip is kept
 // Combinations Pass Rider policy doesn't allow (NMA-1017 AC1–AC5, NMA-1018 AC6)
 function prProblems(b) {
   if (b.prType === 'business') return [];
@@ -4694,7 +4694,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       const compMax = prCompMax(b, d);
       const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(prMeName(d))}</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${prPeople(d).map(p => counter(p.id, esc(p.name), p.kind === 'child' ? 'Child' : 'Adult', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
@@ -4788,7 +4788,7 @@ function handoffExtra(b) {
   else if (intent === 'pr') rows.push(['Booking', `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}`]);
   else if (intent === 'personal') rows.push(['Booking', 'Personal']);
   if (intent === 'standard' || intent === 'personal') rows.push(['Pay with', b.pay === 'points' ? (d.signedIn ? 'Points' : 'Points (guest signs in after choosing a fare)') : 'Cash']);
-  if (intent === 'pr') rows.push(['Travelers', travelerList(b).map(t => `${esc(t.label)}${t.key === 'pr-you' ? '' : ` · ${prKind(b, t.key) === 'child' ? 'Child' : 'Adult'}`}`).join('<br>')]);
+  if (intent === 'pr') rows.push(['Travelers', travelerList(b).map(t => esc(t.label)).join('<br>')]);
   else if (intent === 'corporate') rows.push(['Travelers', '1 adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => { const x = tdiscOf(b, t); return `Traveler ${t.n} · ${PAX_LABEL[t.type]}${x === 'none' ? '' : ` · ${TDISC_LABEL[x]}`}`; }).join('<br>')]);
   if (intent === 'pr' && b.prType) rows.push(['Travel type', b.prType === 'business' ? 'Business' : 'Leisure']);

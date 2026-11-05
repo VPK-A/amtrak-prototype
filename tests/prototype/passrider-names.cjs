@@ -32,8 +32,15 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
     ok(await ev(() => D().booking.prPax.comp) === 3 && await ev(() => Object.values(D().booking.prPax.people).every(n => n === 1)), `${T} Companions count above 1; named people stay at 0 or 1`);
     // saved details prefill Traveler details; identity and assistance survive changes
     await p.click(btn('sam', 1)); await w();
-    if (v === 1) ok(await ev(() => document.querySelector('#device #pk-pr-sam').value) === 'child' && /From your pass record · Date of birth 03\/21\/2016/.test(await pane()), `${T} Sam prefilled as Child with saved date of birth`);
-    else ok(await ev(() => document.querySelector('#device #ovk-pr-sam').value) === 'child', `${T} Sam prefilled as Child`);
+    const sel = v === 1 ? '#pk-pr-sam' : '#ovk-pr-sam';
+    ok(await ev(s => document.querySelector('#device ' + s).value, sel) === 'adult' && JSON.stringify(await ev(s => [...document.querySelectorAll('#device ' + s + ' option')].map(o => o.textContent), sel)) === '["Adult","Child"]', `${T} added relative defaults to Adult; dropdown has only Adult and Child`);
+    if (v === 1) ok(/From your pass record · Date of birth 03\/21\/2016/.test(await pane()), `${T} saved date of birth carried into Traveler details`);
+    await p.selectOption(D_ + sel, 'child'); await w();
+    await ev(() => { closeSheet(true); }); await w(); await ev(() => goLoc('travelers')); await w();
+    ok(await ev(s => document.querySelector('#device ' + s).value, sel) === 'child', `${T} Child kept after closing and reopening Traveler selection`);
+    ok(await ev(() => [...document.querySelectorAll('#device .ffc-count')].filter(r => r.querySelector('[data-g="prp"]')).every(r => !r.querySelector('.ffc-count__sub'))) && !/\b(Adult|Child)\b/.test(await ev(() => [...document.querySelectorAll('#device .ffc-count')].map(r => r.querySelector('.ffc-count__text').innerText).join(' '))), `${T} no Adult or Child under names in Who’s traveling`);
+    const comp = v === 1 ? '#pk-pr-comp-1' : '#ovk-pr-comp-1';
+    ok(await ev(s => { const e = document.querySelector('#device ' + s); return e && e.value === 'adult' && e.options.length === 2; }, comp), `${T} companion traveler details: Adult by default, two options`);
     await ev(() => { const b = D().booking; setAssistRec(b, 'pr-sam', { cat: 'station', dis: [], wc: null, needs: ['seat'], for: null }); render(); }); await w();
     await p.click(btn('jordan', -1)); await w();
     ok(await ev(() => { const b = D().booking; return assistCat(b, 'pr-sam') === 'station' && !travelerList(b).some(t => t.key === 'pr-jordan'); }), `${T} removing Jordan keeps Sam’s answers`);
