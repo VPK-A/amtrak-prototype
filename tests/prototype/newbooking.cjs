@@ -93,7 +93,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await go('returning', { fill: true }); await click('[data-a="find-trains"]'); await w(900);
   ok(await ev(() => sheet().stack.at(-1).s === 'handoff'), 'Find trains with a complete trip opens the search hand-off');
   await go('returning'); await ev(() => { const b = D().booking; b.from = 'NYP'; render(); }); await click('.ads-sheet-header__close');
-  ok(/Exit booking/.test(await txt()), 'close asks Exit booking? when something is filled in');
+  ok(!/Exit booking|Abandon booking/.test(await txt()) && await ev(() => !nav().sheet && D().booking.from === 'NYP'), 'close before a cart: no question; the selection is kept');
   await go('passrider');
   ok(await p.locator(D_ + '#ff-points').count() === 0 && await p.locator(D_ + '#ff-coderow').count() === 0 && /Booking type/.test(await txt()), 'Pass Rider: booking type above the tabs; no points or code');
 

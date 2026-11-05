@@ -33,27 +33,29 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await wallet() === before && !(await ev(() => savedCodes().some(c => c.code === 'FALL'))), `${T} entering and checking never adds to My coupons or Saved codes`);
     if ((await ev(() => sheet().stack.length)) > 1) await ev(() => { popTo(0); });
     await w(200);
-    // abandon: Exit booking says the code isn't kept
+    // leaving without a cart keeps the typed code (design review); abandoning with a cart clears it
     await click('.psheet [data-a="close"]');
-    ok(/promotion code you entered isn’t kept/.test(await txt()), `${T} Exit booking says the typed code isn't kept`);
-    await click('[data-dlg="1"]'); await w(300);
-    ok(await ev(() => !nav().sheet && D().booking.codeText === '' && D().booking.from === 'NYP'), `${T} after abandoning: code cleared, trip details kept`);
+    ok(await ev(() => !nav().dialog && !nav().sheet && D().booking.codeText === 'FALL'), `${T} leaving before a cart: no question, typed code kept`);
     await click('[data-a="open-booking"]');
-    ok(await rowVal() === 'Apply discount code', `${T} new booking starts with an empty code (row shows the prompt)`);
+    ok(await rowVal() === 'FALL', `${T} reopening New booking shows the typed code`);
+    await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await click('.psheet [data-a="close"]'); await click('[data-dlg="1"]'); await w(300);
+    ok(await ev(() => !nav().sheet && D().booking.codeText === '' && D().booking.from === 'NYP'), `${T} after Abandon booking: code cleared, trip details kept`);
+    await click('[data-a="open-booking"]');
+    ok(await rowVal() === 'Apply discount code', `${T} after abandoning, New booking starts with an empty code`);
     ok(await wallet() === before, `${T} account coupons unchanged after abandoning`);
     // removing a typed code doesn't touch account coupons
     await openCode(); await p.fill(D_ + '#ff-code', 'ABCD'); await p.locator(D_ + '#ff-code').blur(); await w(250); await click('[data-a="code-remove"]'); await click('[data-a="dcode-done"]');
     ok(await ev(() => D().booking.codeText === '') && await wallet() === before, `${T} removing a typed code leaves account coupons alone`);
     // a saved code chosen from Saved codes is an account coupon: kept on abandoning, wallet unchanged
     await openCode(); await click('[data-a="code-saved"]'); await p.locator('.info-sheet [data-a="dcode-pick"][data-code="V123"]').click(); await w(300); await click('[data-a="dcode-done"]');
-    await click('.psheet [data-a="close"]'); if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
-    ok(await ev(() => D().booking.codeText === 'V123') && await wallet() === before, `${T} a chosen saved code stays selected; wallet unchanged`);
+    await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await click('.psheet [data-a="close"]'); if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
+    ok(await ev(() => D().booking.codeText === 'V123') && await wallet() === before, `${T} a chosen saved code stays selected after Abandon booking; wallet unchanged`);
     await click('[data-a="open-booking"]'); await openCode(); await click('[data-a="code-remove"]');
     ok(await wallet() === before && /still in My coupons/.test(await ev(() => (V().toast || {}).msg || '')), `${T} removing a saved code from the booking keeps it in My coupons`);
-    // the close button with only a typed code: still asks, and still clears
-    await click('[data-a="dcode-done"]'); await enterCode('WXYZ'); await p.focus(D_ + '#ff-coderow'); await p.keyboard.press('Escape'); await w(300);
+    // Escape at Fare Finder with a cart: Abandon booking clears a typed code
+    await click('[data-a="dcode-done"]'); await enterCode('WXYZ'); await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await p.focus(D_ + '#ff-coderow'); await p.keyboard.press('Escape'); await w(300);
     if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
-    ok(await ev(() => !nav().sheet && D().booking.codeText === ''), `${T} Escape → Exit booking clears the typed code`);
+    ok(await ev(() => !nav().sheet && D().booking.codeText === ''), `${T} Escape → Abandon booking clears the typed code`);
     // ---- Lounge passes removed ----
     await ev(() => { goLoc('coupons'); }); await w(400);
     const t = await txt();

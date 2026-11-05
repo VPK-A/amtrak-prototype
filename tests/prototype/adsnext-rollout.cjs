@@ -39,10 +39,10 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     const star = await css('.ads-stationrow__star:not(.ss-details)'); ok(star.r === '4px', `${T} Icon Button radius/4`);
     ok((await css('.ads-stationrow__star[aria-pressed="true"]') || {}).col === ICONB || !(await css('.ads-stationrow__star[aria-pressed="true"]')), `${T} chosen favorite: content/icon-brand`);
     ok(!(await css('.ss-route__item')) && (await ev(() => (document.querySelector('#device .ss-head__title') || [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent)) === 'Select arrival station', `${T} station search: heading instead of route fields`);
-    // Calendar: month arrows are borderless Icon Buttons; disabled previous month
+    // Calendar: vertical month list (design review)
     await go(v, 'returning', 'calendar:dep', th); await w(250);
-    const prev = await css('[data-a="cal-month"][data-d="-1"]'); ok(prev.r === '4px' && prev.bg === 'rgba(0, 0, 0, 0)', `${T} month arrows: radius/4, no rest fill`);
-    ok(await p.evaluate(() => document.querySelector('#device [data-a="cal-month"][data-d="-1"]').disabled), `${T} previous month disabled at the current month`);
+    ok(await p.locator('#device [data-a="cal-month"]').count() === 0 && await p.evaluate(() => getComputedStyle(document.querySelector('#device .pane--calx .pane__scroll')).overflowY) === 'auto', `${T} Dates: months scroll vertically (no month arrows)`);
+    ok(await p.evaluate(() => document.querySelector('#device [data-k="day-2026-10-27"]').disabled), `${T} past days disabled`);
     // Travelers: cards, counter at-min, segmented selection (Pass Rider travel type)
     await go(v, 'returning', 'travelers', th, 'iphone', 'D().booking.pax.adult=2'); await w(250);
     ok((await css(v === 1 ? '.fam-card' : '.ov-list')).r === '8px', `${T} traveler card: radius/8`);

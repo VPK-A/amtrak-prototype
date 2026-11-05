@@ -20,10 +20,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await dclick('[data-a="add-return"]'); b = await ev(() => D().booking); ok(b.trip === 'rt' && b.ret === b.dep, `${T} 608 Add return → round-trip today/today`);
     await dclick('#ff-dep'); await w(300);
     ok(!/335 days|Dates up to/.test(await txt()), `${T} 1060 no unconfirmed booking-window text in the app`);
-    ok(await p.locator(D + `[data-a="day"][data-d="2026-10-27"]`).isDisabled(), `${T} 1060 past dates disabled`);
+    ok(await p.locator(D + `[data-a="calx-day"][data-d="2026-10-27"]`).isDisabled(), `${T} 1060 past dates disabled`);
     ok(/Booking window/.test(await notes()), `${T} 1060 horizon flagged in reviewer notes`);
-    await ev(() => { const r = sheet().stack[1]; r.u.month = '2027-10'; render(); }); await w(150);
-    ok(await ev(() => { const s = addDays(TODAY_S, WINDOW_DAYS + 1), e = document.querySelector(`#device [data-a="day"][data-d="${s}"]`); return !e || e.disabled; }), `${T} 1060 dates beyond the setting disabled`);
+    ok(await ev(() => { const s = addDays(TODAY_S, WINDOW_DAYS + 1), e = document.querySelector(`#device [data-a="calx-day"][data-d="${s}"]`); return !e || e.disabled; }), `${T} 1060 dates beyond the setting disabled`);
     await ev(() => { while (sheet().stack.length > 1) sheet().stack.pop(); D().booking.ret = null; D().booking.from = 'NYP'; D().booking.to = 'WAS'; render(); });
     ok(/Missing return date/.test(await notes()), `${T} 1060 missing-return treatment flagged`);
     await dclick('[data-a="find-trains"]'); await w(300); ok(/Choose a return date/.test(await txt()) && await stack() === 'ff', `${T} 1060 search blocked without a return`);

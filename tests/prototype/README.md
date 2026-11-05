@@ -9,7 +9,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `land2.cjs` | Book landing (Sprint 4 review presentation), sizes, orientations, themes, text sizes |
 | `clearrec.cjs` | Clear recents text link in Fare Finder station search (NMA-1004): ADS link, confirm, cancel, focus return, both devices |
 | `tabs.cjs` | ADS tabs for trip type, calendar dates and Trips: selection, arrow keys, axe in light and dark |
-| `exit.cjs` | "Exit booking?" appears only when something is filled out (close, scrim, Escape), across scenarios |
+| `exit.cjs` | Leaving New booking: no question before a cart (close, Escape), selections kept, across scenarios; with a cart, "Abandon booking?" with Continue booking / Abandon booking |
 | `design-review.cjs` | Design-review revisions: Dates (two months visible, vertical scrolling, one-way, round trip across months, editing either date, invalid return, end of the 335-day window, Done vs Back, axe); "Replace your discount?" (Military → Passenger with disability, Keep editing keeps answers, no-confirmation cases, card wording); navigation (no X under Fare Finder, Back one level, results → Fare Finder with every selection, no warning before a cart, Abandon booking with a cart) |
 | `newbooking.cjs` | New booking modal against Figma Sprint 4 node 3295:51258: header, tabs, station and date groups, swap, selector rows, points row and footer (geometry and DS tokens); states; both trip types; booking interactions; landscape scrolling, iPad, 44px targets, safe area; no concept toggle; axe light and dark |
 | `savedcodes.cjs` | Saved codes as an ADS Next List row |
