@@ -24,20 +24,16 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     const t2 = await txt();
     ok(!/Recommended trips|Favorite stations|Routes near me|Book again|Rebook|Explore/.test(t2) && /New booking/.test(t2) && /Passes/.test(t2), `${T} 2 Book landing: no discovery, rebooking or Explore; New booking kept`);
     await go(v, 'returning', 'stations:from'); ok(await p.locator(D + '[aria-label="Favorite stations"]').count() === 1, `${T} 2 favorites still in the station selector`);
-    // 3-6 coupon row (Figma 3295:51258) and its code screen with saved codes
+    // 3-6 coupon row and the Apply coupon page
     await go(v, 'returning'); const t3 = await txt();
     ok(/Coupon or promotional code\s*Apply discount code/.test(t3) && await p.locator(D + '#ff-coderow.ads-selectrow__btn').count() === 1, `${T} 3 coupon row: label "Coupon or promotional code", prompt "Apply discount code"`);
     ok(await ev(() => !document.querySelector('#device #ff-coderow .ads-icon--payment-voucher')), `${T} 4 no ticket icon in the row`);
     await dclick('#ff-coderow'); await w(500); const t3b = await txt();
-    ok(/Code\s*Optional/.test(t3b) && await p.locator(D + '#ff-code').count() === 1, `${T} 3 the row opens the code screen with an optional Code field`);
-    ok(await p.locator(D + '#dcode .ads-group [data-a="code-saved"]').count() === 1 && /Saved codes\s*3 available/.test(t3b) && await p.locator(D + '.dcode__saved, .linkbtn[data-a="code-saved"]').count() === 0, `${T} 6 saved codes is a DS row with count and chevron`);
-    await dclick('[data-a="code-saved"]');
-    ok(await ev(() => { const s = document.querySelector('.info-sheet'); return s && /^Saved codes/.test(s.querySelector('.info-title').textContent) && /Choose a coupon or promotion code for this trip\./.test(s.innerText) && /Expires/.test(s.innerText); }), `${T} 5 saved-code sheet copy, expiry kept`);
-    await p.locator('.info-sheet [data-a="dcode-pick"][data-code="V123"]').dispatchEvent('click'); await w(300);
-    ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === '') && /selected/.test(await txt()) && !/Code applied/.test(await txt()), `${T} 5 selecting doesn't apply before validation`);
-    ok(await p.locator(D + '#ff-code').inputValue() === 'V123', `${T} 3 manual field shows the selected code`);
-    await dclick('[data-a="dcode-done"]'); await w(500);
-    ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Done returns to New booking; the row shows the code`);
+    ok(/Apply coupon/.test(t3b) && await p.locator(D + '#apc-in').count() === 1 && /Fall Northeast sale/.test(t3b), `${T} 3 the row opens Apply coupon with code entry and the saved codes`);
+    await dclick('[data-a="apc-apply"][data-code="V123"]'); await w(300);
+    ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === '') && !/Checked for this trip/.test(await txt()), `${T} 5 applying doesn't validate before Find trains`);
+    await dclick('.ads-navbar [data-a="back"]'); await w(500);
+    ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Back returns to New booking; the row shows the code`);
     // 7 Pay with points: a switch in the action footer
     const pay = await ev(() => { const f = document.querySelector('#device .ads-actionfooter .ads-pointsrow'); if (!f) return null; const fb = document.querySelector('#device [data-a="find-trains"]').getBoundingClientRect(), r = f.getBoundingClientRect(), sw = f.querySelector('input[role="switch"]'); return { h: Math.round(r.height), btnH: Math.round(fb.height), checked: sw.checked, above: r.bottom <= fb.top }; });
     ok(pay && !pay.checked && pay.h <= pay.btnH && pay.above, `${T} 7 Pay with points is a switch above Find trains, off by default (${JSON.stringify(pay)})`);

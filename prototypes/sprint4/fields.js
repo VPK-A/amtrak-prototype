@@ -23,26 +23,7 @@ function setCodeText(b, v) {
 // it, so a new booking starts with an empty field. Account coupons are never touched.
 const manualCode = b => !!(b.codeText && b.codeSrc === 'manual');
 function clearManualCode(b) { if (manualCode(b)) Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); }
-function codeField(r, b) {
-  if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
-  ref('613'); q(21); q(23);
-  snote('A typed promotion code applies to this booking only: it’s kept while the booking is edited, never added to My coupons or Saved codes, and cleared when the booking is abandoned. Codes chosen from Saved codes or My coupons are account coupons and aren’t changed.');
-  const st = codeStateOf(b), saved = savedCodes(), text = b.codeText || '';
-  const busy = r.u.busy && text;
-  const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
-  const btn = (a, label, kind = 'tertiary', aria = '') => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${a}"${aria ? ` aria-label="${aria}"` : ''}>${label}</button>`;
-  let msg = '';
-  if (busy) msg = `<p class="ads-helper dcode__msg" id="ff-code-h" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>Checking your code</span></p>`;
-  else if (bad) msg = `<p class="ads-helper ads-helper--error dcode__msg" id="ff-code-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>${st === 'error' ? `<div class="dcode__acts">${btn('code-retry', 'Try again', 'secondary')}</div>` : st === 'ineligible' ? `<div class="dcode__acts">${btn('code-skip', 'Find trains without this code', 'secondary')}</div>` : ''}`;
-  else if (st === 'applied') msg = `<p class="ads-helper ads-helper--success dcode__msg" id="ff-code-h">${ic('check-circle', 'ads-icon--sm')}<span>Code applied${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`;
-  else if (st === 'changed') msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
-  else if (b.code && b.code.benefit) msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${esc(b.code.kind)}: ${esc(b.code.benefit)}. Expires ${fmtExp(b.code.exp)}.</p>`;
-  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
-  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
-  // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
-  const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
-}
+// The code page is "Apply coupon" (applycoupon.js).
 // New booking: the code is a selector row (Figma Sprint 4 node 3295:51258). It opens the code screen, which
 // holds the field above (same rules); results of the check at Find trains show under the row.
 function codeRow(r, b) {
@@ -61,24 +42,7 @@ function codeRow(r, b) {
   return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply discount code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
 }
 A['code-open'] = (t, ri) => push('dcode', {}, +ri);
-SCR.dcode = (r, ri) => {
-  const b = D().booking;
-  return { title: 'Coupon or promotional code', kind: 'push', body: codeField(r, b), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="dcode-done">Done</button>`, footCls: 'ads-actionfooter' };
-};
-A['dcode-done'] = (t, ri) => { const inp = document.querySelector('#ff-code'); if (inp) setCodeText(D().booking, inp.value); popTo(+ri - 1); pendingFocus = '#ff-coderow'; };
-INFO['saved-codes'] = {
-  title: 'Saved codes',
-  body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
-};
-HOOKS.ffcode = (r, t) => setCodeText(D().booking, t.value);
-A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
-// Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
-A['dcode-pick'] = t => {
-  const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
-  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '', codeSrc: 'saved' });
-  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
-};
-A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
+
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
 A['code-remove'] = () => {
   const b = D().booking, c = b.codeText || (b.code && b.code.code) || '', mine = D().coupons.some(x => x.code === c);

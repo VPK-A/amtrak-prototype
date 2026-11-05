@@ -13,7 +13,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
   // New booking (Figma 3295:51258): the coupon row opens the code screen; Done returns
   const openCode = () => click('#ff-coderow');
-  const enterCode = async c => { await openCode(); await p.fill(D_ + '#ff-code', c); await p.locator(D_ + '#ff-code').blur(); await w(200); await click('[data-a="dcode-done"]'); };
+  const back = () => click('.ads-navbar [data-a="back"]');
+  const enterCode = async c => { await openCode(); await p.fill(D_ + '#apc-in', c); await click('[data-a="apc-add"]'); await click(`[data-a="apc-apply"][data-code="${c.toUpperCase()}"]`); await back(); };
   const rowVal = () => ev(() => (document.querySelector('#device #ff-coderow .ads-selectrow__value') || {}).textContent);
   for (const v of [1]) {
     const T = `C${v}`;
@@ -44,16 +45,16 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await rowVal() === 'Apply discount code', `${T} after abandoning, New booking starts with an empty code`);
     ok(await wallet() === before, `${T} account coupons unchanged after abandoning`);
     // removing a typed code doesn't touch account coupons
-    await openCode(); await p.fill(D_ + '#ff-code', 'ABCD'); await p.locator(D_ + '#ff-code').blur(); await w(250); await click('[data-a="code-remove"]'); await click('[data-a="dcode-done"]');
+    await openCode(); await p.fill(D_ + '#apc-in', 'ABCD'); await click('[data-a="apc-add"]'); await click('[data-a="apc-apply"][data-code="ABCD"]'); await click('[data-a="apc-remove"]'); await back();
     ok(await ev(() => D().booking.codeText === '') && await wallet() === before, `${T} removing a typed code leaves account coupons alone`);
     // a saved code chosen from Saved codes is an account coupon: kept on abandoning, wallet unchanged
-    await openCode(); await click('[data-a="code-saved"]'); await p.locator('.info-sheet [data-a="dcode-pick"][data-code="V123"]').click(); await w(300); await click('[data-a="dcode-done"]');
+    await openCode(); await click('[data-a="apc-apply"][data-code="V123"]'); await back();
     await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await click('.psheet [data-a="close"]'); if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
     ok(await ev(() => D().booking.codeText === 'V123') && await wallet() === before, `${T} a chosen saved code stays selected after Abandon booking; wallet unchanged`);
-    await click('[data-a="open-booking"]'); await openCode(); await click('[data-a="code-remove"]');
+    await click('[data-a="open-booking"]'); await openCode(); await click('[data-a="apc-remove"]');
     ok(await wallet() === before && /still in My coupons/.test(await ev(() => (V().toast || {}).msg || '')), `${T} removing a saved code from the booking keeps it in My coupons`);
     // Escape at Fare Finder with a cart: Abandon booking clears a typed code
-    await click('[data-a="dcode-done"]'); await enterCode('WXYZ'); await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await p.focus(D_ + '#ff-coderow'); await p.keyboard.press('Escape'); await w(300);
+    await back(); await enterCode('WXYZ'); await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await p.focus(D_ + '#ff-coderow'); await p.keyboard.press('Escape'); await w(300);
     if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
     ok(await ev(() => !nav().sheet && D().booking.codeText === ''), `${T} Escape → Abandon booking clears the typed code`);
     // ---- Lounge passes removed ----
@@ -62,8 +63,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(!/lounge/i.test(t) && await ev(() => !D().coupons.some(c => /lounge/i.test(c.kind + c.name)) && !(D().couponsPast || []).some(c => /lounge/i.test(c.kind + c.name))), `${T} no lounge passes in My coupons (available, used or expired)`);
     ok(await p.locator(D_ + '.cpn [data-a="coupon-apply"]').count() === await ev(() => D().coupons.length), `${T} every available coupon has Apply`);
     await ev(() => { goLoc('profile'); }); await w(300); ok(/My coupons/.test(await txt()) && new RegExp(`${await ev(() => D().coupons.length)} available`).test(await txt()), `${T} coupon count matches the wallet`);
-    await ev(() => { goLoc('ff'); }); await w(300); await openCode(); ok(/Saved codes 3 available/.test(await txt()), `${T} Saved codes count: 3`);
-    await click('[data-a="code-saved"]'); ok(!/lounge/i.test(await ev(() => document.querySelector('.info-sheet').innerText)), `${T} saved-code picker has no lounge passes`);
+    await ev(() => { goLoc('ff'); }); await w(300); await openCode(); ok(await ev(() => document.querySelectorAll('#device .apc-card').length) === 3, `${T} Apply coupon lists the 3 saved codes`);
+    ok(!/lounge/i.test(await txt()), `${T} Apply coupon lists no lounge passes`);
   }
   ok(!errs.length, 'no page errors ' + errs.join('|'));
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();

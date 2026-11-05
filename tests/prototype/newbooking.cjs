@@ -83,9 +83,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await ev(() => popTo(0)); await w(300);
   await click('#ff-trav'); ok(await ev(() => sheet().stack.at(-1).s === 'travelers'), 'Travelers row opens Traveler selection');
   await ev(() => popTo(0)); await w(300);
-  await click('#ff-coderow'); ok(await ev(() => sheet().stack.at(-1).s === 'dcode') && await p.locator(D_ + '#ff-code').count() === 1, 'code row opens the code screen');
-  await p.fill(D_ + '#ff-code', 'v123'); await click('[data-a="dcode-done"]');
-  ok(await ev(() => sheet().stack.length === 1 && D().booking.codeText === 'V123') && /V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Done returns; the row shows the code');
+  await click('#ff-coderow'); ok(await ev(() => sheet().stack.at(-1).s === 'dcode') && await p.locator(D_ + '#apc-in').count() === 1, 'code row opens Apply coupon');
+  await click('[data-a="apc-apply"][data-code="V123"]'); await click('.ads-navbar [data-a="back"]');
+  ok(await ev(() => sheet().stack.length === 1 && D().booking.codeText === 'V123') && /V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Apply then Back; the row shows the code');
   await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);
   ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D_ + '#ff-coderow').count() === 0 && await ev(() => document.querySelector('#device #ff-points').checked), 'Pay with points on: points search, code row hidden');
   await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);

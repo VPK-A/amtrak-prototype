@@ -2475,46 +2475,23 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cartdemo { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-8); padding: var(--ads-space-12); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
 .cartdemo p { margin: 0; }
 
-/* ---------- Coupon explorations (coupons2.js) ---------- */
-.pane--cx .pane__body { gap: var(--ads-space-20); }
-.cx-entry .dcode__row { display: flex; align-items: center; gap: var(--ads-space-8); }
-.cx-entry .dcode__row > .ads-control { flex: 1 1 auto; min-width: 0; }
-.cx-entry #cx-status:empty { display: none; }
-.cx-sec { display: flex; flex-direction: column; gap: var(--ads-space-8); }
-.cx-h { margin: 0; font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.3; }
-.cx-sub, .cx-note { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
-.cx-panel { display: flex; flex-direction: column; gap: var(--ads-space-16); }
-.cx-set { margin: 0; padding: 0; border: 0; min-width: 0; }
-.cx-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); }
-.cx-item, .cx-deal { display: flex; flex-direction: column; gap: var(--ads-space-4); padding: var(--ads-space-12); border-top: 1px solid var(--ads-border-subtle); }
-.cx-list > li:first-child { border-top: 0; }
-.cx-item.is-selected, .cx-deal.is-selected { box-shadow: inset 4px 0 0 var(--ads-border-brand); } /* a brand edge, not a fill, so text and links keep their contrast */
-.cx-pick { align-items: flex-start; gap: var(--ads-space-8); }
-.cx-pick .ads-choice__control { flex: none; }
-.cx-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.cx-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-4) var(--ads-space-8); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; color: var(--ads-content-text-primary); }
-.cx-benefit { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-primary); line-height: 1.35; }
-.cx-meta, .cx-terms, .cx-why { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); line-height: 1.4; }
-.cx-code { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
-.cx-kicker { margin: 0; font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); text-transform: none; }
-.cx-more { align-self: flex-start; margin-left: calc(var(--ads-size-interactive-md) - var(--ads-space-4)); min-height: var(--ads-size-interactive-sm); }
-.cx-item--done .cx-more { margin-left: 0; }
-.cx-item--done .cx-title, .cx-item--done .cx-benefit { color: var(--ads-content-text-secondary); }
-.cx-fit { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-4); margin-top: var(--ads-space-4); }
-.cx-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-8) var(--ads-space-12); margin-top: var(--ads-space-4); }
-.cx-acts .ads-link { min-height: var(--ads-size-interactive-sm); }
-.cx-inuse { display: inline-flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-success); }
-.cx-past { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); }
-.cx-past > summary { padding: 0 var(--ads-space-12); }
-.cx-past .ads-accordion__panel { display: flex; flex-direction: column; gap: var(--ads-space-8); padding: 0 var(--ads-space-12) var(--ads-space-12); }
-.cx-past .cx-list { background: var(--ads-background-surface-default); }
-.cx-tabs { margin-bottom: calc(-1 * var(--ads-space-8)); }
-.cx-current { display: flex; align-items: flex-start; gap: var(--ads-space-8); margin: 0; padding: var(--ads-space-12); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-sunken); font-size: var(--ads-type-body-small-size); }
-.cx-current .ads-icon { flex: none; margin-top: 2px; color: var(--ads-content-icon-secondary); }
-.cx-detail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
-.cx-detail__t { margin: 0; }
-.cx-detail p { margin: 0; }
-.cx-terms-list { margin: 0; padding-left: var(--ads-space-20); display: flex; flex-direction: column; gap: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+/* ---------- Apply coupon (applycoupon.js): the My coupons look inside New booking ---------- */
+.pane--apc .pane__scroll { background: var(--ads-background-surface-page); }
+.pane--apc .pane__body { gap: var(--ads-space-32); padding-top: var(--ads-space-16); }
+.apc-add, .apc-avail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-head { display: flex; align-items: center; gap: var(--ads-space-4); }
+.apc-h { margin: 0; color: var(--ads-content-text-primary); }
+.apc-row { display: flex; align-items: flex-start; gap: var(--ads-space-8); }
+.apc-row > .ads-control { flex: 1 1 auto; min-width: 0; }
+.apc-row > .ads-btn { flex: none; }
+.apc-avail .cpn-list { margin-top: 0; gap: var(--ads-space-12); }
+.apc-card { background: var(--ads-background-surface-default); align-items: flex-start; }
+.apc-card.is-applied { border-color: var(--ads-border-brand); box-shadow: inset 0 0 0 1px var(--ads-border-brand); }
+.apc-card .cpn__acts { width: 100%; justify-content: flex-end; }
+.apc-applied { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+.apc-note { margin: var(--ads-space-4) 0 0; }
+.apc-detail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-detail h3, .apc-detail p { margin: 0; }
 
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
@@ -2815,8 +2792,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpAssist">Traveler assistance layout</label><div class="ads-control ads-control--select"><select id="tbCmpAssist"><option value="current">Current design</option><option value="above">Content above traveler details</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpBp">Pass Rider Business Pass controls</label><div class="ads-control ads-control--select"><select id="tbCmpBp"><option value="current">Current design</option><option value="compact">Compact dropdown</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
-      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpCoupon">Coupon screen</label><div class="ads-control ads-control--select"><select id="tbCmpCoupon"><option value="current">Current design</option><option value="integrated">Exploration 1 · Deals in the coupon view</option><option value="focused">Exploration 2 · Focused, deals beside it</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
-      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpCxData">Saved codes and deals</label><div class="ads-control ads-control--select"><select id="tbCmpCxData"><option value="ok">Load</option><option value="loading">Slow to load</option><option value="error">Fail to load</option><option value="empty">None saved, no deals</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -5917,26 +5892,7 @@ function setCodeText(b, v) {
 // it, so a new booking starts with an empty field. Account coupons are never touched.
 const manualCode = b => !!(b.codeText && b.codeSrc === 'manual');
 function clearManualCode(b) { if (manualCode(b)) Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); }
-function codeField(r, b) {
-  if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
-  ref('613'); q(21); q(23);
-  snote('A typed promotion code applies to this booking only: it’s kept while the booking is edited, never added to My coupons or Saved codes, and cleared when the booking is abandoned. Codes chosen from Saved codes or My coupons are account coupons and aren’t changed.');
-  const st = codeStateOf(b), saved = savedCodes(), text = b.codeText || '';
-  const busy = r.u.busy && text;
-  const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
-  const btn = (a, label, kind = 'tertiary', aria = '') => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${a}"${aria ? ` aria-label="${aria}"` : ''}>${label}</button>`;
-  let msg = '';
-  if (busy) msg = `<p class="ads-helper dcode__msg" id="ff-code-h" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>Checking your code</span></p>`;
-  else if (bad) msg = `<p class="ads-helper ads-helper--error dcode__msg" id="ff-code-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>${st === 'error' ? `<div class="dcode__acts">${btn('code-retry', 'Try again', 'secondary')}</div>` : st === 'ineligible' ? `<div class="dcode__acts">${btn('code-skip', 'Find trains without this code', 'secondary')}</div>` : ''}`;
-  else if (st === 'applied') msg = `<p class="ads-helper ads-helper--success dcode__msg" id="ff-code-h">${ic('check-circle', 'ads-icon--sm')}<span>Code applied${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`;
-  else if (st === 'changed') msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
-  else if (b.code && b.code.benefit) msg = `<p class="ads-helper dcode__msg" id="ff-code-h">${esc(b.code.kind)}: ${esc(b.code.benefit)}. Expires ${fmtExp(b.code.exp)}.</p>`;
-  const input = `<div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false"${bad ? ' aria-invalid="true"' : ''}${msg ? ' aria-describedby="ff-code-h"' : ''}${busy ? ' readonly' : ''}></div>`;
-  const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
-  // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
-  const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
-}
+// The code page is "Apply coupon" (applycoupon.js).
 // New booking: the code is a selector row (Figma Sprint 4 node 3295:51258). It opens the code screen, which
 // holds the field above (same rules); results of the check at Find trains show under the row.
 function codeRow(r, b) {
@@ -5955,24 +5911,7 @@ function codeRow(r, b) {
   return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply discount code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
 }
 A['code-open'] = (t, ri) => push('dcode', {}, +ri);
-SCR.dcode = (r, ri) => {
-  const b = D().booking;
-  return { title: 'Coupon or promotional code', kind: 'push', body: codeField(r, b), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="dcode-done">Done</button>`, footCls: 'ads-actionfooter' };
-};
-A['dcode-done'] = (t, ri) => { const inp = document.querySelector('#ff-code'); if (inp) setCodeText(D().booking, inp.value); popTo(+ri - 1); pendingFocus = '#ff-coderow'; };
-INFO['saved-codes'] = {
-  title: 'Saved codes',
-  body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
-};
-HOOKS.ffcode = (r, t) => setCodeText(D().booking, t.value);
-A['code-saved'] = () => openInfo('saved-codes', '[data-a="code-saved"]');
-// Selecting a code fills the field; it isn't applied until it's checked at Find trains (NMA-613)
-A['dcode-pick'] = t => {
-  const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
-  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '', codeSrc: 'saved' });
-  nav().info = null; pendingFocus = '#ff-code'; toast(`${c.kind} selected. It’s checked when you find trains.`);
-};
-A['dcode-manual'] = () => { nav().info = null; pendingFocus = '#ff-code'; render(); };
+
 // Removing a code clears it from this search only; a profile code stays in My coupons (NMA-613 scenario 19)
 A['code-remove'] = () => {
   const b = D().booking, c = b.codeText || (b.code && b.code.code) || '', mine = D().coupons.some(x => x.code === c);
@@ -6215,6 +6154,126 @@ document.addEventListener('click', ev => {
   else if (t.dataset.mailClose != null) $('#mailPreview').close();
 });
 document.addEventListener('change', ev => { if (ev.target.id === 'tbMail') window.__tbMail = ev.target.value; });
+
+/* Sprint 4 prototype: "Apply coupon" (New booking › Coupon or promotional code). One page, styled like My coupons:
+   - "Add a coupon or promotion code" directly under the header, with the codes information beside it, one labeled
+     field and Add. Adding puts a code in the list; Apply puts it on this booking (the existing distinction).
+   - Available coupons and promotion codes as stacked cards: name, benefit, type, code, expiry, Apply and Details.
+     Only active, unused codes allowed in a booking are listed; upgrade coupons are left out (they're used from
+     Profile and Modify, not from Fare Finder). The applied code is marked.
+   - Rules reused, not new: the format check (4-character promotion code or 14-character coupon code, CODE_FORMAT);
+     coupons added to the account through the existing My coupons lookup; typed promotion codes stay with this
+     booking only and aren't saved to the account; every code is checked against the trip when you find trains.
+   - Back returns to Fare Finder with the booking unchanged. Details opens a secondary view; Back restores this page's
+     scroll position and the code being typed. Loading and error follow the toolbar Network setting (as My coupons). */
+
+const isUpgradeCoupon = c => /upgrade/i.test(`${c.kind} ${c.name || ''}`);
+// Codes this booking can use: the account's active, unused codes (no upgrade coupons), then promotion codes typed
+// for this booking. Trip eligibility is still checked when you find trains.
+function bookingCodes(b) {
+  const acct = savedCodes().filter(c => couponState(c) === 'available' && !isUpgradeCoupon(c));
+  const local = (b.addedCodes || []).filter(c => !acct.some(a => a.code === c.code));
+  return [...acct, ...local];
+}
+const codeLabel = c => c.name || c.kind;
+function applyCard(c, b) {
+  const applied = b.codeText === c.code, local = !!c.local, bad = applied && ['invalid', 'ineligible', 'error'].includes(codeStateOf(b));
+  const state = applied ? `<span class="ads-badge ads-badge--info apc-applied">${ic('check-circle', 'ads-icon--sm')}Applied</span>` : '';
+  const note = applied ? (bad ? `<p class="ads-helper ads-helper--error apc-note">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`
+      : codeStateOf(b) === 'applied' ? `<p class="ads-helper ads-helper--success apc-note">${ic('check-circle', 'ads-icon--sm')}<span>Checked for this trip${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`
+      : '<p class="ads-helper apc-note">We’ll check it against your trip when you find trains.</p>') : '';
+  const meta = local ? `${esc(c.kind)} · ${c.code} · Added for this booking` : `${esc(c.kind)} · ${c.code} · Expires ${fmtWeekday(c.exp).slice(0, 3)}, ${fmtExp(c.exp)}`;
+  const act = applied ? `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="apc-remove" data-code="${c.code}">Remove<span class="ads-sr-only"> ${esc(codeLabel(c))} from this booking</span></button>`
+    : `<button class="ads-btn ads-btn--secondary ads-btn--sm apc-apply" type="button" data-a="apc-apply" data-code="${c.code}">Apply<span class="ads-sr-only"> ${esc(codeLabel(c))}</span></button>`;
+  return `<li class="cpn apc-card${applied ? ' is-applied' : ''}" data-code="${c.code}"><div class="cpn__main"><span class="cpn__name">${esc(codeLabel(c))} ${state}</span><span class="cpn__benefit">${esc(c.benefit || 'Benefit shown after it’s checked when you find trains')}</span><span class="cpn__meta">${meta}</span>${note}</div>
+    <div class="cpn__acts">${act}<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="apc-details" data-code="${c.code}">Details<span class="ads-sr-only"> for ${esc(codeLabel(c))}</span></button></div></li>`;
+}
+SCR.dcode = (r, ri) => {
+  const d = D(), b = d.booking; r.u.d = r.u.d || { add: '' };
+  ref('613'); if (d.coupons.length) ref('697');
+  const e = r.u.err || '', busy = r.u.busy && r.u.busyWhat === 'add';
+  const add = `<section class="apc-add" aria-labelledby="apc-add-h"><div class="apc-head"><h3 class="ads-h5 apc-h" id="apc-add-h">Add a coupon or promotion code</h3><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div>
+    <div class="ads-field"><label class="ads-field__label" for="apc-in">Code</label><div class="apc-row"><div class="ads-control${e ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e ? ' aria-invalid="true"' : ''}${busy ? ' readonly' : ''}></div>
+    ${busy ? `<button class="ads-btn ads-btn--secondary" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Adding</button>` : '<button class="ads-btn ads-btn--secondary" type="button" data-a="apc-add">Add</button>'}</div>
+    ${e ? `<p class="ads-helper ads-helper--error" id="apc-in-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper" id="apc-in-h">A promotion code has 4 letters or numbers. A coupon code has 14.</p>'}</div></section>`;
+  const load = couponLoad(r);
+  let list;
+  if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
+  else if (load === 'error') list = alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>');
+  else {
+    const codes = bookingCodes(b);
+    list = codes.length ? `<ul class="cpn-list" aria-label="Available coupons and promotion codes">${codes.map(c => applyCard(c, b)).join('')}</ul>`
+      : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">${d.signedIn ? 'Coupons you get, or add here, show up in this list.' : 'Add a coupon or promotion code above. Sign in to see coupons saved to your account.'}</p></div>`;
+  }
+  tip('Add: V123-style 4-character promotion codes stay with this booking; 60111122223333 adds a coupon to your account; EXP12345678901 is expired; 60123456789012 has been used; 3 characters is the format error.');
+  const body = `${netAlert(r)}${add}<section class="apc-avail" aria-labelledby="apc-av-h"><h3 class="ads-h5 apc-h" id="apc-av-h">Available</h3><div id="apc-live" class="ads-sr-only" role="status">${r.u.live || ''}</div>${list}</section>`;
+  return { title: 'Apply coupon', kind: 'push', cls: 'pane--apc', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
+};
+
+// Add: the format check, then the existing coupon lookup for 14-character codes (signed in), or this booking's list
+// for promotion codes. The entered value stays in the field for correction.
+A['apc-add'] = (t, ri) => {
+  const r = routeAt(ri), d = D(), b = d.booking, inp = document.querySelector('#apc-in');
+  if (inp) r.u.d.add = inp.value;
+  const c = (r.u.d.add || '').trim().toUpperCase(); r.u.d.add = c;
+  const fail = msg => { r.u.err = msg; pendingFocus = '#apc-in'; render(); };
+  if (!c) return fail('Enter a coupon or promotion code.');
+  if (!CODE_FORMAT.test(c)) return fail('This code isn’t valid. Check it and try again.');
+  const past = (d.couponsPast || []).find(x => x.code === c);
+  if (past) return fail(couponState(past) === 'used' ? 'This coupon has already been used.' : 'This coupon has expired, so it can’t be added.');
+  if (bookingCodes(b).some(x => x.code === c) || d.coupons.some(x => x.code === c)) return fail(d.coupons.some(x => x.code === c) ? 'This coupon is already in your account.' : 'This code is already in your list.');
+  r.u.err = '';
+  const done = (code, msg) => { r.u.d.add = ''; r.u.live = msg; pendingFocus = `[data-a="apc-apply"][data-code="${code}"]`; toast(msg); };
+  if (c.length === 14 && d.signedIn) {
+    r.u.busyWhat = 'add';
+    return runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
+      r.u.busyWhat = null;
+      if (res.err) return fail(res.err);
+      d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) }); // the existing My coupons sample
+      done(c, 'Coupon added to your account. Apply it to use it on this booking.');
+    }, { what: 'add a coupon' });
+  }
+  // Promotion codes (and coupons for guests) stay with this booking; they're checked when you find trains
+  b.addedCodes = (b.addedCodes || []).concat({ code: c, kind: c.length === 4 ? 'Promotion code' : 'Coupon code', local: true });
+  done(c, `Code ${c} added. Apply it to use it on this booking.`);
+};
+
+// Apply puts the code on this booking. A booking holds one code (the booking's code field), so applying another
+// replaces it, after saying which replaces which.
+A['apc-apply'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = bookingCodes(b).find(x => x.code === t.dataset.code); if (!c) return;
+  const go = () => {
+    Object.assign(b, { codeText: c.code, code: c.local ? null : clone(c), codeState: '', codeErr: '', codeSrc: c.local ? 'manual' : 'saved' });
+    r.u.live = `${codeLabel(c)} applied. It’s checked against your trip when you find trains.`;
+    pendingFocus = `[data-a="apc-remove"][data-code="${c.code}"]`; toast(`${codeLabel(c)} applied`);
+  };
+  if (b.codeText && b.codeText !== c.code) {
+    const cur = bookingCodes(b).find(x => x.code === b.codeText);
+    return dialog({ title: 'Replace your code?', returnFocus: `[data-a="apc-apply"][data-code="${c.code}"]`,
+      body: `${esc(codeLabel(c))} (${c.code}) will replace ${cur ? `${esc(codeLabel(cur))} (${cur.code})` : `the code ${esc(b.codeText)}`} on this booking.`,
+      actions: [['Replace code', 'primary', go], ['Keep current code', 'secondary', null]] });
+  }
+  go();
+};
+A['apc-remove'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = b.codeText;
+  Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '' });
+  const mine = D().coupons.some(x => x.code === c), msg = mine ? 'Code removed from this booking. It’s still in My coupons.' : `Code ${c} removed from this booking`; // as before: the account's coupons are never changed here
+  r.u.live = msg; pendingFocus = `[data-a="apc-apply"][data-code="${c}"]`; toast(msg, 'info');
+};
+A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; push('apc-detail', { code: t.dataset.code }, +ri); };
+// Details: the full terms (the My coupons details), or what's known about a code added for this booking
+SCR['apc-detail'] = (r, ri) => {
+  const b = D().booking, local = (b.addedCodes || []).find(x => x.code === r.p.code);
+  if (local) return { title: 'Details', kind: 'push', body: `<div class="apc-detail"><h3 class="ads-h4">${esc(local.kind)} ${local.code}</h3><dl class="cpn-dl"><dt>Type</dt><dd>${esc(local.kind)}</dd><dt>Code</dt><dd>${local.code}</dd><dt>Saved</dt><dd>For this booking only. It isn’t saved to your account.</dd></dl><p class="ads-body-small">Its benefit, expiry and terms come from the code itself. We check it against your train, dates and travelers when you find trains.</p></div>` };
+  const info = couponInfo(r.p.code);
+  return { title: 'Details', kind: 'push', body: `<div class="apc-detail"><h3 class="ads-h4">${esc(info.title)}</h3>${info.body()}</div>` };
+};
+// The information beside "Add a coupon or promotion code": the established codes copy, plus where codes are kept
+INFO.codes.body = (base => () => base() + '<p>Coupons saved to your account are in Account › My coupons, and they’re listed here.</p>')(INFO.codes.body);
+// Clearing the typed promotion codes with the booking's other typed code when a booking is abandoned
+const clearManualBase = clearManualCode;
+clearManualCode = b => { clearManualBase(b); b.addedCodes = []; };
 
 /* Sprint 4 prototype: Version 1 (Familiar) traveler details.
    A conventional, explicit structure: one card per traveler with labeled rows for Discount, Assistance and,
@@ -6991,230 +7050,6 @@ HOOKS.bpcombo = (r, t) => {
   const a = document.getElementById('tbCmpAssist'), p = document.getElementById('tbCmpBp');
   if (a) { a.value = CMP.assist; a.addEventListener('change', () => { CMP.assist = a.value; store.set('s4-cmp-assist', a.value); pendingFocus = null; render(); }); }
   if (p) { p.value = CMP.bp; p.addEventListener('change', () => { CMP.bp = p.value; store.set('s4-cmp-bp', p.value); pendingFocus = null; render(); }); }
-})();
-
-/* Sprint 4 prototype: "Coupon or promotional code" explorations (design team; chosen in Prototype controls).
-   Starting point: the current code screen (field, Saved codes sheet, About codes). Two directions, one primary view each:
-   1. Deals in the coupon view: Code field, then tabs "Your codes" / "Deals". Used and expired codes sit in a
-      disclosure. Deals for this trip, saved deals and Browse all deals live in the Deals tab.
-   2. Focused coupon view: Code field, saved codes inline, used and expired in a disclosure, and one Deals entry
-      beside them that opens a Deals view (secondary, Back returns).
-   Rules kept from the current design: one coupon or promotion code per booking; codes aren't used with points; the
-   code is checked when you find trains (format first, then the back end), never before; Done returns to New booking;
-   Back goes up one level. Choosing a deal or a saved code fills the Code field, so it replaces any code already there
-   (with a confirmation when a different code would be replaced). Offer and code details open in a secondary view.
-   Deal eligibility is shown only where trip details can decide it; anything that depends on fares or seats says it's
-   checked when you find trains. Sample deals are placeholders for the deals service (not in Sprint 4). */
-
-const CX = {
-  mode: ['integrated', 'focused'].includes(store.get('s4-cmp-coupon')) ? store.get('s4-cmp-coupon') : 'current',
-  data: ['loading', 'error', 'empty'].includes(store.get('s4-cmp-cxdata')) ? store.get('s4-cmp-cxdata') : 'ok'
-};
-const cxOn = () => CX.mode !== 'current' && v1();
-
-// ---------- Sample content ----------
-// Restrictions for the saved codes in the sample account (placeholder for each code's terms from the coupon service)
-const CODE_TERMS = {
-  V123: 'Northeast Regional, Coach. Can’t be combined with other codes.',
-  '60412233445566': 'Needs at least 2 travelers. The companion travels in the same class.',
-  '60998877665544': 'One trip, up to $25. Can’t be used with points.',
-  '60123456789012': 'One trip.', '60555544443333': 'One trip, Coach.'
-};
-const NEC = ['BOS', 'PVD', 'NHV', 'STM', 'NYP', 'NWK', 'EWR', 'TRE', 'PHL', 'WIL', 'BAL', 'BWI', 'WAS'];
-const dow = s => parse(s).getDay(); // 0 Sunday … 6 Saturday
-const DEALS = [
-  { id: 'midweek', title: 'Northeast midweek saver', benefit: '20% off Coach', code: 'MIDW', bookBy: '2026-12-15', travelBy: '2027-02-28',
-    terms: ['Northeast Corridor stations, Boston to Washington', 'Depart Tuesday, Wednesday or Thursday', 'Coach only, while seats last'],
-    fit: b => !b.from || !b.to ? ['pending', 'Choose your stations to see if your route qualifies.'] : !(NEC.includes(b.from) && NEC.includes(b.to)) ? ['no', 'For trips between Northeast Corridor stations.'] : ![2, 3, 4].includes(dow(b.dep)) ? ['no', 'Depart on a Tuesday, Wednesday or Thursday.'] : ['match', 'Your route and departure day qualify.'] },
-  { id: 'weekend', title: 'Weekend getaway', benefit: '15% off Coach and Business', code: 'WKND', bookBy: '2027-01-15', travelBy: '2027-03-31',
-    terms: ['Depart Friday, Saturday or Sunday', 'Round trips return by the following Monday', 'Coach and Business'],
-    fit: b => ![5, 6, 0].includes(dow(b.dep)) ? ['no', 'Depart on a Friday, Saturday or Sunday.'] : b.trip === 'rt' && b.ret && (parse(b.ret) - parse(b.dep)) / 864e5 > 3 ? ['no', 'Return by the Monday after you leave.'] : ['match', 'Your departure day qualifies.'] },
-  { id: 'kids', title: 'Kids ride for half', benefit: '50% off for children 2 to 12', code: 'KIDS', bookBy: '2026-12-31', travelBy: '2027-06-30',
-    terms: ['Children 2 to 12 traveling with an adult', 'Up to 2 children per adult', 'All routes, Coach'],
-    fit: b => !(b.pax.child > 0) ? ['no', 'Add a child aged 2 to 12 to use this deal.'] : !(b.pax.adult + b.pax.senior > 0) ? ['no', 'Children need an adult on the booking.'] : ['match', 'Your travelers qualify.'] },
-  { id: 'group', title: 'Travel together', benefit: '10% off for 3 or more travelers', code: 'GRP3', bookBy: '2027-03-31', travelBy: '2027-06-30',
-    terms: ['3 to 8 travelers on one booking', 'All routes'],
-    fit: b => paxAll(b.pax) < 3 ? ['no', `Add ${3 - paxAll(b.pax)} more traveler${3 - paxAll(b.pax) > 1 ? 's' : ''} to use this deal.`] : ['match', 'Your number of travelers qualifies.'] },
-  { id: 'autotrain', title: 'Auto Train fall offer', benefit: '$50 off your vehicle', code: 'AUTO', bookBy: '2026-11-30', travelBy: '2026-12-20',
-    terms: ['Lorton, VA and Sanford, FL only', 'One vehicle per booking'],
-    fit: b => !b.from || !b.to ? ['pending', 'Choose your stations to see if your route qualifies.'] : [b.from, b.to].sort().join() !== 'LOR,SFA' ? ['no', 'For Auto Train between Lorton and Sanford.'] : ['match', 'Your route qualifies.'] },
-  { id: 'saver', title: 'Saver fares', benefit: 'Our lowest Coach fares', code: '', bookBy: '', travelBy: '',
-    terms: ['No code needed', 'Shown in search results when seats are available', 'Changes and refunds are limited'],
-    fit: () => ['pending', 'Shown in your search results when seats are available. No code needed.'] }
-];
-const dealById = id => DEALS.find(x => x.id === id);
-const cxData = () => CX.data === 'empty' ? 'empty' : CX.data;
-const dealsCatalog = () => cxData() === 'empty' ? [] : DEALS;
-const savedDealIds = () => { const d = D(); if (!d.signedIn) return []; if (!d.savedDeals) d.savedDeals = ['kids', 'weekend']; return cxData() === 'empty' ? [] : d.savedDeals; };
-const cxSaved = () => cxData() === 'empty' ? [] : savedCodes();
-const cxPast = () => !D().signedIn || cxData() === 'empty' ? [] : [...(D().couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
-const dealFit = (x, b) => { const [state, why] = x.fit(b); return { state, why }; };
-const tripDeals = b => dealsCatalog().filter(x => dealFit(x, b).state !== 'no').sort((p, q) => (dealFit(p, b).state === 'match' ? 0 : 1) - (dealFit(q, b).state === 'match' ? 0 : 1));
-
-// Loading the saved codes and deals (toolbar setting): loads, slow (1.5 s), fails (Try again), or none saved
-function cxLoad(r) {
-  if (r.u.cxLoad) return r.u.cxLoad;
-  r.u.cxLoad = cxData() === 'loading' ? 'loading' : cxData() === 'error' ? 'error' : 'ok';
-  if (r.u.cxLoad === 'loading') setTimeout(() => { if (r.u.cxLoad === 'loading') { r.u.cxLoad = 'ok'; render(); } }, 1500);
-  return r.u.cxLoad;
-}
-A['cx-retry'] = (t, ri) => { const r = routeAt(ri); r.u.cxLoad = 'loading'; CX.data = CX.data === 'error' ? 'ok' : CX.data; pendingFocus = '#cx-status'; render(); setTimeout(() => { r.u.cxLoad = 'ok'; render(); }, 1200); };
-const cxSkeleton = label => `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">${label}</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(2)}</div>`;
-const cxError = what => alertBox('error', `We couldn’t load your ${what}`, 'You can still enter a code above. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="cx-retry">Try again</button>');
-
-// ---------- The Code field (shared by both explorations) ----------
-// Label with the info icon beside it, the field and Clear. The status line never says a code is valid before it's checked.
-function cxEntry(r, b) {
-  const st = codeStateOf(b), text = b.codeText || '', busy = r.u.busy && text, bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
-  const src = text ? [...cxSaved(), ...DEALS.filter(x => x.code)].find(x => x.code === text) : null;
-  let msg = '';
-  if (bad) msg = `<p class="ads-helper ads-helper--error" id="ff-code-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`;
-  else if (st === 'applied') msg = `<p class="ads-helper ads-helper--success" id="ff-code-h">${ic('check-circle', 'ads-icon--sm')}<span>Code applied${b.code && b.code.benefit ? `: ${esc(b.code.benefit)}` : ''}</span></p>`;
-  else if (st === 'changed') msg = `<p class="ads-helper" id="ff-code-h">${ic('info-circle', 'ads-icon--sm')}<span>Your trip changed, so this code will be checked again when you find trains.</span></p>`;
-  else if (text) msg = `<p class="ads-helper" id="ff-code-h">${src ? `${esc(src.name || src.title)} selected. ` : ''}We’ll check this code when you find trains.</p>`;
-  else msg = '<p class="ads-helper" id="ff-code-h">Enter a code, or choose one you’ve saved.</p>';
-  return `<div class="ads-field cx-entry" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div>
-    <div class="dcode__row"><div class="ads-control${bad ? ' ads-control--error' : ''}"><input id="ff-code" type="text" data-f="code" data-nodirty data-hook="ffcode" value="${esc(text)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="ff-code-h"${bad ? ' aria-invalid="true"' : ''}${busy ? ' readonly' : ''}></div>${text ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="code-remove" aria-label="Clear code ${esc(text)}">Clear</button>` : ''}</div>
-    <div id="cx-status" role="status">${msg}</div></div>`;
-}
-
-// ---------- Saved codes: choose one inline (radio list); used and expired in a disclosure ----------
-function cxCodeItem(c, b) {
-  const sel = b.codeText === c.code, soonX = soon(c);
-  return `<li class="cx-item${sel ? ' is-selected' : ''}"><label class="ads-choice ads-radio cx-pick"><input type="radio" name="cx-code" value="${c.code}" data-a="cx-pick" data-code="${c.code}" ${sel ? 'checked' : ''} aria-describedby="cx-t-${c.code}"><span class="ads-choice__control"></span>
-    <span class="cx-text"><span class="cx-title">${esc(c.name || c.kind)}${soonX ? ' <span class="ads-badge ads-badge--warning">Expires soon</span>' : ''}</span><span class="cx-benefit">${esc(c.benefit)}</span><span class="cx-meta">${esc(c.kind)} · <span class="cx-code">${c.code}</span> · Expires ${fmtExp(c.exp)}</span><span class="cx-terms" id="cx-t-${c.code}">${esc(CODE_TERMS[c.code] || '')}</span></span></label>
-    <button class="ads-link ads-link--sm linkbtn cx-more" type="button" data-a="cx-codeinfo" data-code="${c.code}">Details<span class="ads-sr-only"> for ${esc(c.name || c.kind)}</span></button></li>`;
-}
-function cxPastItem(c) {
-  const st = couponState(c), use = c.uses && c.uses[0];
-  return `<li class="cx-item cx-item--done"><span class="cx-text"><span class="cx-title">${esc(c.name || c.kind)} <span class="ads-badge">${st === 'used' ? 'Used' : 'Expired'}</span></span><span class="cx-benefit">${esc(c.benefit)}</span><span class="cx-meta"><span class="cx-code">${c.code}</span> · ${st === 'used' ? `Used ${fmtExp(use.date)} · Booking ${use.pnr}` : `Expired ${fmtExp(c.exp)}`}</span><span class="cx-terms">Can’t be applied</span></span>
-    <button class="ads-link ads-link--sm linkbtn cx-more" type="button" data-a="cx-codeinfo" data-code="${c.code}">Details<span class="ads-sr-only"> for ${esc(c.name || c.kind)}</span></button></li>`;
-}
-function cxCodes(r, b) {
-  const d = D(), load = cxLoad(r);
-  if (!d.signedIn) return `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">Sign in to see your saved codes</p><p class="ads-body-small">Codes in your account show up here. You can still enter a code above.</p></div>`;
-  if (load === 'loading') return cxSkeleton('Loading your saved codes');
-  if (load === 'error') return cxError('saved codes');
-  const avail = cxSaved(), past = cxPast();
-  const list = avail.length ? `<fieldset class="cx-set"><legend class="ads-sr-only">Saved codes</legend><ul class="cx-list">${avail.map(c => cxCodeItem(c, b)).join('')}</ul></fieldset>`
-    : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No saved codes</p><p class="ads-body-small">Codes you add in My coupons show up here.</p></div>`;
-  const open = r.u.cxOpen && r.u.cxOpen.past;
-  const pastH = past.length ? `<details class="ads-accordion ads-accordion--sm cx-past" data-cxk="past"${open ? ' open' : ''}><summary>Used and expired (${past.length})${ic('chevron-down')}</summary><div class="ads-accordion__panel"><ul class="cx-list" aria-label="Used and expired codes">${past.map(cxPastItem).join('')}</ul><p class="ss-note">Used and expired codes can’t be applied. They stay here for a limited time.</p></div></details>` : '';
-  return list + pastH;
-}
-A['cx-pick'] = t => {
-  const b = D().booking, c = savedCodes().find(x => x.code === t.dataset.code); if (!c) return;
-  Object.assign(b, { codeText: c.code, code: clone(c), codeState: '', codeErr: '', codeSrc: 'saved' });
-  pendingFocus = `[data-a="cx-pick"][data-code="${c.code}"]`; render();
-};
-
-// ---------- Deals ----------
-function cxDeal(x, b, o = {}) {
-  const f = dealFit(x, b), inUse = x.code && b.codeText === x.code, saved = savedDealIds().includes(x.id);
-  const badge = f.state === 'match' ? '<span class="ads-badge ads-badge--info">Matches your trip</span>' : f.state === 'pending' ? '<span class="ads-badge">Needs checking</span>' : '<span class="ads-badge">Doesn’t match this trip</span>';
-  const use = !x.code ? '' : inUse ? `<span class="cx-inuse">${ic('check-circle', 'ads-icon--sm')}In your Code field</span>` : `<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="cx-usedeal" data-id="${x.id}" ${f.state === 'no' ? `disabled aria-describedby="cx-d-${o.k || ''}${x.id}"` : ''}>Use deal<span class="ads-sr-only">: ${esc(x.title)}</span></button>`;
-  const save = D().signedIn ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cx-savedeal" data-id="${x.id}" aria-pressed="${saved}">${ic(saved ? 'bookmark-filled' : 'bookmark', 'ads-icon--sm')}${saved ? 'Saved' : 'Save'}<span class="ads-sr-only"> ${esc(x.title)}</span></button>` : '';
-  return `<li class="cx-deal${inUse ? ' is-selected' : ''}"><div class="cx-text"><span class="cx-kicker">Deal${x.code ? '' : ' · no code'}</span><span class="cx-title">${esc(x.title)}</span><span class="cx-benefit">${esc(x.benefit)}</span>${x.travelBy ? `<span class="cx-meta">Book by ${fmtExp(x.bookBy)} · Travel by ${fmtExp(x.travelBy)}</span>` : ''}
-    <span class="cx-fit">${badge}<span class="cx-why" id="cx-d-${o.k || ''}${x.id}">${esc(f.why)}${f.state === 'match' && x.code ? ' Final check when you find trains.' : ''}</span></span></div>
-    <div class="cx-acts">${use}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="cx-dealinfo" data-id="${x.id}">Terms<span class="ads-sr-only"> for ${esc(x.title)}</span></button>${save}</div></li>`;
-}
-function cxDealsBody(r, b, o = {}) {
-  const load = cxLoad(r);
-  if (load === 'loading') return cxSkeleton('Loading deals');
-  if (load === 'error') return cxError('deals');
-  const trip = tripDeals(b), savedIds = savedDealIds(), saved = savedIds.map(dealById).filter(Boolean);
-  const tripH = trip.length ? `<ul class="cx-list">${trip.map(x => cxDeal(x, b, { k: 't-' })).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No deals for this trip right now</p><p class="ads-body-small">Browse all deals to see offers for other dates and routes.</p></div>`;
-  const savedH = !D().signedIn ? `<p class="ads-body-small cx-note">Sign in to see deals you’ve saved.</p>` : saved.length ? `<ul class="cx-list">${saved.map(x => cxDeal(x, b, { k: 's-' })).join('')}</ul>` : `<p class="ads-body-small cx-note">No saved deals. Save a deal to find it here.</p>`;
-  return `<section class="cx-sec" aria-labelledby="cx-trip-h"><h3 class="cx-h" id="cx-trip-h">Deals for this trip</h3><p class="cx-sub">Based on your route, dates and travelers. Prices and seats are checked when you find trains.</p>${tripH}</section>
-    <section class="cx-sec" aria-labelledby="cx-sd-h"><h3 class="cx-h" id="cx-sd-h">Saved deals</h3><p class="cx-sub">Offers you’ve saved from Deals. They’re different from codes saved to your account.</p>${savedH}</section>
-    <div class="ads-group"><div class="ads-group__body">${grow({ a: 'cx-alldeals', label: 'Browse all deals', value: 'Other routes and dates. Your booking and code stay as they are.', icon: 'payment-gift-card', k: 'cx-all' })}</div></div>`;
-}
-const cxNotes = () => { snote('Exploration: deals are sample content standing in for the deals service (not in Sprint 4). “Matches your trip” uses only trip details; fares and seats are checked when you find trains.'); snote('One coupon or promotion code per booking: choosing a deal or a saved code fills the Code field and replaces any code already there.'); tip('Try: Prototype controls › Saved codes and deals › Loading, Fails to load or None saved. Choose a deal while V123 is selected to see the replace confirmation.'); };
-
-// Using a deal fills the Code field. It replaces a different code already there, after asking.
-A['cx-usedeal'] = (t, ri) => {
-  const b = D().booking, x = dealById(t.dataset.id); if (!x || !x.code) return;
-  const go = () => {
-    Object.assign(b, { codeText: x.code, code: { code: x.code, kind: 'Promotion code', name: x.title, benefit: x.benefit, exp: x.bookBy }, codeState: '', codeErr: '', codeSrc: 'deal' });
-    const sh = sheet(), at = sh.stack.findIndex(r => r.s === 'dcode');
-    if (at >= 0 && at < sh.stack.length - 1) popTo(at); // back to the coupon view, which shows the code in the field
-    pendingFocus = '#ff-code'; toast(`${x.title} added. We’ll check it when you find trains.`);
-  };
-  if (b.codeText && b.codeText !== x.code) {
-    const cur = [...savedCodes(), ...DEALS].find(c => c.code === b.codeText);
-    return dialog({ title: 'Replace your code?', returnFocus: `[data-a="cx-usedeal"][data-id="${x.id}"]`,
-      body: `Only one coupon or promotion code can be used per booking. ${esc(x.title)} (${x.code}) will replace ${cur ? `${esc(cur.name || cur.title)} (${b.codeText})` : `the code ${esc(b.codeText)}`}.`,
-      actions: [['Use deal', 'primary', go], ['Keep current code', 'secondary', null]] });
-  }
-  go();
-};
-A['cx-savedeal'] = t => { const d = D(), id = t.dataset.id; savedDealIds(); d.savedDeals = d.savedDeals.includes(id) ? d.savedDeals.filter(x => x !== id) : d.savedDeals.concat(id); pendingFocus = `[data-a="cx-savedeal"][data-id="${id}"]`; toast(d.savedDeals.includes(id) ? 'Deal saved' : 'Deal removed from saved deals', 'info'); };
-A['cx-dealinfo'] = (t, ri) => push('cx-deal', { id: t.dataset.id }, +ri);
-A['cx-codeinfo'] = (t, ri) => push('cx-code', { code: t.dataset.code }, +ri);
-A['cx-alldeals'] = (t, ri) => push('cx-alldeals', {}, +ri);
-A['cx-deals'] = (t, ri) => push('cx-deals', {}, +ri);
-A['cx-tab'] = (t, ri) => { routeAt(ri).u.cxTab = t.dataset.v; pendingFocus = `[data-a="cx-tab"][data-v="${t.dataset.v}"]`; render(); };
-// Keep disclosures open across renders
-document.addEventListener('toggle', e => { const el = e.target; if (!el.matches || !el.matches('#device details[data-cxk]')) return; const r = routeAt(riOf(el)); if (r) { r.u.cxOpen = Object.assign({}, r.u.cxOpen, { [el.dataset.cxk]: el.open }); } }, true);
-
-// ---------- The primary view ----------
-const dcodeBase = SCR.dcode;
-SCR.dcode = (r, ri) => {
-  if (!cxOn()) return dcodeBase(r, ri);
-  const b = D().booking; ref('613'); if (D().coupons.length) ref('697'); cxNotes();
-  const foot = `<button class="ads-btn ads-btn--block" type="button" data-a="dcode-done">Done</button>`;
-  let body;
-  if (CX.mode === 'integrated') {
-    const tab = r.u.cxTab || 'codes', nDeals = cxLoad(r) === 'ok' ? tripDeals(b).length : null;
-    const tabs = `<div class="ads-tabs ads-tabs--fill cx-tabs" role="tablist" aria-label="Codes and deals">${tabBtn(tab === 'codes', 'data-a="cx-tab" data-v="codes" id="cx-tab-codes" aria-controls="cx-panel"', `Your codes${D().signedIn && cxLoad(r) === 'ok' ? ` (${cxSaved().length})` : ''}`)}${tabBtn(tab === 'deals', 'data-a="cx-tab" data-v="deals" id="cx-tab-deals" aria-controls="cx-panel"', `Deals${nDeals != null ? ` (${nDeals})` : ''}`)}</div>`;
-    body = `${cxEntry(r, b)}${tabs}<div class="cx-panel" id="cx-panel" role="tabpanel" aria-labelledby="cx-tab-${tab}">${tab === 'codes' ? cxCodes(r, b) : cxDealsBody(r, b)}</div>`;
-  } else {
-    const load = cxLoad(r), trip = load === 'ok' ? tripDeals(b) : [], match = trip.filter(x => dealFit(x, b).state === 'match').length, nSaved = savedDealIds().length;
-    const val = load === 'loading' ? 'Loading deals' : load === 'error' ? 'Deals couldn’t load. Open to try again.' : trip.length ? `${match ? `${match} match${match > 1 ? '' : 'es'} your trip` : 'None match yet'}${trip.length - match ? ` · ${trip.length - match} need${trip.length - match > 1 ? '' : 's'} checking` : ''}${nSaved ? ` · ${nSaved} saved` : ''}` : `No deals for this trip${nSaved ? ` · ${nSaved} saved` : ''}`;
-    body = `${cxEntry(r, b)}<section class="cx-sec" aria-labelledby="cx-sc-h"><h3 class="cx-h" id="cx-sc-h">Saved codes</h3>${cxCodes(r, b)}</section>
-      <section class="cx-sec" aria-labelledby="cx-dl-h"><h3 class="cx-h" id="cx-dl-h">Deals</h3><div class="ads-group"><div class="ads-group__body">${grow({ a: 'cx-deals', label: 'Deals for this trip and saved deals', value: esc(val), icon: 'payment-gift-card', k: 'cx-dealsrow' })}</div></div></section>`;
-  }
-  return { title: 'Coupon or promotional code', kind: 'push', cls: 'pane--cx', body, foot, footCls: 'ads-actionfooter', offlineText: 'You can enter a code. Saved codes and deals need a connection.' };
-};
-// Exploration 2: Deals as a secondary view next to the coupon view
-SCR['cx-deals'] = (r, ri) => { const b = D().booking; cxNotes(); return { title: 'Deals', kind: 'push', cls: 'pane--cx', body: `${b.codeText ? `<p class="cx-current">${ic('payment-voucher', 'ads-icon--sm')}<span>Code in your booking: <b>${esc(b.codeText)}</b>. A deal you use replaces it.</span></p>` : ''}${cxDealsBody(r, b)}` }; };
-// Browse all deals: the wider deals experience, inside the booking so nothing is lost on the way back
-SCR['cx-alldeals'] = (r, ri) => {
-  const b = D().booking, load = cxLoad(r), all = dealsCatalog();
-  snote('Browse all deals stands in for the Deals experience outside booking (not in Sprint 4). It opens inside the booking, so Back returns with the booking, code and selections unchanged.');
-  const body = load === 'loading' ? cxSkeleton('Loading deals') : load === 'error' ? cxError('deals') : all.length ? `<p class="cx-sub">Every current offer. Whether each one fits this trip is shown with it.</p><ul class="cx-list">${all.map(x => cxDeal(x, b, { k: 'a-' })).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">No deals right now</p><p class="ads-body-small">Check back soon.</p></div>`;
-  return { title: 'All deals', kind: 'push', cls: 'pane--cx', body };
-};
-// Offer details (secondary view)
-SCR['cx-deal'] = (r, ri) => {
-  const b = D().booking, x = dealById(r.p.id); if (!x) return { title: 'Deal', kind: 'push', body: '<p>This deal isn’t available any more.</p>' };
-  const f = dealFit(x, b);
-  const body = `<div class="cx-detail"><p class="cx-kicker">Deal${x.code ? '' : ' · no code'}</p><h3 class="ads-h4 cx-detail__t">${esc(x.title)}</h3><p class="ads-body">${esc(x.benefit)}</p>
-    <dl class="cpn-dl">${x.code ? `<dt>Code</dt><dd>${x.code}</dd>` : ''}${x.bookBy ? `<dt>Book by</dt><dd>${fmtDate(x.bookBy)}</dd><dt>Travel by</dt><dd>${fmtDate(x.travelBy)}</dd>` : ''}<dt>For this trip</dt><dd>${esc(f.why)}</dd></dl>
-    <h4 class="cx-h">Terms</h4><ul class="cx-terms-list">${x.terms.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-    <p class="ads-body-small cx-note">${x.code ? 'One coupon or promotion code per booking, so this deal can’t be combined with another code. Codes can’t be used when you pay with points. Whether it combines with passenger discounts is checked when you find trains.' : 'Saver fares need no code and can be combined with a code where the code’s terms allow.'}</p></div>`;
-  const inUse = x.code && b.codeText === x.code;
-  const foot = x.code ? (inUse ? '<p class="ads-helper">This deal is in your Code field.</p>' : `<button class="ads-btn ads-btn--block" type="button" data-a="cx-usedeal" data-id="${x.id}" ${f.state === 'no' ? 'disabled aria-describedby="cx-detail-why"' : ''}>Use deal</button>${f.state === 'no' ? `<p class="ads-helper" id="cx-detail-why">${esc(f.why)}</p>` : ''}`) : '';
-  return { title: 'Deal details', kind: 'push', cls: 'pane--cx', body, foot, footCls: foot ? 'ads-actionfooter' : '' };
-};
-// Saved code details (secondary view); used and expired codes show their history and can't be applied
-SCR['cx-code'] = (r, ri) => {
-  const d = D(), b = d.booking, c = [...d.coupons, ...(d.couponsPast || [])].find(x => x.code === r.p.code);
-  if (!c) return { title: 'Code details', kind: 'push', body: '<p>This code isn’t in your account any more.</p>' };
-  const st = couponState(c);
-  const body = `<div class="cx-detail"><p class="cx-kicker">${esc(c.kind)}${st !== 'available' ? ` · <span class="ads-badge">${st === 'used' ? 'Used' : 'Expired'}</span>` : ''}</p><h3 class="ads-h4 cx-detail__t">${esc(c.name || c.kind)}</h3><p class="ads-body">${esc(c.benefit)}</p>
-    <dl class="cpn-dl"><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd>${c.uses && c.uses.length ? `<dt>Used</dt><dd>${c.uses.map(u => `${fmtDate(u.date)} · Booking ${u.pnr}`).join('<br>')}</dd>` : ''}<dt>Restrictions</dt><dd>${esc(CODE_TERMS[c.code] || 'See the coupon’s terms.')}</dd></dl>
-    ${st !== 'available' ? '<p class="ads-body-small cx-note">Used and expired codes can’t be applied.</p>' : '<p class="ads-body-small cx-note">We check the code against your train, dates and travelers when you find trains.</p>'}</div>`;
-  const foot = st === 'available' ? (b.codeText === c.code ? '<p class="ads-helper">This code is in your Code field.</p>' : `<button class="ads-btn ads-btn--block" type="button" data-a="cx-usecode" data-code="${c.code}">Use this code</button>`) : '';
-  return { title: 'Code details', kind: 'push', cls: 'pane--cx', body, foot, footCls: foot ? 'ads-actionfooter' : '' };
-};
-A['cx-usecode'] = (t, ri) => { A['cx-pick'](t); const sh = sheet(), at = sh.stack.findIndex(r => r.s === 'dcode'); if (at >= 0) popTo(at); pendingFocus = '#ff-code'; };
-
-// Prototype controls
-(function wireCx() {
-  const m = document.getElementById('tbCmpCoupon'), dd = document.getElementById('tbCmpCxData');
-  if (m) { m.value = CX.mode; m.addEventListener('change', () => { CX.mode = m.value; store.set('s4-cmp-coupon', m.value); pendingFocus = null; render(); }); }
-  if (dd) { dd.value = CX.data; dd.addEventListener('change', () => { CX.data = dd.value; store.set('s4-cmp-cxdata', dd.value); const sh = sheet(); if (sh) sh.stack.forEach(r => { r.u.cxLoad = null; }); pendingFocus = null; render(); }); }
 })();
 
 /* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:
