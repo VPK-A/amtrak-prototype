@@ -74,7 +74,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await p.locator(D + '.sheet-layer .pane [data-a="close"]').count() === 0, `${T} 14 Traveler selection has no Close X`);
     await dclick('[data-a="pick-travelers-done"]'); await w(300);
     ok(await stack() === 'ff' && !(await dlg()), `${T} 14 Done between levels doesn't ask`);
-    await ev(() => A.scrim(null, '0')); await w(200); ok(!(await dlg()) && !(await stack()) && await ev(() => D().booking.from === 'NYP' && D().booking.pax.adult === 2), `${T} 14 leaving before a cart: no question, trip kept`);
+    await w(300); await ev(() => A.scrim(null, '0')); await w(400); ok(!(await dlg()) && !(await stack()) && await ev(() => D().booking.from === 'NYP' && D().booking.pax.adult === 2), `${T} 14 leaving before a cart: no question, trip kept`);
     // 15 booking type entry and sheet, per eligibility group
     const groups = { triplink: ['Corporate (TripLink)', 'Personal'], passrider: ['Pass Rider', 'Regular'], 'passrider-nopass': ['Pass Rider', 'Regular'], 'passrider-retiree': ['Pass Rider', 'Regular'], 'passrider-spouse': ['Pass Rider', 'Regular'], 'passrider-dependent': ['Pass Rider', 'Regular'], 'passrider-minor': ['Pass Rider', 'Regular'], 'triplink-passrider': ['Corporate (TripLink)', 'Pass Rider', 'Regular'], returning: null, guest: null };
     for (const [sc, opts] of Object.entries(groups)) {
