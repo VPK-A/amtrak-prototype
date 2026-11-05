@@ -32,38 +32,24 @@ A.close = A.scrim = (t, ri) => {
   return closeBeforeCancel(t, ri);
 };
 
-// ---------- Exit booking? ----------
-// Something is filled out when the trip differs from a new booking's starting values (Profile prefills count as
-// starting values, so they don't trigger the question on their own)
-const FILL_KEYS = ['trip', 'from', 'to', 'dep', 'ret', 'disc', 'pax', 'tdisc', 'pay', 'intent', 'prType', 'prPax', 'prKinds', 'codeText', 'code', 'ask', 'ta', 'assist', 'assistDone'];
-function bookingFilled(b) {
-  const f = freshBooking(D());
-  const norm = v => { if (v && typeof v === 'object' && !Array.isArray(v)) { const o = {}; Object.keys(v).sort().forEach(k => { if (v[k] != null && v[k] !== false && v[k] !== 'none') o[k] = norm(v[k]); }); return Object.keys(o).length ? o : null; } return v === '' || v === undefined ? null : v; };
-  return FILL_KEYS.some(k => JSON.stringify(norm(b[k])) !== JSON.stringify(norm(f[k])));
-}
-// Anything that closes the whole booking modal (close button, scrim, Escape at the root) asks first. Back
-// between booking levels doesn't. Keep booking leaves every value and the current step as they are. Trip
-// details stay for New booking (the established retention); unconfirmed edits on a Cancel step aren't kept.
+// Leaving New booking (Fare Finder's X, the scrim, Escape at Fare Finder)
+// - Before anything is in the cart: back to Book with no warning. Every saved search selection is kept, including a
+//   typed promotion code, and Fare Finder reopens with them.
+// - With an item in the cart: "Abandon booking?" Continue booking keeps the cart and stays on the same screen;
+//   Abandon booking clears the cart (and a typed promotion code) and returns to Book.
+// Screens under Fare Finder have no X; Back goes up one level and never asks to abandon.
+const cartOf = () => D().cart || (D().cart = []);
 const closeBeforeExit = A.close;
 A.close = A.scrim = (t, ri) => {
   const sh = sheet();
   if (!sh || sh.id !== 'booking' || !v1() || nav().dialog) return closeBeforeExit(t, ri);
-  const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
-  if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
-  dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
-    body: `Your trip details are kept, so you can pick up from New booking.${manualCode(D().booking) ? ' The promotion code you entered isn’t kept.' : ''}${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
-    actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
+  const cart = cartOf();
+  if (!cart.length) return closeBeforeExit(t, ri);
+  const top = sh.stack[sh.stack.length - 1];
+  dialog({ title: 'Abandon booking?', returnFocus: top.s === 'ff' ? '.ads-sheet-header__close' : 'title',
+    body: `Your cart has ${cart.length === 1 ? '1 item' : `${cart.length} items`}: ${cart.map(x => esc(x.label)).join(', ')}. If you abandon this booking, your cart is cleared.`,
+    actions: [['Continue booking', 'primary', null], ['Abandon booking', 'secondary', () => { D().cart = []; clearManualCode(D().booking); sh.stack.forEach(r => { r.u.dirty = false; }); nav().tab = 'book'; closeBeforeExit(t, ri); }]] });
 };
-
-// ---------- Abandoning a booking clears a typed promotion code ----------
-// Whatever closes New booking (Exit booking, the close button or Escape with nothing else filled in), the next
-// booking starts with an empty code field. Codes chosen from Saved codes or My coupons are account coupons and
-// stay selected; the account's coupons themselves are never changed here.
-let BOOKING_OPEN = false;
-const renderBeforePromo = render;
-render = function () {
-  const open = !!(nav().sheet && nav().sheet.id === 'booking');
-  if (BOOKING_OPEN && !open && D().booking) clearManualCode(D().booking);
-  BOOKING_OPEN = open;
-  return renderBeforePromo.apply(this, arguments);
-};
+// ---------- A typed promotion code ----------
+// It belongs to this booking: kept while the booking is open or closed without a cart, cleared only by Abandon
+// booking (above). Codes from Saved codes or My coupons are account coupons and are never changed here.

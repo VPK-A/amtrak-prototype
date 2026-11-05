@@ -2451,6 +2451,30 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .dcode .dcode__acts { margin-top: 0; }
 .device--ipad .pane--nb .pane__body > *, .device--ipad .pane--nb .pane__foot > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
 
+/* ---------- Dates (New booking): two months at a time, vertical scrolling (design review) ---------- */
+.pane--calx .pane__scroll { position: relative; }
+.pane--calx .pane__body { padding-top: 0; gap: var(--ads-space-8); }
+.calx-head { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: var(--ads-space-8); margin: 0 calc(-1 * var(--ads-space-16)); padding: var(--ads-space-8) var(--ads-space-16) 0; background: var(--ads-background-surface-page); }
+.calx-head .ads-calendar__weekdays { position: static; margin: 0 calc(-1 * var(--ads-space-16)); padding-inline: var(--ads-space-16); }
+.calx-one { margin: 0; display: flex; align-items: baseline; gap: var(--ads-space-8); min-height: 32px; }
+.calx-bad { color: var(--ads-content-text-error); font-weight: var(--ads-font-weight-semibold); }
+.calx { gap: var(--ads-space-12); }
+.calx .ads-calendar__grid { row-gap: 0; }
+.calx .ads-calendar__month h3 { margin-bottom: var(--ads-space-4); font-size: var(--ads-type-body-size); }
+.calx .ads-calendar__grid .ads-day { height: var(--ads-size-interactive-sm); }
+.calx .ads-calendar__grid .ads-day::before { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); aspect-ratio: auto; }
+.calx .ads-day--today:not([aria-pressed="true"])::before { box-shadow: inset 0 0 0 1px var(--ads-border-strong); }
+.calx .ads-day:disabled { text-decoration: line-through; }
+.calx-legend { display: flex; flex-wrap: wrap; gap: var(--ads-space-4) var(--ads-space-12); margin: 0; padding: 0; list-style: none; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.calx-legend li { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+.calx-key { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; }
+.calx-key--today { box-shadow: inset 0 0 0 1px var(--ads-border-strong); font-weight: var(--ads-font-weight-semibold); text-decoration: underline; color: var(--ads-content-text-primary); }
+.calx-key--sel { background: var(--ads-background-interactive-selected); }
+.calx-key--range { width: 28px; border-radius: 2px; background: var(--ads-background-surface-selected); }
+.calx-key--off { color: var(--ads-content-text-disabled); text-decoration: line-through; }
+.cartdemo { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-8); padding: var(--ads-space-12); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.cartdemo p { margin: 0; }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -3438,14 +3462,16 @@ function navbar(o, ri, ctx) {
   if (o.kind === 'focus' && o.headInBody) return ''; // the screen renders its own visible heading (id t-ri)
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
+  // New booking: only Fare Finder has the X that leaves the booking. Every screen under it goes Back one level.
+  const noX = o.noClose || (ri !== 'c' && +ri > 0 && sheet() && sheet().id === 'booking' && TB.v === 1);
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
   if (o.kind === 'editor') {
     lead = `<button class="ads-navbar__btn" type="button" data-a="${o.cancelA || 'back'}">Cancel</button>`;
-    if (o.close && !o.save && ctx.showClose) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
+    if (o.close && !o.save && ctx.showClose && !noX) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
     else if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-navbar__btn" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}<span>Back</span></button>`;
-    if (ctx.showClose) trail = close;
+    if (ctx.showClose && !noX) trail = close;
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
   return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
@@ -3980,10 +4006,77 @@ function calendarBody(r, ri, field) {
   q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy
   return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
 }
+// ---------- Dates (New booking): two months at a time, scrolling vertically through the booking window ----------
+// Design-review revision. Edits a draft (r.u.cal): Done saves to the booking and returns to Fare Finder; Back returns
+// without saving and without asking. Departure and return are edited one at a time; switching keeps the other.
+// A new departure after the chosen return keeps that return marked as needing a new choice (never changed silently).
+function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
+function calScroll(r, ri) {
+  const b = D().booking, c = calDraft(r), rt = b.trip === 'rt', edit = rt ? c.edit : 'dep';
+  ref('1060'); q(4); // the 335-day window isn't confirmed (Q4): dates beyond it are disabled, no policy text
+  const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = c.dep ? addDays(c.dep, WINDOW_DAYS) : maxDep;
+  const isOff = s => s < TODAY_S || (edit === 'dep' && s > maxDep) || (edit === 'ret' && (s < c.dep || s > maxRet));
+  const retOk = rt && c.ret && !c.retBad;
+  const first = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), lastS = edit === 'ret' ? maxRet : maxDep, last = parse(lastS);
+  const months = []; for (let d = new Date(first); d <= last; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
+  const day = (y, mo, dd) => {
+    const s = iso(new Date(y, mo, dd)), off = isOff(s);
+    const isDep = s === c.dep, isRet = retOk && s === c.ret, between = retOk && s > c.dep && s < c.ret, span = retOk && c.ret !== c.dep;
+    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && span ? 'ads-day--range-start' : '', isRet && span ? 'ads-day--range-end' : '', between ? 'ads-day--in-range' : '', isDep ? 'calx-dep' : '', isRet ? 'calx-ret' : ''].filter(Boolean).join(' ');
+    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${between ? ', between your dates' : ''}${off ? ', not available' : ''}`;
+    return `<button class="${cls}" type="button" data-a="calx-day" data-d="${s}" data-k="day-${s}" ${off ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
+  };
+  const monthHtml = m => {
+    const y = m.getFullYear(), mo = m.getMonth(), n = new Date(y, mo + 1, 0).getDate(), key = iso(m).slice(0, 7), id = `calx-${key}`;
+    let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span aria-hidden="true"></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd);
+    return `<section class="ads-calendar__month calx-month" data-month="${key}" aria-labelledby="${id}"><h3 id="${id}">${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-labelledby="${id}">${g}</div></section>`;
+  };
+  // Which date is being edited: two ADS tabs that show both choices (round trip); one-way shows the departure only
+  const val = (k, v) => v ? fmtShort(v) : k === 'ret' ? 'Choose a date' : 'Not set';
+  const pick = rt ? `<div class="ads-tabs ads-tabs--fill cal-pick" role="tablist" aria-label="Date to edit">${tabBtn(edit === 'dep', 'data-a="calx-edit" data-v="dep"', `<span class="cal-pick__k">Departure</span><span>${val('dep', c.dep)}</span>`)}${tabBtn(edit === 'ret', `data-a="calx-edit" data-v="ret"${c.retBad ? ' aria-describedby="calx-why"' : ''}`, `<span class="cal-pick__k">Return</span><span class="${c.retBad ? 'calx-bad' : ''}">${c.retBad ? 'Choose again' : val('ret', c.ret)}</span>`)}</div>`
+    : `<p class="calx-one"><span class="cal-pick__k">Departure</span> <b>${val('dep', c.dep)}</b></p>`;
+  const why = c.retBad ? `<div class="ads-alert ads-alert--warning calx-why" id="calx-why" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">Your return date, ${fmtShort(c.ret)}, is before your new departure. Choose a new return date.</p></div></div>` : '';
+  const live = `<p class="ads-sr-only" role="status">${edit === 'dep' ? 'Choose a departure date' : 'Choose a return date'}</p>`;
+  const legend = `<ul class="calx-legend" aria-hidden="true"><li><span class="calx-key calx-key--today">${new Date(TODAY).getDate()}</span>Today</li><li><span class="calx-key calx-key--sel"></span>${rt ? 'Your dates' : 'Departure'}</li>${rt ? '<li><span class="calx-key calx-key--range"></span>Between</li>' : ''}<li><span class="calx-key calx-key--off">1</span>Unavailable</li></ul>`;
+  return `<div class="calx-head">${pick}${why}${live}${legend}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
+}
 SCR.calendar = (r, ri) => {
   const b = D().booking;
+  if (v1()) {
+    const c = calDraft(r), need = b.trip === 'rt' && (!c.ret || c.retBad);
+    const foot = `${need ? '<p class="ads-helper" id="calx-done-why">Choose a return date to save your dates.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Done</button>`;
+    return { title: 'Dates', kind: 'push', noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, banner: false };
+  }
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
+};
+A['calx-edit'] = (t, ri) => { const r = routeAt(ri); calDraft(r).edit = t.dataset.v; calDraft(r).jump = true; pendingFocus = `[data-a="calx-edit"][data-v="${t.dataset.v}"]`; render(); };
+A['calx-day'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = calDraft(r), s = t.dataset.d, rt = b.trip === 'rt';
+  if (!rt || c.edit === 'dep') {
+    c.dep = s;
+    if (rt && c.ret && c.ret < s) { c.retBad = true; c.edit = 'ret'; c.jump = true; pendingFocus = '#calx-why'; render(); return; } // guide to a new return; never change it silently
+    if (rt && !c.ret) { c.edit = 'ret'; c.jump = true; }
+  } else { c.ret = s; c.retBad = false; }
+  pendingFocus = `[data-k="day-${s}"]`; render();
+};
+A['calx-done'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = calDraft(r);
+  if (b.trip === 'rt' && (!c.ret || c.retBad)) return;
+  b.dep = c.dep; if (b.trip === 'rt') b.ret = c.ret;
+  popTo(+ri - 1); pendingFocus = '#ff-dep';
+};
+// After a render, bring the month being edited to the top of the list (on opening, and when switching dates)
+const renderBeforeCal = render;
+render = function () {
+  const out = renderBeforeCal.apply(this, arguments);
+  const sh = sheet(), r = sh && sh.stack[sh.stack.length - 1];
+  if (r && r.s === 'calendar' && r.u.cal && r.u.cal.jump) {
+    const c = r.u.cal; c.jump = false;
+    const target = (c.edit === 'ret' && c.ret ? c.ret : c.dep || TODAY_S).slice(0, 7), sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
+    if (sc && m) { const head = sc.querySelector('.calx-head'); sc.scrollTop = Math.max(0, m.offsetTop - (head ? head.offsetHeight : 0) - 4); sc.dispatchEvent(new Event('scroll')); }
+  }
+  return out;
 };
 A.picking = (t, ri) => { routeAt(ri).u.picking = t.dataset.v; pendingFocus = `[data-a="picking"][data-v="${t.dataset.v}"]`; render(); };
 A['cal-done'] = (t, ri) => { popTo(+ri - 1); pendingFocus = '#ff-dep'; render(); };
@@ -4193,8 +4286,17 @@ SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
     <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
+    ${cartDemo(b)}
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
+// Simulated cart (prototype only, so the abandon-booking rule can be reviewed): one sample train for this search.
+// Adding it doesn't change fares, availability or cart eligibility; it only marks that something is in the cart.
+function cartDemo(b) {
+  const cart = D().cart || [], label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`, inCart = cart.some(x => x.label === label);
+  snote('Search results aren’t in Sprint 4. “Add to cart” is simulated so the abandon-booking confirmation can be reviewed: it appears only once something is in the cart.');
+  return `<div class="cartdemo"><p class="ads-body-small-emphasis">Sample train · ${esc(label)}</p>${inCart ? `<p class="ads-helper ads-helper--success" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : `<button class="ads-btn ads-btn--sm" type="button" data-a="cart-add" data-label="${esc(label)}">Add to cart</button>`}</div>`;
+}
+A['cart-add'] = t => { const d = D(); d.cart = (d.cart || []).concat({ label: t.dataset.label }); pendingFocus = '.cartdemo [role="status"], title'; toast('Added to your cart'); };
 
 // =====================================================================
 // Account sheet (IA: Profile + Guest Rewards card, Inbox, Travelers, Payment, Assistance, Quick settings)
@@ -4796,7 +4898,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, discReplaced: b.discReplaced || {}, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -4844,7 +4946,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
-  if (fam) return { title: 'Traveler selection', kind: 'editor', cancelA: 'trav-cancel', close: true, banner: false, body: `<div class="travsel">${body}</div>`, foot };
+  if (fam) return { title: 'Traveler selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot }; // Back undoes unsaved changes; Done saves
   if (std) return { title: 'Traveler selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
@@ -4877,6 +4979,7 @@ HOOKS.prkind = (r, t) => { const b = D().booking; b.prKinds = b.prKinds || {}; b
 const backBase = A.back;
 A.back = (t, ri) => {
   const sh = sheet(), r = sh && sh.stack[+ri], b = D().booking;
+  if (r && r.s === 'travelers' && v1()) return A['trav-cancel'](t, ri); // Back: one level up, keeping what was saved before (no dialog)
   if (r && r.s === 'travelers' && travelerProblems(b).length) {
     return dialog({ title: 'Travelers can’t be used yet', body: esc(travelerProblems(b).join(' ')), returnFocus: '[data-a="pick-travelers-done"]',
       actions: [['Keep editing', 'secondary', null], ['Undo traveler changes', 'primary', () => { Object.assign(b, clone(r.u.snap)); popTo(+ri - 1); }]] });
@@ -5391,7 +5494,21 @@ A['assist-confirm'] = (t, ri) => {
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
   else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.err.forMissing;
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat || e.for ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
-  setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
+  // Replacing a different discount with Passenger with disability asks first (design review). Only when a discount is
+  // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
+  // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).
+  const trav = travelerList(b).find(z => z.key === key) || { key, type: 'adult', n: 1 };
+  const before = tdiscOf(b, trav), saved = fromDraft(x), willPwd = x.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+  const replacing = willPwd && before && !['none', 'pwd'].includes(before);
+  if (replacing && !r.u.replaceOk) {
+    return dialog({ title: 'Replace your discount?', returnFocus: '[data-a="assist-confirm"]',
+      body: `The Passenger with disability discount will replace your ${esc(TDISC_LABEL[before] || before)} discount. Only one discount can be applied per traveler.`,
+      actions: [['Replace discount', 'primary', () => { r.u.replaceOk = true; A['assist-confirm'](t, ri); }], ['Keep editing', 'secondary', null]] });
+  }
+  r.u.replaceOk = false;
+  if (replacing) { b.discReplaced = Object.assign({}, b.discReplaced, { [key]: before }); }
+  else if (b.discReplaced && b.discReplaced[key] && !willPwd) { const o = Object.assign({}, b.discReplaced); delete o[key]; b.discReplaced = o; }
+  setAssistRec(b, key, saved); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`;
   const back = routeAt(+ri - 1); // opened from the Travelers screen: go on to the next unanswered traveler
   const next = perTraveler() && back && back.s === 'travelers' && assistMissing(b)[0]; if (next) pendingFocus = `[data-a="assist-answer"][data-t="${next.key}"]`; // the next traveler still to answer
@@ -6083,7 +6200,8 @@ function discountRow(b, t, fromProfile) {
   }
   if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
-  const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : 'Set by assistance: this traveler has a disability.') : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
+  const was = b.discReplaced && b.discReplaced[t.key];
+  const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
   const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
   if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
   return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
@@ -6175,41 +6293,27 @@ A.close = A.scrim = (t, ri) => {
   return closeBeforeCancel(t, ri);
 };
 
-// ---------- Exit booking? ----------
-// Something is filled out when the trip differs from a new booking's starting values (Profile prefills count as
-// starting values, so they don't trigger the question on their own)
-const FILL_KEYS = ['trip', 'from', 'to', 'dep', 'ret', 'disc', 'pax', 'tdisc', 'pay', 'intent', 'prType', 'prPax', 'prKinds', 'codeText', 'code', 'ask', 'ta', 'assist', 'assistDone'];
-function bookingFilled(b) {
-  const f = freshBooking(D());
-  const norm = v => { if (v && typeof v === 'object' && !Array.isArray(v)) { const o = {}; Object.keys(v).sort().forEach(k => { if (v[k] != null && v[k] !== false && v[k] !== 'none') o[k] = norm(v[k]); }); return Object.keys(o).length ? o : null; } return v === '' || v === undefined ? null : v; };
-  return FILL_KEYS.some(k => JSON.stringify(norm(b[k])) !== JSON.stringify(norm(f[k])));
-}
-// Anything that closes the whole booking modal (close button, scrim, Escape at the root) asks first. Back
-// between booking levels doesn't. Keep booking leaves every value and the current step as they are. Trip
-// details stay for New booking (the established retention); unconfirmed edits on a Cancel step aren't kept.
+// Leaving New booking (Fare Finder's X, the scrim, Escape at Fare Finder)
+// - Before anything is in the cart: back to Book with no warning. Every saved search selection is kept, including a
+//   typed promotion code, and Fare Finder reopens with them.
+// - With an item in the cart: "Abandon booking?" Continue booking keeps the cart and stays on the same screen;
+//   Abandon booking clears the cart (and a typed promotion code) and returns to Book.
+// Screens under Fare Finder have no X; Back goes up one level and never asks to abandon.
+const cartOf = () => D().cart || (D().cart = []);
 const closeBeforeExit = A.close;
 A.close = A.scrim = (t, ri) => {
   const sh = sheet();
   if (!sh || sh.id !== 'booking' || !v1() || nav().dialog) return closeBeforeExit(t, ri);
-  const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
-  if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
-  dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
-    body: `Your trip details are kept, so you can pick up from New booking.${manualCode(D().booking) ? ' The promotion code you entered isn’t kept.' : ''}${step ? ' Changes on this screen that you haven’t confirmed won’t be kept.' : ''}`,
-    actions: [['Keep booking', 'primary', null], ['Exit booking', 'secondary', () => { sh.stack.forEach(r => { r.u.dirty = false; }); closeBeforeExit(t, ri); }]] });
+  const cart = cartOf();
+  if (!cart.length) return closeBeforeExit(t, ri);
+  const top = sh.stack[sh.stack.length - 1];
+  dialog({ title: 'Abandon booking?', returnFocus: top.s === 'ff' ? '.ads-sheet-header__close' : 'title',
+    body: `Your cart has ${cart.length === 1 ? '1 item' : `${cart.length} items`}: ${cart.map(x => esc(x.label)).join(', ')}. If you abandon this booking, your cart is cleared.`,
+    actions: [['Continue booking', 'primary', null], ['Abandon booking', 'secondary', () => { D().cart = []; clearManualCode(D().booking); sh.stack.forEach(r => { r.u.dirty = false; }); nav().tab = 'book'; closeBeforeExit(t, ri); }]] });
 };
-
-// ---------- Abandoning a booking clears a typed promotion code ----------
-// Whatever closes New booking (Exit booking, the close button or Escape with nothing else filled in), the next
-// booking starts with an empty code field. Codes chosen from Saved codes or My coupons are account coupons and
-// stay selected; the account's coupons themselves are never changed here.
-let BOOKING_OPEN = false;
-const renderBeforePromo = render;
-render = function () {
-  const open = !!(nav().sheet && nav().sheet.id === 'booking');
-  if (BOOKING_OPEN && !open && D().booking) clearManualCode(D().booking);
-  BOOKING_OPEN = open;
-  return renderBeforePromo.apply(this, arguments);
-};
+// ---------- A typed promotion code ----------
+// It belongs to this booking: kept while the booking is open or closed without a cart, cleared only by Abandon
+// booking (above). Codes from Saved codes or My coupons are account coupons and are never changed here.
 
 /* Sprint 4 prototype: Enhanced station search
    - NMA-1084 Search by Map: List and Map views in the shared station selector; an interactive map whose markers

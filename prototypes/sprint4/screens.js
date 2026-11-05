@@ -352,10 +352,77 @@ function calendarBody(r, ri, field) {
   q(4); const limit = ''; // the booking window isn't confirmed (Q4), so the calendar only disables dates beyond it and doesn't state a policy
   return `${pickSeg}${prompt}${notice}<div class="ads-calendar ads-calendar--paged">${monthHtml}</div>${limit}`;
 }
+// ---------- Dates (New booking): two months at a time, scrolling vertically through the booking window ----------
+// Design-review revision. Edits a draft (r.u.cal): Done saves to the booking and returns to Fare Finder; Back returns
+// without saving and without asking. Departure and return are edited one at a time; switching keeps the other.
+// A new departure after the chosen return keeps that return marked as needing a new choice (never changed silently).
+function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
+function calScroll(r, ri) {
+  const b = D().booking, c = calDraft(r), rt = b.trip === 'rt', edit = rt ? c.edit : 'dep';
+  ref('1060'); q(4); // the 335-day window isn't confirmed (Q4): dates beyond it are disabled, no policy text
+  const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = c.dep ? addDays(c.dep, WINDOW_DAYS) : maxDep;
+  const isOff = s => s < TODAY_S || (edit === 'dep' && s > maxDep) || (edit === 'ret' && (s < c.dep || s > maxRet));
+  const retOk = rt && c.ret && !c.retBad;
+  const first = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), lastS = edit === 'ret' ? maxRet : maxDep, last = parse(lastS);
+  const months = []; for (let d = new Date(first); d <= last; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
+  const day = (y, mo, dd) => {
+    const s = iso(new Date(y, mo, dd)), off = isOff(s);
+    const isDep = s === c.dep, isRet = retOk && s === c.ret, between = retOk && s > c.dep && s < c.ret, span = retOk && c.ret !== c.dep;
+    const cls = ['ads-day', s === TODAY_S ? 'ads-day--today' : '', isDep && span ? 'ads-day--range-start' : '', isRet && span ? 'ads-day--range-end' : '', between ? 'ads-day--in-range' : '', isDep ? 'calx-dep' : '', isRet ? 'calx-ret' : ''].filter(Boolean).join(' ');
+    const label = `${fmtWeekday(s)}, ${fmtDate(s)}${s === TODAY_S ? ', today' : ''}${isDep ? ', departure date' : ''}${isRet ? ', return date' : ''}${between ? ', between your dates' : ''}${off ? ', not available' : ''}`;
+    return `<button class="${cls}" type="button" data-a="calx-day" data-d="${s}" data-k="day-${s}" ${off ? 'disabled' : ''} ${isDep || isRet ? 'aria-pressed="true"' : ''} aria-label="${label}">${dd}</button>`;
+  };
+  const monthHtml = m => {
+    const y = m.getFullYear(), mo = m.getMonth(), n = new Date(y, mo + 1, 0).getDate(), key = iso(m).slice(0, 7), id = `calx-${key}`;
+    let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span aria-hidden="true"></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd);
+    return `<section class="ads-calendar__month calx-month" data-month="${key}" aria-labelledby="${id}"><h3 id="${id}">${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-labelledby="${id}">${g}</div></section>`;
+  };
+  // Which date is being edited: two ADS tabs that show both choices (round trip); one-way shows the departure only
+  const val = (k, v) => v ? fmtShort(v) : k === 'ret' ? 'Choose a date' : 'Not set';
+  const pick = rt ? `<div class="ads-tabs ads-tabs--fill cal-pick" role="tablist" aria-label="Date to edit">${tabBtn(edit === 'dep', 'data-a="calx-edit" data-v="dep"', `<span class="cal-pick__k">Departure</span><span>${val('dep', c.dep)}</span>`)}${tabBtn(edit === 'ret', `data-a="calx-edit" data-v="ret"${c.retBad ? ' aria-describedby="calx-why"' : ''}`, `<span class="cal-pick__k">Return</span><span class="${c.retBad ? 'calx-bad' : ''}">${c.retBad ? 'Choose again' : val('ret', c.ret)}</span>`)}</div>`
+    : `<p class="calx-one"><span class="cal-pick__k">Departure</span> <b>${val('dep', c.dep)}</b></p>`;
+  const why = c.retBad ? `<div class="ads-alert ads-alert--warning calx-why" id="calx-why" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">Your return date, ${fmtShort(c.ret)}, is before your new departure. Choose a new return date.</p></div></div>` : '';
+  const live = `<p class="ads-sr-only" role="status">${edit === 'dep' ? 'Choose a departure date' : 'Choose a return date'}</p>`;
+  const legend = `<ul class="calx-legend" aria-hidden="true"><li><span class="calx-key calx-key--today">${new Date(TODAY).getDate()}</span>Today</li><li><span class="calx-key calx-key--sel"></span>${rt ? 'Your dates' : 'Departure'}</li>${rt ? '<li><span class="calx-key calx-key--range"></span>Between</li>' : ''}<li><span class="calx-key calx-key--off">1</span>Unavailable</li></ul>`;
+  return `<div class="calx-head">${pick}${why}${live}${legend}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
+}
 SCR.calendar = (r, ri) => {
   const b = D().booking;
+  if (v1()) {
+    const c = calDraft(r), need = b.trip === 'rt' && (!c.ret || c.retBad);
+    const foot = `${need ? '<p class="ads-helper" id="calx-done-why">Choose a return date to save your dates.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Done</button>`;
+    return { title: 'Dates', kind: 'push', noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, banner: false };
+  }
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
+};
+A['calx-edit'] = (t, ri) => { const r = routeAt(ri); calDraft(r).edit = t.dataset.v; calDraft(r).jump = true; pendingFocus = `[data-a="calx-edit"][data-v="${t.dataset.v}"]`; render(); };
+A['calx-day'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = calDraft(r), s = t.dataset.d, rt = b.trip === 'rt';
+  if (!rt || c.edit === 'dep') {
+    c.dep = s;
+    if (rt && c.ret && c.ret < s) { c.retBad = true; c.edit = 'ret'; c.jump = true; pendingFocus = '#calx-why'; render(); return; } // guide to a new return; never change it silently
+    if (rt && !c.ret) { c.edit = 'ret'; c.jump = true; }
+  } else { c.ret = s; c.retBad = false; }
+  pendingFocus = `[data-k="day-${s}"]`; render();
+};
+A['calx-done'] = (t, ri) => {
+  const r = routeAt(ri), b = D().booking, c = calDraft(r);
+  if (b.trip === 'rt' && (!c.ret || c.retBad)) return;
+  b.dep = c.dep; if (b.trip === 'rt') b.ret = c.ret;
+  popTo(+ri - 1); pendingFocus = '#ff-dep';
+};
+// After a render, bring the month being edited to the top of the list (on opening, and when switching dates)
+const renderBeforeCal = render;
+render = function () {
+  const out = renderBeforeCal.apply(this, arguments);
+  const sh = sheet(), r = sh && sh.stack[sh.stack.length - 1];
+  if (r && r.s === 'calendar' && r.u.cal && r.u.cal.jump) {
+    const c = r.u.cal; c.jump = false;
+    const target = (c.edit === 'ret' && c.ret ? c.ret : c.dep || TODAY_S).slice(0, 7), sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
+    if (sc && m) { const head = sc.querySelector('.calx-head'); sc.scrollTop = Math.max(0, m.offsetTop - (head ? head.offsetHeight : 0) - 4); sc.dispatchEvent(new Event('scroll')); }
+  }
+  return out;
 };
 A.picking = (t, ri) => { routeAt(ri).u.picking = t.dataset.v; pendingFocus = `[data-a="picking"][data-v="${t.dataset.v}"]`; render(); };
 A['cal-done'] = (t, ri) => { popTo(+ri - 1); pendingFocus = '#ff-dep'; render(); };
@@ -565,8 +632,17 @@ SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
     <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
+    ${cartDemo(b)}
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
+// Simulated cart (prototype only, so the abandon-booking rule can be reviewed): one sample train for this search.
+// Adding it doesn't change fares, availability or cart eligibility; it only marks that something is in the cart.
+function cartDemo(b) {
+  const cart = D().cart || [], label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`, inCart = cart.some(x => x.label === label);
+  snote('Search results aren’t in Sprint 4. “Add to cart” is simulated so the abandon-booking confirmation can be reviewed: it appears only once something is in the cart.');
+  return `<div class="cartdemo"><p class="ads-body-small-emphasis">Sample train · ${esc(label)}</p>${inCart ? `<p class="ads-helper ads-helper--success" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : `<button class="ads-btn ads-btn--sm" type="button" data-a="cart-add" data-label="${esc(label)}">Add to cart</button>`}</div>`;
+}
+A['cart-add'] = t => { const d = D(); d.cart = (d.cart || []).concat({ label: t.dataset.label }); pendingFocus = '.cartdemo [role="status"], title'; toast('Added to your cart'); };
 
 // =====================================================================
 // Account sheet (IA: Profile + Guest Rewards card, Inbox, Travelers, Payment, Assistance, Quick settings)

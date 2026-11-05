@@ -885,3 +885,27 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ads-fieldwrap { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .dcode .dcode__acts { margin-top: 0; }
 .device--ipad .pane--nb .pane__body > *, .device--ipad .pane--nb .pane__foot > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+/* ---------- Dates (New booking): two months at a time, vertical scrolling (design review) ---------- */
+.pane--calx .pane__scroll { position: relative; }
+.pane--calx .pane__body { padding-top: 0; gap: var(--ads-space-8); }
+.calx-head { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: var(--ads-space-8); margin: 0 calc(-1 * var(--ads-space-16)); padding: var(--ads-space-8) var(--ads-space-16) 0; background: var(--ads-background-surface-page); }
+.calx-head .ads-calendar__weekdays { position: static; margin: 0 calc(-1 * var(--ads-space-16)); padding-inline: var(--ads-space-16); }
+.calx-one { margin: 0; display: flex; align-items: baseline; gap: var(--ads-space-8); min-height: 32px; }
+.calx-bad { color: var(--ads-content-text-error); font-weight: var(--ads-font-weight-semibold); }
+.calx { gap: var(--ads-space-12); }
+.calx .ads-calendar__grid { row-gap: 0; }
+.calx .ads-calendar__month h3 { margin-bottom: var(--ads-space-4); font-size: var(--ads-type-body-size); }
+.calx .ads-calendar__grid .ads-day { height: var(--ads-size-interactive-sm); }
+.calx .ads-calendar__grid .ads-day::before { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); aspect-ratio: auto; }
+.calx .ads-day--today:not([aria-pressed="true"])::before { box-shadow: inset 0 0 0 1px var(--ads-border-strong); }
+.calx .ads-day:disabled { text-decoration: line-through; }
+.calx-legend { display: flex; flex-wrap: wrap; gap: var(--ads-space-4) var(--ads-space-12); margin: 0; padding: 0; list-style: none; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.calx-legend li { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+.calx-key { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; }
+.calx-key--today { box-shadow: inset 0 0 0 1px var(--ads-border-strong); font-weight: var(--ads-font-weight-semibold); text-decoration: underline; color: var(--ads-content-text-primary); }
+.calx-key--sel { background: var(--ads-background-interactive-selected); }
+.calx-key--range { width: 28px; border-radius: 2px; background: var(--ads-background-surface-selected); }
+.calx-key--off { color: var(--ads-content-text-disabled); text-decoration: line-through; }
+.cartdemo { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-8); padding: var(--ads-space-12); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.cartdemo p { margin: 0; }

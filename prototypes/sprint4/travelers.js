@@ -215,7 +215,21 @@ A['assist-confirm'] = (t, ri) => {
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
   else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.err.forMissing;
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat || e.for ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
-  setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
+  // Replacing a different discount with Passenger with disability asks first (design review). Only when a discount is
+  // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
+  // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).
+  const trav = travelerList(b).find(z => z.key === key) || { key, type: 'adult', n: 1 };
+  const before = tdiscOf(b, trav), saved = fromDraft(x), willPwd = x.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+  const replacing = willPwd && before && !['none', 'pwd'].includes(before);
+  if (replacing && !r.u.replaceOk) {
+    return dialog({ title: 'Replace your discount?', returnFocus: '[data-a="assist-confirm"]',
+      body: `The Passenger with disability discount will replace your ${esc(TDISC_LABEL[before] || before)} discount. Only one discount can be applied per traveler.`,
+      actions: [['Replace discount', 'primary', () => { r.u.replaceOk = true; A['assist-confirm'](t, ri); }], ['Keep editing', 'secondary', null]] });
+  }
+  r.u.replaceOk = false;
+  if (replacing) { b.discReplaced = Object.assign({}, b.discReplaced, { [key]: before }); }
+  else if (b.discReplaced && b.discReplaced[key] && !willPwd) { const o = Object.assign({}, b.discReplaced); delete o[key]; b.discReplaced = o; }
+  setAssistRec(b, key, saved); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`;
   const back = routeAt(+ri - 1); // opened from the Travelers screen: go on to the next unanswered traveler
   const next = perTraveler() && back && back.s === 'travelers' && assistMissing(b)[0]; if (next) pendingFocus = `[data-a="assist-answer"][data-t="${next.key}"]`; // the next traveler still to answer
