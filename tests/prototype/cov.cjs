@@ -67,7 +67,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(!/Traveler with disability or need help/.test(await txt()), `${T} 973 indication not on the Fare Finder form (proposed mapping: Travelers)`);
     await dclick('[data-a="pick-travelers"]'); await w(300);
     ok(await p.locator(D + '#ff-assist, .ffassist').count() === 0, `${T} 973 no booking-level checkbox above Traveler details`);
-    const ctas = await ev(() => [...document.querySelectorAll('#device [data-a="assist-answer"]')].map(i => !!i.closest('.fam-card, .ov-trav') && i.closest('section').querySelector('.ffc-h').textContent.trim() === 'Traveler details' && /Add assistance/.test(i.textContent)));
+    const ctas = await ev(() => [...document.querySelectorAll('#device [data-a="assist-answer"]')].map(i => !!i.closest('.fam-card, .ov-trav') && i.closest('section').querySelector('.ffc-h').textContent.trim() === 'Travelers details' && /Add assistance/.test(i.textContent)));
     ok(ctas.length === 2 && ctas.every(Boolean), `${T} 973 one Add assistance button per traveler, inside Traveler details`);
     ok(await p.locator(D + 'input[data-a="assist-ask"]').count() === 0 && await p.locator(D + '[data-a="assist-edit"]').count() === 0, `${T} 973 no checkbox; nothing saved by default`);
     const nm = await ev(() => document.querySelector('#device #ask-adult-2').textContent.replace(/\s+/g, ' '));
