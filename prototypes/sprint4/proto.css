@@ -901,3 +901,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ffc-kids[aria-expanded="true"] .ffc-kids__chev { transform: rotate(180deg); }
 .ads-root .ffc-kids:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
 .ffc-kids__rows[hidden] { display: none; }
+
+/* Assistance questionnaire: the follow-up for the chosen type sits directly beneath it, grouped by a rule */
+.assist-branch { display: flex; flex-direction: column; gap: var(--ads-space-20); margin: var(--ads-space-4) 0 var(--ads-space-8) var(--ads-space-12); padding: var(--ads-space-4) 0 var(--ads-space-4) var(--ads-space-20); border-left: 2px solid var(--ads-border-subtle); }
+.assist-live:empty { display: none; }
+.assist-conflict .ads-row { margin-top: var(--ads-space-8); flex-wrap: wrap; }
+.ads-fieldset.is-locked .ads-choice__label { color: var(--ads-content-text-secondary); }
+.assist-who { color: var(--ads-content-text-primary); }

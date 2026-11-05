@@ -69,7 +69,7 @@ function couponCard(c) {
 function couponLoad(r) {
   if (r.u.load) return r.u.load;
   const net = V().net;
-  r.u.load = net === 'slow' ? 'loading' : net === 'error' ? 'error' : net === 'offline' ? 'cached' : 'ok';
+  r.u.load = net === 'slow' || net === 'slow6' ? 'loading' : net === 'error' ? 'error' : net === 'offline' ? 'cached' : 'ok';
   if (r.u.load === 'loading') setTimeout(() => { if (r.u.load === 'loading') { r.u.load = 'ok'; render(); } }, 1500);
   return r.u.load;
 }

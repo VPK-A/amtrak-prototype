@@ -50,6 +50,7 @@ function seed(sc) {
     history: ['new', 'guest'].includes(sc) ? [] : [{ from: 'NYP', to: 'WAS', date: '2026-10-12', train: 'Northeast Regional 171' }, { from: 'CHI', to: 'EMY', date: '2026-08-30', train: 'California Zephyr 5' }]
   };
   d.booking = freshBooking(d);
+  if (ASSIST_DEMO[sc]) ASSIST_DEMO[sc](d, d.booking);
   return d;
 }
 // Profile carry-over at the start of a booking: assistance for Traveler 1 (NMA-614), the disability discount
@@ -214,6 +215,7 @@ function goLoc(loc) {
 }
 
 // ---------- Network mock ----------
+const NET_TIMEOUT_MS = 120000; // Mobile App Global Standard: a request times out after 120 seconds (Network › Slow connection)
 // online: 700 ms then success. offline: blocked at once. slow: spinner with Cancel, timeout at 6 s
 // (stands in for the 120 s Mobile App Global Standard). error: technical failure with Retry.
 function runNet(r, work, done, opts = {}) {
@@ -221,7 +223,7 @@ function runNet(r, work, done, opts = {}) {
   r.u.alert = null; r.u.retry = () => runNet(r, work, done, opts);
   if (net === 'offline') { r.u.alert = { kind: 'offline', what: opts.what || 'save your changes' }; render(); return; }
   const token = r.u.busy = Math.random(); render();
-  if (net === 'slow') { setTimeout(() => { if (r.u.busy !== token) return; r.u.busy = null; r.u.alert = { kind: 'timeout' }; render(); }, 6000); return; }
+  if (net === 'slow' || net === 'slow6') { setTimeout(() => { if (r.u.busy !== token) return; r.u.busy = null; r.u.alert = { kind: 'timeout' }; render(); }, net === 'slow' ? NET_TIMEOUT_MS : 6000); return; }
   setTimeout(() => {
     if (r.u.busy !== token) return; r.u.busy = null;
     if (net === 'error') { if (opts.onError && opts.onError()) { render(); return; } r.u.alert = { kind: 'error', what: opts.what || 'save your changes' }; render(); return; }

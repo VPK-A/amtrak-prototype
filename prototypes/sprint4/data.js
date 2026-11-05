@@ -96,6 +96,59 @@ const CATS = {
   companion: 'I am a personal companion to a traveler with a disability',
   none: 'I do not need assistance'
 };
+// Assistance questionnaire copy (stands in for AEM-managed content: product and content can change any of it
+// here). Option labels and descriptions are CATS, DISABILITIES and NEEDS above.
+const ASSIST_COPY = {
+  typeLegend: 'Type of help', profileTypeLegend: 'Assistance type',
+  catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
+  companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
+  companionFull: 'Not available: each traveler with a disability may bring one personal companion, and every traveler with a disability on this booking already has one.',
+  companionFor: 'Personal companion to', companionChoose: 'Choose a traveler',
+  companionForHelp: 'Each traveler with a disability may bring one personal companion.',
+  companionInvalid: who => `${who} no longer has a disability in assistance, or already has a personal companion. Choose another traveler, or another type of help.`,
+  companionNone: 'No traveler on this booking can have a personal companion right now. Choose another type of help.',
+  disLegend: 'Select applicable disabilities',
+  wcQuestion: 'Will you bring a wheelchair (need wheelchair space)?',
+  needsLegend: 'Do you have other needs?', needsLocked: 'Select at least one disability above to choose other needs.',
+  wcRule: 'With wheelchair space you can choose an accessible seat or a large service animal, not both. Station assistance is always available.',
+  seatBlocked: 'Not available with a large service animal when you bring a wheelchair. Clear Large service animal to choose this.',
+  animalBlocked: 'Not available with an accessible seat when you bring a wheelchair. Clear Accessible seat to choose this.',
+  conflictTitle: 'Choose an accessible seat or a large service animal',
+  conflictBody: 'With wheelchair space you can have one of them, not both. Which do you want to keep?',
+  keepSeat: 'Keep accessible seat', keepAnimal: 'Keep large service animal',
+  stationIncluded: 'Station assistance is included with this answer.', stationSeatLegend: 'Do you need an accessible seat?',
+  compLegend: 'Do you need help as a personal companion?', compSeatAfter: 'Available after you choose Station assistance.',
+  noneSummary: 'No assistance requested', stationSummary: 'Station assistance included',
+  removed: {
+    disability: 'Disabilities and the wheelchair answer were removed: they only apply to “I have a disability”.',
+    wc: 'The wheelchair answer was removed because Reduced mobility isn’t selected.',
+    needs: (what, why) => `${what} ${/ and /.test(what) ? 'were' : 'was'} removed ${why}.`
+  },
+  why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
+  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', forMissing: 'Choose the traveler you’re a personal companion to.' }
+};
+// Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
+const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
+const ASSIST_DEMO = {
+  'assist-multi': (d, b) => {
+    b.pax = { adult: 3, senior: 1, ya: 0, youth: 0, child: 0, infant: 0 };
+    b.assist = asst('disability', { dis: ['vision', 'mobility'], wc: true, needs: ['station', 'seat'] }).m; b.assistDone = true; b.assistFromProfile = false;
+    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station', 'seat'] }), 'adult-3': asst('station', { needs: ['seat'] }), 'senior-1': asst('none') };
+    b.ask = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true }; b.formLoaded = true; b.taSeen = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true };
+  },
+  'assist-invalid': (d, b) => {
+    b.pax = { adult: 2, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 };
+    b.assist = asst('none').m; b.assistDone = true; b.assistFromProfile = false;
+    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station'] }) };
+    b.ask = { 'adult-1': true, 'adult-2': true }; b.taSeen = { 'adult-1': true, 'adult-2': true };
+  },
+  'passrider-assist': (d, b) => {
+    d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, fam: 1, dep: 1, comp: 1 };
+    b.assist = asst('disability', { dis: ['hearing'], wc: null, needs: ['station'] }).m; b.assistDone = true; b.assistFromProfile = false;
+    b.ta = { 'pr-fam-1': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-dep-1': asst('station') };
+    b.ask = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true }; b.taSeen = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true };
+  }
+};
 
 // Scenarios seed one version's data. Each version keeps its own copy.
 const SCENARIOS = [
@@ -115,9 +168,12 @@ const SCENARIOS = [
   ['passrider-dependent', 'Pass Rider dependent, 16 or older', 'Dependent 16 or older: Leisure only, can book on their own and bring the employee, their spouse and other dependents (NMA-1017 AC4). The age comes from this fixture: the pass file has no date of birth.'],
   ['passrider-removed', 'Pass Rider employee, pass removed', 'The backend found this member is no longer eligible, so their Pass number, Personal index number and designation were removed from the app (NMA-20 BR4 AC4). Profile shows no pass details and Pass Rider booking isn’t offered.'],
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
+  ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is their personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
+  ['assist-invalid', 'Assistance: companion needs reassignment', 'Traveler 2 is a personal companion to Traveler 1, but Traveler 1 needs no assistance, so the pairing is invalid: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
+  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with a spouse, a dependent and a Companion Pass traveler. You: hearing loss with station assistance; spouse: your personal companion; dependent: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
-const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection'], ['error', 'Server error']];
+const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection (120-second timeout)'], ['slow6', 'Slow connection (6-second timeout, demo)'], ['error', 'Server error']];
 
 // Open questions shown as Q markers in the prototype and in the notes panel
 const QUESTIONS = {

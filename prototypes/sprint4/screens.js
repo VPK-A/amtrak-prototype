@@ -382,50 +382,80 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
 const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], for: m.for || '' });
 const fromDraft = x => ({ for: x.cat === 'companion' ? x.for || null : null, cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+const AC = ASSIST_COPY;
+// Wheelchair space allows an accessible seat or a large service animal, not both (NMA-995). A conflict is only
+// possible after changing the wheelchair answer to Yes; it is never resolved silently.
+const assistConflict = x => x.cat === 'disability' && x.wc === 'yes' && x.needs.includes('seat') && x.needs.includes('animal');
+const needLabel = k => NEEDS.find(n => n[0] === k)[1];
+const listWords = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
-  if (mode === 'booking' && !x.cat) e.cat = `Choose an option for ${who}.`;
-  if (x.cat === 'disability' && !x.dis.length) e.dis = 'Choose at least one disability.';
-  if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = 'Tell us whether you’ll bring a wheelchair.';
+  if (mode === 'booking' && !x.cat) e.cat = AC.err.cat(who);
+  if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
+  if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = AC.err.wc;
+  if (assistConflict(x)) e.needs = AC.err.conflict;
   return e;
 }
+// Editing the draft: answers that still apply are kept; the rest are removed and the removal is announced
 HOOKS.assist = (r, t) => {
-  const x = r.u.d;
-  if (x.cat !== 'disability') { x.dis = []; x.wc = ''; x.needs = x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || n === 'seat') : []; }
-  if (x.cat === 'companion' && !x.needs.includes('station')) x.needs = x.needs.filter(n => n !== 'seat'); // NMA-997 AC2
-  if (!x.dis.includes('mobility')) x.wc = '';
-  if (x.wc === 'yes' && x.needs.includes('seat') && x.needs.includes('animal')) { x.needs = x.needs.filter(n => n !== 'animal'); r.u.assistNote = 'Large service animal was removed. With wheelchair space you can choose an accessible seat or a large service animal, not both.'; }
-  else if (t.dataset.f !== 'needs') r.u.assistNote = null;
-  if (r.u.err) r.u.err = assistErrors(x, r.u.mode);
+  const x = r.u.d, notes = [];
+  const drop = (keep, why) => { const gone = x.needs.filter(n => !keep(n)); if (gone.length) { x.needs = x.needs.filter(keep); const w = gone.map(needLabel); notes.push(AC.removed.needs(w.length > 1 ? listWords(w) : w[0], why)); } };
+  if (x.cat !== 'disability' && (x.dis.length || x.wc)) { x.dis = []; x.wc = ''; notes.push(AC.removed.disability); }
+  if (x.cat === 'station') { x.needs = x.needs.filter(n => n !== 'station'); drop(n => n === 'seat', AC.why.station); } // station assistance is part of this type
+  if (x.cat === 'companion') { drop(n => n !== 'animal', AC.why.companion); if (!x.needs.includes('station')) drop(n => n !== 'seat', AC.why.compSeat); } // NMA-997 AC2
+  if (x.cat === 'none' || !x.cat) drop(() => false, AC.why.none);
+  if (x.cat === 'disability') {
+    if (!x.dis.includes('mobility') && x.wc) { x.wc = ''; notes.push(AC.removed.wc); }
+    if (!x.dis.length) drop(() => false, AC.why.noDisability);
+  }
+  r.u.assistNote = notes.join(' ') || null;
+  if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
 };
-function needsBlock(r, x, idp, explain) {
-  const wcYes = x.wc === 'yes';
-  const comp = x.cat === 'companion';
-  const items = x.cat === 'station' ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
+// Inline choice when wheelchair space makes an accessible seat and a large service animal conflict
+A['assist-keep'] = (t, ri) => {
+  const r = routeAt(ri), x = r.u.d, keep = t.dataset.v, gone = keep === 'seat' ? 'animal' : 'seat';
+  x.needs = x.needs.filter(n => n !== gone); r.u.dirty = true;
+  r.u.assistNote = AC.removed.needs(needLabel(gone), AC.why.wcChoice);
+  if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
+  pendingFocus = `[data-f="needs"][value="${keep}"]`; render();
+};
+function needsBlock(r, x, idp, explain, e = {}) {
+  const wcYes = x.wc === 'yes', comp = x.cat === 'companion', st = x.cat === 'station';
+  const locked = x.cat === 'disability' && !x.dis.length, conflict = assistConflict(x);
+  const items = st ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
   const opts = items.map(([k, l, s]) => {
-    let dis = false, why = '';
-    if (wcYes && k === 'animal' && x.needs.includes('seat')) { dis = true; why = 'Not available with an accessible seat when you bring a wheelchair. Remove accessible seat to choose this.'; }
-    if (wcYes && k === 'seat' && x.needs.includes('animal')) { dis = true; why = 'Not available with a large service animal when you bring a wheelchair. Remove large service animal to choose this.'; }
-    if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = 'Choose Station assistance first.'; }
-    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? 'disabled' : ''}`);
+    let dis = locked, why = '';
+    if (!conflict && wcYes && k === 'animal' && x.needs.includes('seat')) { dis = true; why = AC.animalBlocked; }
+    if (!conflict && wcYes && k === 'seat' && x.needs.includes('animal')) { dis = true; why = AC.seatBlocked; }
+    if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = AC.compSeatAfter; }
+    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? `disabled aria-describedby="${idp}-needs-why"` : ''}`);
   }).join('');
-  const lead = explain && wcYes ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>With wheelchair space, Station assistance is always available. You can add an accessible seat or a large service animal, but not both.</span></p>` : '';
-  const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${r.u.assistNote}</p></div></div>` : '';
-  return `<fieldset class="ads-fieldset"><legend class="ads-field-label">${x.cat === 'station' ? 'Do you need an accessible seat?' : comp ? 'Do you need help as a personal companion?' : 'Do you have other needs?'} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${lead}${note}<div class="ads-fieldset__options">${opts}</div>${x.cat === 'station' || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
+  const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
-function catBlock(r, x, idp, mode, e) {
+// Why Personal companion can't be chosen for this traveler right now
+function companionWhy(b, key) {
+  const others = travelerList(b).filter(t => t.key !== key && assistCat(b, t.key) === 'disability');
+  return others.length ? AC.companionFull : AC.companionNoDisability;
+}
+// Type of help. branch (one-page form) is the follow-up for the chosen type, shown directly beneath it.
+function catBlock(r, x, idp, mode, e, branch) {
   const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
-  const who = assistWho(r), open = mode === 'booking' && companionOpen(D().booking, who.key);
-  const opts = cats.map(k => k === 'companion'
-    ? choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], open || x.cat === k ? 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.' : 'Choose “I have a disability” for another traveler on this booking first. Each traveler with a disability may bring one personal companion.', open || x.cat === k ? 'data-hook="assist"' : 'disabled')
-    : choice('radio', `${idp}-cat`, 'cat', k, x.cat === k, CATS[k], k === 'station' ? 'Station assistance only. The Passenger with disability discount doesn’t apply.' : '', 'data-hook="assist"')).join('');
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${mode === 'booking' ? ((v1() || v3()) ? 'Type of help' : `${esc(who.label)} needs`) : 'Assistance type'}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
+  const b = D().booking, who = assistWho(r), open = mode === 'booking' && companionOpen(b, who.key);
+  const opts = cats.map(k => {
+    const sel = x.cat === k, off = k === 'companion' && !open && !sel;
+    const sup = off ? companionWhy(b, who.key) : (AC.catHelp[k] || '');
+    return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
+  }).join('');
+  const legend = mode === 'booking' ? ((v1() || v3()) ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--required">Required</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${branch === undefined && mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">Select applicable disabilities <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} Will you bring a wheelchair (need wheelchair space)?${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required">Required</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
@@ -433,21 +463,27 @@ function assistForm(r, ri, o) {
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
   const x = r.u.d, e = r.u.err || {}, idp = o.idp;
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
-  let h = catBlock(r, x, idp, o.mode, e);
-  if (x.cat === 'disability') { h += disBlock(r, x, idp, e); if (x.dis.includes('mobility')) h += wcBlock(r, x, idp, e); h += needsBlock(r, x, idp, false); }
-  if (x.cat === 'station' || x.cat === 'companion') h += needsBlock(r, x, idp, false);
+  let branch = '';
+  if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
+  if (x.cat === 'station') branch = needsBlock(r, x, idp, false, e);
+  if (x.cat === 'companion') branch = (o.mode === 'booking' ? companionFor(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') snote('Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) aren’t designed in Sprint 4.');
-  return `<div class="assistform">${h}</div>`;
+  // Conditional changes are announced from one live region at the top of the form
+  const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
+  return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
   if (!m.cat) return ['No assistance saved'];
+  if (m.cat === 'none') return [AC.noneSummary];
   const out = [CATS[m.cat]];
+  if (m.cat === 'station') out.push(AC.stationSummary);
+  if (m.cat === 'companion' && m.for) out.push(`${AC.companionFor} ${travelerLabel(D().booking, m.for)}`);
   if (m.cat === 'disability') out.push(m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', '));
   if (m.wc === true) out.push('Bringing a wheelchair (wheelchair space)');
   if (m.wc === false) out.push('Not bringing a wheelchair');
   if (m.needs.length) out.push(m.needs.map(k => NEEDS.find(x => x[0] === k)[1]).join(', '));
-  else if (m.cat !== 'none') out.push('No other needs');
+  else if (m.cat !== 'station') out.push('No other needs');
   return out;
 }
 function assistSummaryCard(m, o) {
@@ -508,7 +544,7 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '',
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
-  return { title: 'Assistance', kind: 'push', body: `<p class="assist-who">For ${esc(who)}</p>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm">Confirm</button>`, banner: false };
+  return { title: 'Assistance', kind: 'push', body: `<p class="assist-who">For ${esc(who)}</p>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Confirm assistance for ${esc(who)}">Confirm</button>`, banner: false };
 };
 
 // =====================================================================
@@ -517,7 +553,7 @@ SCR.assist = (r, ri) => {
 SCR.handoff = () => {
   const b = D().booking;
   return { title: 'Search results', kind: 'push', banner: false, body: `<div class="handoff"><span class="handoff__tag">Prototype handoff</span><h3 class="ads-h4">Search results aren’t part of Sprint 4</h3><p class="ads-body-small">Fare Finder would pass this search to the results screen:</p>
-    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistRec(b, t.key).done) ? travelerList(b).filter(t => assistRec(b, t.key).done).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
+    <dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${b.trip === 'rt' ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${b.trip === 'rt' ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl>
     <button class="ads-btn ads-btn--secondary" type="button" data-a="back">Back to Fare Finder</button></div>` };
 };
 

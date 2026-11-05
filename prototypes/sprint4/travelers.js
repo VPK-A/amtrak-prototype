@@ -87,9 +87,12 @@ function travelerError(b, t) {
 // The type step's "Personal companion to" choice
 function companionFor(r, x, idp, e) {
   const b = D().booking, key = assistWho(r).key, opts = companionTargets(b, key);
-  if (!x.for || !opts.some(t => t.key === x.for)) x.for = opts[0] ? opts[0].key : '';
-  if (!opts.length) return '';
-  return `<div class="cmp-for">${fieldHtml({ id: `${idp}-for`, f: 'for', label: 'Personal companion to', value: x.for, select: opts.map(t => [t.key, t.label]), req: true, help: opts.length > 1 ? 'Each traveler with a disability may bring one personal companion.' : `${opts[0].label} has a disability in assistance.`, err: e.for })}${q(19)}</div>`;
+  if (!opts.length) return `<p class="ads-helper ads-helper--error cmp-for" id="${idp}-for-h">${ic('alert-diamond')}<span>${x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.companionNone}</span></p>`;
+  // A saved pairing that no longer works must be reassigned; it is never switched to someone else silently
+  if (!x.for && opts.length === 1) x.for = opts[0].key;
+  const valid = opts.some(t => t.key === x.for);
+  const err = e.for || (x.for && !valid ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : '');
+  return `<div class="cmp-for">${fieldHtml({ id: `${idp}-for`, f: 'for', label: ASSIST_COPY.companionFor, value: valid ? x.for : '', select: [['', ASSIST_COPY.companionChoose], ...opts.map(t => [t.key, t.label])], req: true, help: ASSIST_COPY.companionForHelp, err })}</div>`;
 }
 // Passenger discount from assistance (standard and TripLink Personal bookings only): PWD or Companion
 function assistDiscount(b, key) {
@@ -101,13 +104,13 @@ function assistLine(b, key) {
   const a = assistRec(b, key);
   if (!asks(b, key)) return 'Not requested';
   if (!a.done) return 'Not answered';
-  return a.m.cat === 'none' ? 'No assistance needed' : CATS[a.m.cat];
+  return a.m.cat === 'none' ? ASSIST_COPY.noneSummary : CATS[a.m.cat];
 }
 // One line for compact hosts (Compact rows, Guided summaries)
 function assistSummaryLine(b) {
   if (!b.assistOn) return 'Not requested';
   const list = travelerList(b), asked = list.filter(t => assistRec(b, t.key).done && assistRec(b, t.key).m.cat && assistRec(b, t.key).m.cat !== 'none');
-  if (!asked.length) return list.some(t => assistRec(b, t.key).done) ? 'No assistance needed' : 'Questions not answered yet';
+  if (!asked.length) return list.some(t => assistRec(b, t.key).done) ? ASSIST_COPY.noneSummary : 'Questions not answered yet';
   if (list.length === 1) return CATS[asked[0] && assistRec(b, asked[0].key).m.cat] || 'Not answered';
   return `${asked.length} of ${list.length} travelers`;
 }
@@ -141,7 +144,7 @@ function assistTravelerList(b) {
     const comp = c === 'disability' ? companionOf(b, t.key) : null;
     const pair = c === 'disability' ? `<span class="atl__sub">${comp ? `Personal companion: ${esc(comp.label)}` : 'May bring one personal companion'}</span>` : '';
     const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
-    const state = !a.done ? 'No assistance requested' : c === 'none' ? 'No assistance needed' : items[0];
+    const state = !a.done ? 'No assistance requested' : c === 'none' ? ASSIST_COPY.noneSummary : items[0];
     const acts = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button>${a.done ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}" aria-label="Remove assistance for ${esc(t.label)}">Remove</button>` : ''}`;
     const terr = travelerError(b, t);
     return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}${terr ? ' has-error' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}${terr ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(terr)}</span></span>` : ''}</div><div class="atl__acts">${acts}</div></li>`;
@@ -186,7 +189,7 @@ const assistSeen = (b, key) => !!(b.taSeen && b.taSeen[key]);
 function assistOffline(returnFocus, key) {
   const b = D().booking; key = key || firstKey(b);
   if (V().net !== 'offline') { b.taSeen = b.taSeen || {}; b.taSeen[key] = true; b.formLoaded = true; b.assistOffline = null; return false; }
-  if (assistSeen(b, key) || ((v1() || v3()) && b.formLoaded)) return false; // Concepts 1 and 3: once the questions have loaded, they work offline (NMA-996, 997)
+  if (assistSeen(b, key)) return false; // once this traveler's questions have been opened, they work offline (NMA-996, 997)
   if (v4()) { b.assistOffline = key; pendingFocus = '#fl-offline-note'; render(); return true; } // Compact: said in the assistance row
   dialog({ title: 'You’re offline', body: 'Answering assistance questions for the first time needs a connection. Assistance stays on and your trip details are kept. Try again when you’re back online.', actions: [['Close', 'primary', null]], returnFocus });
   return true;
@@ -211,7 +214,7 @@ A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
   const e = assistErrors(x, 'booking', who);
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
-  else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = 'Choose the traveler you’re a personal companion to.';
+  else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.err.forMissing;
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat || e.for ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   setAssistRec(b, key, fromDraft(x)); b.assistOn = true;
   r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-edit"][data-t="${key}"], [data-a="assist-edit"]`;
@@ -252,6 +255,6 @@ A['assist-answer'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, key = t.dataset.t;
   r.u.busyWhat = 'assist'; r.u.busyKey = key;
   const go = () => { r.u.busyWhat = null; b.formLoaded = true; b.taSeen = b.taSeen || {}; b.taSeen[key] = true; push('assist', { t: key }, +ri); };
-  if ((b.formLoaded || assistSeen(b, key)) && V().net === 'offline') return go(); // already loaded: works offline (NMA-996, 997)
+  if (assistSeen(b, key)) return go(); // already opened for this traveler: no request, works offline (NMA-996, 997)
   runNet(r, () => null, go, { what: 'open the assistance questions' });
 };

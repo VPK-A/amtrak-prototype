@@ -20,6 +20,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
 | `promocode.cjs` | Typed promotion code: this booking only, cleared on abandoning; account coupons untouched; lounge passes removed |
 | `stationselector.cjs` | Station selector: heading with Back above List / Map tabs, search below the tabs (List view only), no route fields, 12 px rhythm; prominent map, floating controls and card; axe |
+| `assistance.cjs` | Assistance questionnaire: four types, disability/wheelchair/station/companion rules, conflict choice, removals, draft and discard, summaries, search hand-off, invalid companion, multiple and Pass Rider travelers, offline, cancel, timeout, axe |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:
