@@ -127,7 +127,7 @@ const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you al
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {
   const tp = travelerProblems(b), ap = assistProblems(b), am = assistMissing(b);
-  const msg = tp[0] || ap[0] || (am.length ? `Answer the assistance questions for ${am.length > 1 ? `${am.length} travelers` : am[0].label}, or uncheck “Traveler with disability or need help?” in Travelers.` : '');
+  const msg = tp[0] || ap[0] || (am.length ? `Answer the assistance questions for ${am.length > 1 ? `${am.length} travelers` : am[0].label}, or remove their assistance in Travelers.` : '');
   if (!r.u.showErr || !msg) return '';
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }

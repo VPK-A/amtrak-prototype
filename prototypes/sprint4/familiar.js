@@ -32,17 +32,12 @@ function discountRow(b, t, fromProfile) {
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
 // Each traveler's "Traveler with disability or need help?" (NMA-973); once checked, their answers (NMA-615)
 function assistanceRow(b, t, r) {
-  const ask = assistAsk(b, t, r);
-  if (!asks(b, t.key)) return `<div class="fam-row fam-row--assist">${ask}</div>`;
-  const a = assistRec(b, t.key), done = a.done, c = done ? a.m.cat : null, items = done ? assistSummaryItems(a.m) : [];
-  const value = !done ? 'Not answered yet' : esc(items[0]);
-  const details = done ? items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ') : '';
-  const btn = (act, label) => `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}" aria-label="${label} assistance for ${esc(t.label)}">${label}</button>`;
-  const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
-  const acts = busy ? '' : done ? btn('assist-edit', 'Edit') + btn('assist-remove', 'Remove') : btn('assist-answer', 'Add');
-  const tag = done && t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
+  const a = assistRec(b, t.key), items = asks(b, t.key) && a.done ? assistSummaryItems(a.m) : [];
+  const details = items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ');
+  const tag = t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
+  const summary = items.length ? `<div class="tassist__saved"><span class="fam-row__label">Assistance${tag}</span><span class="fam-row__value">${esc(items[0])}</span>${details ? `<span class="ads-helper">${details}</span>` : ''}</div>` : '';
   ref('615', '973');
-  return `<div class="fam-row fam-row--assist">${ask}</div>` + famRow(`Assistance${tag}`, value, details, '', acts);
+  return `<div class="fam-row fam-row--assist">${assistAsk(b, t, r, summary)}</div>`;
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);

@@ -908,3 +908,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-conflict .ads-row { margin-top: var(--ads-space-8); flex-wrap: wrap; }
 .ads-fieldset.is-locked .ads-choice__label { color: var(--ads-content-text-secondary); }
 .assist-who { color: var(--ads-content-text-primary); }
+/* Assistance entry: question, explanation, saved summary, then one call to action (Add, or Edit and Remove) */
+.tassist__label { margin: 0; font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); }
+.tassist__help { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.tassist__saved { display: flex; flex-direction: column; gap: var(--ads-space-4); margin-top: var(--ads-space-4); }
+.tassist__acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-8); margin-top: var(--ads-space-4); }
+.assist-size { margin: 0 0 var(--ads-space-4) calc(var(--ads-size-interactive-md) - var(--ads-space-4)); }

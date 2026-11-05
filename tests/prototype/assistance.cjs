@@ -21,14 +21,15 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
 
   // ---- Entry point and the four types ----
   await scen('returning');
-  ok(await p.locator(D_ + '#ask-adult-1').count() === 1 && /Traveler with disability or need help\?/.test(await card('adult-1')), 'entry point: checkbox in Traveler 1’s details');
+  ok(await p.locator(D_ + '#tc-adult-1 button[data-a="assist-answer"]').count() === 1 && /Traveler with disability or need help\?/.test(await card('adult-1')) && /Add assistance/.test(await card('adult-1')) && await p.locator(D_ + '#tc-adult-1 input[type="checkbox"]').count() === 0, 'entry point: Add assistance button (no checkbox) in Traveler 1’s details');
+  await ask('adult-1'); await p.click(D_ + '[data-a="back"]'); await w(); ok(/Add assistance/.test(await card('adult-1')) && !(await ev(() => D().booking.ask['adult-1'])), 'leaving without confirming: nothing saved, Add stays');
   await ask('adult-1'); ok(await top() === 'assist' && /For Traveler 1 · Adult/.test(await txt()), 'checking opens Traveler 1’s questionnaire, traveler named');
   ok(await ev(() => [...document.querySelectorAll('#device input[name$="-cat"]')].map(i => i.value).join()) === 'disability,station,companion,none', 'four mutually exclusive types (radios)');
   ok(await p.locator(D_ + 'input[name$="-cat"][value="companion"]:disabled').count() === 1 && /another traveler on this booking needs to choose “I have a disability” first/.test(await txt()), 'personal companion unavailable, with reason');
   await confirm(); ok(/Choose a type of help for Traveler 1 · Adult\./.test(await txt()) && await top() === 'assist', 'a type is required');
   await axe('questionnaire with error');
   await pick('cat', 'none'); await confirm();
-  ok(await top() === 'travelers' && /No assistance requested/.test(await card('adult-1')) && /Edit/.test(await card('adult-1')), 'none: saved as “No assistance requested”, Edit on the card');
+  ok(await top() === 'travelers' && /No assistance requested/.test(await card('adult-1')) && /Edit assistance/.test(await card('adult-1')) && /Remove/.test(await card('adult-1')), 'none: saved as “No assistance requested”, Edit on the card');
   // station branch
   await p.click(D_ + '[data-a="assist-edit"][data-t="adult-1"]'); await w(500);
   ok(await p.locator(D_ + 'input[name$="-cat"][value="none"]:checked').count() === 1, 'reopening restores confirmed answers');
@@ -45,7 +46,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => i.disabled)) && /Select at least one disability above to choose other needs\./.test(await txt()), 'no disability: other needs visibly disabled with reason');
   await confirm(); ok(/Choose at least one disability\./.test(await txt()), 'no disability: confirm blocked');
   for (const d of ['vision', 'hearing', 'other']) { await pick('dis', d); ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => !i.disabled)), `${d}: needs enabled, any combination`); await pick('dis', d); }
-  await pick('dis', 'vision'); await pick('dis', 'hearing'); await pick('needs', 'seat'); await pick('needs', 'station'); await pick('needs', 'animal');
+  await pick('dis', 'vision'); await pick('dis', 'hearing'); await pick('needs', 'seat'); await pick('needs', 'station'); await pick('needs', 'animal'); await pick('asize', 'large');
   ok(await p.locator(D_ + 'input[data-f="needs"]:checked').count() === 3, 'multiple disabilities, all three needs without wheelchair');
   // last disability removed clears needs and explains
   await pick('dis', 'vision'); await pick('dis', 'hearing');
@@ -54,23 +55,31 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await pick('dis', 'mobility');
   ok(await p.locator(D_ + 'input[data-f="wc"]').count() === 2 && await p.locator(D_ + 'input[data-f="wc"]:checked').count() === 0, 'reduced mobility: wheelchair Yes/No, none preselected');
   await confirm(); ok(/Tell us whether you’ll bring a wheelchair\./.test(await txt()), 'wheelchair answer required');
-  await pick('wc', 'no'); await pick('needs', 'seat'); await pick('needs', 'animal'); await pick('needs', 'station');
+  await pick('wc', 'no'); await pick('needs', 'seat'); await pick('needs', 'animal');
+  await confirm(); ok(/Choose the size of your service animal\./.test(await txt()), 'service animal size required');
+  await pick('asize', 'large'); await pick('needs', 'station');
   ok(await p.locator(D_ + 'input[data-f="needs"]:checked').count() === 3, 'wheelchair No: any combination');
   await pick('wc', 'yes');
   ok(await p.locator(D_ + '.assist-conflict').count() === 1 && await p.locator(D_ + 'input[value="seat"]:checked').count() === 1 && await p.locator(D_ + 'input[value="animal"]:checked').count() === 1, 'wheelchair Yes with both: inline choice, nothing removed silently');
   await confirm(); ok(await top() === 'assist' && /Choose an accessible seat or a large service animal to keep\./.test(await txt()), 'conflict blocks confirmation');
   await axe('conflict');
   await p.click(D_ + '[data-a="assist-keep"][data-v="seat"]'); await w();
-  ok(await p.locator(D_ + 'input[value="animal"]:checked').count() === 0 && await p.locator(D_ + 'input[value="animal"]:disabled').count() === 1 && /Large service animal was removed/.test(await txt()), 'keep seat: animal cleared and disabled, explained');
-  await pick('needs', 'seat'); ok(await p.locator(D_ + 'input[value="animal"]:disabled').count() === 0, 'deselecting seat enables animal');
-  await pick('needs', 'animal'); ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 1 && /Not available with a large service animal when you bring a wheelchair/.test(await txt()), 'animal disables seat, explained');
+  ok(await p.locator(D_ + 'input[data-f="needs"][value="animal"]:checked').count() === 1 && await p.locator(D_ + 'input[data-f="animal"]:checked').count() === 0 && await p.locator(D_ + 'input[data-f="animal"][value="large"]:disabled').count() === 1 && /large size was cleared/.test(await txt()), 'keep seat: large size cleared and disabled, explained');
+  await pick('asize', 'small'); ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 0 && await p.locator(D_ + '.assist-conflict').count() === 0, 'small service animal accepted with a seat and wheelchair space');
+  await pick('asize', 'medium'); ok(await p.locator(D_ + 'input[value="seat"]:checked').count() === 1, 'medium service animal accepted with a seat and wheelchair space');
+  await pick('needs', 'seat'); ok(await p.locator(D_ + 'input[data-f="animal"][value="large"]:disabled').count() === 0, 'deselecting seat enables Large');
+  await pick('asize', 'large'); ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 1 && /Not available with a large service animal when you bring a wheelchair/.test(await txt()), 'animal disables seat, explained');
   ok(await p.locator(D_ + 'input[value="station"]:disabled').count() === 0, 'station assistance independent');
   await pick('dis', 'vision'); ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 1, 'restriction applies with several disabilities');
   await pick('dis', 'mobility'); ok(await p.locator(D_ + 'input[data-f="wc"]').count() === 0 && /wheelchair answer was removed/.test(await txt()) && await p.locator(D_ + 'input[value="seat"]:disabled').count() === 0, 'removing reduced mobility removes wheelchair answer and recalculates');
   await pick('dis', 'mobility'); await pick('wc', 'yes'); await confirm();
   r = await rec('adult-1'); ok(r.m.cat === 'disability' && r.m.wc === true && r.m.dis.join() === 'vision,mobility', 'disability branch confirmed');
-  const c1 = await card('adult-1'); ok(/I have a disability/.test(c1) && /Blind\/vision loss, Reduced mobility/.test(c1) && /wheelchair space/.test(c1) && /Large service animal/.test(c1), 'summary: type, disabilities, wheelchair, needs');
+  const c1 = await card('adult-1'); ok(/I have a disability/.test(c1) && /Blind\/vision loss, Reduced mobility/.test(c1) && /wheelchair space/.test(c1) && /Service animal \(large\)/.test(c1) && /Service animal/.test(c1), 'summary: type, disabilities, wheelchair, needs');
 
+  // ---- Remove: back to Add assistance ----
+  await p.click(D_ + '[data-a="assist-remove"][data-t="adult-1"]'); await w();
+  ok(/Add assistance/.test(await card('adult-1')) && !(await rec('adult-1')).done && !(await ev(() => D().booking.ask['adult-1'])), 'Remove clears the answers; button returns to Add assistance');
+  await ask('adult-1'); await pick('cat', 'disability'); await pick('dis', 'vision'); await confirm();
   // ---- Draft: leaving without confirming keeps the saved answers ----
   await p.click(D_ + '[data-a="assist-edit"][data-t="adult-1"]'); await w(500); await pick('cat', 'none');
   await p.click(D_ + '[data-a="back"]'); await w(); ok(/Discard changes\?/.test(await txt()), 'leaving with a draft asks to discard');
@@ -117,8 +126,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
 
   // ---- Connectivity ----
   await scen('returning', 2); await ev(() => { V().net = 'offline'; render(); });
-  await p.click(D_ + '#ask-adult-2', { force: true }); await w(400);
-  ok(await ev(() => !!D().booking.ask['adult-2']) && await top() === 'travelers' && /Connect to the internet to open the assistance questions/.test(await txt()), 'offline: checkbox works, unopened questionnaire needs a connection');
+  await p.click(D_ + '#ask-adult-2'); await w(400);
+  ok(await top() === 'travelers' && /Connect to the internet to open the assistance questions/.test(await txt()), 'offline: unopened questionnaire needs a connection');
   await ev(() => { V().net = 'online'; render(); }); await p.click(D_ + '[data-a="assist-answer"][data-t="adult-2"]'); await w(1000); await ev(() => { V().net = 'offline'; render(); });
   await pick('cat', 'disability'); await pick('dis', 'vision'); await confirm();
   ok((await rec('adult-2')).m.cat === 'disability', 'opened questionnaire completed and confirmed offline');

@@ -177,9 +177,9 @@ V3_PLACES.companion = () => {
 // Remove one traveler's assistance; the others keep theirs
 A['assist-remove'] = t => {
   const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
-  clearAssistRec(b, key);
-  pendingFocus = `[data-a="assist-edit"][data-t="${key}"]`;
-  toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}${perTraveler() && asks(b, key) ? '. Add it again, or uncheck “Traveler with disability or need help?”' : ''}`, 'info');
+  clearAssistRec(b, key); if (perTraveler()) setAsk(b, key, false);
+  pendingFocus = `[data-a="assist-answer"][data-t="${key}"], [data-a="assist-edit"][data-t="${key}"]`;
+  toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 // Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
@@ -228,16 +228,18 @@ A['assist-confirm'] = (t, ri) => {
 // section. Checking it asks for that traveler's answers (Answer opens their questions: the first time needs a
 // connection, NMA-973; once loaded they work offline, NMA-996, 997). Unchecking keeps the answers for this
 // trip but stops them counting. The Fare Finder's Travelers summary shows the state.
-const ASSIST_TEXT = 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.'; // placeholder for AEM text (NMA-973 BR1)
+const ASSIST_TEXT = ASSIST_COPY.entryHelp; // placeholder for AEM text (NMA-973 BR1)
 const assistMissing = b => travelerList(b).filter(t => asks(b, t.key) && !assistRec(b, t.key).done);
-function assistAsk(b, t, r) {
+function assistAsk(b, t, r, summary = '') {
   ref('973', '615', '614'); q(7);
-  const on = asks(b, t.key), a = assistRec(b, t.key), id = `ask-${t.key}`;
+  const C = ASSIST_COPY, a = assistRec(b, t.key), saved = asks(b, t.key) && a.done, id = `ask-${t.key}`;
   const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
-  let h = `<div class="tassist"><label class="ads-choice ads-checkbox"><input type="checkbox" id="${id}" data-a="assist-ask" data-t="${t.key}" ${on ? 'checked' : ''} aria-describedby="${id}-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>Traveler with disability or need help?<span class="ads-sr-only"> ${esc(t.label)}</span></span><span class="ads-choice__supporting" id="${id}-h">${ASSIST_TEXT}</span></span></label>`;
-  if (busy) h += `<div class="tassist__row"><span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button></div>`;
-  else if (!on && a.done) h += `<p class="ads-helper tassist__note">Answers are kept for this trip. Check the box to use them again.</p>`;
-  return h + '</div>';
+  // One call to action: Add assistance opens this traveler's questionnaire; once answers are confirmed it becomes
+  // Edit assistance, with Remove beside it
+  const btn = (act, label, kind, icon) => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}"${act === 'assist-answer' ? ` id="${id}"` : ''} aria-describedby="${id}-h">${icon ? ic(icon, 'ads-icon--sm') : ''}${label}<span class="ads-sr-only"> for ${esc(t.label)}</span></button>`;
+  const acts = busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>`
+    : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
+  return `<div class="tassist"><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
 }
 // Network problems opening a traveler's questions show once, above the travelers
 const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';

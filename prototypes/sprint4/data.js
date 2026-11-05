@@ -88,7 +88,7 @@ const DISABILITIES = [
 const NEEDS = [
   ['seat', 'Accessible seat', 'A seat with more room, near an accessible restroom.'],
   ['station', 'Station assistance', 'Help at the station, like boarding and luggage.'],
-  ['animal', 'Large service animal', 'Traveling with a small or medium service animal? You can add it in traveler information.']
+  ['animal', 'Service animal', 'A trained service animal traveling with you. Tell us its size.']
 ];
 const CATS = {
   disability: 'I have a disability',
@@ -99,6 +99,11 @@ const CATS = {
 // Assistance questionnaire copy (stands in for AEM-managed content: product and content can change any of it
 // here). Option labels and descriptions are CATS, DISABILITIES and NEEDS above.
 const ASSIST_COPY = {
+  entryLabel: 'Traveler with disability or need help?', entryHelp: 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.',
+  addCta: 'Add assistance', editCta: 'Edit assistance', removeCta: 'Remove',
+  animalSizeLegend: 'Size of your service animal',
+  animalSizes: [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']],
+  largeBlocked: 'Not available with an accessible seat when you bring a wheelchair. Clear Accessible seat to choose this.',
   typeLegend: 'Type of help', profileTypeLegend: 'Assistance type',
   catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
   companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
@@ -110,12 +115,12 @@ const ASSIST_COPY = {
   disLegend: 'Select applicable disabilities',
   wcQuestion: 'Will you bring a wheelchair (need wheelchair space)?',
   needsLegend: 'Do you have other needs?', needsLocked: 'Select at least one disability above to choose other needs.',
-  wcRule: 'With wheelchair space you can choose an accessible seat or a large service animal, not both. Station assistance is always available.',
-  seatBlocked: 'Not available with a large service animal when you bring a wheelchair. Clear Large service animal to choose this.',
-  animalBlocked: 'Not available with an accessible seat when you bring a wheelchair. Clear Accessible seat to choose this.',
+  wcRule: 'With wheelchair space you can choose an accessible seat or a large service animal, not both. Small and medium service animals and station assistance are always available.',
+  seatBlocked: 'Not available with a large service animal when you bring a wheelchair. Choose a smaller size or clear Service animal to choose this.',
   conflictTitle: 'Choose an accessible seat or a large service animal',
   conflictBody: 'With wheelchair space you can have one of them, not both. Which do you want to keep?',
   keepSeat: 'Keep accessible seat', keepAnimal: 'Keep large service animal',
+  sizeCleared: 'The large size was cleared: choose small or medium, or clear Service animal.',
   stationIncluded: 'Station assistance is included with this answer.', stationSeatLegend: 'Do you need an accessible seat?',
   compLegend: 'Do you need help as a personal companion?', compSeatAfter: 'Available after you choose Station assistance.',
   noneSummary: 'No assistance requested', stationSummary: 'Station assistance included',
@@ -125,7 +130,7 @@ const ASSIST_COPY = {
     needs: (what, why) => `${what} ${/ and /.test(what) ? 'were' : 'was'} removed ${why}.`
   },
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
-  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', forMissing: 'Choose the traveler you’re a personal companion to.' }
+  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.', forMissing: 'Choose the traveler you’re a personal companion to.' }
 };
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
 const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
