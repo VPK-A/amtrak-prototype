@@ -146,3 +146,5 @@
 .ds-next .ss-route__item.is-active { background: var(--ads-background-surface-default); box-shadow: none; border-color: var(--ads-border-brand); cursor: default; }
 .ds-next .ss-route__item.is-active .ads-routefield__hint { color: var(--ads-content-text-tertiary); font-weight: var(--ads-font-weight-regular); }
 .ds-next .text-large .ss-route__item, .ds-next.text-large .ss-route__item { flex-wrap: nowrap; }
+.ds-next .ads-group__lead { color: var(--ads-content-icon-secondary); }
+.ds-next :is(.ads-group__row, .ads-fieldbtn, .bk-link) > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
