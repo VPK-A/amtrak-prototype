@@ -114,7 +114,17 @@ Never paste the key into chat, an issue, `index.html` or any committed file.
 - **`npm run dev`** with a placeholder key in the environment: the key reaches `window.S4_CONFIG`, the Google script is requested with it, Google rejects it, and the map falls back.
 - **Existing suites** still pass on the placeholder path: `stationsearch`, `stationsearch-a11y`, `stationselector`, `adsnext-rollout`.
 
+**Verified live with a Maps Demo Key (2026-11-05), `tests/prototype/googlemap-live.cjs`, 12/12:**
+- **Loads:** Google Maps loads in the Map view with tiles drawn.
+- **Markers:** they come from the prototype's station data and sit on the right places (Washington Union Station, Alexandria, Lorton).
+- **Gestures:**
+  - The ADS zoom button moves the Google camera.
+  - Dragging pans the map and the scroll wheel zooms; neither selects a station nor changes the booking.
+- **Selection:**
+  - Tapping a Google marker highlights it, shows it as selected and opens the station card; the field doesn't change.
+  - Select fills From and returns to New booking.
+- **Errors:** no page errors.
+
 **Not verified:**
-- **Live Google rendering with a real key:** tiles, Advanced Marker placement, touch gestures and real `idle` timing. No key was available in this environment.
-- **Marker positions on Google's map:** grouping is computed with the prototype's own Web Mercator projection, which matches Google's integer zoom levels; confirm that marker positions line up once a key is set.
-- **The published artifact** can't load Google Maps: it has no key, and the artifact host only allows scripts from approved CDNs. It shows the placeholder.
+- Touch gestures (pinch) on a real phone or tablet.
+- The published artifact can't load Google Maps: it has no key, and the artifact host only allows scripts from approved CDNs. It shows the placeholder.

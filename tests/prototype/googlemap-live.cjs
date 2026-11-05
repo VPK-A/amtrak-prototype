@@ -40,8 +40,8 @@ const hasKey = !!process.env.VITE_GOOGLE_MAPS_API_KEY || (fs.existsSync(envFile)
       await p.waitForTimeout(2500);
       const tiles = await p.evaluate(() => { const h = document.querySelector('#device .gmap-host'); return h ? h.querySelectorAll('img, canvas').length : 0; });
       ok(tiles > 0, `map tiles drawn (${tiles} images or canvases)`);
-      const mk = await p.evaluate(() => ({ dom: document.querySelectorAll('#device .gmap-host .map-pin, #device .gmap-host .map-group').length, expected: visibleMarkers(selRoute().u.map).length, codes: [...document.querySelectorAll('#device .gmap-host .map-pin')].map(e => e.dataset.code) }));
-      ok(mk.dom > 0 && mk.dom === mk.expected && mk.codes.every(c => STATIONS.some(x => x.code === c)), `markers from the prototype's station data (${mk.dom}: ${mk.codes.slice(0, 6).join(', ')}…)`);
+      const mk = await p.evaluate(() => ({ dom: document.querySelectorAll('#device .gmap-host .map-pin, #device .gmap-host .map-group').length, expected: visibleMarkers(selRoute().u.map).length, codes: [...document.querySelectorAll('#device .gmap-host .map-pin')].map(e => e.dataset.code), known: [...document.querySelectorAll('#device .gmap-host .map-pin')].every(e => !!ST[e.dataset.code] && !!geoOf(e.dataset.code)) }));
+      ok(mk.dom > 0 && mk.dom === mk.expected && mk.known, `markers from the prototype's station data (${mk.dom}: ${mk.codes.slice(0, 6).join(', ')}…)`);
       const z0 = (await st(p)).z; await p.click(D_ + '[data-a="map-zoom"][data-d="1"]'); await p.waitForTimeout(1500);
       ok((await st(p)).z === z0 + 1 && await p.evaluate(() => GM.map.getZoom() === selRoute().u.map.z), 'zoom in with the ADS button moves the Google camera');
       const box = await p.locator(D_ + '.ss-map').boundingBox(), before = await st(p);
