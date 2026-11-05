@@ -910,20 +910,34 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .cartdemo { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-8); padding: var(--ads-space-12); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
 .cartdemo p { margin: 0; }
 
-/* ---------- Apply coupon (applycoupon.js): the My coupons look inside New booking ---------- */
+/* ---------- Apply coupon (applycoupon.js), Figma Sprint 4 node 3346:47066 ---------- */
+.pane--apc .ads-navbar { padding-top: var(--ads-space-16); min-height: calc(var(--ads-size-interactive-md) + var(--ads-space-16)); }
+.ads-navbar__iconback { border-radius: var(--ads-radius-full); }
+.pane--apc .ads-navbar { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+.pane--apc .ads-navbar__title { font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-font-weight-semibold); }
 .pane--apc .pane__scroll { background: var(--ads-background-surface-page); }
-.pane--apc .pane__body { gap: var(--ads-space-32); padding-top: var(--ads-space-16); }
-.apc-add, .apc-avail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
-.apc-head { display: flex; align-items: center; gap: var(--ads-space-4); }
-.apc-h { margin: 0; color: var(--ads-content-text-primary); }
-.apc-row { display: flex; align-items: flex-start; gap: var(--ads-space-8); }
-.apc-row > .ads-control { flex: 1 1 auto; min-width: 0; }
-.apc-row > .ads-btn { flex: none; }
-.apc-avail .cpn-list { margin-top: 0; gap: var(--ads-space-12); }
-.apc-card { background: var(--ads-background-surface-default); align-items: flex-start; }
-.apc-card.is-applied { border-color: var(--ads-border-brand); box-shadow: inset 0 0 0 1px var(--ads-border-brand); }
-.apc-card .cpn__acts { width: 100%; justify-content: flex-end; }
-.apc-applied { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
-.apc-note { margin: var(--ads-space-4) 0 0; }
+.pane--apc .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-12); }
+.apc-field { gap: var(--ads-space-8); }
+.apc-label { height: 18px; }
+.apc-field .ads-field__label { line-height: 1.2; }
+.apc-field .ads-field__label { font-weight: var(--ads-font-weight-semibold); }
+.apc-label { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-4); }
+.apc-labelinfo { margin-right: -4px; color: var(--ads-content-icon-primary); }
+.apc-field .ads-control { padding-right: var(--ads-space-4); }
+.apc-clear { flex: none; color: var(--ads-content-icon-secondary); }
+.apc-field .ads-helper:not(.ads-helper--error) { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.apc-yours { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-h { margin: 0; font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.apc-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); overflow: hidden; }
+.apc-row { position: relative; display: flex; align-items: center; gap: var(--ads-space-8); background: var(--ads-background-interactive-secondary); border-bottom: 1px solid var(--ads-border-subtle); }
+.apc-row:last-child { border-bottom: 0; }
+.apc-pick { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--ads-space-4); padding: var(--ads-space-16) 0 var(--ads-space-16) var(--ads-space-20); border: 0; background: none; font: inherit; text-align: left; color: var(--ads-content-text-primary); cursor: pointer; }
+.apc-pick:hover { background: var(--ads-background-surface-hover); }
+.apc-pick:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; }
+.apc-row.is-selected { background: var(--ads-background-surface-selected); box-shadow: inset 4px 0 0 var(--ads-border-brand); }
+.apc-name, .apc-code { font-weight: var(--ads-font-weight-semibold); }
+.apc-name, .apc-benefit, .apc-line, .apc-code { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--ads-type-body-size); line-height: 1.3; }
+.apc-code { color: var(--ads-content-text-secondary); }
+.apc-info { flex: none; margin-right: var(--ads-space-12); color: var(--ads-content-icon-secondary); }
 .apc-detail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
 .apc-detail h3, .apc-detail p { margin: 0; }

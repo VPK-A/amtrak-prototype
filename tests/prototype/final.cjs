@@ -30,10 +30,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await ev(() => !document.querySelector('#device #ff-coderow .ads-icon--payment-voucher')), `${T} 4 no ticket icon in the row`);
     await dclick('#ff-coderow'); await w(500); const t3b = await txt();
     ok(/Apply coupon/.test(t3b) && await p.locator(D + '#apc-in').count() === 1 && /Fall Northeast sale/.test(t3b), `${T} 3 the row opens Apply coupon with code entry and the saved codes`);
-    await dclick('[data-a="apc-apply"][data-code="V123"]'); await w(300);
-    ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === '') && !/Checked for this trip/.test(await txt()), `${T} 5 applying doesn't validate before Find trains`);
-    await dclick('.ads-navbar [data-a="back"]'); await w(500);
-    ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Back returns to New booking; the row shows the code`);
+    await dclick('[data-a="apc-pick"][data-code="V123"]'); await w(300); await dclick('[data-a="apc-save"]'); await w(500);
+    ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === ''), `${T} 5 saving a code doesn't validate it before Find trains`);
+    ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Save code returns to New booking; the row shows the code`);
     // 7 Pay with points: a switch in the action footer
     const pay = await ev(() => { const f = document.querySelector('#device .ads-actionfooter .ads-pointsrow'); if (!f) return null; const fb = document.querySelector('#device [data-a="find-trains"]').getBoundingClientRect(), r = f.getBoundingClientRect(), sw = f.querySelector('input[role="switch"]'); return { h: Math.round(r.height), btnH: Math.round(fb.height), checked: sw.checked, above: r.bottom <= fb.top }; });
     ok(pay && !pay.checked && pay.h <= pay.btnH && pay.above, `${T} 7 Pay with points is a switch above Find trains, off by default (${JSON.stringify(pay)})`);
