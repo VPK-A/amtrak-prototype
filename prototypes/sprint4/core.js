@@ -39,7 +39,7 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor' } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: clone(PR_PEOPLE[PR_ROLE[sc] || 'employee']) } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
@@ -71,7 +71,7 @@ function freshBooking(d) {
     // Each mode defaults on for its eligible members (NMA-622 AC2, NMA-623 AC2). For an account eligible for both,
     // no precedence is defined, so neither is preselected (Q26).
     intent: d.signedIn && d.triplink && d.passrider ? 'standard' : d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, fam: 0, dep: 0, comp: 0 }, prKinds: {},
+    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }

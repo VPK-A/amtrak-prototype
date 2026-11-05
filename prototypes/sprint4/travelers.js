@@ -14,11 +14,10 @@ function travelerList(b) {
   const d = D(), it = intentOf(b), out = [];
   if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
   else if (it === 'pr' && d.passrider) {
-    if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: `You · ${prRoleLabel(d)}` });
+    if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: prMeName(d) });
     if (b.prType !== 'business') {
-      const f = b.prPax, role = d.passrider.role;
-      for (let i = 1; i <= f.fam; i++) out.push({ key: `pr-fam-${i}`, type: 'pr', short: role === 'spouse' ? 'Employee' : role === 'dependent' ? 'Employee or spouse' : 'Spouse' });
-      for (let i = 1; i <= f.dep; i++) out.push({ key: `pr-dep-${i}`, type: 'pr', short: `${role === 'dependent' ? 'Other dependent' : 'Dependent'} ${i}` });
+      const f = b.prPax;
+      prPeople(d).filter(p => prPicked(b)[p.id]).forEach(p => out.push({ key: `pr-${p.id}`, type: 'pr', short: p.name }));
       for (let i = 1; i <= f.comp; i++) out.push({ key: `pr-comp-${i}`, type: 'pr', short: `Companion Pass ${i}` });
     }
   } else paxList(b).forEach(t => out.push({ key: t.key, type: t.type, i: t.i, short: PAX_LABEL[t.type] }));

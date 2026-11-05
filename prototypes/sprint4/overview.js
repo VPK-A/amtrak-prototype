@@ -31,7 +31,7 @@ function overviewTravelers(r, ri, b) {
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {
   const d = D(), p = d.passrider; if (intentOf(b) !== 'pr' || !p) return '';
-  const can = prCanStart(d), rows = [['Booking as', `${prRoleLabel(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
+  const can = prCanStart(d), rows = [['Booking as', `${prMeName(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
   if (p.role === 'employee') rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]);
   return `<section class="ov-pr" aria-label="Pass Rider eligibility"><p class="ov-pr__title">${ic(can.ok ? 'check-circle' : 'alert-diamond', 'ads-icon--sm')}Pass Rider ${can.ok ? 'eligible' : 'not available'}</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${can.ok ? '' : `<p class="ads-helper">${esc(can.text)}</p>`}</section>`;
 }

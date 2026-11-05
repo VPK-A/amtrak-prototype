@@ -2826,6 +2826,17 @@ const ASSIST_COPY = {
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
   err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.', forMissing: 'Choose the traveler you’re a personal companion to.' }
 };
+// People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
+// rules only and is never shown; travelers are listed by name. kind (Adult or Child) and date of birth come from the
+// record and prefill Traveler details. Who appears follows the pass holder's role (NMA-1017): an employee or
+// retiree brings a spouse and dependents, a spouse brings the employee and dependents, a dependent brings the
+// employee, the spouse and other dependents.
+const PR_PEOPLE = {
+  employee: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
+  retiree: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1958' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2004' }],
+  spouse: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
+  dependent: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1975' }, { id: 'casey', name: 'Casey Rivera', rel: 'spouse', kind: 'adult', dob: '11/30/1977' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }]
+};
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
 const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
 const ASSIST_DEMO = {
@@ -2842,10 +2853,10 @@ const ASSIST_DEMO = {
     b.ask = { 'adult-1': true, 'adult-2': true }; b.taSeen = { 'adult-1': true, 'adult-2': true };
   },
   'passrider-assist': (d, b) => {
-    d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, fam: 1, dep: 1, comp: 1 };
+    d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, people: { jordan: 1, maya: 1 }, comp: 1 };
     b.assist = asst('disability', { dis: ['hearing'], wc: null, needs: ['station'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'pr-fam-1': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-dep-1': asst('station') };
-    b.ask = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true }; b.taSeen = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true };
+    b.ta = { 'pr-jordan': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-maya': asst('station') };
+    b.ask = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true }; b.taSeen = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true };
   }
 };
 
@@ -2869,7 +2880,7 @@ const SCENARIOS = [
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
   ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is their personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
   ['assist-invalid', 'Assistance: companion needs reassignment', 'Traveler 2 is a personal companion to Traveler 1, but Traveler 1 needs no assistance, so the pairing is invalid: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
-  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with a spouse, a dependent and a Companion Pass traveler. You: hearing loss with station assistance; spouse: your personal companion; dependent: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
+  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with Jordan, Maya and a Companion Pass traveler. You: hearing loss with station assistance; Jordan: your personal companion; Maya: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
 const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection (120-second timeout)'], ['slow6', 'Slow connection (6-second timeout, demo)'], ['error', 'Server error']];
@@ -2981,7 +2992,7 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor' } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: clone(PR_PEOPLE[PR_ROLE[sc] || 'employee']) } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
@@ -3013,7 +3024,7 @@ function freshBooking(d) {
     // Each mode defaults on for its eligible members (NMA-622 AC2, NMA-623 AC2). For an account eligible for both,
     // no precedence is defined, so neither is preselected (Q26).
     intent: d.signedIn && d.triplink && d.passrider ? 'standard' : d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, fam: 0, dep: 0, comp: 0 }, prKinds: {},
+    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
@@ -4460,9 +4471,11 @@ function discSummary(b) {
   if (!list.length) return 'None chosen';
   return list.map(([t, x]) => `${TDISC_LABEL[x]}${paxList(b).length > 1 ? ` (Traveler ${t.n})` : ''}`).join(', ');
 }
-const prRoleLabel = d => ({ employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse', dependent: 'Dependent' })[d.passrider.role] || 'Employee';
-// Who each pass rider can bring (NMA-1017, 1018). Counts per group aren't in the stories (Q13).
-const PR_FAM = { employee: ['Spouse', 1], retiree: ['Spouse', 1], spouse: ['Employee (your spouse)', 1], dependent: ['Employee or spouse', 2] };
+// Travelers are listed by name. The relationship on the pass record stays behind the scenes (eligibility only).
+const prMeName = d => `${d.profile.first} ${d.profile.last}`;
+const prPeople = d => (d.passrider && d.passrider.people) || [];
+const prPerson = (d, key) => prPeople(d).find(p => `pr-${p.id}` === key);
+const prPicked = b => b.prPax.people || {};
 const prMe = b => b.prType === 'business' || b.prPax.me !== false;
 const prCanComp = d => ['employee'].includes(d.passrider.role); // employees only (NMA-1018 AC1, AC2)
 // NMA-1018: how a round trip uses companion passes (per companion or per booking), and the picker limit that
@@ -4470,23 +4483,21 @@ const prCanComp = d => ['employee'].includes(d.passrider.role); // employees onl
 const prCompMax = (b, d) => d.passrider.compLeft;
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
-  const f = b.prPax, parts = prMe(b) ? ['You'] : [];
-  if (f.fam) parts.push(d.passrider.role === 'dependent' ? (f.fam > 1 ? 'employee and spouse' : 'employee or spouse') : d.passrider.role === 'spouse' ? 'employee' : 'spouse');
-  if (f.dep) parts.push(`${f.dep} ${d.passrider.role === 'dependent' ? 'other ' : ''}dependent${f.dep > 1 ? 's' : ''}`);
+  const f = b.prPax, parts = prMe(b) ? [prMeName(d)] : [];
+  prPeople(d).filter(p => prPicked(b)[p.id]).forEach(p => parts.push(p.name));
   if (f.comp) parts.push(`${f.comp} companion${f.comp > 1 ? 's' : ''}`);
-  const s = parts.join(', ') || 'No travelers';
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return parts.join(', ') || 'No travelers';
 }
-const prCount = b => b.prType === 'business' ? 1 : (prMe(b) ? 1 : 0) + b.prPax.fam + b.prPax.dep + b.prPax.comp;
+const prCount = b => b.prType === 'business' ? 1 : (prMe(b) ? 1 : 0) + prPeople(D()).filter(p => prPicked(b)[p.id]).length + b.prPax.comp;
 // Adult or Child for each traveler added to a Pass Rider booking (NMA-1017 AC6, NMA-1018 AC7)
-const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || 'adult');
+const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || (prPerson(D(), key) || {}).kind || 'adult'); // saved type from the pass record, unless changed for this trip
 // Combinations Pass Rider policy doesn't allow (NMA-1017 AC1–AC5, NMA-1018 AC6)
 function prProblems(b) {
   if (b.prType === 'business') return [];
   const d = D(), f = b.prPax, list = travelerList(b), out = [];
   if (!list.length) return ['Add at least one traveler to search.'];
   const family = list.filter(t => !t.key.startsWith('pr-comp'));
-  if (f.comp && !family.length) out.push('Companions must travel with you, your spouse or a dependent.');
+  if (f.comp && !family.length) out.push('Companions must travel with you or someone else on your pass.');
   else if (!list.some(t => prKind(b, t.key) === 'adult')) out.push('Pass Rider travel can’t be booked for children only. Add an adult traveler.');
   if (f.comp > prCompMax(b, d)) out.push(`You have ${d.passrider.compLeft} companion pass${d.passrider.compLeft === 1 ? '' : 'es'} left.`);
   return out;
@@ -4675,17 +4686,17 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018', '1081');
-    const f = b.prPax, role = d.passrider.role, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, [famLabel, famMax] = PR_FAM[role] || PR_FAM.employee;
+    const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
-    if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>${policy}`;
+    if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">${esc(prMeName(d))}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>${policy}`;
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
-      const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>I’m traveling (${prRoleLabel(d).toLowerCase()})</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
+      const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(prMeName(d))}</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${counter('fam', famLabel, 'On your pass', f.fam, f.fam > 0, f.fam < famMax && room, 'pr')}${counter('dep', role === 'dependent' ? 'Other dependents' : 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}${comp}</div>
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${prPeople(d).map(p => counter(p.id, esc(p.name), p.kind === 'child' ? 'Child' : 'Adult', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
-        ${f.comp ? '<p class="ss-note">Companions travel with you, your spouse or a dependent.</p>' : ''}
+        ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
     }
     } else {
@@ -4724,6 +4735,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
 }
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
+  if (g === 'prp') { // a named person on the pass: 0 or 1; their answers stay with them if they're added again
+    b.prPax.people = Object.assign({}, b.prPax.people); if (dlt > 0) b.prPax.people[k] = 1; else delete b.prPax.people[k];
+    pendingFocus = `[data-a="pax"][data-g="prp"][data-k="${k}"]:not(:disabled), [data-a="pax"][data-g="prp"][data-k="${k}"]`; render(); return;
+  }
   const was = g === 'pr' ? b.prPax[k] : b.pax[k];
   if (g === 'pr') b.prPax[k] = Math.max(0, b.prPax[k] + dlt);
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
@@ -5058,11 +5073,10 @@ function travelerList(b) {
   const d = D(), it = intentOf(b), out = [];
   if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
   else if (it === 'pr' && d.passrider) {
-    if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: `You · ${prRoleLabel(d)}` });
+    if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: prMeName(d) });
     if (b.prType !== 'business') {
-      const f = b.prPax, role = d.passrider.role;
-      for (let i = 1; i <= f.fam; i++) out.push({ key: `pr-fam-${i}`, type: 'pr', short: role === 'spouse' ? 'Employee' : role === 'dependent' ? 'Employee or spouse' : 'Spouse' });
-      for (let i = 1; i <= f.dep; i++) out.push({ key: `pr-dep-${i}`, type: 'pr', short: `${role === 'dependent' ? 'Other dependent' : 'Dependent'} ${i}` });
+      const f = b.prPax;
+      prPeople(d).filter(p => prPicked(b)[p.id]).forEach(p => out.push({ key: `pr-${p.id}`, type: 'pr', short: p.name }));
       for (let i = 1; i <= f.comp; i++) out.push({ key: `pr-comp-${i}`, type: 'pr', short: `Companion Pass ${i}` });
     }
   } else paxList(b).forEach(t => out.push({ key: t.key, type: t.type, i: t.i, short: PAX_LABEL[t.type] }));
@@ -5754,7 +5768,7 @@ SAVE.employee = (r, ri) => {
     const b = d.booking, was = d.passrider;
     d.employee = { rel: x.rel, pass: x.pass, index: x.index }; d.empRemoved = false;
     // Business Pass, companion passes and renewal come from the pass record; newly added details start without them
-    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent') };
+    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent'), people: was && was.role === x.rel && was.people ? was.people : clone(PR_PEOPLE[x.rel] || PR_PEOPLE.employee) };
     b.prType = d.passrider.business ? b.prType : 'leisure';
     if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
     if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';
@@ -5919,8 +5933,10 @@ function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
     if (t.key === 'pr-you') return famRow('Fare', 'Pass Rider fare', '');
-    const k = prKind(b, t.key);
-    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div></div>`;
+    const k = prKind(b, t.key), who = prPerson(D(), t.key);
+    // Saved details from the pass record prefill Traveler information (the relationship itself is never shown)
+    const saved = who ? `<p class="ads-helper" id="pk-${t.key}-h">From your pass record · Date of birth ${esc(who.dob)}</p>` : '';
+    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"${who ? ` aria-describedby="pk-${t.key}-h"` : ''}><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div>${saved}</div>`;
   }
   if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
@@ -6015,7 +6031,7 @@ function overviewTravelers(r, ri, b) {
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {
   const d = D(), p = d.passrider; if (intentOf(b) !== 'pr' || !p) return '';
-  const can = prCanStart(d), rows = [['Booking as', `${prRoleLabel(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
+  const can = prCanStart(d), rows = [['Booking as', `${prMeName(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
   if (p.role === 'employee') rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]);
   return `<section class="ov-pr" aria-label="Pass Rider eligibility"><p class="ov-pr__title">${ic(can.ok ? 'check-circle' : 'alert-diamond', 'ads-icon--sm')}Pass Rider ${can.ok ? 'eligible' : 'not available'}</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${can.ok ? '' : `<p class="ads-helper">${esc(can.text)}</p>`}</section>`;
 }

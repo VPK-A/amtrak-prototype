@@ -58,9 +58,11 @@ function discSummary(b) {
   if (!list.length) return 'None chosen';
   return list.map(([t, x]) => `${TDISC_LABEL[x]}${paxList(b).length > 1 ? ` (Traveler ${t.n})` : ''}`).join(', ');
 }
-const prRoleLabel = d => ({ employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse', dependent: 'Dependent' })[d.passrider.role] || 'Employee';
-// Who each pass rider can bring (NMA-1017, 1018). Counts per group aren't in the stories (Q13).
-const PR_FAM = { employee: ['Spouse', 1], retiree: ['Spouse', 1], spouse: ['Employee (your spouse)', 1], dependent: ['Employee or spouse', 2] };
+// Travelers are listed by name. The relationship on the pass record stays behind the scenes (eligibility only).
+const prMeName = d => `${d.profile.first} ${d.profile.last}`;
+const prPeople = d => (d.passrider && d.passrider.people) || [];
+const prPerson = (d, key) => prPeople(d).find(p => `pr-${p.id}` === key);
+const prPicked = b => b.prPax.people || {};
 const prMe = b => b.prType === 'business' || b.prPax.me !== false;
 const prCanComp = d => ['employee'].includes(d.passrider.role); // employees only (NMA-1018 AC1, AC2)
 // NMA-1018: how a round trip uses companion passes (per companion or per booking), and the picker limit that
@@ -68,23 +70,21 @@ const prCanComp = d => ['employee'].includes(d.passrider.role); // employees onl
 const prCompMax = (b, d) => d.passrider.compLeft;
 function prSummary(b, d) {
   if (b.prType === 'business') return 'You only · Business travel';
-  const f = b.prPax, parts = prMe(b) ? ['You'] : [];
-  if (f.fam) parts.push(d.passrider.role === 'dependent' ? (f.fam > 1 ? 'employee and spouse' : 'employee or spouse') : d.passrider.role === 'spouse' ? 'employee' : 'spouse');
-  if (f.dep) parts.push(`${f.dep} ${d.passrider.role === 'dependent' ? 'other ' : ''}dependent${f.dep > 1 ? 's' : ''}`);
+  const f = b.prPax, parts = prMe(b) ? [prMeName(d)] : [];
+  prPeople(d).filter(p => prPicked(b)[p.id]).forEach(p => parts.push(p.name));
   if (f.comp) parts.push(`${f.comp} companion${f.comp > 1 ? 's' : ''}`);
-  const s = parts.join(', ') || 'No travelers';
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return parts.join(', ') || 'No travelers';
 }
-const prCount = b => b.prType === 'business' ? 1 : (prMe(b) ? 1 : 0) + b.prPax.fam + b.prPax.dep + b.prPax.comp;
+const prCount = b => b.prType === 'business' ? 1 : (prMe(b) ? 1 : 0) + prPeople(D()).filter(p => prPicked(b)[p.id]).length + b.prPax.comp;
 // Adult or Child for each traveler added to a Pass Rider booking (NMA-1017 AC6, NMA-1018 AC7)
-const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || 'adult');
+const prKind = (b, key) => key === 'pr-you' ? 'adult' : ((b.prKinds || {})[key] || (prPerson(D(), key) || {}).kind || 'adult'); // saved type from the pass record, unless changed for this trip
 // Combinations Pass Rider policy doesn't allow (NMA-1017 AC1–AC5, NMA-1018 AC6)
 function prProblems(b) {
   if (b.prType === 'business') return [];
   const d = D(), f = b.prPax, list = travelerList(b), out = [];
   if (!list.length) return ['Add at least one traveler to search.'];
   const family = list.filter(t => !t.key.startsWith('pr-comp'));
-  if (f.comp && !family.length) out.push('Companions must travel with you, your spouse or a dependent.');
+  if (f.comp && !family.length) out.push('Companions must travel with you or someone else on your pass.');
   else if (!list.some(t => prKind(b, t.key) === 'adult')) out.push('Pass Rider travel can’t be booked for children only. Add an adult traveler.');
   if (f.comp > prCompMax(b, d)) out.push(`You have ${d.passrider.compLeft} companion pass${d.passrider.compLeft === 1 ? '' : 'es'} left.`);
   return out;
@@ -273,17 +273,17 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
     ref('1017', '1018', '1081');
-    const f = b.prPax, role = d.passrider.role, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, [famLabel, famMax] = PR_FAM[role] || PR_FAM.employee;
+    const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
-    if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">You · ${prRoleLabel(d)}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>${policy}`;
+    if (b.prType === 'business') body = `<div class="ffc-fixedcard"><p class="ffc-count__label">${esc(prMeName(d))}</p><p class="ads-body-small ads-text-secondary">Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.</p></div>${policy}`;
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
-      const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>I’m traveling (${prRoleLabel(d).toLowerCase()})</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
+      const me = `<label class="ads-choice ads-checkbox prme"><input type="checkbox" data-a="pr-me" ${prMe(b) ? 'checked' : ''} aria-describedby="prme-h"><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(prMeName(d))}</span><span class="ads-choice__supporting" id="prme-h">Uncheck to book for your family without you.</span></span></label>`;
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${counter('fam', famLabel, 'On your pass', f.fam, f.fam > 0, f.fam < famMax && room, 'pr')}${counter('dep', role === 'dependent' ? 'Other dependents' : 'Dependents', 'On your pass', f.dep, f.dep > 0, f.dep < 6 && room, 'pr')}${comp}</div>
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Who’s traveling ${q(13)}</h3>${me}<div class="ffc-counts">${prPeople(d).map(p => counter(p.id, esc(p.name), p.kind === 'child' ? 'Child' : 'Adult', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
         ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
-        ${f.comp ? '<p class="ss-note">Companions travel with you, your spouse or a dependent.</p>' : ''}
+        ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
     }
     } else {
@@ -322,6 +322,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
 }
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
+  if (g === 'prp') { // a named person on the pass: 0 or 1; their answers stay with them if they're added again
+    b.prPax.people = Object.assign({}, b.prPax.people); if (dlt > 0) b.prPax.people[k] = 1; else delete b.prPax.people[k];
+    pendingFocus = `[data-a="pax"][data-g="prp"][data-k="${k}"]:not(:disabled), [data-a="pax"][data-g="prp"][data-k="${k}"]`; render(); return;
+  }
   const was = g === 'pr' ? b.prPax[k] : b.pax[k];
   if (g === 'pr') b.prPax[k] = Math.max(0, b.prPax[k] + dlt);
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);

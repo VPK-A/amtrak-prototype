@@ -146,7 +146,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   // ---- Pass Rider ----
   await scen('passrider-assist');
   const pr = await ev(() => travelerList(D().booking).map(t => t.key + ':' + (assistCat(D().booking, t.key) || '-')).join());
-  ok(pr === 'pr-you:disability,pr-fam-1:companion,pr-dep-1:station,pr-comp-1:-', 'Pass Rider Leisure: you, spouse, dependent, Companion Pass with their own answers');
+  ok(pr === 'pr-you:disability,pr-jordan:companion,pr-maya:station,pr-comp-1:-', 'Pass Rider Leisure: named travelers and a Companion Pass, each with their own answers');
   ok(await p.locator(D_ + '#ask-pr-comp-1').count() === 1 && !(await ev(() => D().booking.ask['pr-comp-1'])), 'Companion Pass traveler can ask for help, not a personal companion by default');
   await ev(() => { VS[1] = makeVS('passrider'); D().booking.prType = 'business'; goLoc('travelers'); }); await w();
   ok(await p.locator(D_ + '#ask-pr-you').count() === 1, 'Pass Rider Business: assistance available');

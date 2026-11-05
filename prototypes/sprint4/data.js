@@ -132,6 +132,17 @@ const ASSIST_COPY = {
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
   err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.', forMissing: 'Choose the traveler you’re a personal companion to.' }
 };
+// People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
+// rules only and is never shown; travelers are listed by name. kind (Adult or Child) and date of birth come from the
+// record and prefill Traveler details. Who appears follows the pass holder's role (NMA-1017): an employee or
+// retiree brings a spouse and dependents, a spouse brings the employee and dependents, a dependent brings the
+// employee, the spouse and other dependents.
+const PR_PEOPLE = {
+  employee: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
+  retiree: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1958' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2004' }],
+  spouse: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
+  dependent: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1975' }, { id: 'casey', name: 'Casey Rivera', rel: 'spouse', kind: 'adult', dob: '11/30/1977' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }]
+};
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
 const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
 const ASSIST_DEMO = {
@@ -148,10 +159,10 @@ const ASSIST_DEMO = {
     b.ask = { 'adult-1': true, 'adult-2': true }; b.taSeen = { 'adult-1': true, 'adult-2': true };
   },
   'passrider-assist': (d, b) => {
-    d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, fam: 1, dep: 1, comp: 1 };
+    d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, people: { jordan: 1, maya: 1 }, comp: 1 };
     b.assist = asst('disability', { dis: ['hearing'], wc: null, needs: ['station'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'pr-fam-1': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-dep-1': asst('station') };
-    b.ask = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true }; b.taSeen = { 'pr-you': true, 'pr-fam-1': true, 'pr-dep-1': true };
+    b.ta = { 'pr-jordan': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-maya': asst('station') };
+    b.ask = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true }; b.taSeen = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true };
   }
 };
 
@@ -175,7 +186,7 @@ const SCENARIOS = [
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
   ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is their personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
   ['assist-invalid', 'Assistance: companion needs reassignment', 'Traveler 2 is a personal companion to Traveler 1, but Traveler 1 needs no assistance, so the pairing is invalid: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
-  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with a spouse, a dependent and a Companion Pass traveler. You: hearing loss with station assistance; spouse: your personal companion; dependent: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
+  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with Jordan, Maya and a Companion Pass traveler. You: hearing loss with station assistance; Jordan: your personal companion; Maya: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
 const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection (120-second timeout)'], ['slow6', 'Slow connection (6-second timeout, demo)'], ['error', 'Server error']];
