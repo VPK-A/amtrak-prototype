@@ -38,7 +38,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.focus('#device #ss-q'); await w(150); ok((await css('.ss-search .ads-control')).sh.includes('2px inset'), `${T} Search focus: 2px border/focus, no layout change`);
     const star = await css('.ads-stationrow__star:not(.ss-details)'); ok(star.r === '4px', `${T} Icon Button radius/4`);
     ok((await css('.ads-stationrow__star[aria-pressed="true"]') || {}).col === ICONB || !(await css('.ads-stationrow__star[aria-pressed="true"]')), `${T} chosen favorite: content/icon-brand`);
-    ok(!(await css('.ss-route__item')) && (await ev(() => (document.querySelector('#device .ss-head__title') || [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent)) === 'Select departure station', `${T} station search: heading instead of route fields`);
+    ok(!(await css('.ss-route__item')) && (await ev(() => (document.querySelector('#device .ss-head__title') || [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent)) === 'Select arrival station', `${T} station search: heading instead of route fields`);
     // Calendar: month arrows are borderless Icon Buttons; disabled previous month
     await go(v, 'returning', 'calendar:dep', th); await w(250);
     const prev = await css('[data-a="cal-month"][data-d="-1"]'); ok(prev.r === '4px' && prev.bg === 'rgba(0, 0, 0, 0)', `${T} month arrows: radius/4, no rest fill`);

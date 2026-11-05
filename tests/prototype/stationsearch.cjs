@@ -27,7 +27,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await ev(() => sheet().stack.at(-1).u.map.why) === 'recent', `${T} without location the map starts on the recent station (proposal)`);
     const n0 = await p.locator(D_ + '.map-pin, ' + D_ + '.map-group').count(); ok(n0 > 0, `${T} markers for the visible area (${n0})`);
     // marker → info → another marker replaces it
-    await click('.map-pin[data-code="WAS"], .map-pin'); const first = await ev(() => sheet().stack.at(-1).u.mapSel);
+    await click('.map-pin[data-code="WAS"]'); const first = await ev(() => sheet().stack.at(-1).u.mapSel);
     ok(first && await p.locator(D_ + `.map-pin[data-code="${first}"][aria-pressed="true"] .map-pin__tag`).count() === 1, `${T} selected marker: pressed state plus check and code (not colour alone)`);
     ok(/Type/.test(await txt()) && /Address/.test(await txt()) && await p.locator(D_ + '#map-card [data-a="map-details"]').count() === 1 && await p.locator(D_ + '#map-card [data-a="choose-station"]').count() === 1, `${T} station information with type, address, Details and Select`);
     const other = await ev(() => [...document.querySelectorAll('#device .map-pin')].map(b => b.dataset.code).find(c => c !== sheet().stack.at(-1).u.mapSel));
