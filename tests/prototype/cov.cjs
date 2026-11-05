@@ -98,7 +98,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'assist'); b = await ev(() => D().booking);
     ok(b.assistOn && b.assistDone && b.assistFromProfile, `${T} 614 indication on and Traveler 1 prefilled from Profile`);
     await dclick('[data-a="pick-travelers"]'); await w(300);
-    if (v === 3) { ok(/From your profile/.test(await txt()), `${T} 614 prefill labeled`); await dclick('[data-a="ov-traveler"][data-t="adult-1"]'); await w(300); }
+    if (v === 3) ok(/From your profile/.test(await txt()), `${T} 614 prefill labeled`);
     else ok(/From your profile/.test(await txt()), `${T} 614 prefill labeled`);
     await dclick('[data-a="assist-edit"][data-t="adult-1"]'); await w(400);
     await ans('station', { needs: [] });
