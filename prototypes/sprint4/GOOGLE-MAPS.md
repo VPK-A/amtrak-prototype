@@ -55,6 +55,21 @@ The Map tab is next to List in each.
 
 ## 3. Setup
 
+### Quick start: free Maps Demo Key (prototyping only)
+
+The [Maps Demo Key](https://developers.google.com/maps/documentation/javascript/demo-key) needs no billing. It covers map rendering, markers and click events, which is everything this map uses. It needs a personal Google Account (not Workspace), has a daily limit (usage pauses, nothing is charged), and isn't for production.
+
+1. Open the page above, sign in, choose **Get a Demo Key** and accept the Maps Demo Key terms. The key is shown straight away and is also emailed to you.
+2. Put it in the one variable the prototype reads, **`VITE_GOOGLE_MAPS_API_KEY`**:
+   - **Claude Code cloud session:** session title bar › environment menu › **Edit** › environment variables › add `VITE_GOOGLE_MAPS_API_KEY` with the key as its value. Start a new session; the variable applies to new sessions.
+   - **Your own clone:** create `.env.local` in the repository root containing `VITE_GOOGLE_MAPS_API_KEY=<key>` (ignored by git), then run `npm run dev`.
+3. Leave `VITE_GOOGLE_MAPS_MAP_ID` empty. The prototype uses `DEMO_MAP_ID`, as Google's demo-key example does.
+4. Check it: `node tests/prototype/googlemap-live.cjs`. It starts the dev server, checks the fallback, then the live map. It never prints the key; a screenshot goes to `test-results/googlemap-live.png`.
+
+Never paste the key into chat, an issue, `index.html` or any committed file.
+
+### Standard key (billing enabled)
+
 1. In Google Cloud Console, create or choose a project and enable billing.
 2. Under **APIs & Services › Library**, enable **Maps JavaScript API**.
 3. Under **APIs & Services › Credentials**, choose **Create credentials › API key**. Then edit the key:
