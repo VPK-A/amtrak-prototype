@@ -65,7 +65,10 @@ const STATION_GEO = {
   WAS: [38.8973, -77.0063, 'building', '50 Massachusetts Ave NE, Washington, DC 20002', 'Garage at the station. Fees apply.'],
   WIL: [39.7368, -75.5513, 'building', '100 S French St, Wilmington, DE 19801', 'Garage across from the station. Fees apply.']
 };
-const geoOf = c => { const g = STATION_GEO[c]; return g && { lat: g[0], lon: g[1], type: g[2], address: g[3], parking: g[4] || '' }; };
+const validLatLon = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 && !(lat === 0 && lon === 0);
+const geoOf = c => { const g = STATION_GEO[c]; return g && validLatLon(g[0], g[1]) ? { lat: g[0], lon: g[1], type: g[2] in STATION_TYPES ? g[2] : 'building', address: g[3], parking: g[4] || '' } : null; };
+// Stations that can't be placed on the map (missing or invalid coordinates). They stay in search and the list.
+const geoIssues = () => STATIONS.filter(s => !geoOf(s.code)).map(s => s.code);
 // Rail corridors drawn on the placeholder map so the geography reads (not a route-eligibility filter)
 const RAIL_LINES = [['HYA'], ['BOS', 'BBY', 'PVD', 'NHV', 'STM', 'NRO', 'NYP', 'NWK', 'EWR', 'PJC', 'TRE', 'PHL', 'WIL', 'BAL', 'BWI', 'WAS', 'ALX', 'LOR', 'RVR'], ['RVR', 'NFK'], ['NYP', 'ALB'], ['PHL', 'HAR', 'PGH', 'CHI'], ['WAS', 'CLT', 'ATL', 'NOL'], ['LOR', 'SFA'], ['SFA', 'ORL', 'TPA'], ['ORL', 'MIA'], ['CHI', 'MKE'], ['CHI', 'STL', 'KCY', 'DEN', 'SLC', 'SAC', 'EMY', 'OKJ'], ['CHI', 'DAL', 'SAS'], ['SAS', 'LAX', 'SAN'], ['LAX', 'OKJ', 'SAC', 'PDX', 'SEA'], ['KCY', 'ABQ', 'LAX']];
 
@@ -161,6 +164,17 @@ function initialView() {
   return Object.assign({}, DEFAULT_VIEW);
 }
 // Markers for the visible area; markers that would overlap become a group (proposed interaction)
+// One marker (a station or a numbered group of close stations). placed: absolutely positioned on the placeholder
+// drawing; the Google surface positions markers itself.
+function markerHtml(g, sel, pos, placed) {
+  const at = placed ? ` style="left:calc(50% + ${g.x.toFixed(1)}px);top:calc(50% + ${g.y.toFixed(1)}px)"` : '';
+  if (g.items.length > 1) {
+    const names = g.items.map(p => `${p.s.city}, ${p.s.st} (${p.s.code})`).join('; ');
+    return `<button class="map-group" type="button" data-a="map-group" data-codes="${g.items.map(p => p.s.code).join(',')}"${at} aria-label="${g.items.length} stations close together: ${esc(names)}. Zoom in and list them">${g.items.length}</button>`;
+  }
+  const s = g.items[0].s, t = STATION_TYPES[geoOf(s.code).type], on = sel === s.code, dist = pos ? `, ${spokenMi(miles(pos, geoOf(s.code)), pos.approx)}` : '';
+  return `<button class="map-pin${on ? ' is-selected' : ''}" type="button" data-a="map-pin" data-code="${s.code}" aria-pressed="${on}"${at} aria-label="${esc(`${s.city}, ${s.st}, ${s.name}. ${t.label}${dist}`)}">${ic(t.icon, 'map-pin__glyph')}${on ? `<span class="map-pin__tag">${ic('check', 'ads-icon--sm')}${s.code}</span>` : `<span class="map-pin__code" aria-hidden="true">${s.code}</span>`}</button>`;
+}
 function visibleMarkers(m) {
   const cx = wx(m.lon, m.z), cy = wy(m.lat, m.z), hw = MAP_BOX.w / 2 + 24, hh = MAP_BOX.h / 2 + 24;
   const pts = STATIONS.filter(s => geoOf(s.code)).map(s => { const g = geoOf(s.code); return { s, x: wx(g.lon, m.z) - cx, y: wy(g.lat, m.z) - cy }; }).filter(p => Math.abs(p.x) <= hw && Math.abs(p.y) <= hh);
@@ -287,13 +301,12 @@ function renderNative(o) {
 // ---------- Map view (NMA-1084) ----------
 function mapView(r, ri, field) {
   ref('1084');
-  r.u.map = r.u.map || initialView();
+  r.u.map = r.u.map || initialView(); gmLoad(); gmNotes();
   const m = r.u.map, sel = r.u.mapSel, groups = visibleMarkers(m), off = V().net === 'offline';
   if (m.why === 'location') snote('Initial map extent widened to include the nearest station around your location (NMA-1084: requested, flagged for UX confirmation).');
   if (m.why === 'recent') snote(`Without location: the map starts on your most recent station (${m.recent}). Proposal awaiting confirmation.`);
   if (m.why === 'predefined') snote('Without location or recents: the map starts on a predefined Northeast Corridor view. Proposal awaiting confirmation.');
   snote('Conflict (NMA-1084): older Jira notes say GPS is required to render the map; the acceptance criteria allow manual browsing without GPS. The prototype follows the acceptance criteria. Needs confirmation.');
-  snote('Map tiles are a placeholder drawing; production uses the platform map SDK. Markers come from station data for the visible area, not a fixed radius.');
   snote('Closely spaced stations: markers that would overlap become a numbered group. Tapping it zooms in and lists the stations so each can be chosen (proposed interaction, awaiting review).');
   if (loc().map === 'fail') return `<div class="ss-map ss-map--fail" id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-map"><div class="ads-alert ads-alert--warning" role="status" id="map-msg">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(NEAR_MSG.mapFail.title)}</p><p class="ads-alert__description ads-body-small">${esc(NEAR_MSG.mapFail.body)}</p><div class="ss-near__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-retry">Retry</button><button class="ads-btn ads-btn--tertiary" type="button" data-a="ss-view" data-v="list">Use the list</button></div></div></div></div>`;
   const cx = wx(m.lon, m.z), cy = wy(m.lat, m.z);
@@ -304,20 +317,13 @@ function mapView(r, ri, field) {
   const grid = `<pattern id="mapgrid" width="${step}" height="${step}" patternUnits="userSpaceOnUse" x="${ox}" y="${oy}"><path d="M ${step} 0 L 0 0 0 ${step}"/></pattern>`;
   const me = locKnown() ? (() => { const p = devicePos(), [x, y] = px(p.lat, p.lon), rad = Math.max(8, p.acc / 69 * TILE * 2 ** m.z / 360 * 1.3); return `<div class="map-me${p.approx ? ' map-me--approx' : ''}" style="left:calc(50% + ${x.toFixed(1)}px);top:calc(50% + ${y.toFixed(1)}px);--acc:${Math.min(rad, 220).toFixed(0)}px" role="img" aria-label="Your location${p.approx ? ', approximate' : ''}"></div>`; })() : '';
   const pos = locKnown() ? devicePos() : null;
-  const markers = groups.sort((a, b) => a.y - b.y || a.x - b.x).map(g => {
-    if (g.items.length > 1) {
-      const names = g.items.map(p => `${p.s.city}, ${p.s.st} (${p.s.code})`).join('; ');
-      return `<button class="map-group" type="button" data-a="map-group" data-codes="${g.items.map(p => p.s.code).join(',')}" style="left:calc(50% + ${g.x.toFixed(1)}px);top:calc(50% + ${g.y.toFixed(1)}px)" aria-label="${g.items.length} stations close together: ${esc(names)}. Zoom in and list them">${g.items.length}</button>`;
-    }
-    const s = g.items[0].s, t = STATION_TYPES[geoOf(s.code).type], on = sel === s.code, dist = pos ? `, ${spokenMi(miles(pos, geoOf(s.code)), pos.approx)}` : '';
-    return `<button class="map-pin${on ? ' is-selected' : ''}" type="button" data-a="map-pin" data-code="${s.code}" aria-pressed="${on}" style="left:calc(50% + ${g.x.toFixed(1)}px);top:calc(50% + ${g.y.toFixed(1)}px)" aria-label="${esc(`${s.city}, ${s.st}, ${s.name}. ${t.label}${dist}`)}">${ic(t.icon, 'map-pin__glyph')}${on ? `<span class="map-pin__tag">${ic('check', 'ads-icon--sm')}${s.code}</span>` : `<span class="map-pin__code" aria-hidden="true">${s.code}</span>`}</button>`;
-  }).join('');
+  const markers = groups.sort((a, b) => a.y - b.y || a.x - b.x).map(g => markerHtml(g, sel, pos, true)).join('');
   const inView = groups.reduce((a, g) => a + g.items.length, 0);
   const card = sel ? stationCard(sel, r, ri, pos) : (r.u.mapGroup ? groupCard(r) : '');
   const ctl = `<div class="map-ctl"><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="1" aria-label="Zoom in" ${m.z >= Z_MAX ? 'disabled' : ''}>${ic('plus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="-1" aria-label="Zoom out" ${m.z <= Z_MIN ? 'disabled' : ''}>${ic('minus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-locate" aria-label="${locKnown() ? 'Center the map on your location' : 'Show my location on the map'}">${ic('map-pin')}</button></div>`;
   return `<div class="ss-map-wrap ss-map-wrap--upd" id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-map">
-    <div class="ss-map" id="ss-map" tabindex="0" role="application" aria-roledescription="map" aria-label="Station map, zoom ${m.z}. ${inView} station${inView === 1 ? '' : 's'} in view. Use the arrow keys to move the map and plus or minus to zoom." aria-describedby="ss-map-count">
-      <div class="map-layer"><svg class="map-art" aria-hidden="true" width="100%" height="100%"><defs>${grid}</defs><rect width="100%" height="100%" fill="url(#mapgrid)"/><g class="map-rail" transform="translate(${(MAP_BOX.w / 2).toFixed(1)} ${(MAP_BOX.h / 2).toFixed(1)})">${lines}</g></svg>${me}${markers}</div>
+    <div class="ss-map${gmActive() ? ' ss-map--google' : ''}" id="ss-map" tabindex="0" role="application" aria-roledescription="map" data-provider="${gmActive() ? 'google' : 'placeholder'}" aria-label="Station map, zoom ${m.z}. ${inView} station${inView === 1 ? '' : 's'} in view. Use the arrow keys to move the map and plus or minus to zoom." aria-describedby="ss-map-count">
+      ${gmActive() ? '<div class="gmap-slot"></div>' : `<div class="map-layer"><svg class="map-art" aria-hidden="true" width="100%" height="100%"><defs>${grid}</defs><rect width="100%" height="100%" fill="url(#mapgrid)"/><g class="map-rail" transform="translate(${(MAP_BOX.w / 2).toFixed(1)} ${(MAP_BOX.h / 2).toFixed(1)})">${lines}</g></svg>${me}${markers}</div>`}
       ${ctl}
     </div>
     ${off ? `<p class="ss-map__offline" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>${esc(NEAR_MSG.mapOffline)}</span></p>` : ''}
@@ -367,7 +373,7 @@ let DRAG = null, SUPPRESS_CLICK = false;
 // A drag can start anywhere on the map, markers included; it only becomes a pan once the pointer moves, so a tap
 // on a marker still selects it
 document.addEventListener('pointerdown', e => {
-  const map = e.target.closest && e.target.closest('#device .ss-map'); if (!map || e.target.closest('.map-ctl')) return;
+  const map = e.target.closest && e.target.closest('#device .ss-map'); if (!map || e.target.closest('.map-ctl') || map.classList.contains('ss-map--google')) return;
   DRAG = { x: e.clientX, y: e.clientY, id: e.pointerId, map, layer: map.querySelector('.map-layer'), moved: false, scale: map.getBoundingClientRect().width / map.offsetWidth };
 });
 document.addEventListener('pointermove', e => {
@@ -390,7 +396,7 @@ document.addEventListener('keydown', e => {
 });
 let WHEEL_T = 0;
 document.addEventListener('wheel', e => {
-  const map = e.target.closest && e.target.closest('#device .ss-map'); if (!map) return; e.preventDefault();
+  const map = e.target.closest && e.target.closest('#device .ss-map'); if (!map || map.classList.contains('ss-map--google')) return; e.preventDefault();
   const now = performance.now(); if (now - WHEEL_T < 180) return; WHEEL_T = now;
   const r = routeAt(selIndex()), m = r.u.map; m.z = Math.max(Z_MIN, Math.min(Z_MAX, m.z + (e.deltaY < 0 ? 1 : -1))); track('map_zoomed', { zoom: m.z, via: 'pinch_or_wheel' }); render();
 }, { passive: false });

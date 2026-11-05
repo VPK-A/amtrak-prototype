@@ -126,3 +126,10 @@
 .ss-mapcard .map-card { border: 0; }
 .device--ipad .ss-mapcard { left: auto; width: min(420px, calc(100% - 2 * var(--ads-space-12))); }
 .ss-upd .ss-head { margin-bottom: calc(var(--ads-space-4) - var(--ads-space-12)); } /* the tabs carry their own top padding */
+
+/* Google Maps surface: fills the map area; markers reuse the ADS marker styles, centred on their position */
+.gmap-slot, .gmap-host { position: absolute; inset: 0; }
+.ss-map--google { cursor: auto; }
+.gmap-marker { transform: translateY(50%); }
+.gmap-marker .map-pin, .gmap-marker .map-group, .gmap-marker .map-me { position: relative; transform: none; }
+.gmap-marker .map-me { display: block; }

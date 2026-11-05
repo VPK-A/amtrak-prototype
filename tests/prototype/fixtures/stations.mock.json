@@ -1,0 +1,9 @@
+{
+  "_comment": "Mock station fixtures for local development and tests only. NOT the prototype's station data (that is STATIONS in prototypes/sprint4/data.js and STATION_GEO in stationmap.js). Codes start with Z so they never collide with real ones.",
+  "stations": [
+    { "code": "ZVA", "city": "Testville", "state": "Pennsylvania", "st": "PA", "name": "Testville Station", "zip": "17000", "geo": [40.20, -76.70, "building", "1 Test St, Testville, PA 17000"] },
+    { "code": "ZNO", "city": "Nowhere", "state": "Pennsylvania", "st": "PA", "name": "Nowhere Halt", "zip": "17001", "geo": null },
+    { "code": "ZBD", "city": "Badcoord", "state": "Pennsylvania", "st": "PA", "name": "Badcoord Platform", "zip": "17002", "geo": [140.0, -76.70, "platform", "Invalid latitude"] },
+    { "code": "ZZE", "city": "Nullisland", "state": "Pennsylvania", "st": "PA", "name": "Null Island Stop", "zip": "17003", "geo": [0, 0, "bus", "0,0 placeholder"] }
+  ]
+}
