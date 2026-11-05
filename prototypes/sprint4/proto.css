@@ -925,3 +925,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .bp-mode--v3 .bp-mode__label { color: var(--ffc-on-navy); opacity: 0.85; }
 .bp-tabs { margin-top: var(--ads-space-4); }
 .ds-next .bp-seg > button, .bp-seg > button { flex: 0 0 auto; padding: 0 var(--ads-space-16); white-space: nowrap; }
+.bp-mode .bp-combo { max-width: 360px; }
+.bp-mode__help { margin: 0; }
+.bp-mode--v3 .bp-mode__help { color: var(--ffc-on-navy); opacity: 0.85; }
+.bp-mode--v3 .ads-field__marker { color: var(--ffc-on-navy); }

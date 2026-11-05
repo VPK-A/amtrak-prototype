@@ -2368,6 +2368,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .bp-mode--v3 .bp-mode__label { color: var(--ffc-on-navy); opacity: 0.85; }
 .bp-tabs { margin-top: var(--ads-space-4); }
 .ds-next .bp-seg > button, .bp-seg > button { flex: 0 0 auto; padding: 0 var(--ads-space-16); white-space: nowrap; }
+.bp-mode .bp-combo { max-width: 360px; }
+.bp-mode__help { margin: 0; }
+.bp-mode--v3 .bp-mode__help { color: var(--ffc-on-navy); opacity: 0.85; }
+.bp-mode--v3 .ads-field__marker { color: var(--ffc-on-navy); }
 
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
@@ -2682,7 +2686,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
     <div class="ctl__group"><span class="ads-field__label" id="lbVersion">Concept</span><div class="ads-segmented" id="tbVersion" role="group" aria-labelledby="lbVersion"><button type="button" data-v="1" aria-pressed="true">Familiar</button><button type="button" data-v="3" aria-pressed="false">Brand forward</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpAssist">Traveler assistance layout</label><div class="ads-control ads-control--select"><select id="tbCmpAssist"><option value="current">Current design</option><option value="above">Content above traveler details</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
-      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpBp">Pass Rider Business Pass controls</label><div class="ads-control ads-control--select"><select id="tbCmpBp"><option value="current">Current design</option><option value="compact">Compact switcher and tabs</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpBp">Pass Rider Business Pass controls</label><div class="ads-control ads-control--select"><select id="tbCmpBp"><option value="current">Current design</option><option value="compact">Compact dropdown</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -3657,7 +3661,7 @@ function modesV1(r, b) {
   let extra = '';
   if (b.intent === 'pr') {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
-    extra = elig ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span>${bpCompact() ? bpTypeTabs(b, 'v1-prt') : `<div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>`}<p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
+    extra = elig && !bpCompact() ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
   }
   if (b.intent === 'corporate') q(12);
   return `<div class="v1modes">${entry}${extra}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
@@ -4540,7 +4544,7 @@ function ffClear(r, ri) {
   let prType = '';
   if (pr) {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
-    prType = elig ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span>${bpCompact() ? bpTypeTabs(b, 'ffc-prt') : `<div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>`}<p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
+    prType = elig && !bpCompact() ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
       : ''; // Leisure only: shown in the Booking type entry
   }
   const trav = travField(r, b);
@@ -5727,7 +5731,7 @@ function modeOptions(d) {
 const modeLabel = (b, d) => { const o = modeOptions(d), cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : 'personal'; const m = o.find(x => x[0] === cur); return m[1] + (b.intent === 'pr' && b.prType ? ` · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : ''); };
 function modeEntry(b, where) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
-  if (bpCompact()) { if (d.passrider) ref('623', '1016'); return bpModeSeg(b, where); } // comparison: segmented Booking type
+  if (bpCompact()) { if (d.passrider) ref('623', '1016'); return bpCombo(b, where); } // comparison: one dropdown for booking and travel type
   if (d.triplink) ref('622'); if (d.passrider) ref('623', '1016');
   return `<button class="mode-entry mode-entry--${where}" type="button" data-a="mode-open" aria-label="Booking type: ${esc(modeLabel(b, d))}. Change booking type"><span class="mode-entry__label">Booking type</span><span class="mode-entry__val">${esc(modeLabel(b, d))}</span>${ic('chevron-down', 'ads-icon--sm')}</button>`;
 }
@@ -6714,9 +6718,9 @@ render = function () {
    switching keeps the current screen and every selection.
    - Traveler assistance layout: Current design / Content above traveler details. The "Traveler with disability or
      need help?" copy moves out of each traveler's card to one block above Traveler details.
-   - Pass Rider Business Pass controls: Current design / Compact switcher and tabs. In the Business Pass scenario
-     only, Booking type becomes a two-option segmented control (Pass Rider / Regular, same mode-pick handler) and
-     Travel type becomes Business / Leisure tabs (same pr-type handler). */
+   - Pass Rider Business Pass controls: Current design / Compact dropdown. In the Business Pass scenario only, the
+     Booking type entry and the Business / Leisure switcher become one dropdown (Pass Rider — Business, Pass Rider —
+     Leisure, Regular) that runs the same mode-pick and pr-type handlers. */
 const CMP = {
   assist: store.get('s4-cmp-assist') === 'above' ? 'above' : 'current',
   bp: store.get('s4-cmp-bp') === 'compact' ? 'compact' : 'current'
@@ -6727,16 +6731,34 @@ const bpScenario = d => !!(d.signedIn && d.passrider && d.passrider.business && 
 const bpCompact = () => CMP.bp === 'compact' && bpScenario(D());
 // The assistance copy, once, above Traveler details (content above traveler details)
 const assistIntro = () => assistAbove() ? `<div class="tassist-intro" id="tassist-intro"><p class="tassist__label">${ASSIST_COPY.entryLabel}</p><p class="tassist__help">${ASSIST_COPY.entryHelp}</p></div>` : '';
-// Booking type as a segmented control (replaces the Booking type entry and its sheet)
-function bpModeSeg(b, where) {
-  const cur = b.intent === 'pr' ? 'pr' : 'personal', id = `bpm-${where}`;
-  return `<div class="bp-mode bp-mode--${where}"><span class="bp-mode__label" id="${id}">Booking type</span><div class="ads-segmented bp-seg" role="group" aria-labelledby="${id}">${[['pr', 'Pass Rider'], ['personal', 'Regular']].map(([v, l]) => `<button type="button" data-a="mode-pick" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div></div>`;
+// Booking type and travel type in one dropdown. Options follow the existing rules: Business and Leisure apply to
+// Pass Rider only (NMA-1016), so Regular is a single option. An option the rules don't allow stays visible but
+// disabled, with the reason beneath. Neither travel type is preselected (NMA-1016 AC2): the dropdown starts on its
+// prompt and Find trains stays disabled until a choice is made.
+function bpComboOpts(d) {
+  const can = prCanStart(d), biz = d.passrider.role === 'employee' && d.passrider.business;
+  return [
+    { v: 'pr:business', l: 'Pass Rider — Business', off: !can.ok ? can.text : !biz ? prLeisureWhy(d) : '' },
+    { v: 'pr:leisure', l: 'Pass Rider — Leisure', off: !can.ok ? can.text : '' },
+    { v: 'personal', l: 'Regular', off: '' }
+  ];
 }
-// Travel type as tabs (replaces the Business / Leisure switcher); none selected until chosen, like the switcher
-function bpTypeTabs(b, labelId) {
-  const opts = [['business', 'Business'], ['leisure', 'Leisure']], none = !b.prType;
-  return `<div class="ads-tabs ads-tabs--fill bp-tabs" role="tablist" aria-labelledby="${labelId}">${opts.map(([k, l], i) => `<button class="ads-tab" type="button" role="tab" data-a="pr-type" data-v="${k}" aria-selected="${b.prType === k}" tabindex="${b.prType === k || (none && i === 0) ? 0 : -1}">${l}</button>`).join('')}</div>`;
+function bpCombo(b, where) {
+  const d = D(), opts = bpComboOpts(d), id = `bpc-${where}`;
+  const cur = b.intent === 'pr' ? (b.prType ? `pr:${b.prType}` : '') : 'personal';
+  const help = b.intent === 'pr' ? prTypeHelp(b) : 'Regular fares. Points, passenger discounts and codes can be used.';
+  const why = opts.filter(o => o.off).map(o => `${o.l} isn’t available: ${o.off}`);
+  return `<div class="bp-mode bp-mode--${where}"><label class="bp-mode__label" for="${id}">Booking type <span class="ads-field__marker ads-field__marker--required">Required</span></label>
+    <div class="ads-control ads-control--select bp-combo"><select id="${id}" data-f="bpcombo" data-nodirty data-hook="bpcombo" aria-required="true" aria-describedby="${id}-h${why.length ? ` ${id}-why` : ''}">${cur ? '' : '<option value="" selected hidden>Choose booking and travel type</option>'}${opts.map(o => `<option value="${o.v}" ${o.v === cur ? 'selected' : ''} ${o.off ? 'disabled' : ''}>${o.l}${o.off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div>
+    <p class="ads-helper bp-mode__help" id="${id}-h">${help}</p>${why.length ? `<p class="ads-helper bp-mode__help" id="${id}-why">${why.map(esc).join(' ')}</p>` : ''}</div>`;
 }
+// Selecting an option runs the existing handlers in order: booking type (mode-pick), then travel type (pr-type)
+HOOKS.bpcombo = (r, t) => {
+  const [mode, type] = t.value.split(':'); if (!mode) return;
+  A['mode-pick']({ dataset: { v: mode } });
+  if (mode === 'pr' && type && D().booking.intent === 'pr') A['pr-type']({ dataset: { v: type } });
+  pendingFocus = '#' + t.id;
+};
 // Controls in the Prototype controls panel, next to Concept
 (function wireCompare() {
   const a = document.getElementById('tbCmpAssist'), p = document.getElementById('tbCmpBp');

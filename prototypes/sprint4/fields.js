@@ -89,7 +89,7 @@ function modeOptions(d) {
 const modeLabel = (b, d) => { const o = modeOptions(d), cur = ['corporate', 'pr'].includes(b.intent) ? b.intent : 'personal'; const m = o.find(x => x[0] === cur); return m[1] + (b.intent === 'pr' && b.prType ? ` · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : ''); };
 function modeEntry(b, where) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
-  if (bpCompact()) { if (d.passrider) ref('623', '1016'); return bpModeSeg(b, where); } // comparison: segmented Booking type
+  if (bpCompact()) { if (d.passrider) ref('623', '1016'); return bpCombo(b, where); } // comparison: one dropdown for booking and travel type
   if (d.triplink) ref('622'); if (d.passrider) ref('623', '1016');
   return `<button class="mode-entry mode-entry--${where}" type="button" data-a="mode-open" aria-label="Booking type: ${esc(modeLabel(b, d))}. Change booking type"><span class="mode-entry__label">Booking type</span><span class="mode-entry__val">${esc(modeLabel(b, d))}</span>${ic('chevron-down', 'ads-icon--sm')}</button>`;
 }

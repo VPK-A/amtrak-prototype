@@ -43,35 +43,48 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
       // ---- Business Pass ----
       await ev(v => { VS[v] = makeVS('passrider'); goLoc('ff'); }, v); await w();
       if (bp === 'current') ok(await p.locator(D_ + '.mode-entry').count() === 1 && await p.locator(D_ + '.bp-seg, ' + D_ + '.bp-tabs').count() === 0 && await p.locator(D_ + '.ads-segmented [data-a="pr-type"]').count() === 2, `${C} Business Pass: original Booking type entry and switcher`);
-      else ok(await p.locator(D_ + '.mode-entry').count() === 0 && await ev(() => [...document.querySelectorAll('#device .bp-seg button')].map(x => x.textContent + ':' + x.getAttribute('aria-pressed')).join()) === 'Pass Rider:true,Regular:false' && await p.locator(D_ + '.bp-tabs [role="tab"][data-a="pr-type"]').count() === 2, `${C} Business Pass: segmented Pass Rider / Regular and Business / Leisure tabs`);
+      else {
+        const dd = await ev(() => { const s = document.querySelector('#device select[data-f="bpcombo"]'); return s && { opts: [...s.options].map(o => o.textContent + (o.disabled ? ':off' : '')), val: s.value, req: s.getAttribute('aria-required'), label: document.querySelector(`label[for="${s.id}"]`).textContent.trim(), help: document.getElementById(s.id + '-h').textContent }; });
+        ok(await p.locator(D_ + '.mode-entry').count() === 0 && await p.locator(D_ + '[data-a="pr-type"]').count() === 0 && dd && JSON.stringify(dd.opts) === '["Choose booking and travel type","Pass Rider — Business","Pass Rider — Leisure","Regular"]', `${C} Business Pass: one dropdown with every allowed combination; no Regular travel types`);
+        ok(dd.val === '' && dd.req === 'true' && /^Booking type\s*Required$/.test(dd.label) && /Business travel is for you alone\. Leisure lets you bring family and companions\./.test(dd.help) && await p.locator(D_ + '[data-a="find-trains"]').isDisabled(), `${C} nothing preselected, required, guidance beneath, Find trains disabled`);
+      }
     }
     // ---- Equivalence: each new control gives the same result as the original ----
     const run = async (bp, act) => { await setCmp('current', bp); await ev(v => { VS[v] = makeVS('passrider'); const b = D().booking; b.from = 'LOR'; b.to = 'SFA'; goLoc('ff'); }, v); await w(); await act(); return ev(() => { const b = D().booking; return JSON.stringify({ intent: b.intent, prType: b.prType, from: b.from, to: b.to, notice: b.notice, pay: b.pay, modeNote: b.modeNote }); }); };
     const viaSeg = await run('current', async () => { await p.click(D_ + '.ads-segmented [data-a="pr-type"][data-v="business"]'); await w(); });
-    const viaTab = await run('compact', async () => { await p.click(D_ + '.bp-tabs [data-a="pr-type"][data-v="business"]'); await w(); });
-    ok(viaSeg === viaTab && JSON.parse(viaTab).prType === 'business', `${T} Business tab = Business switcher (Auto Train cleared the same way)`);
+    const viaTab = await run('compact', async () => { await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'pr:business'); await w(); });
+    ok(viaSeg === viaTab && JSON.parse(viaTab).prType === 'business', `${T} Pass Rider — Business = Business switcher (Auto Train cleared the same way)`);
     const leiSeg = await run('current', async () => { await p.click(D_ + '.ads-segmented [data-a="pr-type"][data-v="leisure"]'); await w(); });
-    const leiTab = await run('compact', async () => { await p.click(D_ + '.bp-tabs [data-a="pr-type"][data-v="leisure"]'); await w(); });
-    ok(leiSeg === leiTab && JSON.parse(leiTab).prType === 'leisure', `${T} Leisure tab = Leisure switcher`);
+    const leiTab = await run('compact', async () => { await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'pr:leisure'); await w(); });
+    ok(leiSeg === leiTab && JSON.parse(leiTab).prType === 'leisure', `${T} Pass Rider — Leisure = Leisure switcher`);
     const regSheet = await run('current', async () => { await p.click(D_ + '.mode-entry'); await w(); await p.click(`${D_}label:has(input[data-a="mode-pick"][data-v="personal"])`); await w(); });
-    const regSeg = await run('compact', async () => { await p.click(D_ + '.bp-seg [data-v="personal"]'); await w(); });
-    ok(regSheet === regSeg && JSON.parse(regSeg).intent === 'personal', `${T} Regular segment = Regular in the Booking type sheet`);
-    ok(await p.locator(D_ + '.bp-tabs').count() === 0 && await p.locator(D_ + '.bp-seg [data-v="personal"][aria-pressed="true"]').count() === 1, `${T} Regular: tabs hidden like the switcher`);
-    const prBack = await run('compact', async () => { await p.click(D_ + '.bp-seg [data-v="personal"]'); await w(); await p.click(D_ + '.bp-seg [data-v="pr"]'); await w(); });
-    const prBackSheet = await run('current', async () => { await p.click(D_ + '.mode-entry'); await w(); await p.click(`${D_}label:has(input[data-a="mode-pick"][data-v="personal"])`); await w(); await p.click(D_ + '.mode-entry'); await w(); await p.click(`${D_}label:has(input[data-a="mode-pick"][data-v="pr"])`); await w(); });
-    ok(prBack === prBackSheet, `${T} back to Pass Rider: same as the sheet`);
+    const regSeg = await run('compact', async () => { await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'personal'); await w(); });
+    ok(regSheet === regSeg && JSON.parse(regSeg).intent === 'personal', `${T} Regular = Regular in the Booking type sheet`);
+    ok(await ev(() => document.querySelector('#device select[data-f="bpcombo"]').value) === 'personal' && /Regular fares/.test(await ev(() => document.querySelector('#device .bp-mode__help').textContent)) && await p.locator(D_ + '[data-a="find-trains"]').isEnabled(), `${T} Regular: selected, guidance updated, Find trains enabled (no travel type needed)`);
+    const prBack = await run('compact', async () => { await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'personal'); await w(); await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'pr:leisure'); await w(); });
+    const prBackSheet = await run('current', async () => { await p.click(D_ + '.mode-entry'); await w(); await p.click(`${D_}label:has(input[data-a="mode-pick"][data-v="personal"])`); await w(); await p.click(D_ + '.mode-entry'); await w(); await p.click(`${D_}label:has(input[data-a="mode-pick"][data-v="pr"])`); await w(); await p.click(D_ + '.ads-segmented [data-a="pr-type"][data-v="leisure"]'); await w(); });
+    ok(prBack === prBackSheet, `${T} Regular then Pass Rider — Leisure = sheet then switcher`);
     // downstream: find trains with the compact controls
     await setCmp('current', 'compact'); await ev(v => { VS[v] = makeVS('passrider'); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; goLoc('ff'); }, v); await w();
     ok(await p.locator(D_ + '[data-a="find-trains"]').isDisabled(), `${T} Find trains disabled until a travel type is chosen`);
-    await p.click(D_ + '.bp-tabs [data-v="business"]'); await w(); await p.click(D_ + '[data-a="find-trains"]'); await w(1000);
+    await p.focus(D_ + 'select[data-f="bpcombo"]'); await p.keyboard.press('ArrowDown'); await w(300);
+    ok(await ev(() => document.activeElement && document.activeElement.dataset.f === 'bpcombo') && await ev(() => getComputedStyle(document.activeElement.closest('.ads-control')).boxShadow !== 'none' || getComputedStyle(document.activeElement).outlineStyle !== 'none'), `${T} keyboard: dropdown keeps focus with a visible focus style`);
+    await p.selectOption(D_ + 'select[data-f="bpcombo"]', 'pr:business'); await w(); await p.click(D_ + '[data-a="find-trains"]'); await w(1000);
     ok(/Pass Rider · Business/.test(await ev(() => document.querySelector('#device').innerText)), `${T} search hand-off: Pass Rider · Business`);
     // other pass scenarios keep the current UI
     for (const sc of ['passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'triplink-passrider', 'triplink']) {
       await ev(([v, sc]) => { VS[v] = makeVS(sc); goLoc('ff'); }, [v, sc]); await w(200);
-      ok(await p.locator(D_ + '.bp-seg, ' + D_ + '.bp-tabs').count() === 0 && await p.locator(D_ + '.mode-entry').count() === 1, `${T} ${sc}: current controls kept with the compact setting on`);
+      ok(await p.locator(D_ + 'select[data-f="bpcombo"]').count() === 0 && await p.locator(D_ + '.mode-entry').count() === 1, `${T} ${sc}: current controls kept with the compact setting on`);
     }
     await setCmp('current', 'current');
   }
+  await p.addScriptTag({ content: require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8') });
+  for (const v of [1, 3]) { await setCmp('current', 'compact'); await ev(v => { TB.v = v; VS[v] = makeVS('passrider'); goLoc('ff'); }, v); await w();
+    const vio = await ev(async () => (await axe.run('#device', { resultTypes: ['violations'] })).violations.filter(x => x.nodes.some(n => !n.target.join(' ').includes('dev-status'))).map(x => x.id));
+    ok(!vio.length, `C${v} axe with the dropdown ${vio.join(',')}`); }
+  // unavailable options: not reachable in the Business Pass scenario today; checked against the rule functions
+  const offs = await ev(() => { const d = clone(D()); d.passrider.business = false; const a = bpComboOpts(d).map(o => o.off ? 'off' : 'on').join(); d.passrider.business = true; d.passrider.role = 'dependent'; d.passrider.minor = true; const c = bpComboOpts(d).map(o => o.off ? 'off' : 'on').join(); return a + '|' + c; });
+  ok(offs === 'off,on,on|off,off,on', `rules: no Business Pass disables Business; a dependent 15 or younger disables both Pass Rider options (${offs})`);
   ok(!errs.length, 'no page errors ' + errs.join(' | '));
   console.log('pass', pass, 'fail', fail); await b.close();
 })();

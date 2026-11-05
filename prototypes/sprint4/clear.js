@@ -108,7 +108,7 @@ function ffClear(r, ri) {
   let prType = '';
   if (pr) {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
-    prType = elig ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span>${bpCompact() ? bpTypeTabs(b, 'ffc-prt') : `<div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>`}<p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
+    prType = elig && !bpCompact() ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
       : ''; // Leisure only: shown in the Booking type entry
   }
   const trav = travField(r, b);
