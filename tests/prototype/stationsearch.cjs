@@ -58,7 +58,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     // switch back to List
     await click('#ff-to'); await mapView(); await click('[data-a="ss-view"][data-v="list"]'); ok(await p.locator(D_ + '.ss-map').count() === 0 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} switch back to List view`);
     // close without choosing keeps the fields
-    await p.locator(D_ + '.ss-back, ' + D_ + '.psheet [data-a="back"]').first().click(); await w(300);
+    await p.locator(D_ + '.ss-head__back, ' + D_ + '.psheet [data-a="back"]').first().click(); await w(300);
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY'), `${T} backing out keeps the field`);
     ok((await evs()).some(e => /abandoned/.test(e)), `${T} analytics: abandonment recorded`);
 
@@ -113,8 +113,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await ev(() => sheet().stack.at(-1).u.map.why) === 'location' && await p.locator(D_ + '.map-me').count() === 1 && await p.locator(D_ + '.map-pin[data-code="NYP"], .map-group').count() >= 1, `${T} location known: map centers on it and shows the nearest station`);
     await go(v, 'new', 'stations:from'); await mapView(); ok(await ev(() => sheet().stack.at(-1).u.map.why) === 'predefined', `${T} no location, no recents: predefined view (proposal)`);
     await go(v, 'returning', 'stations:from', { map: 'fail' }); await mapView(); ok(/couldn’t load/.test(await txt()) && await p.locator(D_ + '[data-a="ss-view"][data-v="list"]').count() >= 1, `${T} map fails to load: Retry and the list`);
-    // typed search works from the map
-    await go(v, 'returning', 'stations:from'); await mapView(); await p.fill(D_ + '#ss-q', 'Bos'); await w(250); ok(await p.locator(D_ + '.stlist [data-a="choose-station"][data-code="BOS"]').count() === 1 && await p.locator(D_ + '.ss-map').count() === 0, `${T} typing in Map view shows search results`);
+    // search is in List view only: hidden on the map, back when returning to List
+    await go(v, 'returning', 'stations:from'); await mapView(); ok(await p.locator(D_ + '#ss-q').count() === 0, `${T} search hidden in Map view`);
+    await click('[data-a="ss-view"][data-v="list"]'); await p.fill(D_ + '#ss-q', 'Bos'); await w(250); ok(await p.locator(D_ + '.stlist [data-a="choose-station"][data-code="BOS"]').count() === 1, `${T} List view: typed search shows results`);
     // ---- Train status and Multi-Ride reuse the selector ----
     await go(v, 'returning', 'tab:train-status'); await click('#ts-from'); ok((await stack()).startsWith('stations-ts:stations'), `${T} Train status opens the same station search`);
     await p.fill(D_ + '#ss-q', 'BAL'); await w(150); await click('[data-a="choose-station"][data-code="BAL"]');
