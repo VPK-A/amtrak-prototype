@@ -55,7 +55,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'returning', 'travelers'); ok(!/Bringing a service animal/.test(await txt()), `${T} 11 no standalone service-animal shortcut on Travelers`);
     await p.evaluate(() => { const b = D().booking, on = !travelerList(b).some(t => asks(b, t.key)); travelerList(b).forEach(t => setAsk(b, t.key, on)); render(); }); await ev(() => { V().net = 'online'; }); await dclick('[data-a="assist-answer"][data-t="adult-1"]'); await w(950);
     await ev(() => { const r = sheet().stack[sheet().stack.length - 1]; r.u.d = { cat: 'disability', dis: ['vision'], wc: '', needs: [], for: '' }; render(); }); await w(150);
-    ok(await p.locator(D + '[data-topic="service-animals"]').count() === 1 && /Large service animal/.test(await txt()), `${T} 11 service-animal guidance inside the disability branch`);
+    ok(await p.locator(D + '[data-topic="service-animals"]').count() === 1 && /Service animal/.test(await txt()), `${T} 11 service-animal guidance inside the disability branch`);
     // 12 title Assistance + traveler label
     ok(await ev(() => [...document.querySelectorAll('#device .sheet-layer h2, #device .sheet-layer h3')].some(h => h.textContent.trim() === 'Assistance')) && /For Traveler 1 · Adult/.test(await txt()), `${T} 12 title "Assistance" with traveler label`);
     // 13 DS stepper and limits

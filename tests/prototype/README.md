@@ -14,7 +14,6 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `savedcodes.cjs` | Saved codes as an ADS Next List row |
 | `adsnext-rollout.cjs` | ADS Next across the concept: component geometry, borders, icon roles, pressed/focus/selected/disabled/error states |
 | `sweep-next.cjs` | ADS Next: axe and overflow sweep (24 screens, devices, orientations, themes, text sizes) |
-| `assist-ask.cjs` | Checking "Traveler with disability or need help?" opens that traveler's questions; abandoning shows Add; kept answers return; offline, slow and iPad |
 | `stationsearch.cjs` | NMA-1084 / NMA-1085: shared selector from New booking, Train status and Multi-Ride; map, markers, groups, Details; My Location, permissions (iOS, Android), nearby rule, recovery states, offline |
 | `stationsearch-a11y.cjs` | NMA-1084 / NMA-1085: axe and overflow across the new screens and states |
 | `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
