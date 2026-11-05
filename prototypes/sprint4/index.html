@@ -2612,9 +2612,14 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .sd-body:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: var(--ads-radius-4); }
 
 /* ---------- Updated Map (comparison toggle): prominent map, minimal floating controls, floating station card ---------- */
-.ss-mapbar { display: flex; align-items: center; gap: var(--ads-space-8); }
-.ss-mapbar .ss-views { flex: 1; min-width: 0; margin: 0; }
-.ss-mapbar__back { flex: none; }
+.ss-head { display: flex; align-items: center; gap: var(--ads-space-8); min-height: var(--ads-size-interactive-md); }
+.ss-head__back { flex: none; }
+.ss-head__title { margin: 0; min-width: 0; }
+.ss-head__title:focus { outline: none; }
+.ss-upd .pane__body { gap: var(--ads-space-8); }
+.ss-upd .ss-views { margin: 0; }
+.ss-upd .ss-search--upd { position: static; margin: 0; padding: 0; background: none; }
+.ss-upd .ss-near { margin: 0; }
 .ss-upd--map .pane__scroll { display: flex; flex-direction: column; overflow: hidden; }
 .ss-upd--map .pane__body { flex: 1; min-height: 0; padding-bottom: 0; gap: var(--ads-space-8); }
 .ss-upd--map .pane__body > .ss-map-wrap--upd { flex: 1; min-height: 320px; }
@@ -2628,7 +2633,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-mapcard { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-16); z-index: 5; max-height: 62%; overflow-y: auto; border-radius: var(--ads-radius-8); box-shadow: var(--ads-shadow-elevation-lg); }
 .ss-mapcard .map-card { border: 0; }
 .device--ipad .ss-mapcard { left: auto; width: min(420px, calc(100% - 2 * var(--ads-space-12))); }
-.ss-upd .ss-search + .ss-views { margin-top: 0; }
 
 </style>
 </head>
@@ -3195,6 +3199,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.kind === 'focus' && o.headInBody) return ''; // the screen renders its own visible heading (id t-ri)
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;
@@ -3640,11 +3645,16 @@ function stationSearch(r, ri, field, inline) {
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
   const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
-  // Updated Map (comparison toggle): no From/To route summary; in Map view the search bar is hidden and the map leads
+  // Updated Map (comparison toggle): heading with Back above the List / Map tabs; search (List view only) below the
+  // tabs; no From/To route summary
   if (mapUpd()) {
-    if (r.u.view === 'map') return `<div class="ss-mapbar">${focus ? lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-mapbar__back"') : ''}${selViewTabs(r)}</div>` + mapView(r, ri, field);
+    const upSearch = search.replace(' ss-search--focus', ' ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
+    const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-h5 ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
+    const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+    if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
+    var updTop = head + tabs + '<!--why-->' + upSearch;
   }
-  let h = (mapUpd() ? search : focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+  let h = mapUpd() ? updTop : ((focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r));
   if (!qv.trim() && r.u.view === 'map') return h + mapView(r, ri, field);
   h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) {
@@ -3670,12 +3680,14 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
+const selHeading = f => f === 'from' ? 'Select departure station' : 'Select arrival station';
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   const updMap = mapUpd() && r.u.view === 'map', ucls = mapUpd() ? ' ss-upd' + (updMap ? ' ss-upd--map' : '') : '';
+  if (ucls) { const ss = stationSearch(r, ri, f, false), heading = selHeading(f); return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus' + ucls, body: ss.replace('<!--why-->', lead + why), banner: false } : { title: heading, kind: 'push', cls: ucls.trim(), body: ss.replace('<!--why-->', lead + why), banner: false }; }
   if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = updMap ? 0 : ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus' + ucls, body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   if (ucls) return { title, kind: 'push', cls: ucls.trim(), body: lead + why + stationSearch(r, ri, f, false), banner: false };
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
@@ -6288,7 +6300,7 @@ function mapView(r, ri, field) {
   const inView = groups.reduce((a, g) => a + g.items.length, 0);
   const card = sel ? stationCard(sel, r, ri, pos) : (r.u.mapGroup ? groupCard(r) : '');
   const ctl = `<div class="map-ctl"><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="1" aria-label="Zoom in" ${m.z >= Z_MAX ? 'disabled' : ''}>${ic('plus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="-1" aria-label="Zoom out" ${m.z <= Z_MIN ? 'disabled' : ''}>${ic('minus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-locate" aria-label="${locKnown() ? 'Center the map on your location' : 'Show my location on the map'}">${ic('map-pin')}</button></div>`;
-  if (mapUpd()) snote('Updated Map (comparison): the map fills the screen under the List and Map tabs, the search bar and From/To fields are hidden, zoom and locate float over the map, and station information opens as a floating card. Current keeps the existing layout.');
+  if (mapUpd()) snote('Updated Map (comparison): the map fills the screen under the List and Map tabs, a heading with Back sits above the tabs, search shows below the tabs in List view only, From/To fields are removed, zoom and locate float over the map, and station information opens as a floating card. Current keeps the existing layout.');
   if (mapUpd()) return `<div class="ss-map-wrap ss-map-wrap--upd" id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-map">
     <div class="ss-map" id="ss-map" tabindex="0" role="application" aria-roledescription="map" aria-label="Station map, zoom ${m.z}. ${inView} station${inView === 1 ? '' : 's'} in view. Use the arrow keys to move the map and plus or minus to zoom." aria-describedby="ss-map-count">
       <div class="map-layer"><svg class="map-art" aria-hidden="true" width="100%" height="100%"><defs>${grid}</defs><rect width="100%" height="100%" fill="url(#mapgrid)"/><g class="map-rail" transform="translate(${(MAP_BOX.w / 2).toFixed(1)} ${(MAP_BOX.h / 2).toFixed(1)})">${lines}</g></svg>${me}${markers}</div>

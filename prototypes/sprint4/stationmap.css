@@ -100,9 +100,14 @@
 .sd-body:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: var(--ads-radius-4); }
 
 /* ---------- Updated Map (comparison toggle): prominent map, minimal floating controls, floating station card ---------- */
-.ss-mapbar { display: flex; align-items: center; gap: var(--ads-space-8); }
-.ss-mapbar .ss-views { flex: 1; min-width: 0; margin: 0; }
-.ss-mapbar__back { flex: none; }
+.ss-head { display: flex; align-items: center; gap: var(--ads-space-8); min-height: var(--ads-size-interactive-md); }
+.ss-head__back { flex: none; }
+.ss-head__title { margin: 0; min-width: 0; }
+.ss-head__title:focus { outline: none; }
+.ss-upd .pane__body { gap: var(--ads-space-8); }
+.ss-upd .ss-views { margin: 0; }
+.ss-upd .ss-search--upd { position: static; margin: 0; padding: 0; background: none; }
+.ss-upd .ss-near { margin: 0; }
 .ss-upd--map .pane__scroll { display: flex; flex-direction: column; overflow: hidden; }
 .ss-upd--map .pane__body { flex: 1; min-height: 0; padding-bottom: 0; gap: var(--ads-space-8); }
 .ss-upd--map .pane__body > .ss-map-wrap--upd { flex: 1; min-height: 320px; }
@@ -116,4 +121,3 @@
 .ss-mapcard { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-16); z-index: 5; max-height: 62%; overflow-y: auto; border-radius: var(--ads-radius-8); box-shadow: var(--ads-shadow-elevation-lg); }
 .ss-mapcard .map-card { border: 0; }
 .device--ipad .ss-mapcard { left: auto; width: min(420px, calc(100% - 2 * var(--ads-space-12))); }
-.ss-upd .ss-search + .ss-views { margin-top: 0; }

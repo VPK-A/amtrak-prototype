@@ -342,6 +342,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.kind === 'focus' && o.headInBody) return ''; // the screen renders its own visible heading (id t-ri)
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
   const close = `<button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="${ctx.cover ? 'cover-cancel' : ctx.nested ? 'back' : 'close'}" aria-label="Close${ctx.nested ? ' ' + esc(o.title) : ''}">${ic('close', 'ads-icon--sm')}</button>`;

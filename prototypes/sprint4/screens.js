@@ -254,11 +254,16 @@ function stationSearch(r, ri, field, inline) {
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
   const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
-  // Updated Map (comparison toggle): no From/To route summary; in Map view the search bar is hidden and the map leads
+  // Updated Map (comparison toggle): heading with Back above the List / Map tabs; search (List view only) below the
+  // tabs; no From/To route summary
   if (mapUpd()) {
-    if (r.u.view === 'map') return `<div class="ss-mapbar">${focus ? lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-mapbar__back"') : ''}${selViewTabs(r)}</div>` + mapView(r, ri, field);
+    const upSearch = search.replace(' ss-search--focus', ' ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
+    const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-h5 ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
+    const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+    if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
+    var updTop = head + tabs + '<!--why-->' + upSearch;
   }
-  let h = (mapUpd() ? search : focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+  let h = mapUpd() ? updTop : ((focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r));
   if (!qv.trim() && r.u.view === 'map') return h + mapView(r, ri, field);
   h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) {
@@ -284,12 +289,14 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
+const selHeading = f => f === 'from' ? 'Select departure station' : 'Select arrival station';
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   const updMap = mapUpd() && r.u.view === 'map', ucls = mapUpd() ? ' ss-upd' + (updMap ? ' ss-upd--map' : '') : '';
+  if (ucls) { const ss = stationSearch(r, ri, f, false), heading = selHeading(f); return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus' + ucls, body: ss.replace('<!--why-->', lead + why), banner: false } : { title: heading, kind: 'push', cls: ucls.trim(), body: ss.replace('<!--why-->', lead + why), banner: false }; }
   if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = updMap ? 0 : ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus' + ucls, body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
   if (ucls) return { title, kind: 'push', cls: ucls.trim(), body: lead + why + stationSearch(r, ri, f, false), banner: false };
   return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };

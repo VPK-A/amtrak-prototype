@@ -17,7 +17,14 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     await setVer('updated');
     ok(await q(() => !document.querySelector('#device .ss-route') && !!document.querySelector('#device #ss-q') && !!document.querySelector('#device #ss-tab-map')), `${tag} Updated list: no route; search and tabs`);
     await axe(`${tag} updated list`);
+    // Order: heading (+ Back on iPhone) → tabs → search → My Location → favorites and recents
+    ok(await q(d => { const el = s => document.querySelector('#device ' + s); const pos = s => { const e = el(s); return e ? e.getBoundingClientRect().top : NaN; };
+      const head = d === 'iphone' ? pos('.ss-head') : pos('.pane .ads-navbar__title'); const order = [head, pos('.ss-views'), pos('#ss-q'), pos('.ss-myloc'), pos('.stsection')];
+      return order.every((v, i) => !isNaN(v) && (i === 0 || v > order[i - 1])); }, dev), `${tag} order: heading, tabs, search, My Location, favorites`);
+    ok(await q(d => { const t = d === 'iphone' ? document.querySelector('#device .ss-head__title') : [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop(); return t && t.textContent === 'Select departure station' && document.querySelector('#device #ss-q').placeholder === 'Search departure stations' && (d !== 'iphone' || !!document.querySelector('#device .ss-head__back')); }, dev), `${tag} From: heading, placeholder, Back`);
+    ok(await q(() => document.querySelector('#device .stsection').getBoundingClientRect().top - document.querySelector('#device .pane__scroll').getBoundingClientRect().top < 330), `${tag} results start high (compact)`);
     await p.click('#device #ss-tab-map'); await wait();
+    ok(await q(d => d !== 'iphone' || (!!document.querySelector('#device .ss-head__back') && document.querySelector('#device .ss-head__title').textContent === 'Select departure station'), dev), `${tag} Map view keeps heading and Back`);
     ok(await q(() => !document.querySelector('#device #ss-q') && !document.querySelector('#device .ss-route') && document.querySelector('#device .ss-map').getBoundingClientRect().height > 600), `${tag} Updated map: no search, no route, prominent map`);
     await p.evaluate(() => document.querySelector('#device .map-pin[data-code="WAS"]').click()); await wait();
     ok(await q(() => !!document.querySelector('.ss-mapcard #map-card [data-a="map-details"]') && !!document.querySelector('.ss-mapcard [data-a="choose-station"]')), `${tag} floating card with Details and Select`);
@@ -34,6 +41,11 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     ok(await q(() => !document.querySelector('#map-card')), `${tag} card dismissed`);
     await p.click('#device #ss-tab-list'); await wait();
     ok(await q(() => !!document.querySelector('#device #ss-q')), `${tag} search returns in List view`);
+    await q(() => goLoc('stations:to')); await wait();
+    ok(await q(d => (d === 'iphone' ? document.querySelector('#device .ss-head__title') : [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent === 'Select arrival station' && document.querySelector('#device #ss-q').placeholder === 'Search arrival stations', dev), `${tag} To: heading and placeholder`);
+    await p.click('#device [data-k="st-rec-PHL"]'); await wait();
+    ok(await q(() => D().booking.to === 'PHL' && D().booking.from !== 'PHL'), `${tag} choosing fills To only`);
+    if (dev === 'iphone') { await p.click('#device #ff-from'); await wait(); await p.click('#device .ss-head__back'); await wait(); ok(await q(() => sheet().stack.length === 1 && sheet().stack[0].s === 'ff'), `${tag} Back returns to New booking`); }
   }
   console.log('pass', pass, 'fail', fail); await b.close();
 })();
