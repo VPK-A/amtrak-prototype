@@ -68,6 +68,15 @@ The [Maps Demo Key](https://developers.google.com/maps/documentation/javascript/
 
 Never paste the key into chat, an issue, `index.html` or any committed file.
 
+### Current configuration
+
+At the owner's request, the Maps Demo Key is committed in **`.env.development`**. The repository is private. `.gitignore` excludes every other `.env*` file except `.env.example`.
+- **Where it applies:** Vite reads this file only in development mode, so `npm run dev` (and new cloud sessions that run it) show Google Maps without further setup.
+- **Where it doesn't:** `npm run build` (production mode) and `npm run build:standalone` don't include it, so `prototypes/sprint4/index.html` and the published artifact contain no key and use the placeholder map.
+- **Why the artifact doesn't use it:** the artifact host only allows scripts from approved CDNs. Google's Maps script isn't among them, so the map can't load there even with a key.
+- **To show Google Maps outside your own computer:** deploy the Vite build somewhere (for example GitHub Pages or Vercel) using a key restricted to that site's address.
+- **To rotate the key:** replace the value in `.env.development`. A key committed earlier stays in the Git history, so rotating means generating a new one in Google Cloud.
+
 ### Standard key (billing enabled)
 
 1. In Google Cloud Console, create or choose a project and enable billing.

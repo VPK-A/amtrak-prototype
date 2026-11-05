@@ -7,8 +7,8 @@ const { spawn } = require('child_process');
 const path = require('path'), fs = require('fs');
 const ROOT = path.resolve(__dirname, '../..'), PORT = 5188;
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', m); };
-const envFile = path.join(ROOT, '.env.local');
-const hasKey = !!process.env.VITE_GOOGLE_MAPS_API_KEY || (fs.existsSync(envFile) && /^VITE_GOOGLE_MAPS_API_KEY=\S+/m.test(fs.readFileSync(envFile, 'utf8')));
+const envHas = f => { const p = path.join(ROOT, f); return fs.existsSync(p) && /^VITE_GOOGLE_MAPS_API_KEY=\S+/m.test(fs.readFileSync(p, 'utf8')); };
+const hasKey = !!process.env.VITE_GOOGLE_MAPS_API_KEY || envHas('.env.local') || envHas('.env.development');
 (async () => {
   const vite = spawn(process.execPath, [path.join(ROOT, 'node_modules/vite/bin/vite.js'), '--port', String(PORT), '--strictPort'], { cwd: ROOT, stdio: 'ignore' });
   const url = `http://localhost:${PORT}/`;

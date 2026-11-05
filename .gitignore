@@ -9,6 +9,7 @@ build/
 .env
 .env.*
 !.env.example
+!.env.development
 *.local
 *.pem
 *.key
