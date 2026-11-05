@@ -29,7 +29,7 @@ function seed(sc) {
   const d = {
     signedIn: sc !== 'guest', verified: sc !== 'unverified',
     profile: {
-      first: 'Alex', last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: 'alex.rivera@example.com',
+      first: prSelf(sc).first, last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: `${prSelf(sc).id}.rivera@example.com`,
       phone: intl ? { region: 'intl', mobile: '', home: '', business: '', ext: '', cc: 'GB', intl: '7700900123' } : { region: 'us', mobile: '2155550147', home: '', business: '', ext: '', cc: 'GB', intl: '' },
       address: intl ? { country: 'GB', street: '221 Baker Street', apt: 'Flat B', city: 'London', state: '', zip: 'NW1 6XE' } : { country: 'US', street: '1500 Market Street', apt: 'Apt 4B', city: 'Philadelphia', state: 'Pennsylvania', zip: '19102' },
       dob: sc === 'passrider-dependent' ? '03/12/2009' : sc === 'passrider-minor' ? '06/02/2012' : ''
@@ -39,7 +39,7 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: clone(PR_PEOPLE[PR_ROLE[sc] || 'employee']) } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: prRoster(prSelf(sc).id, PR_ROLE[sc] || 'employee') } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
@@ -263,7 +263,7 @@ function endVerify(ok) {
     const old = d.profile.email; d.profile.email = c.u.d.newEmail;
     mockEmail('email-changed-old', { to: old, newEmail: c.u.d.newEmail, first: d.profile.first }); mockEmail('email-changed-new', { to: c.u.d.newEmail, first: d.profile.first });
     pendingFocus = 'title'; toast('Your email has been updated. We let your old and new addresses know.'); }
-  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast('Signed in as Alex Rivera'); }
+  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast(`Signed in as ${d.profile.first} ${d.profile.last}`); }
   else { d.verified = true; pendingFocus = 'title'; render(); if (c.resume) c.resume(); }
 }
 let cooldownT;
@@ -327,8 +327,8 @@ const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train st
 const TAB_ICONS = { book: 'search', trips: 'payment-voucher', 'train-status': 'train', support: 'question-circle' };
 function appHeader() {
   const d = D();
-  const who = d.signedIn ? `<span class="ads-avatar">AR</span><span><span class="ads-appheader__name">Hi, Alex</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span><span class="ads-appheader__name">Sign in</span><span class="ads-appheader__meta">Guest</span></span>`;
-  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
+  const who = d.signedIn ? `<span class="ads-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span><span><span class="ads-appheader__name">Hi, ${esc(d.profile.first)}</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span><span class="ads-appheader__name">Sign in</span><span class="ads-appheader__meta">Guest</span></span>`;
+  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? `: ${esc(d.profile.first)} ${esc(d.profile.last)}` : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
 }
 function tabBar() {
   const n = nav();
@@ -338,7 +338,7 @@ function ipadNav() {
   const n = nav(), d = D();
   return `<header class="ads-ipad-nav app-ipadnav"><span class="ipad-logo" role="img" aria-label="Amtrak">__LOGO_H__</span>
     <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
-    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
+    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? `: ${esc(d.profile.first)} ${esc(d.profile.last)}` : ', signed out'}">${d.signedIn ? `<span class="ads-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
 }
 
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.

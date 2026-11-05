@@ -48,7 +48,7 @@ SAVE.employee = (r, ri) => {
     const b = d.booking, was = d.passrider;
     d.employee = { rel: x.rel, pass: x.pass, index: x.index }; d.empRemoved = false;
     // Business Pass, companion passes and renewal come from the pass record; newly added details start without them
-    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent'), people: was && was.role === x.rel && was.people ? was.people : clone(PR_PEOPLE[x.rel] || PR_PEOPLE.employee) };
+    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent'), people: was && was.role === x.rel && was.people ? was.people : prRoster((PR_FAMILY.find(p => p.first === d.profile.first) || PR_FAMILY[0]).id, x.rel) };
     b.prType = d.passrider.business ? b.prType : 'leisure';
     if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
     if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';

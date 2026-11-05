@@ -2831,12 +2831,18 @@ const ASSIST_COPY = {
 // record and prefill Traveler details. Who appears follows the pass holder's role (NMA-1017): an employee or
 // retiree brings a spouse and dependents, a spouse brings the employee and dependents, a dependent brings the
 // employee, the spouse and other dependents.
-const PR_PEOPLE = {
-  employee: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
-  retiree: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1958' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2004' }],
-  spouse: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
-  dependent: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1975' }, { id: 'casey', name: 'Casey Rivera', rel: 'spouse', kind: 'adult', dob: '11/30/1977' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }]
-};
+// One family shares the pass record. Who is signed in depends on the scenario (Alex: employee or retiree, Jordan:
+// spouse, Maya: dependent 16 or older, Sam: dependent 15 or younger); everyone else on the record is listed by name.
+const PR_FAMILY = [
+  { id: 'alex', first: 'Alex', name: 'Alex Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' },
+  { id: 'jordan', first: 'Jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' },
+  { id: 'maya', first: 'Maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '03/12/2009' },
+  { id: 'sam', first: 'Sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '06/02/2012' }
+];
+const PR_SELF = { 'passrider-spouse': 'jordan', 'passrider-dependent': 'maya', 'passrider-minor': 'sam' };
+const prSelf = sc => PR_FAMILY.find(p => p.id === (PR_SELF[sc] || 'alex'));
+// The other people on the pass record for whoever is signed in (a retiree's record has the spouse and Maya)
+const prRoster = (selfId, role) => PR_FAMILY.filter(p => p.id !== selfId && !(role === 'retiree' && p.id === 'sam')).map(p => Object.assign({}, p));
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
 const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
 const ASSIST_DEMO = {
@@ -2982,7 +2988,7 @@ function seed(sc) {
   const d = {
     signedIn: sc !== 'guest', verified: sc !== 'unverified',
     profile: {
-      first: 'Alex', last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: 'alex.rivera@example.com',
+      first: prSelf(sc).first, last: 'Rivera', mi: sc === 'mi' ? 'J' : '', agr: '7012345678', email: `${prSelf(sc).id}.rivera@example.com`,
       phone: intl ? { region: 'intl', mobile: '', home: '', business: '', ext: '', cc: 'GB', intl: '7700900123' } : { region: 'us', mobile: '2155550147', home: '', business: '', ext: '', cc: 'GB', intl: '' },
       address: intl ? { country: 'GB', street: '221 Baker Street', apt: 'Flat B', city: 'London', state: '', zip: 'NW1 6XE' } : { country: 'US', street: '1500 Market Street', apt: 'Apt 4B', city: 'Philadelphia', state: 'Pennsylvania', zip: '19102' },
       dob: sc === 'passrider-dependent' ? '03/12/2009' : sc === 'passrider-minor' ? '06/02/2012' : ''
@@ -2992,7 +2998,7 @@ function seed(sc) {
     fav: sc === 'new' ? [] : ['NYP'],
     // Fare Finder variants (all versions): TripLink (NMA-622), Pass Rider (NMA-623, 1016–1019), profile codes (NMA-613, 697)
     triplink: sc === 'triplink' || sc === 'triplink-passrider',
-    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: clone(PR_PEOPLE[PR_ROLE[sc] || 'employee']) } : null,
+    passrider: (sc.startsWith('passrider') && sc !== 'passrider-removed') || sc === 'triplink-passrider' ? { role: PR_ROLE[sc] || 'employee', business: sc === 'passrider', compLeft: sc === 'passrider' ? 5 : 0, renews: PASS_RENEWS, minor: sc === 'passrider-minor', people: prRoster(prSelf(sc).id, PR_ROLE[sc] || 'employee') } : null,
     coupons: ['guest', 'new'].includes(sc) ? [] : clone(PROFILE_CODES),
     couponsPast: ['guest', 'new'].includes(sc) ? [] : clone(PAST_CODES),
     // Amtrak employee pass details in profile (NMA-20). Pass Rider scenarios start with them saved.
@@ -3216,7 +3222,7 @@ function endVerify(ok) {
     const old = d.profile.email; d.profile.email = c.u.d.newEmail;
     mockEmail('email-changed-old', { to: old, newEmail: c.u.d.newEmail, first: d.profile.first }); mockEmail('email-changed-new', { to: c.u.d.newEmail, first: d.profile.first });
     pendingFocus = 'title'; toast('Your email has been updated. We let your old and new addresses know.'); }
-  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast('Signed in as Alex Rivera'); }
+  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast(`Signed in as ${d.profile.first} ${d.profile.last}`); }
   else { d.verified = true; pendingFocus = 'title'; render(); if (c.resume) c.resume(); }
 }
 let cooldownT;
@@ -3280,8 +3286,8 @@ const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train st
 const TAB_ICONS = { book: 'search', trips: 'payment-voucher', 'train-status': 'train', support: 'question-circle' };
 function appHeader() {
   const d = D();
-  const who = d.signedIn ? `<span class="ads-avatar">AR</span><span><span class="ads-appheader__name">Hi, Alex</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span><span class="ads-appheader__name">Sign in</span><span class="ads-appheader__meta">Guest</span></span>`;
-  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
+  const who = d.signedIn ? `<span class="ads-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span><span><span class="ads-appheader__name">Hi, ${esc(d.profile.first)}</span><span class="ads-appheader__meta">Select Plus · 12,450 pts</span></span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span><span class="ads-appheader__name">Sign in</span><span class="ads-appheader__meta">Guest</span></span>`;
+  return `<header class="ads-appheader"><button class="ads-appheader__account" type="button" data-a="open-account" aria-label="Account${d.signedIn ? `: ${esc(d.profile.first)} ${esc(d.profile.last)}` : ', signed out'}">${who}</button><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button></header>`;
 }
 function tabBar() {
   const n = nav();
@@ -3291,7 +3297,7 @@ function ipadNav() {
   const n = nav(), d = D();
   return `<header class="ads-ipad-nav app-ipadnav"><span class="ipad-logo" role="img" aria-label="Amtrak"><svg aria-hidden="true" focusable="false" viewBox="0 0 151 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amtrak"><path d="M47.4 0.2C36.9 4.8 31.2 9.7 28.1 16C25.8 15.3 23.2 14.4 20.5 13.3L19.4 12.9C25.5 6.3 34 3.7 47.4 0V0.2ZM56 14H51.8L51 12.6H45.1L44.3 14H40.5L46.1 5.7H50.4L56 14ZM68.5 11.4L71.8 5.7H76L78.5 14H74.7L73.4 8.7L70.4 14H66.7L63.6 8.7L62.4 14H58.5L61.1 5.7H65.3L68.5 11.4ZM93.8 7.6H89.2V14H85.3V7.6H80.2L80.7 5.7H94.2L93.8 7.6ZM103.6 5.7C105.3 5.7 107.1 5.7 108.4 6.1C109.7 6.5 110.6 7.2 110.6 8.4C110.6 9.5 109.9 10.5 108.3 10.9L111.2 14H106.8L104.8 11.5H101.5V14H97.7V5.7H103.6ZM129.4 14H125.3L124.4 12.6H118.5L117.7 14H113.9L119.5 5.7H123.8L129.4 14ZM136.6 9.4L141.1 5.7H145.8L140.6 9.7L146.2 14H141.1L136.6 10.1V14H132.7V5.7H136.6V9.4ZM40.1 1.7C31.3 3.5 22.7 5.9 16.2 11.5C13.8 10.4 11.5 9.3 9.2 8.2C15.4 4.3 26.3 2.6 32.4 1.9C34.5 2 37.9 1.8 40.1 1.5V1.7ZM46.1 11H50L48.1 7.6L46.1 11ZM119.5 11H123.5L121.5 7.6L119.5 11ZM101.5 10H103.8C104.6 10 105 9.9 105.5 9.8C106.2 9.7 106.7 9.3 106.7 8.6C106.7 7.8 105.9 7.4 104 7.4H101.5V10ZM148.9 5.7C149.4 5.7 149.9 5.9 150.3 6.3C150.7 6.7 150.9 7.2 150.9 7.8C150.9 8.4 150.7 8.8 150.3 9.2C149.9 9.6 149.4 9.8 148.9 9.8C148.3 9.8 147.8 9.6 147.4 9.2C147 8.8 146.8 8.4 146.8 7.8C146.8 7.2 147 6.7 147.4 6.3C147.8 5.9 148.3 5.7 148.9 5.7ZM148.8 6C148.3 6 147.9 6.2 147.6 6.5C147.2 6.9 147.1 7.3 147.1 7.8C147.1 8.3 147.2 8.7 147.6 9.1C147.9 9.4 148.3 9.6 148.8 9.6C149.3 9.6 149.8 9.4 150.1 9.1C150.5 8.7 150.6 8.3 150.6 7.8C150.6 7.3 150.5 6.9 150.1 6.5C149.8 6.2 149.3 6 148.8 6ZM148 6.7H148.8C149.1 6.7 149.3 6.7 149.4 6.7C149.7 6.8 149.8 7 149.8 7.3C149.8 7.5 149.7 7.7 149.6 7.8C149.5 7.8 149.4 7.8 149.2 7.9C149.4 7.9 149.5 8 149.6 8.1C149.7 8.2 149.8 8.3 149.8 8.4V8.8C149.8 8.8 149.8 8.9 149.8 8.9V8.9H149.4V8.9C149.4 8.9 149.4 8.9 149.4 8.9V8.6C149.4 8.4 149.3 8.2 149.2 8.1C149.1 8 148.9 8 148.7 8H148.4V8.9H148V6.7ZM148.4 6.9V7.7H148.8C148.9 7.7 149.1 7.7 149.2 7.7C149.3 7.6 149.4 7.5 149.4 7.4L149.4 7.3C149.4 7.2 149.3 7.1 149.2 7C149.1 7 149 6.9 148.7 6.9H148.4ZM0 3.1C6.9 0.2 22.5 0.5 25.4 0.7C26.8 1.1 28.6 1.4 30.2 1.6V1.8C22 2.3 13.1 3.4 6.2 6.6C3.9 5.4 1.9 4.3 0 3.1Z" fill="currentColor"/></svg></span>
     <nav class="ads-tabbar-ipad ads-glass" aria-label="App"><div class="ads-tabbar-ipad__tabs">${Object.keys(TAB_ICONS).map(t => `<a class="ads-tabbar-ipad__tab" href="#" data-a="tab" data-tab="${t}" ${n.tab === t ? 'aria-current="page"' : ''}>${tabLabel(t)}</a>`).join('')}</div></nav>
-    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? ': Alex Rivera' : ', signed out'}">${d.signedIn ? '<span class="ads-avatar">AR</span>' : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
+    <div class="ads-row" style="--ads-row-gap:8px;flex-wrap:nowrap"><button class="ads-icon-btn ads-icon-btn--round" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" type="button" data-a="open-account" aria-label="Account${d.signedIn ? `: ${esc(d.profile.first)} ${esc(d.profile.last)}` : ', signed out'}">${d.signedIn ? `<span class="ads-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span>` : `<span class="ads-avatar" style="background:var(--ads-background-surface-sunken);color:var(--ads-content-icon-primary)">${ic('person')}</span><span class="ipad-signin">Sign in</span>`}</button></div></header>`;
 }
 
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
@@ -4073,8 +4079,8 @@ SCR.account = (r, ri) => {
   if (!d.signedIn) {
     return { title: 'Account', kind: 'root', body: `<div class="ads-summary"><p class="ads-summary__title">Sign in or join Guest Rewards</p><p class="ads-body-small">Sign in to see your profile, saved discounts and assistance.</p><button class="ads-btn ads-btn--block" type="button" data-a="sign-in">Sign in</button></div>${quick}`, banner: false };
   }
-  const body = `<button class="loyalty" type="button" data-a="push" data-s="profile" aria-label="Profile: Alex Rivera, Guest Rewards 7012 3456 78, Select Plus, 12,450 points">
-      <span class="loyalty__top"><span><b>Alex Rivera</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
+  const body = `<button class="loyalty" type="button" data-a="push" data-s="profile" aria-label="Profile: ${esc(d.profile.first)} ${esc(d.profile.last)}, Guest Rewards 7012 3456 78, Select Plus, 12,450 points">
+      <span class="loyalty__top"><span><b>${esc(d.profile.first)} ${esc(d.profile.last)}</b><span class="loyalty__num">Guest Rewards · 7012 3456 78</span></span><span class="ads-badge">Select Plus</span></span><span><strong>12,450</strong> points · ≈ $360</span><span class="loyalty__link">Profile ${ic('chevron-right', 'ads-icon--sm')}</span></button>
     ${group('', [grow({ a: 'push', data: 'data-s="profile"', icon: 'person-circle', label: 'Profile', value: 'Personal details, discounts, assistance' })])}
     ${group('', [grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Points activity"}\'', icon: 'AGR_points-evergreen', label: 'Points activity' }), grow({ a: 'open-inbox-from-account', icon: 'email', label: 'Inbox', value: '2 new' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Travelers"}\'', icon: 'people', label: 'Travelers', value: '3 saved' }), grow({ a: 'push', data: 'data-s="stub" data-p=\'{"t":"Payment"}\'', icon: 'payment-cash', label: 'Payment', value: 'Visa •••• 4821' })])}
     ${quick}
@@ -4360,7 +4366,7 @@ SCR.verify = (r) => {
     foot = busyBtn(c, 'Continue', 'Checking', 'data-a="vf-reauth"');
   } else if (step === 'signin') {
     title = 'Sign in';
-    body = `${prog}<p class="ads-body-small">Demo sign-in for Alex Rivera. The details are filled in.</p>${fieldHtml({ id: 'vf-email', f: 'email', label: 'Email or Guest Rewards number', value: x.email, autocomplete: 'username', req: true })}${fieldHtml({ id: 'vf-pw', f: 'password', label: 'Password', type: 'password', value: x.password || 'demo-pass', autocomplete: 'current-password', req: true })}<p class="ads-body-small ads-text-secondary">This device isn’t remembered, so we’ll ask for a code.</p>`;
+    body = `${prog}<p class="ads-body-small">Demo sign-in for ${esc(d.profile.first)} ${esc(d.profile.last)}. The details are filled in.</p>${fieldHtml({ id: 'vf-email', f: 'email', label: 'Email or Guest Rewards number', value: x.email, autocomplete: 'username', req: true })}${fieldHtml({ id: 'vf-pw', f: 'password', label: 'Password', type: 'password', value: x.password || 'demo-pass', autocomplete: 'current-password', req: true })}<p class="ads-body-small ads-text-secondary">This device isn’t remembered, so we’ll ask for a code.</p>`;
     foot = busyBtn(c, 'Sign in', 'Signing in', 'data-a="vf-signin"');
   } else if (step === 'newemail') {
     title = 'Change email';
@@ -5770,7 +5776,7 @@ SAVE.employee = (r, ri) => {
     const b = d.booking, was = d.passrider;
     d.employee = { rel: x.rel, pass: x.pass, index: x.index }; d.empRemoved = false;
     // Business Pass, companion passes and renewal come from the pass record; newly added details start without them
-    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent'), people: was && was.role === x.rel && was.people ? was.people : clone(PR_PEOPLE[x.rel] || PR_PEOPLE.employee) };
+    d.passrider = { role: x.rel, business: !!(was && was.business && x.rel === 'employee'), compLeft: was && x.rel === 'employee' ? was.compLeft : 0, renews: was ? was.renews : PASS_RENEWS, minor: !!(was && was.minor && x.rel === 'dependent'), people: was && was.role === x.rel && was.people ? was.people : prRoster((PR_FAMILY.find(p => p.first === d.profile.first) || PR_FAMILY[0]).id, x.rel) };
     b.prType = d.passrider.business ? b.prType : 'leisure';
     if (!was && prCanStart(d).ok) b.intent = 'pr'; // NMA-623 AC2: Pass Rider mode on by default
     if (b.intent === 'pr' && !prCanStart(d).ok) b.intent = 'standard';

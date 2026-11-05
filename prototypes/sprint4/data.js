@@ -137,12 +137,18 @@ const ASSIST_COPY = {
 // record and prefill Traveler details. Who appears follows the pass holder's role (NMA-1017): an employee or
 // retiree brings a spouse and dependents, a spouse brings the employee and dependents, a dependent brings the
 // employee, the spouse and other dependents.
-const PR_PEOPLE = {
-  employee: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
-  retiree: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1958' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2004' }],
-  spouse: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' }, { id: 'maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '09/02/2006' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }],
-  dependent: [{ id: 'jordan', name: 'Jordan Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1975' }, { id: 'casey', name: 'Casey Rivera', rel: 'spouse', kind: 'adult', dob: '11/30/1977' }, { id: 'sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '03/21/2016' }]
-};
+// One family shares the pass record. Who is signed in depends on the scenario (Alex: employee or retiree, Jordan:
+// spouse, Maya: dependent 16 or older, Sam: dependent 15 or younger); everyone else on the record is listed by name.
+const PR_FAMILY = [
+  { id: 'alex', first: 'Alex', name: 'Alex Rivera', rel: 'employee', kind: 'adult', dob: '05/14/1985' },
+  { id: 'jordan', first: 'Jordan', name: 'Jordan Rivera', rel: 'spouse', kind: 'adult', dob: '05/14/1987' },
+  { id: 'maya', first: 'Maya', name: 'Maya Rivera', rel: 'dependent', kind: 'adult', dob: '03/12/2009' },
+  { id: 'sam', first: 'Sam', name: 'Sam Rivera', rel: 'dependent', kind: 'child', dob: '06/02/2012' }
+];
+const PR_SELF = { 'passrider-spouse': 'jordan', 'passrider-dependent': 'maya', 'passrider-minor': 'sam' };
+const prSelf = sc => PR_FAMILY.find(p => p.id === (PR_SELF[sc] || 'alex'));
+// The other people on the pass record for whoever is signed in (a retiree's record has the spouse and Maya)
+const prRoster = (selfId, role) => PR_FAMILY.filter(p => p.id !== selfId && !(role === 'retiree' && p.id === 'sam')).map(p => Object.assign({}, p));
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
 const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
 const ASSIST_DEMO = {
