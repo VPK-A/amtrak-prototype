@@ -914,3 +914,14 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .tassist__saved { display: flex; flex-direction: column; gap: var(--ads-space-4); margin-top: var(--ads-space-4); }
 .tassist__acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-8); margin-top: var(--ads-space-4); }
 .assist-size { margin: 0 0 var(--ads-space-4) calc(var(--ads-size-interactive-md) - var(--ads-space-4)); }
+
+/* Comparison: traveler assistance copy above Traveler details */
+.tassist-intro { display: flex; flex-direction: column; gap: var(--ads-space-4); }
+.tassist--bare .tassist__acts { margin-top: 0; }
+/* Comparison: Business Pass booking type as a segmented control, travel type as tabs */
+.bp-mode { display: flex; flex-direction: column; gap: var(--ads-space-4); min-width: 0; }
+.bp-mode__label { font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.bp-mode .bp-seg { width: max-content; max-width: 100%; }
+.bp-mode--v3 .bp-mode__label { color: var(--ffc-on-navy); opacity: 0.85; }
+.bp-tabs { margin-top: var(--ads-space-4); }
+.ds-next .bp-seg > button, .bp-seg > button { flex: 0 0 auto; padding: 0 var(--ads-space-16); white-space: nowrap; }

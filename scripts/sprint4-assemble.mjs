@@ -11,7 +11,7 @@ import { marked } from 'marked';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROTO = join(ROOT, 'prototypes/sprint4');
 export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'), join(PROTO, 'ads-next.css'), join(PROTO, 'stationmap.css'));
-export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'familiar', 'overview', 'stationmap', 'gmap', 'compact', 'chrome', 'boot'];
+export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'familiar', 'overview', 'stationmap', 'gmap', 'compare', 'compact', 'chrome', 'boot'];
 export const JS_FILES = JS_ORDER.map(n => join(PROTO, `${n}.js`));
 export const SHELL = join(PROTO, 'src.html');
 export const HANDOFF = join(PROTO, 'HANDOFF.md');

@@ -26,7 +26,7 @@ function overviewTravelers(r, ri, b) {
     return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && asks(b, t.key) ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${kindSel}${assistAsk(b, t, r)}${asks(b, t.key) && !a.done && !(r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy) ? `<span class="ov-trav__answer"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-answer" data-t="${t.key}" aria-label="Add assistance for ${esc(t.label)}">Add</button></span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div></li>`;
   }).join('');
   // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
-  return `<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
+  return `${assistIntro()}<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
 }
 // Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
 function overviewPassRider(b) {

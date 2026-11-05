@@ -23,6 +23,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `googlemap.cjs` | Google Maps surface for the station map: fallback (no key, blocked script, live invalid key), Google path via `fixtures/google-maps-stub.js` (markers, highlight vs Select, pan/zoom never select, sync, back and reopen), invalid coordinates via `fixtures/stations.mock.json` |
 | `googlemap-live.cjs` | Live Google Maps check (needs `VITE_GOOGLE_MAPS_API_KEY`): starts the dev server; map loads, tiles, markers from station data, zoom, pan, wheel, highlight vs Select; fallback without a key. Skips the live part when no key is set |
 | `passrider-names.cjs` | Pass Rider travelers by name in every Pass Rider scenario: signed-in checkbox, 0/1 per person, Companions above 1, no relationship labels, saved details prefill, answers kept across changes, Business and Leisure |
+| `compare.cjs` | Design comparison settings: traveler assistance layout and Pass Rider Business Pass controls, all four combinations in both concepts, equivalence with the original controls, other pass scenarios unchanged |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:

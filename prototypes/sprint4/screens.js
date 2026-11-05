@@ -149,7 +149,7 @@ function modesV1(r, b) {
   let extra = '';
   if (b.intent === 'pr') {
     const elig = d.passrider.role === 'employee' && d.passrider.business;
-    extra = elig ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
+    extra = elig ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span>${bpCompact() ? bpTypeTabs(b, 'v1-prt') : `<div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>`}<p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
   }
   if (b.intent === 'corporate') q(12);
   return `<div class="v1modes">${entry}${extra}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
