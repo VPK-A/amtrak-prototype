@@ -19,7 +19,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `stationsearch-a11y.cjs` | NMA-1084 / NMA-1085: axe and overflow across the new screens and states |
 | `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
 | `promocode.cjs` | Typed promotion code: this booking only, cleared on abandoning; account coupons untouched; lounge passes removed |
-| `mapversion.cjs` | Current / Updated Map toggle: Updated hides route fields and (on Map) search; prominent map, floating controls and card; shared state; axe |
+| `stationselector.cjs` | Station selector: heading with Back above List / Map tabs, search below the tabs (List view only), no route fields, 12 px rhythm; prominent map, floating controls and card; axe |
 | `sweep.cjs` | axe accessibility and horizontal-overflow sweep across devices, orientations, themes and text sizes |
 
 Run from the repository root after `npm run build:standalone`:

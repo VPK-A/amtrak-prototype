@@ -229,42 +229,22 @@ function stationRow(s, field, sec, near) {
   const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'From' : 'To'}</span>` : ''; // the other end of the trip
   return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Favorite: ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
-// "Your route": both stations at a glance, with the one being chosen highlighted; the other can be switched to
-// Route summary in station search: the same Text Input station fields as New booking (field/station, label
-// outside). The field being chosen is selected (border/brand); the other one switches to it.
-function stationRoute(field) {
-  const b = selTarget(curCtx());
-  const item = f => {
-    const c = b[f], s = c && ST[c], active = f === field, label = f === 'from' ? 'From' : 'To';
-    const val = s ? `<span class="ads-routefield__code">${c}</span><span class="ads-routefield__body"><span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span></span>` : `<span class="ads-routefield__body"><span class="ads-routefield__hint">Not chosen yet</span></span>`;
-    return fieldWrap(`ss-route__field ss-route__${f}`, label, active
-      ? `<div class="ads-fieldbtn ads-routefield__half ss-route__item is-active" role="group" aria-current="step" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${val}</div>`
-      : `<button class="ads-fieldbtn ads-routefield__half ss-route__item" type="button" data-a="ss-switch" data-field="${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}. Choose ${label.toLowerCase()} station instead">${val}</button>`);
-  };
-  return `<section class="ss-route" aria-label="Your route">${item('from')}${item('to')}</section>`;
-}
-A['ss-switch'] = (t, ri) => { const r = routeAt(ri); r.u.d = {}; replaceTop('stations', { field: t.dataset.field }); pendingFocus = '#ss-q'; render(); };
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
   const qv = r.u.d.q || '';
   const favs = favList(d).map(c => ST[c]);
   const recs = recentList(d).map(x => ST[x.c]);
   ref('600', '118', '984');
-  // Focused view (iPhone): the search field leads, with Back inside it; the route summary and results follow
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
   const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
-  // Updated Map (comparison toggle): heading with Back above the List / Map tabs; search (List view only) below the
-  // tabs; no From/To route summary
-  if (mapUpd()) {
-    const upSearch = search.replace(' ss-search--focus', ' ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
-    const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-h5 ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
-    const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
-    if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
-    var updTop = head + tabs + '<!--why-->' + upSearch;
-  }
-  let h = mapUpd() ? updTop : ((focus ? search + stationRoute(field) : stationRoute(field) + search) + selViewTabs(qv.trim() ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r));
-  if (!qv.trim() && r.u.view === 'map') return h + mapView(r, ri, field);
+  // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
+  // List view only, then My Location, favorites and recents. Map view: heading, tabs and the map.
+  const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
+  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
+  const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
+  if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
+  let h = head + tabs + '<!--why-->' + upSearch;
   h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) {
     const res = searchStations(qv);
@@ -292,14 +272,11 @@ const stationFocus = () => !IPAD();
 const selHeading = f => f === 'from' ? 'Select departure station' : 'Select arrival station';
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
-  const f = r.p.field, title = v2() ? (f === 'from' ? 'Choose departure station' : 'Choose arrival station') : (f === 'from' ? 'From' : 'To');
+  const f = r.p.field;
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
-  const updMap = mapUpd() && r.u.view === 'map', ucls = mapUpd() ? ' ss-upd' + (updMap ? ' ss-upd--map' : '') : '';
-  if (ucls) { const ss = stationSearch(r, ri, f, false), heading = selHeading(f); return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus' + ucls, body: ss.replace('<!--why-->', lead + why), banner: false } : { title: heading, kind: 'push', cls: ucls.trim(), body: ss.replace('<!--why-->', lead + why), banner: false }; }
-  if (stationFocus()) { const ss = stationSearch(r, ri, f, false), cut = updMap ? 0 : ss.indexOf('</div>', ss.indexOf('id="ss-help"')) + 6; return { title, kind: 'focus', cls: 'pane--focus' + ucls, body: ss.slice(0, cut) + lead + why + ss.slice(cut), banner: false }; }
-  if (ucls) return { title, kind: 'push', cls: ucls.trim(), body: lead + why + stationSearch(r, ri, f, false), banner: false };
-  return { title, kind: 'push', body: lead + why + stationSearch(r, ri, f, false), banner: false };
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
+  return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
 };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
