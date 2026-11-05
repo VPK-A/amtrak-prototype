@@ -103,6 +103,12 @@ const NEAR_MSG = {
   mapOffline: 'You’re offline. The map can’t load new areas, but you can choose a station shown on it.'
 };
 
+// ---------- Current / Updated Map (reviewer comparison toggle) ----------
+// Updated Map changes only how the station selector renders; data, map position and selection are shared,
+// so switching keeps the same station and context.
+TB.mapv = store.get('s4-mapv') === 'updated' ? 'updated' : 'current';
+const mapUpd = () => TB.mapv === 'updated';
+
 // ---------- Selector context: which experience and field opened it ----------
 // ff · New booking (D().booking) · ts · Train status (D().ts) · mr · Multi-Ride (D().mr)
 const SEL_NAMES = { ff: 'New booking', ts: 'Train status', mr: 'Multi-Ride' };
@@ -314,10 +320,20 @@ function mapView(r, ri, field) {
   }).join('');
   const inView = groups.reduce((a, g) => a + g.items.length, 0);
   const card = sel ? stationCard(sel, r, ri, pos) : (r.u.mapGroup ? groupCard(r) : '');
+  const ctl = `<div class="map-ctl"><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="1" aria-label="Zoom in" ${m.z >= Z_MAX ? 'disabled' : ''}>${ic('plus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="-1" aria-label="Zoom out" ${m.z <= Z_MIN ? 'disabled' : ''}>${ic('minus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-locate" aria-label="${locKnown() ? 'Center the map on your location' : 'Show my location on the map'}">${ic('map-pin')}</button></div>`;
+  if (mapUpd()) snote('Updated Map (comparison): the map fills the screen under the List and Map tabs, the search bar and From/To fields are hidden, zoom and locate float over the map, and station information opens as a floating card. Current keeps the existing layout.');
+  if (mapUpd()) return `<div class="ss-map-wrap ss-map-wrap--upd" id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-map">
+    <div class="ss-map" id="ss-map" tabindex="0" role="application" aria-roledescription="map" aria-label="Station map, zoom ${m.z}. ${inView} station${inView === 1 ? '' : 's'} in view. Use the arrow keys to move the map and plus or minus to zoom." aria-describedby="ss-map-count">
+      <div class="map-layer"><svg class="map-art" aria-hidden="true" width="100%" height="100%"><defs>${grid}</defs><rect width="100%" height="100%" fill="url(#mapgrid)"/><g class="map-rail" transform="translate(${(MAP_BOX.w / 2).toFixed(1)} ${(MAP_BOX.h / 2).toFixed(1)})">${lines}</g></svg>${me}${markers}</div>
+      ${ctl}
+    </div>
+    ${off ? `<p class="ss-map__offline" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>${esc(NEAR_MSG.mapOffline)}</span></p>` : ''}
+    <p class="${inView ? 'ads-sr-only' : 'ss-map__count ss-map__empty'}" id="ss-map-count" role="status">${inView ? `${inView} station${inView === 1 ? '' : 's'} in view` : 'No stations in this area. Zoom out or move the map.'}</p>
+    ${card ? `<div class="ss-mapcard">${card}</div>` : ''}</div>`;
   return `<div class="ss-map-wrap" id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-map">${off ? `<p class="ss-map__offline" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>${esc(NEAR_MSG.mapOffline)}</span></p>` : ''}
     <div class="ss-map" id="ss-map" tabindex="0" role="application" aria-roledescription="map" aria-label="Station map, zoom ${m.z}. ${inView} station${inView === 1 ? '' : 's'} in view. Use the arrow keys to move the map and plus or minus to zoom." aria-describedby="ss-map-count">
       <div class="map-layer"><svg class="map-art" aria-hidden="true" width="100%" height="100%"><defs>${grid}</defs><rect width="100%" height="100%" fill="url(#mapgrid)"/><g class="map-rail" transform="translate(${(MAP_BOX.w / 2).toFixed(1)} ${(MAP_BOX.h / 2).toFixed(1)})">${lines}</g></svg>${me}${markers}</div>
-      <div class="map-ctl"><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="1" aria-label="Zoom in" ${m.z >= Z_MAX ? 'disabled' : ''}>${ic('plus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-zoom" data-d="-1" aria-label="Zoom out" ${m.z <= Z_MIN ? 'disabled' : ''}>${ic('minus')}</button><button class="ads-btn ads-btn--secondary ads-btn--icon-only" type="button" data-a="map-locate" aria-label="${locKnown() ? 'Center the map on your location' : 'Show my location on the map'}">${ic('map-pin')}</button></div>
+      ${ctl}
     </div>
     <p class="ss-map__count" id="ss-map-count" role="status">${inView ? `${inView} station${inView === 1 ? '' : 's'} in view` : 'No stations in this area. Zoom out or move the map.'}</p>${card}</div>`;
 }
@@ -447,13 +463,18 @@ render = function () {
   SEL_SEEN = r;
   const map = document.querySelector('#device .ss-map');
   if (map && (Math.abs(map.offsetWidth - MAP_BOX.w) > 2 || Math.abs(map.offsetHeight - MAP_BOX.h) > 2)) { MAP_BOX = { w: map.offsetWidth, h: map.offsetHeight }; setTimeout(render, 0); }
-  syncLocCtl(); renderAnalytics();
+  syncLocCtl(); renderAnalytics(); setSeg('#tbMapVer', TB.mapv);
 };
 
 // ---------- Reviewer controls › Location ----------
 function syncLocCtl() {
   const L = loc(); [['tbPlatform', 'platform'], ['tbPerm', 'perm'], ['tbLocDev', 'device'], ['tbPlace', 'place'], ['tbNearData', 'data'], ['tbMapTiles', 'map']].forEach(([id, k]) => { const el = document.getElementById(id); if (el && el.value !== L[k]) el.value = L[k]; });
 }
+// Current / Updated Map: re-renders in place; the open selector keeps its view, map position and selection
+(function wireMapVer() {
+  const seg = document.getElementById('tbMapVer'); if (!seg) return;
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || TB.mapv === b.dataset.v) return; TB.mapv = b.dataset.v; store.set('s4-mapv', TB.mapv); pendingFocus = null; render(); });
+})();
 (function wireLocCtl() {
   const place = document.getElementById('tbPlace'); if (place) place.innerHTML = Object.entries(PLACES).map(([k, p]) => `<option value="${k}">${p.label}</option>`).join('');
   [['tbPlatform', 'platform'], ['tbPerm', 'perm'], ['tbLocDev', 'device'], ['tbPlace', 'place'], ['tbNearData', 'data'], ['tbMapTiles', 'map']].forEach(([id, k]) => {

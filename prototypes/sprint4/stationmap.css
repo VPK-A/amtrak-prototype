@@ -98,3 +98,22 @@
 
 .sd-body:focus { outline: none; }
 .sd-body:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; border-radius: var(--ads-radius-4); }
+
+/* ---------- Updated Map (comparison toggle): prominent map, minimal floating controls, floating station card ---------- */
+.ss-mapbar { display: flex; align-items: center; gap: var(--ads-space-8); }
+.ss-mapbar .ss-views { flex: 1; min-width: 0; margin: 0; }
+.ss-mapbar__back { flex: none; }
+.ss-upd--map .pane__scroll { display: flex; flex-direction: column; overflow: hidden; }
+.ss-upd--map .pane__body { flex: 1; min-height: 0; padding-bottom: 0; gap: var(--ads-space-8); }
+.ss-upd--map .pane__body > .ss-map-wrap--upd { flex: 1; min-height: 320px; }
+.ss-map-wrap--upd { position: relative; margin: 0 calc(-1 * var(--ads-space-16)); }
+.ss-map-wrap--upd .ss-map { position: absolute; inset: 0; height: auto; border: 0; border-radius: 0; border-top: 1px solid var(--ads-border-subtle); }
+.ds-next.device--ipad .ss-map-wrap--upd .ss-map { height: auto; }
+.ss-map-wrap--upd .map-ctl { top: var(--ads-space-12); right: var(--ads-space-12); }
+.ss-map-wrap--upd .map-ctl .ads-btn { box-shadow: var(--ads-shadow-elevation-sm); }
+.ss-map-wrap--upd .ss-map__offline { position: absolute; top: var(--ads-space-12); left: var(--ads-space-12); right: calc(var(--ads-size-interactive-md) + var(--ads-space-24)); z-index: 5; box-shadow: var(--ads-shadow-elevation-sm); }
+.ss-map__empty { position: absolute; top: var(--ads-space-12); left: var(--ads-space-12); right: calc(var(--ads-size-interactive-md) + var(--ads-space-24)); z-index: 5; padding: var(--ads-space-8) var(--ads-space-12); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ss-mapcard { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-16); z-index: 5; max-height: 62%; overflow-y: auto; border-radius: var(--ads-radius-8); box-shadow: var(--ads-shadow-elevation-lg); }
+.ss-mapcard .map-card { border: 0; }
+.device--ipad .ss-mapcard { left: auto; width: min(420px, calc(100% - 2 * var(--ads-space-12))); }
+.ss-upd .ss-search + .ss-views { margin-top: 0; }
