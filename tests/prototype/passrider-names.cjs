@@ -11,7 +11,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
   const ev = (f, a) => p.evaluate(f, a), w = (ms = 250) => p.waitForTimeout(ms), D_ = '#device ';
   const pane = () => ev(() => [...document.querySelectorAll('#device .pane')].pop().innerText);
   const go = (v, sc, type = 'leisure', loc = 'travelers') => ev(([v, sc, type, loc]) => { TB.v = v; TB.dev = 'iphone'; VS[v] = makeVS(sc); const b = D().booking; if (prCanStart(D()).ok) b.intent = 'pr'; b.prType = type; goLoc(loc); }, [v, sc, type, loc]).then(() => w());
-  for (const v of [1, 3]) {
+  for (const v of [1]) {
     const T = `C${v}`;
     for (const sc of ['passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'triplink-passrider']) {
       await go(v, sc);

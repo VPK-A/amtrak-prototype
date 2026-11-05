@@ -9,7 +9,7 @@ const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), '
     ['saved codes', 'returning', 'ff', "openInfo('saved-codes')"], ['stations selected', 'returning', 'stations:to', "D().booking.from='PHL'; D().booking.to='WAS';"],
     ['travelers', 'assist', 'travelers', "D().booking.pax.adult=2"], ['assistance', 'returning', 'assist-booking', ''], ['exit dialog', 'returning', 'ff', "A.close(null,'0')"],
     ['profile', 'passrider', 'profile', ''], ['employee', 'passrider', 'edit:employee', ''], ['address', 'returning', 'edit:address', ''], ['profile assistance', 'assist', 'assist-profile', '']];
-  for (const dev of ['iphone', 'ipad']) for (const orient of ['portrait', 'landscape']) for (const theme of ['light', 'dark']) for (const text of [100, 140]) for (const v of [1, 3]) {
+  for (const dev of ['iphone', 'ipad']) for (const orient of ['portrait', 'landscape']) for (const theme of ['light', 'dark']) for (const text of [100, 140]) for (const v of [1]) {
     if (orient === 'landscape' && text === 140) continue;
     for (const [name, sc, loc, js] of screens) {
       runs++;

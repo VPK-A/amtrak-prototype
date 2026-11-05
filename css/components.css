@@ -630,3 +630,125 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 /* The control draws its own focus border, so the inner field doesn't need a second outline */
 .ads-control > :is(input, select, textarea):focus-visible,
 .ads-root .ads-control > :is(input, select, textarea, [tabindex]):focus-visible { outline: none; }
+
+/* =====================================================================
+   Booking components (iOS · New booking modal, Figma Sprint 4 node 3295:51258)
+   Sheet header, trip-type tabs (ads-tabs--fill), station field group, swap button, date group,
+   selector row, points row and action footer. Every size, color and space is a DS token.
+   ===================================================================== */
+
+/* ---------- Sheet header ----------
+   Navy brand header for a full-height modal sheet: close (Icon Button, Small), the title in H2 and the
+   red and blue brand arrows bleeding off the trailing edge. The arrows are decoration (aria-hidden). */
+.ads-sheet-header { position: relative; display: flex; align-items: center; gap: 0; flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.ads-sheet-header__close { position: relative; z-index: 1; color: var(--ads-content-icon-on-brand); margin: calc(-1 * var(--ads-space-4)); } /* 44px target, laid out as the 36px Small slot */
+.ads-sheet-header__close:hover { background: rgb(255 255 255 / 0.12); }
+.ads-sheet-header__close:active { background: rgb(255 255 255 / 0.2); }
+.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: -2px; }
+.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h2-headline-size); line-height: var(--ads-type-h2-headline-line-height); font-weight: var(--ads-font-weight-regular); letter-spacing: var(--ads-type-h2-headline-letter-spacing); color: inherit; }
+.ads-sheet-header__title:focus, .ads-root .ads-sheet-header__title[tabindex]:focus-visible { outline: none; box-shadow: none; } /* a programmatic focus target, not a control */
+.ads-sheet-header__brand { position: absolute; top: 50%; right: 0; width: 160px; display: flex; flex-direction: column; gap: 5.672px; transform: translateY(-50%); pointer-events: none; }
+.ads-sheet-header__arrow { display: flex; justify-content: space-between; width: 100%; }
+.ads-sheet-header__arrow svg { display: block; flex: none; width: 53.186px; height: 35.7313px; }
+.ads-sheet-header__arrow > i { flex: 1 1 0; min-width: 0; height: 17.582px; }
+.ads-sheet-header__arrow--top { align-items: flex-end; }
+.ads-sheet-header__arrow--top > i { background: var(--ads-brand-signal-red); }
+.ads-sheet-header__arrow--top svg path { fill: var(--ads-brand-signal-red); }  /* the arrow tip follows the same brand token as its bar in both themes */
+.ads-sheet-header__arrow--bottom { align-items: flex-start; }
+.ads-sheet-header__arrow--bottom svg { transform: scaleY(-1); }
+.ads-sheet-header__arrow--bottom > i { background: var(--ads-brand-cobalt-blue); }
+.ads-sheet-header__arrow--bottom svg path { fill: var(--ads-brand-cobalt-blue); }
+.ads-sheet-header--plain .ads-sheet-header__brand { display: none; }
+.ads-sheet-header--plain { padding-right: var(--ads-grid-margin, var(--ads-space-20)); }
+
+/* ---------- Trip-type tabs ----------
+   ads-tabs with ads-tabs--fill: two equal tabs at 44px, body-size labels, 2px brand indicator on a 1px rule. */
+.ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; font-size: var(--ads-type-body-size); }
+.ads-tabs--fill .ads-tab[aria-selected="true"] { font-weight: var(--ads-font-weight-semibold); }
+
+/* ---------- Field group (shared by station and date groups) ----------
+   One bordered surface split into fields by a 1px divider. Each field is a button that opens a picker. */
+.ads-fieldgroup { position: relative; display: flex; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.ads-fieldgroup__field { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-4); min-width: 0; margin: 0; padding: var(--ads-space-12); border: 0; border-radius: inherit; background: none; color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ads-fieldgroup__field:hover { background: var(--ads-background-surface-hover); }
+.ads-fieldgroup__field:active { background: var(--ads-background-surface-active); }
+.ads-fieldgroup__field:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
+.ads-fieldgroup__field:disabled { cursor: not-allowed; background: none; color: var(--ads-content-text-disabled); }
+.ads-fieldgroup__label { font-size: var(--ads-type-field-label-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ads-fieldgroup__placeholder { font-size: var(--ads-type-body-size); line-height: 1.2; color: var(--ads-content-text-tertiary); }
+.ads-fieldgroup--error { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__label { color: var(--ads-content-text-error); }
+.ads-fieldgroup--disabled { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); }
+
+/* ---------- Station field group ----------
+   From and To stacked in one field group, each with the station code (H3), city and state, and facility.
+   The swap button sits on the divider at the trailing edge, so the fields keep room for it. */
+.ads-stationgroup { flex-direction: column; }
+.ads-stationgroup::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--ads-border-subtle); }
+.ads-stationgroup .ads-fieldgroup__field { padding-right: calc(var(--ads-size-interactive-md) + 2 * var(--ads-space-12)); }
+.ads-stationgroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
+.ads-stationgroup .ads-fieldgroup__field:last-of-type { border-radius: 0 0 var(--ads-radius-4) var(--ads-radius-4); }
+.ads-stationgroup__value { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 25px; }
+.ads-stationgroup__code { flex: none; width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ads-stationgroup__lines { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; color: var(--ads-content-text-tertiary); }
+.ads-stationgroup__city { font-size: var(--ads-type-body-small-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ads-stationgroup__facility { font-size: var(--ads-type-caption-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Swap button ----------
+   Circular primary Icon-only Button, 44px, with the small elevation. Disabled while neither station is set. */
+.ads-swap-btn { position: absolute; z-index: 2; top: 50%; right: var(--ads-space-12); display: grid; place-items: center; width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); padding: 0; border: 0; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-primary); color: var(--ads-content-icon-on-brand); box-shadow: var(--ads-shadow-elevation-sm); transform: translateY(-50%); cursor: pointer; }
+.ads-swap-btn:hover { background: var(--ads-background-interactive-primary-hover); }
+.ads-swap-btn:active { background: var(--ads-background-interactive-primary-active); }
+.ads-swap-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.ads-swap-btn:disabled { background: var(--ads-background-interactive-primary-disabled); color: var(--ads-content-icon-disabled); box-shadow: none; cursor: not-allowed; }
+
+/* ---------- Date group ----------
+   Departure and return side by side, split by a vertical divider. A value shows the date (Body emphasis)
+   with a 16px trailing icon and the weekday in Caption; an empty return shows "Add return" with plus-circle. */
+.ads-dategroup { flex-direction: row; }
+.ads-dategroup::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--ads-border-subtle); }
+.ads-dategroup .ads-fieldgroup__field { flex: 1 1 0; min-height: 79px; gap: var(--ads-space-4); }
+.ads-dategroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) 0 0 var(--ads-radius-4); }
+.ads-dategroup .ads-fieldgroup__field:last-of-type { border-radius: 0 var(--ads-radius-4) var(--ads-radius-4) 0; }
+.ads-dategroup__value { display: flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-body-emphasis-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); white-space: nowrap; }
+.ads-dategroup__value .ads-icon { flex: none; width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); color: var(--ads-content-icon-primary); }
+.ads-dategroup__sub { margin-top: -2px; font-size: var(--ads-type-caption-size); line-height: 1.1; color: var(--ads-content-text-tertiary); }
+
+/* ---------- Selector row ----------
+   A labeled row that opens a picker: field label, then a 53px bordered row with an optional leading icon,
+   the value (or a prompt), optional supporting text and a trailing chevron. */
+.ads-selectrow { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ads-selectrow__label { display: flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-field-label-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ads-selectrow__btn { display: flex; align-items: center; gap: var(--ads-space-8); width: 100%; min-height: 53px; margin: 0; padding: var(--ads-space-12); border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-interactive-secondary); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ads-selectrow__btn:hover { background: var(--ads-background-interactive-secondary-hover); }
+.ads-selectrow__btn:active { background: var(--ads-background-interactive-secondary-active); }
+.ads-selectrow__btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.ads-selectrow__btn[aria-invalid="true"] { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ads-selectrow__btn:disabled { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); cursor: not-allowed; }
+.ads-selectrow__btn > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-secondary); }
+.ads-selectrow__btn > .ads-selectrow__chev { color: var(--ads-content-icon-secondary); }
+.ads-selectrow__btn:disabled > .ads-icon { color: var(--ads-content-icon-disabled); }
+.ads-selectrow__text { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.ads-selectrow__value { font-size: var(--ads-type-body-size); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ads-selectrow__sub { font-size: var(--ads-type-body-small-size); line-height: 1.3; color: var(--ads-content-text-secondary); }
+
+/* ---------- Points payment row ----------
+   "Pay with points" with the balance in Body small and a Switch at the end. The switch acts immediately. */
+.ads-pointsrow { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-16); width: 100%; min-height: var(--ads-size-interactive-md); }
+.ads-pointsrow__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ads-pointsrow__title { font-size: var(--ads-type-body-size); line-height: 1.3; color: var(--ads-content-text-primary); }
+.ads-pointsrow__sub { font-size: var(--ads-type-body-small-size); line-height: 1.3; color: var(--ads-content-text-secondary); }
+.ads-pointsrow .ads-switch { flex: none; }
+
+/* ---------- New booking sheet (composition) ----------
+   The modal built from the components above: sheet header, a scrolling form (trip tabs, station group, date
+   group, Travelers and code rows, 24px apart on the page surface) and the action footer. */
+.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.ads-bookingsheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
+.ads-bookingsheet__form { display: flex; flex-direction: column; gap: var(--ads-space-24); }
+.ads-bookingsheet__form > * { flex: none; }
+
+/* ---------- Action footer ----------
+   Raised surface pinned under a sheet's content: optional rows above one full-width primary button.
+   Bottom padding keeps clear of the iOS home indicator. */
+.ads-actionfooter { display: flex; flex-direction: column; gap: var(--ads-space-16); flex: none; padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-bottom: max(var(--ads-space-20), env(safe-area-inset-bottom)); border-top: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-raised); }

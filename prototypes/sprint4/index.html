@@ -1441,6 +1441,128 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-control > :is(input, select, textarea):focus-visible,
 .ads-root .ads-control > :is(input, select, textarea, [tabindex]):focus-visible { outline: none; }
 
+/* =====================================================================
+   Booking components (iOS · New booking modal, Figma Sprint 4 node 3295:51258)
+   Sheet header, trip-type tabs (ads-tabs--fill), station field group, swap button, date group,
+   selector row, points row and action footer. Every size, color and space is a DS token.
+   ===================================================================== */
+
+/* ---------- Sheet header ----------
+   Navy brand header for a full-height modal sheet: close (Icon Button, Small), the title in H2 and the
+   red and blue brand arrows bleeding off the trailing edge. The arrows are decoration (aria-hidden). */
+.ads-sheet-header { position: relative; display: flex; align-items: center; gap: 0; flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.ads-sheet-header__close { position: relative; z-index: 1; color: var(--ads-content-icon-on-brand); margin: calc(-1 * var(--ads-space-4)); } /* 44px target, laid out as the 36px Small slot */
+.ads-sheet-header__close:hover { background: rgb(255 255 255 / 0.12); }
+.ads-sheet-header__close:active { background: rgb(255 255 255 / 0.2); }
+.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: -2px; }
+.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h2-headline-size); line-height: var(--ads-type-h2-headline-line-height); font-weight: var(--ads-font-weight-regular); letter-spacing: var(--ads-type-h2-headline-letter-spacing); color: inherit; }
+.ads-sheet-header__title:focus, .ads-root .ads-sheet-header__title[tabindex]:focus-visible { outline: none; box-shadow: none; } /* a programmatic focus target, not a control */
+.ads-sheet-header__brand { position: absolute; top: 50%; right: 0; width: 160px; display: flex; flex-direction: column; gap: 5.672px; transform: translateY(-50%); pointer-events: none; }
+.ads-sheet-header__arrow { display: flex; justify-content: space-between; width: 100%; }
+.ads-sheet-header__arrow svg { display: block; flex: none; width: 53.186px; height: 35.7313px; }
+.ads-sheet-header__arrow > i { flex: 1 1 0; min-width: 0; height: 17.582px; }
+.ads-sheet-header__arrow--top { align-items: flex-end; }
+.ads-sheet-header__arrow--top > i { background: var(--ads-brand-signal-red); }
+.ads-sheet-header__arrow--top svg path { fill: var(--ads-brand-signal-red); }  /* the arrow tip follows the same brand token as its bar in both themes */
+.ads-sheet-header__arrow--bottom { align-items: flex-start; }
+.ads-sheet-header__arrow--bottom svg { transform: scaleY(-1); }
+.ads-sheet-header__arrow--bottom > i { background: var(--ads-brand-cobalt-blue); }
+.ads-sheet-header__arrow--bottom svg path { fill: var(--ads-brand-cobalt-blue); }
+.ads-sheet-header--plain .ads-sheet-header__brand { display: none; }
+.ads-sheet-header--plain { padding-right: var(--ads-grid-margin, var(--ads-space-20)); }
+
+/* ---------- Trip-type tabs ----------
+   ads-tabs with ads-tabs--fill: two equal tabs at 44px, body-size labels, 2px brand indicator on a 1px rule. */
+.ads-tabs--fill .ads-tab { flex: 1 1 0; min-width: 0; font-size: var(--ads-type-body-size); }
+.ads-tabs--fill .ads-tab[aria-selected="true"] { font-weight: var(--ads-font-weight-semibold); }
+
+/* ---------- Field group (shared by station and date groups) ----------
+   One bordered surface split into fields by a 1px divider. Each field is a button that opens a picker. */
+.ads-fieldgroup { position: relative; display: flex; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.ads-fieldgroup__field { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-4); min-width: 0; margin: 0; padding: var(--ads-space-12); border: 0; border-radius: inherit; background: none; color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ads-fieldgroup__field:hover { background: var(--ads-background-surface-hover); }
+.ads-fieldgroup__field:active { background: var(--ads-background-surface-active); }
+.ads-fieldgroup__field:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
+.ads-fieldgroup__field:disabled { cursor: not-allowed; background: none; color: var(--ads-content-text-disabled); }
+.ads-fieldgroup__label { font-size: var(--ads-type-field-label-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ads-fieldgroup__placeholder { font-size: var(--ads-type-body-size); line-height: 1.2; color: var(--ads-content-text-tertiary); }
+.ads-fieldgroup--error { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__label { color: var(--ads-content-text-error); }
+.ads-fieldgroup--disabled { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); }
+
+/* ---------- Station field group ----------
+   From and To stacked in one field group, each with the station code (H3), city and state, and facility.
+   The swap button sits on the divider at the trailing edge, so the fields keep room for it. */
+.ads-stationgroup { flex-direction: column; }
+.ads-stationgroup::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--ads-border-subtle); }
+.ads-stationgroup .ads-fieldgroup__field { padding-right: calc(var(--ads-size-interactive-md) + 2 * var(--ads-space-12)); }
+.ads-stationgroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
+.ads-stationgroup .ads-fieldgroup__field:last-of-type { border-radius: 0 0 var(--ads-radius-4) var(--ads-radius-4); }
+.ads-stationgroup__value { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 25px; }
+.ads-stationgroup__code { flex: none; width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ads-stationgroup__lines { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; color: var(--ads-content-text-tertiary); }
+.ads-stationgroup__city { font-size: var(--ads-type-body-small-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ads-stationgroup__facility { font-size: var(--ads-type-caption-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Swap button ----------
+   Circular primary Icon-only Button, 44px, with the small elevation. Disabled while neither station is set. */
+.ads-swap-btn { position: absolute; z-index: 2; top: 50%; right: var(--ads-space-12); display: grid; place-items: center; width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); padding: 0; border: 0; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-primary); color: var(--ads-content-icon-on-brand); box-shadow: var(--ads-shadow-elevation-sm); transform: translateY(-50%); cursor: pointer; }
+.ads-swap-btn:hover { background: var(--ads-background-interactive-primary-hover); }
+.ads-swap-btn:active { background: var(--ads-background-interactive-primary-active); }
+.ads-swap-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.ads-swap-btn:disabled { background: var(--ads-background-interactive-primary-disabled); color: var(--ads-content-icon-disabled); box-shadow: none; cursor: not-allowed; }
+
+/* ---------- Date group ----------
+   Departure and return side by side, split by a vertical divider. A value shows the date (Body emphasis)
+   with a 16px trailing icon and the weekday in Caption; an empty return shows "Add return" with plus-circle. */
+.ads-dategroup { flex-direction: row; }
+.ads-dategroup::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--ads-border-subtle); }
+.ads-dategroup .ads-fieldgroup__field { flex: 1 1 0; min-height: 79px; gap: var(--ads-space-4); }
+.ads-dategroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) 0 0 var(--ads-radius-4); }
+.ads-dategroup .ads-fieldgroup__field:last-of-type { border-radius: 0 var(--ads-radius-4) var(--ads-radius-4) 0; }
+.ads-dategroup__value { display: flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-body-emphasis-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); white-space: nowrap; }
+.ads-dategroup__value .ads-icon { flex: none; width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); color: var(--ads-content-icon-primary); }
+.ads-dategroup__sub { margin-top: -2px; font-size: var(--ads-type-caption-size); line-height: 1.1; color: var(--ads-content-text-tertiary); }
+
+/* ---------- Selector row ----------
+   A labeled row that opens a picker: field label, then a 53px bordered row with an optional leading icon,
+   the value (or a prompt), optional supporting text and a trailing chevron. */
+.ads-selectrow { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.ads-selectrow__label { display: flex; align-items: center; gap: var(--ads-space-4); font-size: var(--ads-type-field-label-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ads-selectrow__btn { display: flex; align-items: center; gap: var(--ads-space-8); width: 100%; min-height: 53px; margin: 0; padding: var(--ads-space-12); border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-interactive-secondary); color: var(--ads-content-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.ads-selectrow__btn:hover { background: var(--ads-background-interactive-secondary-hover); }
+.ads-selectrow__btn:active { background: var(--ads-background-interactive-secondary-active); }
+.ads-selectrow__btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.ads-selectrow__btn[aria-invalid="true"] { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ads-selectrow__btn:disabled { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); cursor: not-allowed; }
+.ads-selectrow__btn > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-secondary); }
+.ads-selectrow__btn > .ads-selectrow__chev { color: var(--ads-content-icon-secondary); }
+.ads-selectrow__btn:disabled > .ads-icon { color: var(--ads-content-icon-disabled); }
+.ads-selectrow__text { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.ads-selectrow__value { font-size: var(--ads-type-body-size); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ads-selectrow__sub { font-size: var(--ads-type-body-small-size); line-height: 1.3; color: var(--ads-content-text-secondary); }
+
+/* ---------- Points payment row ----------
+   "Pay with points" with the balance in Body small and a Switch at the end. The switch acts immediately. */
+.ads-pointsrow { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-16); width: 100%; min-height: var(--ads-size-interactive-md); }
+.ads-pointsrow__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ads-pointsrow__title { font-size: var(--ads-type-body-size); line-height: 1.3; color: var(--ads-content-text-primary); }
+.ads-pointsrow__sub { font-size: var(--ads-type-body-small-size); line-height: 1.3; color: var(--ads-content-text-secondary); }
+.ads-pointsrow .ads-switch { flex: none; }
+
+/* ---------- New booking sheet (composition) ----------
+   The modal built from the components above: sheet header, a scrolling form (trip tabs, station group, date
+   group, Travelers and code rows, 24px apart on the page surface) and the action footer. */
+.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.ads-bookingsheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
+.ads-bookingsheet__form { display: flex; flex-direction: column; gap: var(--ads-space-24); }
+.ads-bookingsheet__form > * { flex: none; }
+
+/* ---------- Action footer ----------
+   Raised surface pinned under a sheet's content: optional rows above one full-width primary button.
+   Bottom padding keeps clear of the iOS home indicator. */
+.ads-actionfooter { display: flex; flex-direction: column; gap: var(--ads-space-16); flex: none; padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-bottom: max(var(--ads-space-20), env(safe-area-inset-bottom)); border-top: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-raised); }
+
 /* Sprint 4 prototype: page chrome (device frame, prototype controller) and screen layout.
    Product components come from css/ads.css. Prototype-only things are prefixed p- or use plain names. */
 :root { --pq: #6d28d9; --pq-bg: #f5f3ff; --pq-edge: #8b5cf6; }
@@ -1532,7 +1654,6 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 
 /* ---------- Screen pieces ---------- */
 .ptitle { margin: 0; font-size: var(--ads-type-body-size); }
-.ads-routefield + .ads-helper, .ads-datefields + .ads-helper { margin-top: -10px; }
 .assistbox { display: flex; flex-direction: column; gap: var(--ads-space-12); padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-status-info-subtle); border: 1px solid var(--ads-border-status-info-subtle); }
 .assistform { display: flex; flex-direction: column; gap: var(--ads-space-20); }
 .wcq { padding: var(--ads-space-12); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); }
@@ -1646,46 +1767,12 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
    rounded sheets for stations, dates, travelers, codes and assistance.
    ===================================================================== */
 :root { --ffc-navy: var(--ads-color-blue-900); --ffc-on-navy: #fff; }
-.psheet--clear { background: var(--ffc-navy); }
-.psheet--clear .ads-sheet__grabber { background: rgb(255 255 255 / 0.6); }
-.pane--clear .pane__scroll { background: var(--ffc-navy); }
-.pane--clear .ads-navbar { background: transparent; border: 0; color: var(--ffc-on-navy); }
-.pane--clear .ads-navbar .ads-icon-btn--round::before { background: rgb(255 255 255 / 0.16) !important; }
-.pane--clear .ads-navbar .ads-icon-btn { color: var(--ffc-on-navy); }
-.pane--clear .ads-navbar:not(:has(.ads-navbar__btn)) .ads-navbar__lead { min-height: 0; }
-.pane--clear .pane__body { padding: 0; gap: 0; min-height: 100%; }
-.ffc-hero { display: flex; flex-direction: column; gap: 10px; padding: 0 var(--ads-space-20) 26px; color: var(--ffc-on-navy); }
-.ffc-title { margin: 0; font-size: 34px; line-height: 1.15; font-weight: var(--ads-font-weight-light); letter-spacing: -0.01em; }
-.ffc-title:focus { outline: none; }
-.ffc-title:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: var(--ads-radius-4); }
-.ffc-sub { margin: 0; font-size: var(--ads-type-body-small-size); line-height: var(--ads-type-body-small-line-height); opacity: 0.88; }
-.ffc-modes { display: flex; flex-wrap: wrap; gap: var(--ads-space-12) var(--ads-space-16); margin-top: 6px; }
 .ffc-mode { flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .ffc-mode__label { font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; }
-.ffc-modenote { display: flex; gap: var(--ads-space-8); margin: 2px 0 0; padding: 10px var(--ads-space-12); border-radius: var(--ads-radius-12); background: rgb(255 255 255 / 0.12); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
-.ffc-modenote .ads-icon { flex: none; margin-top: 2px; }
-.ffc-banner { margin: 0 var(--ads-space-16) 14px; border-radius: var(--ads-radius-12); }
-.ffc-sheet { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 22px var(--ads-space-16) var(--ads-space-32); border-radius: 28px 28px 0 0; background: var(--ads-background-surface-page); }
-.ffc-surface { display: flex; flex-direction: column; gap: var(--ads-space-16); padding: var(--ads-space-16); border-radius: 24px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); box-shadow: var(--ads-shadow-elevation-xs); }
-.ffc-surface .ads-routefield, .ffc-surface .ads-datefields { border-radius: var(--ads-radius-16); border-color: var(--ads-border-subtle); background: var(--ads-background-surface-page); }
-.ffc-surface .ads-routefield__half { min-height: 76px; }
-.ffc-surface .ads-routefield__half:first-child { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
-.ffc-surface .ads-routefield__code { width: 58px; font-size: 26px; font-weight: var(--ads-font-weight-light); letter-spacing: 0.02em; }
-.ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-primary); }
-.ffc-surface .ads-routefield__swap { background: var(--ads-background-surface-default); }
-.ffc-surface .ads-datefield { min-height: 72px; }
-.ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-semibold); }
 .ffc-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0.06em; text-transform: uppercase; }
 .ffc-field, .ffc-fixed { display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ffc-fixed > span:nth-child(2) { font-weight: 600; }
-.ffc-trav { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 72px; padding: 10px var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-16); background: var(--ads-background-surface-page); color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.ffc-trav:hover { background: var(--ads-background-surface-hover); }
-.ffc-trav:focus-visible, .ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
-.ffc-trav__icon { flex: none; color: var(--ads-content-icon-brand); }
-.ffc-trav__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ffc-trav__val { font-size: var(--ads-type-body-emphasis-size); font-weight: var(--ads-type-body-emphasis-weight); line-height: 1.3; }
-.ffc-trav__sub { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; }
-.ffc-trav > .ads-icon--chevron-right { flex: none; color: var(--ads-content-icon-tertiary); }
+.ffc-code:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -3px; }
 .ffc-h { display: flex; align-items: center; gap: var(--ads-space-4); margin: 0 var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-overline-size); line-height: var(--ads-type-overline-line-height); letter-spacing: var(--ads-type-overline-letter-spacing); font-weight: var(--ads-type-overline-weight); text-transform: uppercase; }
 
 /* Rounded sheet over the Fare Finder */
@@ -1742,18 +1829,13 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .ffc-code__meta { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); font-variant-numeric: tabular-nums; }
 .ffc-codes { gap: 0 !important; }
 /* iPad: keep the Fare Finder readable inside its sheet */
-.device--ipad .pane--clear .ffc-hero, .device--ipad .pane--clear .ffc-sheet > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
-.device--ipad .pane--clear .ffc-sheet { padding-inline: var(--ads-space-24); }
 .ads-navbar__lead { grid-column: 1; }
 .ads-navbar__title { grid-column: 2; }
 .ads-navbar__trail { grid-column: 3; }
 /* Headings take focus only to move the reading position after a screen change; no ring needed */
-.ffc-title:focus-visible, .ffc-sheettitle:focus-visible { outline: none; }
+.ffc-sheettitle:focus-visible { outline: none; }
 /* Larger text: let rows wrap instead of overflowing */
 .pane--sheet .ads-segmented > button { white-space: normal; height: auto; min-height: var(--ads-size-interactive-md); padding-block: 6px; line-height: 1.25; }
-.ffc-surface .ads-routefield__half { flex-wrap: wrap; padding-right: 56px; }
-.ffc-surface .ads-routefield__code { width: auto; min-width: 52px; }
-.ffc-surface .ads-routefield__body { flex: 1 1 130px; }
 .ffc-count { flex-wrap: wrap; }
 .ffc-count__text { flex: 1 1 140px; }
 .ffc-count .ads-counter { margin-left: auto; }
@@ -1762,7 +1844,7 @@ body:not(.chrome-hidden) .main { grid-template-columns: minmax(0, 1fr) calc(var(
 .device .ads-calendar__grid, .device .ads-calendar__weekdays { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .device .ads-calendar__grid .ads-day::before { width: min(44px, 100%); height: auto; aspect-ratio: 1; }
 .edpane .ads-btn--sm { white-space: normal; height: auto; min-height: var(--ads-size-interactive-md); text-align: left; }
-.ads-root .ffc-title[tabindex]:focus-visible, .ads-root .ffc-sheettitle[tabindex]:focus-visible { outline: none; box-shadow: none; }
+.ads-root .ffc-sheettitle[tabindex]:focus-visible { outline: none; box-shadow: none; }
 /* Traveler Selection in Versions 1 and 2 reuses the Version 3 traveler editor */
 .travsel { display: flex; flex-direction: column; gap: 18px; }
 .travsel section { display: flex; flex-direction: column; gap: var(--ads-space-4); }
@@ -1928,7 +2010,6 @@ button.gs__sum:hover, .gs__sumbtn:hover { background: var(--ads-background-surfa
 .gs .ads-routefield__code { width: auto; min-width: 48px; }
 .gs .ads-routefield__body { flex: 1 1 130px; }
 /* Version 1: coupon or promo code row, with an information button beside it */
-.v1pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
 /* Station search: "Your route" summary above the search field */
 .ss-route { display: flex; flex-direction: column; margin: var(--ads-space-4) 0 2px; border-radius: var(--ads-radius-16); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
 .ss-route__item { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 56px; padding: 10px var(--ads-space-16); border: 0; background: none; color: inherit; font: inherit; text-align: left; }
@@ -1952,9 +2033,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Pushed screens inside a sheet: picker screens use the sheet's surface */
 .pane--sheet { background: var(--ads-background-surface-default); }
 .pane--sheet .ads-navbar { background: var(--ads-background-surface-default); }
-.pane--clear { background: var(--ffc-navy); }
 .pane--fl { background: var(--ads-background-surface-default); }
-.psheet:not(.psheet--clear):not(.psheet--fl) .pane:not(.pane--sheet):not(.pane--gs) { background: var(--ads-background-surface-page); }
 /* Push transition */
 .navstage { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; overflow: hidden; }
 .navstage__top, .navstage__under { flex: 1; min-width: 0; min-height: 0; display: flex; }
@@ -1966,8 +2045,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .navstage--back .navstage__top { position: relative; z-index: 0; }
 .navstage--back .navstage__under { z-index: 1; box-shadow: -8px 0 24px rgb(5 18 49 / 0.10); }
 .mo-reduced .navstage__under { display: none; }
-.psheet--clear.psheet--pushed { background: var(--ads-background-surface-default); }
-.psheet--clear.psheet--pushed .ads-sheet__grabber { background: var(--ads-border-default); }
 
 /* ---------- Motion system (motion.js) ---------- */
 /* Selection indicator: one surface moves between options; text and icon state change immediately */
@@ -2110,7 +2187,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ov-pr { margin-top: var(--ads-space-16); padding: var(--ads-space-12) var(--ads-space-16); border-radius: var(--ads-radius-16); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); display: flex; flex-direction: column; gap: var(--ads-space-8); }
 .ov-pr__title { margin: 0; display: flex; align-items: center; gap: 6px; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
 .ov-edit { margin-top: var(--ads-space-4); }
-.pane--clear .ffc-sheet { flex: 1 0 auto; } /* the light surface reaches the bottom when scrolled to the end */
 
 /* ---------- Version 4 compact traveler tags and assistance lines (compact.js) ---------- */
 .fl-tvs { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -2155,9 +2231,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Pay with, low in each Fare Finder */
 .gs--pay { padding: 12px 16px; }
 .gs-paybox .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
-.ffc-pay { margin-top: var(--ads-space-12); }
-.ffc-pay .gs-mode .ads-segmented { background: var(--ads-background-surface-sunken); box-shadow: none; }
-.v1pay { margin-top: var(--ads-space-4); }
 
 /* ---------- Prototype controller (not part of the app; chrome.js) ---------- */
 .stage { flex-direction: column; align-items: center; }
@@ -2185,17 +2258,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* Fare Finder density (Concepts 1 and 3) */
 .fam-row__value:empty { display: none; }
-.ffc-surface .ffc-pay { margin-top: 0; }
 .ver-1 .ads-routefield__station, .ver-3 .ads-routefield__station { white-space: normal; overflow: visible; text-overflow: clip; } /* long station names wrap instead of being cut off */
 
 .device.has-booking .app-tabbar { visibility: hidden; }
 /* Concept 3 density: same type sizes and 44px+ targets, less spacing */
-.pane--clear .ffc-hero { padding-bottom: var(--ads-space-16); gap: 6px; }
-.ffc-sheet { gap: var(--ads-space-16); padding: var(--ads-space-16) var(--ads-space-16) var(--ads-space-24); }
-.ffc-surface { gap: 10px; padding: var(--ads-space-12); }
-.ffc-surface .ads-routefield__half { min-height: 64px; }
-.ffc-surface .ads-datefield { min-height: 62px; }
-.ffc-trav { min-height: 56px; padding: var(--ads-space-8) var(--ads-space-16); }
 
 /* ---------- Discount code field and assistance check (Concepts 1 and 3) ---------- */
 .dcode { display: flex; flex-direction: column; gap: 6px; margin: 0; }
@@ -2209,8 +2275,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .dcode__msg { align-items: flex-start; margin: 0; }
 .dcode__msg .ads-icon { flex: none; margin-top: 2px; }
 .dcode__acts { display: flex; flex-wrap: wrap; gap: var(--ads-space-8); }
-.ffc-restricted { display: flex; gap: var(--ads-space-8); margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
-.ffc-restricted .ads-icon { flex: none; margin-top: 2px; }
 .prme { margin: var(--ads-space-4) 0 var(--ads-space-8); }
 .findwhy { margin: 0 0 var(--ads-space-8); text-align: center; }
 
@@ -2258,7 +2322,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Concept 3 dark mode: the title band is raised (lighter navy) and the sheet below it is the darkest surface,
    with a hairline on its rounded top edge, so the two read as separate layers. Light mode is unchanged. */
 [data-theme="dark"] { --ffc-navy: var(--ads-color-blue-800); }
-[data-theme="dark"] .pane--clear .ffc-sheet { background: var(--ads-color-blue-950); box-shadow: inset 0 1px 0 var(--ads-color-alpha-white-10); }
 .ov-disc { display: flex; flex-direction: column; gap: var(--ads-space-4); margin-top: 6px; max-width: 280px; }
 .ov-disc__label { font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); letter-spacing: var(--ads-type-field-label-letter-spacing); font-weight: var(--ads-type-field-label-weight); color: var(--ads-content-text-secondary); }
 .fam-row__acts--below { gap: var(--ads-space-8); margin-top: 6px; flex-wrap: wrap; }
@@ -2320,7 +2383,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .payset__legend { margin: 0 var(--ads-space-4) 0 0; padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
 .payset .paychoice { min-height: var(--ads-size-interactive-sm); font-size: var(--ads-type-body-small-size); padding-block: var(--ads-space-4); }
 .payset .paychoice .ads-choice__label { font-size: var(--ads-type-body-small-size); }
-.ffc-surface .ffc-pay, .v1pay { margin-top: 0; }
 /* Compact booking type entry */
 .mode-entry { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: var(--ads-size-interactive-md); padding: var(--ads-space-4) var(--ads-space-12); border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-full); background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); font: inherit; font-size: var(--ads-type-body-small-size); cursor: pointer; align-self: flex-start; }
 .mode-entry__label { color: var(--ads-content-text-secondary); }
@@ -2373,6 +2435,22 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .bp-mode--v3 .bp-mode__help { color: var(--ffc-on-navy); opacity: 0.85; }
 .bp-mode--v3 .ads-field__marker { color: var(--ffc-on-navy); }
 
+/* ---------- New booking (Figma Sprint 4 node 3295:51258) ----------
+   The root screen of the booking sheet: navy brand header, form on the page surface, action footer with
+   Pay with points and Find trains. Components: css/components.css › Booking components. */
+.psheet--brand { top: 58px; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
+.ds-next .psheet.psheet--brand { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
+.device--iphone.device--landscape .psheet--brand { top: 12px; }
+.device--ipad .psheet--brand, .ds-next.device--ipad .psheet.psheet--brand { top: 50%; border-radius: var(--ads-radius-16); }
+.pane--nb .pane__scroll { background: var(--ads-background-surface-page); }
+.pane--nb .pane__body { padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
+.ads-bookingsheet__form > .ads-tabs { margin-bottom: 0; }
+.pane__foot.ads-actionfooter { gap: var(--ads-space-16); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); background: var(--ads-background-surface-raised); border-top: 1px solid var(--ads-border-subtle); }
+.device--iphone.device--portrait .psheet .pane__foot.ads-actionfooter { padding-bottom: max(var(--ads-space-20), env(safe-area-inset-bottom)); }
+.ads-fieldwrap { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.dcode .dcode__acts { margin-top: 0; }
+.device--ipad .pane--nb .pane__body > *, .device--ipad .pane--nb .pane__foot > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -2399,23 +2477,13 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .ads-routefield__swap { grid-area: swap; position: static; transform: none; align-self: center; margin-top: var(--ads-space-24); z-index: auto; border: 1px solid var(--_border); border-radius: var(--ads-radius-4); background: var(--_bg); }
 .ds-next .ads-routefield__swap:hover { background: var(--_bg-hover); }
 .ds-next .ads-routefield__swap:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); }
-.ds-next .ads-routefield__code, .ds-next .ffc-surface .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
-.ds-next .ads-routefield__body, .ds-next .ffc-surface .ads-routefield__body { flex: 1; min-width: 0; }
-.ds-next .ads-routefield__city, .ds-next .ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+.ds-next .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
+.ds-next .ads-routefield__body { flex: 1; min-width: 0; }
+.ds-next .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
 
 /* Date fields: Text Input with a trailing calendar icon; stacked at phone width so nothing truncates */
-.ds-next .ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); border: 0; border-radius: 0; background: none; overflow: visible; }
-.ds-next .ffc-surface, .ds-next .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
-@container ffcol (max-width: 420px) { .ds-next .ads-datefields { grid-template-columns: minmax(0, 1fr); } }
-.ds-next .ads-datefield { min-width: 0; flex-direction: row; justify-content: flex-start; }
-.ds-next .ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ds-next .ads-datefield__value, .ds-next .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-next .ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-regular); }
-.ds-next .ads-datefield__day { line-height: 1.3; }
-.ds-next .ads-routefield + .ads-helper, .ds-next .ads-datefields + .ads-helper { margin-top: 0; }
 
 /* Travelers: field/large with a leading icon and trailing chevron */
-.ds-next .ffc-trav > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
 
 /* Buttons, Radio Group, cards and surfaces */
 .ads-root .ds-next .ads-btn:focus-visible, .ds-next .ads-btn.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
@@ -2423,8 +2491,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .ads-group__body { border-radius: var(--ads-radius-8); }
 .ds-next .psheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
 .ds-next.device--ipad .psheet { border-radius: var(--ads-radius-12); }
-.ds-next .ffc-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
-.ds-next .ffc-surface { border-radius: var(--ads-radius-8); }
 
 /* Saved codes: List with one .list/row (ADS Next List anatomy)
    Surface background/surface-raised, 1px border/subtle, radius/4. Row 44px (size/interactive-md), space/12 at
@@ -2495,7 +2561,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* Alert, offline banner and mode notes: message panels at radius/8 */
 .ds-next .ads-alert { border-radius: var(--ads-radius-8); }
-.ds-next .ffc-banner, .ds-next .ffc-modenote { border-radius: var(--ads-radius-8); }
 
 /* Toast: no ADS toast exists (proposed extension) — a short message panel at radius/8 */
 .ds-next .ads-toast { border-radius: var(--ads-radius-8); }
@@ -2520,12 +2585,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
    decorative leading icon · content/icon-secondary   navigation chevron · content/icon-secondary
    selected check / chosen favorite · content/icon-brand   info status · content/icon-info (unchanged)
    error · content/icon-error (unchanged)   disabled · content/icon-disabled (unchanged) */
-.ds-next :is(.ads-group__lead, .ffc-trav__icon) { color: var(--ads-content-icon-secondary); }
-.ds-next :is(.ads-group__row, .ffc-trav, .ads-fieldbtn, .bk-link) > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
 .ds-next .ads-stationrow__star:not([aria-pressed="true"]) { color: var(--ads-content-icon-secondary); }
 .ds-next .ads-stationrow__star[aria-pressed="true"], .ds-next .ss-check { color: var(--ads-content-icon-brand); }
 .ds-next :is(.dcode__info, .ss-details) { color: var(--ads-content-icon-primary); }
-.ds-next .ffc-surface { box-shadow: none; } /* Card: border/subtle, no elevation unless it floats */
 /* List row pressed (proposed extension: the List defines rest, hover, selected and disabled; on touch there is
    no hover, so pressed uses background/surface-active, the same as the station row's pressed state) */
 .ds-next button.ads-group__row:active, .ds-next a.ads-group__row:active { background: var(--ads-background-surface-active); }
@@ -2684,7 +2746,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
-    <div class="ctl__group"><span class="ads-field__label" id="lbVersion">Concept</span><div class="ads-segmented" id="tbVersion" role="group" aria-labelledby="lbVersion"><button type="button" data-v="1" aria-pressed="true">Familiar</button><button type="button" data-v="3" aria-pressed="false">Brand forward</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpAssist">Traveler assistance layout</label><div class="ads-control ads-control--select"><select id="tbCmpAssist"><option value="current">Current design</option><option value="above">Content above traveler details</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpBp">Pass Rider Business Pass controls</label><div class="ads-control ads-control--select"><select id="tbCmpBp"><option value="current">Current design</option><option value="compact">Compact dropdown</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
@@ -2709,6 +2770,58 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 </div>
 
 <script>
+/* ADS booking components (iOS · New booking modal, Figma Sprint 4 node 3295:51258).
+   Markup renderers for the components styled in css/components.css › Booking components:
+     sheetHeader  · navy brand header: close, title, brand arrows (or plain)
+     stationGroup · From and To stacked in one field group, with the swap button
+     dateGroup    · two date fields side by side (value with icon and weekday, or an "add" prompt)
+     selectRow    · field label above a row that opens a picker (icon, value or prompt, supporting text, chevron)
+     pointsRow    · title, supporting text and a Switch
+   Trip-type tabs are ads-tabs ads-tabs--fill; the action footer is ads-actionfooter around a pointsRow and a Button.
+   States: selected (aria-selected / aria-pressed), focus (:focus-visible), disabled, error (aria-invalid + helper).
+   Used by the Sprint 4 prototype (scripts/sprint4-assemble.mjs) and the DS catalog (scripts/build-docs.py), so the
+   screen and its examples always share markup. <svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#EF3824"/>
+</svg> / <svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#064CB0"/>
+</svg> are replaced with the brand arrow SVGs
+   from logos/ at build time. Plain script: defines globals. */
+const bkEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const bkIc = (n, cls = '') => `<span class="ads-icon ads-icon--${n}${cls ? ' ' + cls : ''}" aria-hidden="true"></span>`;
+
+// Station field group: From and To stacked in one ADS field group, with the circular swap button on the divider
+function stationGroup(o) {
+  const fld = f => {
+    const v = o[f] || {}, err = o.errors && o.errors[f];
+    return `<button class="ads-fieldgroup__field" type="button" ${v.attrs || ''} aria-label="${bkEsc(v.label)}: ${v.code ? bkEsc(`${v.city}, ${v.facility}`) : 'not chosen'}"${err ? ` aria-invalid="true" aria-describedby="${v.errId}"` : ''}${v.expanded ? ' aria-expanded="true"' : ''}><span class="ads-fieldgroup__label" aria-hidden="true">${bkEsc(v.label)}</span><span class="ads-stationgroup__value">${v.code ? `<span class="ads-stationgroup__code">${bkEsc(v.code)}</span><span class="ads-stationgroup__lines"><span class="ads-stationgroup__city">${bkEsc(v.city)}</span><span class="ads-stationgroup__facility">${bkEsc(v.facility)}</span></span>` : `<span class="ads-fieldgroup__placeholder">${bkEsc(v.placeholder || '')}</span>`}</span></button>`;
+  };
+  const errs = ['from', 'to'].filter(f => o.errors && o.errors[f]).map(f => `<p class="ads-helper ads-helper--error" id="${o[f].errId}">${bkIc('alert-diamond')}<span>${bkEsc(o.errors[f])}</span></p>`).join('');
+  return `<div class="ads-fieldwrap"><div class="ads-fieldgroup ads-stationgroup${errs ? ' ads-fieldgroup--error' : ''}">${fld('from')}${fld('to')}<button class="ads-swap-btn" type="button" ${o.swapAttrs || ''} aria-label="${bkEsc(o.swapLabel || 'Swap from and to')}"${o.swapDisabled ? ' disabled' : ''}>${bkIc('trip-swap-vertical')}</button></div>${errs}</div>`;
+}
+// Date group: two fields side by side. A field is { label, value, sub, icon, attrs } or an "add" prompt.
+function dateGroup(o) {
+  const fld = v => `<button class="ads-fieldgroup__field" type="button" ${v.attrs || ''} aria-label="${bkEsc(v.aria || v.label)}"${v.err ? ` aria-invalid="true" aria-describedby="${o.errId}"` : ''}${v.expanded ? ' aria-expanded="true"' : ''}><span class="ads-fieldgroup__label" aria-hidden="true">${bkEsc(v.label)}</span><span class="ads-dategroup__value">${v.value ? bkEsc(v.value) : `<span class="ads-fieldgroup__placeholder">${bkEsc(v.placeholder || '')}</span>`}${v.icon ? bkIc(v.icon) : ''}</span>${v.sub ? `<span class="ads-dategroup__sub">${bkEsc(v.sub)}</span>` : ''}</button>`;
+  return `<div class="ads-fieldwrap"><div class="ads-fieldgroup ads-dategroup${o.error ? ' ads-fieldgroup--error' : ''}">${fld(o.start)}${fld(o.end)}</div>${o.error ? `<p class="ads-helper ads-helper--error" id="${o.errId}">${bkIc('alert-diamond')}<span>${bkEsc(o.error)}</span></p>` : ''}</div>`;
+}
+// Selector row: field label above a 53px row with an optional leading icon, the value or prompt, supporting
+// text and a chevron. Opens a picker; the accessible name carries the label and the value.
+function selectRow(o) {
+  const lid = o.id + '-l';
+  return `<div class="ads-selectrow${o.cls ? ' ' + o.cls : ''}"><span class="ads-selectrow__label" id="${lid}">${bkEsc(o.label)}${o.marker || ''}${o.labelTrail || ''}</span><button class="ads-selectrow__btn" type="button" id="${o.id}" ${o.attrs || ''} aria-labelledby="${lid} ${o.id}-v"${o.describedby ? ` aria-describedby="${o.describedby}"` : ''}${o.invalid ? ' aria-invalid="true"' : ''}${o.disabled ? ' disabled' : ''}>${o.icon ? bkIc(o.icon) : ''}<span class="ads-selectrow__text" id="${o.id}-v"><span class="ads-selectrow__value">${bkEsc(o.value)}</span>${o.sub ? `<span class="ads-selectrow__sub">${bkEsc(o.sub)}</span>` : ''}</span>${bkIc('chevron-right', 'ads-selectrow__chev')}</button>${o.after || ''}</div>`;
+}
+// Points payment row: title, balance and an ADS Switch that acts immediately
+function pointsRow(o) {
+  return `<div class="ads-pointsrow"><span class="ads-pointsrow__text"><span class="ads-pointsrow__title" id="${o.id}-l">${bkEsc(o.title)}</span>${o.sub ? `<span class="ads-pointsrow__sub" id="${o.id}-h">${bkEsc(o.sub)}</span>` : ''}</span><label class="ads-switch"><input type="checkbox" role="switch" id="${o.id}" ${o.attrs || ''} aria-labelledby="${o.id}-l"${o.sub ? ` aria-describedby="${o.id}-h"` : ''}${o.checked ? ' checked' : ''}${o.disabled ? ' disabled' : ''}><span class="ads-switch__track"></span></label></div>`;
+}
+// Sheet header: close, title (H2) and the brand arrows
+function sheetHeader(o) {
+  return `<header class="ads-sheet-header${o.plain ? ' ads-sheet-header--plain' : ''}"><button class="ads-icon-btn ads-icon-btn--sm ads-sheet-header__close" type="button" ${o.closeAttrs || ''} aria-label="${bkEsc(o.closeLabel || 'Close')}">${bkIc('close')}</button><h2 class="ads-sheet-header__title" id="${o.id}" tabindex="-1" data-title>${bkEsc(o.title)}</h2>${o.plain ? '' : `<span class="ads-sheet-header__brand" aria-hidden="true"><span class="ads-sheet-header__arrow ads-sheet-header__arrow--top"><svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#EF3824"/>
+</svg><i></i></span><span class="ads-sheet-header__arrow ads-sheet-header__arrow--bottom"><svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#064CB0"/>
+</svg><i></i></span></span>`}</header>`;
+}
+
 /* Sprint 4 prototype: deterministic mock data. Nothing here is live. */
 const TODAY = new Date(2026, 9, 28); // Wed, Oct 28, 2026 (fixed so the calendar is repeatable)
 const WINDOW_DAYS = 335;             // NMA-1060 BR4.1 "verify # of days": unresolved (Q4), configurable here
@@ -2946,9 +3059,8 @@ const FLOWS = [
   ['C · Discounts', [['discounts', 'Passenger discounts'], ['rules', 'Passenger types and discount rules']]],
   ['D · Assistance', [['assist-profile', 'Profile assistance'], ['assist-booking', 'Booking assistance'], ['assist-review', 'Booking assistance · review']]],
   ['E · Verification', [['verify:change-email', 'Change email'], ['verify:sign-in', 'Sign-in on a device that isn’t remembered'], ['verify:unverified', 'Unverified account · save a change']]],
-  ['G · Concept 3 · Overview Fare Finder', [['v3:returning:ff', 'Default: returning member'], ['v3:guest:ff', 'Guest'], ['v3:returning:stations', 'Station sheet · From'], ['v3:returning:calendar', 'Dates sheet · round trip'], ['v3:returning:travelers', 'Travelers and discounts'], ['v3:returning:code', 'Discount code sheet'], ['v3:returning:assist', 'Assistance entry'], ['v3:returning:points', 'Paying with points'], ['v3:returning:errors', 'Validation errors'], ['v3:returning:autotrain', 'Auto Train pairing'], ['v3:triplink:ff', 'TripLink · Corporate booking'], ['v3:passrider:ff', 'Pass Rider · employee with Business Pass'], ['v3:passrider:travelers', 'Pass Rider · Leisure travelers and companions'], ['v3:passrider-nopass:travelers', 'Pass Rider · no companion passes left'], ['v3:passrider-spouse:ff', 'Pass Rider · spouse']]],
-  ['J · Sprint 4 coverage, Concepts 1 and 3', [
-    ...[1, 3].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-retiree:ff`, `V${n} · Pass Rider retiree`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (16+)`], [`v${n}:passrider-minor:ff`, `V${n} · Pass Rider dependent (15 or younger)`]])]],
+  ['J · Sprint 4 coverage, New booking', [
+    ...[1].flatMap(n => [[`v${n}:returning:companion`, `V${n} · 2 travelers: disability and personal companion`], [`v${n}:triplink:ff`, `V${n} · TripLink Corporate`], [`v${n}:passrider:ff`, `V${n} · Pass Rider employee`], [`v${n}:passrider-retiree:ff`, `V${n} · Pass Rider retiree`], [`v${n}:passrider-dependent:ff`, `V${n} · Pass Rider dependent (16+)`], [`v${n}:passrider-minor:ff`, `V${n} · Pass Rider dependent (15 or younger)`]])]],
   // Archived concepts (stakeholder feedback): kept and usable, listed last
   ['Archive · Concept 2 · Guided Fare Finder', [['v2:returning:ff', 'Initial: Where open'], ['v2:returning:partial', 'Partly completed: stations chosen, When open'], ['v2:returning:populated', 'Fully populated, all sections collapsed'], ['v2:returning:reopened', 'Reopened section (Where) with answers kept'], ['v2:returning:validate', 'Error: Find trains with no stations'], ['v2:returning:whoerror', 'Error: child without an adult'], ['v2:returning:stations', 'Station search'], ['v2:returning:who', 'Who: travelers, assistance, discounts'], ['v2:returning:assist', 'Assistance questionnaire'], ['v2:returning:code', 'Discount code'], ['v2:returning:points', 'Paying with points'], ['v2:returning:autotrain', 'Auto Train pairing'], ['v2:guest:ff', 'Guest'], ['v2:triplink:ff', 'TripLink · Corporate'], ['v2:passrider:who', 'Pass Rider · Leisure travelers'], ['v2:passrider-spouse:ff', 'Pass Rider · spouse']]],
   ['Archive · Concept 4 · Compact Fare Finder', [['v4:returning:ff', 'Default: returning member'], ['v4:returning:populated', 'Populated: round trip, 3 travelers, assistance, code'], ['v4:returning:errors', 'Validation errors'], ['v4:returning:loading', 'Loading (slow connection)'], ['v4:returning:offline', 'Offline'], ['v4:guest:ff', 'Guest'], ['v4:returning:stations', 'Station sheet'], ['v4:returning:calendar', 'Dates sheet'], ['v4:returning:travelers', 'Traveler details sheet'], ['v4:returning:code', 'Discount code sheet'], ['v4:returning:points', 'Paying with points'], ['v4:returning:autotrain', 'Auto Train pairing'], ['v4:triplink:ff', 'TripLink · Corporate'], ['v4:passrider:ff', 'Pass Rider · Business Pass'], ['v4:passrider-spouse:ff', 'Pass Rider · spouse']]],
@@ -3169,8 +3281,8 @@ function goLoc(loc) {
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v1': case 'v2': case 'v3': case 'v4': {
-      // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
+    case 'v1': case 'v2': case 'v4': {
+      // Demo entries (New booking, archived Concepts 2 and 4): "v4:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));
       const keep = { net: 'online', entry: VS[n].entry, token: VS[n].token };
@@ -3320,6 +3432,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.header === 'brand') return sheetHeader({ id: `t-${ri}`, title: o.title, closeAttrs: 'data-a="close"', closeLabel: 'Close New booking' }); // New booking: navy brand header
   if (o.kind === 'focus' && o.headInBody) return ''; // the screen renders its own visible heading (id t-ri)
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
@@ -3339,7 +3452,7 @@ function offlineBanner(what) { return V().net === 'offline' ? `<div class="ads-b
 function paneHtml(r, ri, ctx) {
   const o = SCR[r.s](r, ri);
   const body = typeof o.body === 'string' ? o.body : '';
-  return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
+  return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot${o.footCls ? ' ' + o.footCls : ''}">${o.foot}</div>` : ''}</section>`;
 }
 // Second-level screens are pushed inside the same sheet (iOS navigation): the new screen slides in from
 // the right and Back slides it out. While the slide runs, the screen it replaces stays underneath (inert).
@@ -3349,7 +3462,9 @@ function renderSheet(sh, covered) {
   const st = sh.stack, n = st.length, ipad = IPAD();
   const splitOK = ipad && n >= 2 && SPLIT_PARENT(st[n - 2], st[n - 1]);
   const top = st[n - 1], selfSplit = ipad && SPLIT_SELF(top);
-  let cls = 'psheet' + (TB.v === 3 && sh.id === 'booking' ? ' psheet--clear' : TB.v === 4 && sh.id === 'booking' ? ' psheet--fl' : '');
+  let cls = 'psheet' + (TB.v === 4 && sh.id === 'booking' ? ' psheet--fl' : '');
+  const brand = sh.id === 'booking' && n === 1 && st[0].s === 'ff' && TB.v === 1; // New booking root: navy header, no grabber
+  if (brand) cls += ' psheet--brand';
   if (n > 1) cls += ' psheet--pushed';
   // Which way to slide: compare with the depth and top screen at the last render
   const replaced = sh._n === n && sh._top && sh._top !== top;
@@ -3374,7 +3489,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand ? ' data-platform="ios"' : ''}>${ipad || brand ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -3465,7 +3580,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -3479,9 +3594,10 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar', 2: 'Guided', 3: 'Brand forward', 4: 'Compact' };
-// Stakeholder feedback: Concepts 1 and 3 are advanced and reviewed; 2 and 4 are archived (still usable from Archive)
-const REVIEWED = [1, 3], ARCHIVED = [2, 4];
+// One New booking design (Figma Sprint 4 node 3295:51258). The Familiar / Brand forward switch was removed;
+// Concepts 2 and 4 stay archived (reachable only through their demo entries).
+const VERSION_NAMES = { 1: 'New booking', 2: 'Guided', 4: 'Compact' };
+const REVIEWED = [1], ARCHIVED = [2, 4];
 const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates and travelers open in rounded sheets over it; the discount code sits on the surface. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
@@ -3496,8 +3612,6 @@ function scaleDevice() {
 }
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
-  // Switching concept keeps the current scenario: the other concept's data is reloaded with it if it differs
-  seg('#tbVersion', v => { const loc = locOf(), cur = V(); TB.v = +v; if (V().sc !== cur.sc) VS[TB.v] = Object.assign(makeVS(cur.sc), { net: cur.net, entry: cur.entry, token: cur.token }); if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });
@@ -3511,8 +3625,8 @@ function wireToolbar() {
 }
 
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
-const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
-// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
+const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => false /* Concept 3 retired */, v4 = () => TB.v === 4;
+// Archived Concept 4 uses its own booking sheets (Concept 3 was retired: one New booking design)
 const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
@@ -3608,24 +3722,23 @@ function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '
 const fieldWrap = (cls, label, btn) => `<div class="ads-field ${cls}"><span class="ads-field__label" aria-hidden="true">${label}</span>${btn}</div>`;
 // The picker a field opened (iPad keeps the Fare Finder beside it): that field shows as selected
 const openPicker = s => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.s === s ? (top.p.field || true) : null; };
+// Booking components (stationGroup, dateGroup, selectRow, pointsRow, sheetHeader) live in js/ads-booking.js,
+// shared with the DS catalog (docs) so the screen and its examples use the same markup.
+// Dates in the Fare Finder read as in the design: 01/01/2027, then the weekday
+const fmtNumDate = s => parse(s).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+
 function routeField(r, ri, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
-  const half = (f, label) => {
-    const c = b[f], s = c && ST[c];
-    return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body">${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>${e[f] ? `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>` : ''}`);
-  };
-  const errs = '';
-  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-btn ads-btn--tertiary ads-btn--icon-only ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
+  const side = (f, label) => { const c = b[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', errId: `ff-${f}-err`, expanded: open === f, attrs: `data-a="pick-station" data-field="${f}" id="ff-${f}"` }; };
+  return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), errors: { from: e.from, to: e.to }, swapAttrs: 'data-a="swap"', swapDisabled: !b.from && !b.to });
 }
 function dateFields(r, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('calendar');
-  const cal = ic('calendar', 'ads-fieldbtn__trail');
-  const df = (f, label) => {
-    const val = b[f];
-    if (f === 'ret' && b.trip === 'ow') return fieldWrap('', 'Return', `<button class="ads-fieldbtn ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__text"><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></span></button>`);
-    return fieldWrap('', label, `<button class="ads-fieldbtn ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__text">${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-routefield__hint">Choose date</span>`}</span>${cal}</button>`);
-  };
-  return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
+  const dep = { label: 'Departure date', value: b.dep ? fmtNumDate(b.dep) : '', placeholder: 'Choose date', icon: 'calendar', sub: b.dep ? fmtWeekday(b.dep) + (b.dep === TODAY_S ? ' · Today' : '') : '', aria: `Departure date: ${b.dep ? fmtWeekday(b.dep) + ', ' + fmtDate(b.dep) : 'not chosen'}`, expanded: open === 'dep', attrs: 'data-a="pick-date" data-field="dep" id="ff-dep"' };
+  const ret = b.trip === 'ow'
+    ? { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="add-return" id="ff-addret"' }
+    : { label: 'Return date', value: b.ret ? fmtNumDate(b.ret) : '', placeholder: 'Choose date', icon: 'calendar', sub: b.ret ? fmtWeekday(b.ret) + (b.ret === TODAY_S ? ' · Today' : '') : '', aria: `Return date: ${b.ret ? fmtWeekday(b.ret) + ', ' + fmtDate(b.ret) : 'not chosen'}`, err: !!e.ret, expanded: open === 'ret', attrs: 'data-a="pick-date" data-field="ret" id="ff-ret"' };
+  return dateGroup({ start: dep, end: ret, error: e.ret, errId: 'ff-ret-err' });
 }
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
@@ -3633,18 +3746,21 @@ function travField(r, b, opts = {}) {
   const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, d) : paxSummary(b);
   const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const err = travErr(r, b);
-  return fieldWrap('ffc-travfield', 'Travelers', `<button class="ads-fieldbtn ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(val)}${sub ? '. ' + esc(sub) : ''}. Edit travelers, discounts and assistance"${err ? ' aria-invalid="true" aria-describedby="trav-err"' : ''}${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-trav__val">${esc(val)}</span>${sub ? `<span class="ffc-trav__sub">${esc(sub)}</span>` : ''}</span>${ic('chevron-right', 'ads-fieldbtn__trail')}</button>`) + err;
+  return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
 // ADS tabs used as a single-choice switch: roving tabindex, arrow keys handled in core.js
 const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
 const tripSeg = () => { const b = D().booking; return `<div class="ads-tabs ads-tabs--fill trip-tabs" role="tablist" aria-label="Trip type">${tabBtn(b.trip === 'ow', 'data-a="trip" data-v="ow"', 'One-way')}${tabBtn(b.trip === 'rt', 'data-a="trip" data-v="rt"', 'Round-trip')}</div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => asks(b, holderKey(b)) && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
-// Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
+// Pay with points (NMA-624): a switch in the action footer, off (cash) by default. Members see their balance;
+// a guest signs in later, after choosing a fare. Points searches don't take codes.
 function payV1(b) {
   ref('624');
-  return `<div class="v1pay">${payControl(b, 'v1pay')}</div>`;
+  const member = D().signedIn;
+  return pointsRow({ id: 'ff-points', title: 'Pay with points', sub: member ? '12,450 points available' : 'You’ll sign in to use your points after you choose a fare.', checked: b.pay === 'points', attrs: 'data-a="pay-points"' });
 }
+A['pay-points'] = t => { const b = D().booking; b.pay = t.checked ? 'points' : 'cash'; pendingFocus = '#ff-points'; render(); };
 // NMA-624: Cash or Points for guests and members, cash by default. Members see their balance. Choosing points
 // only changes what the search shops for; a guest signs in later, after choosing a fare.
 function payControl(b, id) {
@@ -3694,15 +3810,15 @@ SCR.ff = (r, ri) => {
   const b = D().booking, v = V();
   ref('607', '608', '1060');
   if (b.trip === 'rt') ref('608');
-  if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
   if (v2()) return ffGuided(r, ri);
   const std = ['standard', 'personal'].includes(intentOf(b));
   q(22); if (std) codeTips(); ffFlags(b);
-  // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
+  // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
+  // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
-  return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
+  const body = `<div class="ads-bookingsheet__form">${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
 A.trip = t => { const b = D().booking; b.trip = t.dataset.v; if (b.trip === 'rt') { if (!b.ret) b.ret = b.dep; } else b.ret = null; pendingFocus = `[data-a="trip"][data-v="${t.dataset.v}"]`; render(); };
@@ -3969,7 +4085,7 @@ function catBlock(r, x, idp, mode, e, branch) {
     const sup = off ? companionWhy(b, who.key) : (AC.catHelp[k] || '');
     return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
   }).join('');
-  const legend = mode === 'booking' ? ((v1() || v3()) ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
+  const legend = mode === 'booking' ? (v1() ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
   return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--required">Required</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${branch === undefined && mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
@@ -4530,33 +4646,7 @@ const codeApplies = b => !!(b.code || b.codeText) && ['standard', 'personal'].in
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
-function ffClear(r, ri) {
-  const d = D(), b = d.booking, v = V(), member = d.signedIn;
-  const corp = b.intent === 'corporate', pr = b.intent === 'pr', std = !corp && !pr;
-  ref('607', '608', '1060', '611', '612'); if (std) ref('613', '624');
-  if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
-  // 1. Heading and booking-mode controls
-  const modes = modeEntry(b, 'v3'); // one compact Booking type entry (only for members eligible for a mode)
-  const sub = '';
-  const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
-  const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3>${sub ? `<p class="ffc-sub">${sub}</p>` : ''}${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
-  // 2. Rounded primary surface
-  let prType = '';
-  if (pr) {
-    const elig = d.passrider.role === 'employee' && d.passrider.business;
-    prType = elig && !bpCompact() ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
-      : ''; // Leisure only: shown in the Booking type entry
-  }
-  const trav = travField(r, b);
-  // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
-  q(7);
-  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
-  q(22);
-  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
-  if (std) codeTips(); ffFlags(b);
-  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${netAlert(r)}</div>`, foot: findBtn(r) };
-}
-// Shared by Concepts 1 and 3
+// Shared Fare Finder rules
 // Reviewer flags for unresolved rules that affect the Fare Finder (shown in Screen notes, never in the app)
 function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (d.signedIn && d.triplink && d.passrider) q(26); if (intentOf(b) === 'pr') q(13); }
 const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
@@ -4602,7 +4692,7 @@ A['pr-type'] = t => { const b = D().booking; b.prType = t.dataset.v; b.notice = 
 A['find-trains'] = (t, ri) => {
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
-  if (TB.v === 1 || TB.v === 3) {
+  if (TB.v === 1) {
     r.u.alert = null;
     const inp = document.querySelector('#ff-code'); if (inp) setCodeText(b, inp.value);
     const fail = sel => { r.u.showErr = true; pendingFocus = sel; render(); };
@@ -4615,7 +4705,7 @@ A['find-trains'] = (t, ri) => {
         actions: [['Switch to Personal', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
     }
     r.u.showErr = false;
-    if (codeFormatError(b)) { pendingFocus = '#ff-code'; render(); return; }
+    if (codeFormatError(b)) { pendingFocus = '#ff-code-h, #ff-code'; render(); return; }
     return searchWithCode(r, ri);
   }
   const prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
@@ -4625,7 +4715,7 @@ A['find-trains'] = (t, ri) => {
 };
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
-  const b = D().booking, inline = v1() || v3(); b.codeErr = '';
+  const b = D().booking, inline = v1(); b.codeErr = '';
   if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
   if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
@@ -4637,7 +4727,7 @@ function searchWithCode(r, ri) {
     if (res && res.range) {
       b.codeState = 'ineligible'; b.codeErr = 'This code can’t be used for the dates you chose.';
       dialog({ title: 'Invalid coupon date range', body: 'This code can’t be used for the dates you chose.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) { pendingFocus = '#ff-code'; render(); } else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); push('handoff', {}, +ri); }], ['Close', 'tertiary', null]] });
+        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) push('dcode', {}, +ri); else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); push('handoff', {}, +ri); }], ['Close', 'tertiary', null]] });
       return;
     }
     if (inline && useCode) { b.codeState = 'applied'; b.codeSig = codeSig(b); }
@@ -4704,7 +4794,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -4745,10 +4835,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? travelerCards(b, r) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
-      ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
+      ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
+      ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? travelerCards(b, r) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? travelerCards(b, r) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -4769,7 +4859,7 @@ A.pax = t => {
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
   // A removed traveler takes their own selections with them (NMA-612 BR2, NMA-615 AC1): a traveler added
   // later starts fresh instead of inheriting someone else's discount or assistance
-  if (dlt < 0 && was > 0 && (v1() || v3())) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
+  if (dlt < 0 && was > 0 && v1()) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
   pendingFocus = `[data-a="pax"][data-g="${g}"][data-k="${k}"][data-d="${dlt}"]:not(:disabled), [data-a="pax"][data-g="${g}"][data-k="${k}"]:not(:disabled)`; render();
 };
 function forgetTraveler(b, key) {
@@ -5111,7 +5201,7 @@ const firstKey = b => (travelerList(b)[0] || {}).key;
 // Whose record b.assist is. Concepts 1 and 3 tie it to the account holder ('adult-1', or 'pr-you' for Pass
 // Rider), so it can't move to someone else when travelers are removed or the booker leaves themselves off.
 // The archived concepts keep their original rule (whoever is first).
-const holderKey = b => (v1() || v3()) ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
+const holderKey = b => v1() ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
 const travelerLabel = (b, key) => (travelerList(b).find(t => t.key === key) || { label: 'a traveler no longer on this booking' }).label;
 // The assistance record for one traveler: { m, done, fromProfile }
 function assistRec(b, key) {
@@ -5133,7 +5223,7 @@ function setAssistRec(b, key, m) {
 // Concepts 1 and 3: each traveler has their own "Traveler with disability or need help?" checkbox in Traveler
 // details (b.ask). b.assistOn is derived from it (any traveler checked), so shared summaries keep working.
 // The archived concepts keep one booking-level indication (b.assistOn).
-const perTraveler = () => v1() || v3();
+const perTraveler = () => v1();
 const asks = (b, key) => perTraveler() ? !!(b.ask && b.ask[key]) : !!b.assistOn;
 function setAsk(b, key, on) { b.ask = b.ask || {}; if (on) b.ask[key] = true; else delete b.ask[key]; syncAsk(b); }
 function syncAsk(b) { if (perTraveler()) b.assistOn = travelerList(b).some(t => asks(b, t.key)); }
@@ -5683,8 +5773,31 @@ function codeField(r, b) {
   const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
   // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
   const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Coupon or promotion code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
+  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
 }
+// New booking: the code is a selector row (Figma Sprint 4 node 3295:51258). It opens the code screen, which
+// holds the field above (same rules); results of the check at Find trains show under the row.
+function codeRow(r, b) {
+  if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
+  ref('613'); q(21); q(23);
+  const st = codeStateOf(b), text = b.codeText || '', busy = r.u.busy && text;
+  const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
+  const btn = (a, label, kind = 'secondary') => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${a}">${label}</button>`;
+  let sub = '', msg = '';
+  if (busy) sub = 'Checking your code';
+  else if (bad) msg = `<p class="ads-helper ads-helper--error dcode__msg" id="ff-code-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>${st === 'error' ? `<div class="dcode__acts">${btn('code-retry', 'Try again')}</div>` : st === 'ineligible' ? `<div class="dcode__acts">${btn('code-skip', 'Find trains without this code')}</div>` : ''}`;
+  else if (st === 'applied') sub = `Code applied${b.code && b.code.benefit ? `: ${b.code.benefit}` : ''}`;
+  else if (st === 'changed') sub = 'Your trip changed, so this code will be checked again when you find trains.';
+  else if (b.code && b.code.benefit) sub = `${b.code.kind}: ${b.code.benefit}`;
+  else if (text) sub = 'Checked when you find trains';
+  return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply discount code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
+}
+A['code-open'] = (t, ri) => push('dcode', {}, +ri);
+SCR.dcode = (r, ri) => {
+  const b = D().booking;
+  return { title: 'Coupon or promotional code', kind: 'push', body: codeField(r, b), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="dcode-done">Done</button>`, footCls: 'ads-actionfooter' };
+};
+A['dcode-done'] = (t, ri) => { const inp = document.querySelector('#ff-code'); if (inp) setCodeText(D().booking, inp.value); popTo(+ri - 1); pendingFocus = '#ff-coderow'; };
 INFO['saved-codes'] = {
   title: 'Saved codes',
   body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`
@@ -6026,45 +6139,10 @@ A['trav-cancel'] = (t, ri) => {
   r.u.snap = null; popTo(+ri - 1); pendingFocus = '[data-a="pick-travelers"]'; render();
 };
 
-/* Sprint 4 prototype: Version 3 (Overview). The Fare Finder is the overview of the whole booking:
-   - a Travelers overview shows every traveler with their discount, assistance and companion pairing, each
-     editable on its own;
-   - booking as Pass Rider, an eligibility card shows role, travel type, companion passes and the
-     dependent age rule.
-   Editing a traveler opens one sheet level (no extra layers). It changes the booking live so the overview
-   updates at once; Cancel puts back what that sheet changed, Done keeps it. Assistance opens inside the same
-   sheet and returns to that traveler. */
+/* Sprint 4 prototype: one-traveler editing sheet (used by archived Concept 4), Cancel steps, Exit booking and
+   promotion-code clearing. The Concept 3 overview was retired with the Familiar / Brand forward switch. */
 
-// Travelers overview: one row per traveler, with discount, assistance and companion at a glance
-function overviewTravelers(r, ri, b) {
-  const it = intentOf(b), std = ['standard', 'personal'].includes(it), list = travelerList(b);
-  const rows = list.map(t => {
-    const a = assistRec(b, t.key), c = assistCat(b, t.key), err = travelerError(b, t);
-    const chips = [];
-    // Only what was chosen: no "No discount" or "No assistance" labels (the Edit sheet still offers both)
-    // NMA-611 BR10: the discount choice is open by default, so travelers who can choose one get it inline
-    const opts = std ? discOpts(b, t) : null, dx = std ? tdiscOf(b, t) : null, inlineDisc = opts && !['pwd', 'companion'].includes(dx);
-    const discSel = inlineDisc ? `<div class="ov-disc"><label class="ov-disc__label" for="ovd-${t.key}">Discount</label><div class="ads-control ads-control--select"><select id="ovd-${t.key}" data-f="ovd" data-nodirty data-hook="tdisc" data-key="${t.key}">${opts.map(o => `<option value="${o}" ${dx === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div></div>` : '';
-    if (std && !inlineDisc) { const x = dx; if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
-    if (asks(b, t.key) && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
-    const kindSel = it === 'pr' && t.key !== 'pr-you' ? `<div class="ov-disc"><label class="ov-disc__label" for="ovk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="ovk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${prKind(b, t.key) === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${prKind(b, t.key) === 'child' ? 'selected' : ''}>Child</option></select>${ic('chevron-down')}</div></div>` : '';
-    if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
-    if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
-    if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && asks(b, t.key) ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${kindSel}${assistAsk(b, t, r)}${asks(b, t.key) && !a.done && !(r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy) ? `<span class="ov-trav__answer"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-answer" data-t="${t.key}" aria-label="Add assistance for ${esc(t.label)}">Add</button></span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div></li>`;
-  }).join('');
-  // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
-  return `${assistIntro()}<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
-}
-// Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
-function overviewPassRider(b) {
-  const d = D(), p = d.passrider; if (intentOf(b) !== 'pr' || !p) return '';
-  const can = prCanStart(d), rows = [['Booking as', `${prMeName(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
-  if (p.role === 'employee') rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]);
-  return `<section class="ov-pr" aria-label="Pass Rider eligibility"><p class="ov-pr__title">${ic(can.ok ? 'check-circle' : 'alert-diamond', 'ads-icon--sm')}Pass Rider ${can.ok ? 'eligible' : 'not available'}</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${can.ok ? '' : `<p class="ads-helper">${esc(can.text)}</p>`}</section>`;
-}
-
-// ---------- Editing one traveler from the overview ----------
+// ---------- Editing one traveler (archived Concept 4 traveler rows) ----------
 const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} });
 A['ov-traveler'] = (t, ri) => {
   const b = D().booking; push('traveler', { t: t.dataset.t }, +ri);
@@ -6085,7 +6163,7 @@ A['sheet-cancel'] = (t, ri) => {
 };
 A['sheet-done'] = (t, ri) => popTo(+ri - 1);
 
-// Steps with Cancel (Overview traveler sheet, Familiar Traveler selection): Escape and X don't keep their
+// Steps with Cancel (Traveler selection): Escape and X don't keep their
 // unconfirmed edits either. Escape cancels the step; X puts the step back, then closes the booking.
 function cancelActionFor(r) { return !r ? null : r.s === 'traveler' ? 'sheet-cancel' : r.s === 'travelers' && v1() ? 'trav-cancel' : null; }
 const closeBeforeCancel = A.close;
@@ -6095,7 +6173,7 @@ A.close = A.scrim = (t, ri) => {
   return closeBeforeCancel(t, ri);
 };
 
-// ---------- Exit booking? (Concepts 1 and 3) ----------
+// ---------- Exit booking? ----------
 // Something is filled out when the trip differs from a new booking's starting values (Profile prefills count as
 // starting values, so they don't trigger the question on their own)
 const FILL_KEYS = ['trip', 'from', 'to', 'dep', 'ret', 'disc', 'pax', 'tdisc', 'pay', 'intent', 'prType', 'prPax', 'prKinds', 'codeText', 'code', 'ask', 'ta', 'assist', 'assistDone'];
@@ -6110,7 +6188,7 @@ function bookingFilled(b) {
 const closeBeforeExit = A.close;
 A.close = A.scrim = (t, ri) => {
   const sh = sheet();
-  if (!sh || sh.id !== 'booking' || !(v1() || v3()) || nav().dialog) return closeBeforeExit(t, ri);
+  if (!sh || sh.id !== 'booking' || !v1() || nav().dialog) return closeBeforeExit(t, ri);
   const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
   if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
   dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',
@@ -6856,7 +6934,7 @@ setChrome(false, false);
 
 /* Sprint 4 prototype: start-up */
 TB.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-{ const v = store.get('s4-v'); if (['1', '3'].includes(v)) TB.v = +v; /* only reviewed concepts are restored */ const d = store.get('s4-dev'); if (d === 'iphone' || d === 'ipad') TB.dev = d; }
+{ TB.v = 1; store.set('s4-v', '1'); /* one New booking design: no concept switch */ const d = store.get('s4-dev'); if (d === 'iphone' || d === 'ipad') TB.dev = d; }
 const _render = render;
 render = function () { document.documentElement.dataset.theme = TB.theme; _render(); syncBookHeader(); };
 wireToolbar(); wireDevice(); render();

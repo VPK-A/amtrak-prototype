@@ -5,6 +5,14 @@ src = (root / "docs/src.html").read_text()
 css = "\n".join((root / f"css/{n}.css").read_text() for n in ("tokens", "icons", "components"))
 tokens = json.loads((root / "dist/tokens.resolved.json").read_text())
 icons = sorted(json.loads((root / "icons/icons.json").read_text()).keys())
+def booking_js():
+    """js/ads-booking.js with the brand arrows inlined, exactly as the Sprint 4 prototype build does."""
+    js = (root / "js/ads-booking.js").read_text()
+    for token, name in (("__ARROW_RED__", "brand-arrow-end-red"), ("__ARROW_BLUE__", "brand-arrow-end-blue")):
+        svg = (root / f"logos/{name}.svg").read_text().strip()
+        svg = re.sub(r' style="[^"]*"', ' aria-hidden="true" focusable="false"', svg, count=1).replace(' id="Arrow end"', '')
+        js = js.replace(token, svg)
+    return js
 def logo(name):
     s = (root / f"logos/{name}.svg").read_text().strip()
     return re.sub(r'width="\d+" height="\d+"', 'style="display:block;width:100%;height:auto"', s, count=1)
@@ -13,6 +21,7 @@ out = (src.replace("/*__ADS_CSS__*/", css)
           .replace("/*__ICONS__*/[]", json.dumps(icons))
           .replace("/*__IA__*/null", (root / "ia/app-shell.json").read_text())
           .replace("__LOGO_H__", logo("travelmark-horizontal"))
-          .replace("__LOGO_V__", logo("travelmark-vertical")))
+          .replace("__LOGO_V__", logo("travelmark-vertical"))
+          .replace("/*__BOOKING_JS__*/", booking_js()))
 (root / "docs/index.html").write_text(out)
 print("docs/index.html", len(out) // 1024, "KB")

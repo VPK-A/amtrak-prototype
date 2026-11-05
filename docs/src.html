@@ -146,6 +146,7 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
 .stagecard__top .ads-badge { text-transform: none; letter-spacing: 0; }
 .proto__scrim { position: absolute; inset: 0; z-index: 3; display: flex; align-items: flex-end; background: var(--ads-background-surface-scrim); }
 .proto__sheet { width: 100%; max-height: 88%; overflow-y: auto; }
+.proto__sheet.ads-bookingsheet { height: 92%; max-height: none; overflow: hidden; }
 .sec { margin: 6px 0 -4px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ads-content-text-tertiary); }
 .panel { display: flex; flex-direction: column; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); border: 1px solid var(--ads-border-subtle); overflow: hidden; }
 .panel > .row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; }
@@ -178,6 +179,17 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
   .two, .three { grid-template-columns: minmax(0, 1fr); }
   .type-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
 }
+
+/* ---- New booking (iOS) catalog ---- */
+.bk-phone { position: relative; width: 390px; max-width: 100%; height: 844px; margin: 0 auto; border: 1px solid var(--doc-rule); border-radius: 28px; overflow: hidden; background: var(--ads-background-surface-scrim); display: flex; flex-direction: column; }
+.bk-phone__status { height: 58px; flex: none; padding: 16px 28px 0; font-size: 15px; font-weight: 600; color: var(--ads-content-text-on-inverse); }
+.stack { display: flex; flex-direction: column; gap: var(--ads-space-24); min-width: 0; }
+.bk-phone__sheet { flex: 1 1 auto; }
+.bk-list { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; }
+.bk-cell { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 20px; background: var(--ads-background-surface-page); }
+.bk-cell--flush { padding: 0; overflow: hidden; }
+.specimen:has(> .bk-cell) { padding: 0; overflow: hidden; }
+.bk-cap { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--doc-rule); font-size: 12px; color: var(--doc-muted); background: var(--doc-panel); }
 </style>
 
 <div class="ads-root">
@@ -204,7 +216,7 @@ code.t { font: 12px var(--doc-mono); background: var(--doc-code-bg); padding: 1p
   <span class="ads-overline">Components</span>
   <a href="#button">Button</a><a href="#link">Link</a><a href="#badge">Badge</a><a href="#alert">Alert</a><a href="#forms">Text Input &amp; Select</a><a href="#choice">Checkbox, Radio, Switch</a><a href="#counter">Counter</a><a href="#search">Search &amp; List</a><a href="#accordion">Accordion</a><a href="#tabs">Tabs</a><a href="#card">Card</a><a href="#progress">Progress</a><a href="#tooltip">Tooltip</a><a href="#modal">Modal</a><a href="#date">Date Picker</a>
   <span class="ads-overline">Mobile</span>
-  <a href="#mobile">App shell &amp; tab bars</a>
+  <a href="#mobile">App shell &amp; tab bars</a><a href="#booking">New booking (iOS)</a>
 </nav>
 
 <main>
@@ -483,7 +495,7 @@ gap: var(--ads-space-16);</pre>
   </div>
 
   <h3 class="sub">Prototype</h3>
-  <p class="note">Use the switcher to set the traveler's situation. The app opens on the matching tab, and the Active trip card follows the journey stage. Tap the avatar or the inbox for their sheets, and New Booking for the booking sheet.</p>
+  <p class="note">Use the switcher to set the traveler's situation. The app opens on the matching tab, and the Active trip card follows the journey stage. Tap the avatar or the inbox for their sheets, and New booking for the booking sheet.</p>
   <div class="proto">
     <div class="proto__controls">
       <div class="ads-field"><span class="ads-field__label" id="sw1">Traveler situation</span><div class="ads-segmented" role="group" aria-labelledby="sw1" id="swSituation"><button type="button" data-v="no-trip" aria-pressed="false">No trip</button><button type="button" data-v="upcoming" aria-pressed="false">Upcoming</button><button type="button" data-v="active" aria-pressed="true">Active</button></div></div>
@@ -553,7 +565,7 @@ gap: var(--ads-space-16);</pre>
       <div class="ads-row" style="--ads-row-gap:8px"><button class="ads-icon-btn ads-icon-btn--round" aria-label="Notification Inbox, 6 unread"><span class="ads-icon ads-icon--email"></span><span class="ads-icon-btn__dot"></span></button><button class="ads-appheader__account" style="flex:none" aria-label="Account"><span class="ads-avatar">AR</span></button></div>
     </div>
     <div class="ipad__body">
-      <button class="newbooking" type="button"><span class="ads-icon ads-icon--search"></span><b>New Booking</b><span class="ads-text-tertiary">Where to?</span></button>
+      <button class="newbooking" type="button"><span class="ads-icon ads-icon--search"></span><b>New booking</b><span class="ads-text-tertiary">Where to?</span></button>
       <div class="ipad__search">
         <div class="ads-field"><label class="ads-field__label" for="ip1">From</label><div class="ads-control ads-control--lg"><span class="ads-control__station">NYP</span><input id="ip1" value="New York, NY"></div></div>
         <div class="ads-field"><label class="ads-field__label" for="ip2">To</label><div class="ads-control ads-control--lg"><span class="ads-control__station">WAS</span><input id="ip2" value="Washington, DC"></div></div>
@@ -563,11 +575,62 @@ gap: var(--ads-space-16);</pre>
   </div>
   <p class="note">On iPad the four destinations move into the glass bar at the top, and Account and Inbox sit at the trailing edge, so the header stays a single row. On a device, use the system <code class="t">TabView</code> with ADS brand blue as the tint; these CSS versions are for web views and prototypes.</p>
 </section>
+
+<section id="booking">
+  <header><h2 class="ads-h2">New booking (iOS)</h2><p>The booking modal from Figma Sprint 4 (node 3295:51258) and the components it is built from. These examples always use the iOS layer, whatever the Platform toggle says. Markup comes from <code class="t">js/ads-booking.js</code>, the same renderers the Sprint 4 prototype uses, and styles from <code class="t">css/components.css</code> › Booking components.</p></header>
+
+  <h3 class="sub">Composed · New booking modal</h3>
+  <p class="note">Interactive: switch One-way and Round-trip, swap the stations, and turn Pay with points on (the code row hides, as it does in the app).</p>
+  <div class="two">
+    <div class="bk-phone" data-platform="ios"><div class="bk-phone__status"><span>9:41</span></div><div class="ads-bookingsheet bk-phone__sheet" id="bkModal" role="dialog" aria-modal="false" aria-labelledby="bkm-title"></div></div>
+    <div class="stack">
+      <div class="specimen"><p class="ads-field-label specimen__label ads-text-secondary">Anatomy, top to bottom</p>
+        <ol class="bk-list">
+          <li><b>Sheet header</b> · <code class="t">ads-sheet-header</code>: close (Icon Button, Small, 44px target), title in H2, brand arrows. 16px top radius.</li>
+          <li><b>Trip-type tabs</b> · <code class="t">ads-tabs ads-tabs--fill</code>: two equal tabs, 2px brand indicator on a 1px rule.</li>
+          <li><b>Station field group</b> · <code class="t">ads-stationgroup</code> with the <b>swap button</b> <code class="t">ads-swap-btn</code> on the divider.</li>
+          <li><b>Date group</b> · <code class="t">ads-dategroup</code>: departure and return side by side.</li>
+          <li><b>Selector rows</b> · <code class="t">ads-selectrow</code>: Travelers, then Coupon or promotional code.</li>
+          <li><b>Action footer</b> · <code class="t">ads-actionfooter</code>: <b>points row</b> <code class="t">ads-pointsrow</code> above a full-width primary Button.</li>
+        </ol>
+        <p class="note">Spacing: 12px above the tabs, 24px between blocks, 20px margins; the footer pads 20px and keeps clear of the home indicator with <code class="t">env(safe-area-inset-bottom)</code>. Every target is 44px or larger.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">Sheet header</h3>
+  <div class="two" data-platform="ios" id="bkHeaders"></div>
+
+  <h3 class="sub">Trip-type tabs</h3>
+  <div class="three" data-platform="ios" id="bkTabs"></div>
+
+  <h3 class="sub">Station field group &amp; swap button</h3>
+  <div class="two" data-platform="ios" id="bkStations"></div>
+
+  <h3 class="sub">Date group</h3>
+  <div class="three" data-platform="ios" id="bkDates"></div>
+
+  <h3 class="sub">Selector row</h3>
+  <div class="three" data-platform="ios" id="bkRows"></div>
+
+  <h3 class="sub">Points payment row &amp; action footer</h3>
+  <div class="three" data-platform="ios" id="bkPoints"></div>
+
+<pre class="code">&lt;!-- js/ads-booking.js renders these; the classes are the contract --&gt;
+stationGroup({ from: { label: 'From', code: 'NYP', city: 'New York, NY', facility: 'Moynihan Train Hall', attrs: 'id="ff-from"' },
+               to: { label: 'To', placeholder: 'Where to?' }, errors: { to: 'Choose an arrival station' } })
+dateGroup({ start: { label: 'Departure date', value: '01/01/2027', icon: 'calendar', sub: 'Friday' },
+            end: { label: 'Return date', value: 'Add return', icon: 'plus-circle' } })
+selectRow({ id: 'trav', label: 'Travelers', icon: 'person', value: '1 adult' })
+pointsRow({ id: 'pts', title: 'Pay with points', sub: '12,450 points available', checked: false })
+sheetHeader({ id: 'title', title: 'New booking', closeAttrs: 'data-close' })</pre>
+</section>
 </main>
 </div>
 <div class="toast ads-badge ads-badge--info" id="toast" hidden></div>
 </div>
 
+<script>/*__BOOKING_JS__*/</script>
 <script>
 const T = /*__TOKENS__*/null;
 const ICONS = /*__ICONS__*/[];
@@ -724,7 +787,7 @@ function stageCard(s) {
 }
 const SCREENS = {
   book: () => `<h2 class="ads-h3">Book</h2>
-    <button class="newbooking" type="button" data-sheet="booking"><span class="ads-icon ads-icon--search"></span><b>New Booking</b><span class="ads-text-tertiary">Where to?</span></button>
+    <button class="newbooking" type="button" data-sheet="booking"><span class="ads-icon ads-icon--search"></span><b>New booking</b><span class="ads-text-tertiary">Where to?</span></button>
     <p class="sec">Explore destinations</p><div class="tiles"><div class="tile"><b>Recommended trips</b><small>Pacific Surfliner, Adirondack</small></div><div class="tile"><b>Routes near me</b><small>Favorite stations</small></div></div>
     <p class="sec">Quick Rebook</p><div class="panel"><div class="row"><div><span>New York (NYP) → Washington (WAS)</span><small>Today · Train 171</small></div><button class="ads-btn ads-btn--sm" type="button">Rebook</button></div><div class="row"><div><span>Boston (BOS) → New York (NYP)</span><small>Sep 14 · Train 2150</small></div><button class="ads-btn ads-btn--sm" type="button">Rebook</button></div></div>
     <p class="sec">Plan your trip</p><div class="panel">${row('Explore', 'Amtrak offers · Points-based upgrades · Destination map')}${row('Passes', 'Buy · Personalized pass recommendations')}${row('Gift cards', 'Buy or redeem')}</div>`,
@@ -762,16 +825,13 @@ const SHEETS = {
     <h2 class="ads-h3 ads-sheet__title" id="sheetTitle">Notification Inbox</h2>
     <div class="ads-row" style="justify-content:space-between"><span class="ads-body-small ads-text-secondary">6 unread</span><a class="ads-link ads-link--sm" href="#mobile">Mark all as read</a></div>
     <div class="panel">${[['Boarding soon · Train 171', '12 min ago', 'Track 12W assigned at New York Penn. Boarding begins 1:50 PM.'], ['Schedule change · Train 2150', '25 min ago', 'Your Acela departs Boston 10 minutes earlier on Oct 12. No action needed.'], ['Seat confirmed', '1 hr ago', 'Car 5, Seat 12A for your trip to Washington · Tue, Oct 13.'], ['Fall fares are here', '2 hr ago', 'Save up to 25% on Northeast Regional trips booked by Oct 31.'], ["You're close to Select Executive", '5 hr ago', 'Earn 2,550 more tier qualifying points this year to reach the next tier.']].map(([t, w, d]) => `<div class="row"><span class="unread"></span><div><span class="ads-row" style="justify-content:space-between;flex-wrap:nowrap"><b class="ads-body-small-emphasis">${t}</b><small>${w}</small></span><small>${d}</small></div></div>`).join('')}<div class="row"><div><span class="ads-row" style="justify-content:space-between"><span class="ads-body-small">Points posted</span><small>Sep 16</small></span><small>1,580 points from your Sep 14 trip were added to your balance.</small></div></div></div>`,
-  booking: () => `<span class="ads-sheet__grabber"></span><div class="ads-sheet__bar"><span></span><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-close aria-label="Close"><span class="ads-icon ads-icon--close ads-icon--sm"></span></button></div>
-    <h2 class="ads-h3 ads-sheet__title" id="sheetTitle">New Booking</h2>
-    ${seg('bk', [['ow', 'One-way'], ['rt', 'Round-trip']], 'ow')}
-    <div class="ads-field"><label class="ads-field__label" for="bf">From</label><div class="ads-control"><input id="bf" placeholder="City, station or code"></div></div>
-    <div class="ads-field"><label class="ads-field__label" for="bt">To</label><div class="ads-control"><input id="bt" placeholder="City, station or code"></div></div>
-    <div class="ads-row" style="--ads-row-gap:8px"><span class="ads-caption ads-text-secondary">Popular</span><button class="ads-badge" type="button" style="border:0">New York (NYP)</button><button class="ads-badge" type="button" style="border:0">Boston (BOS)</button><button class="ads-badge" type="button" style="border:0">Washington (WAS)</button></div>
-    <div class="ads-field"><label class="ads-field__label" for="bd">Depart</label><div class="ads-control"><input id="bd" value="Tue, Oct 13"><span class="ads-icon ads-icon--calendar"></span></div></div>
-    <div class="ads-switch-row"><span>Travelers</span><div class="ads-counter" data-counter data-min="1" data-max="8"><button class="ads-counter__step" type="button" aria-label="Fewer travelers"><span class="ads-icon ads-icon--minus"></span></button><output class="ads-counter__value">1</output><button class="ads-counter__step" type="button" aria-label="More travelers"><span class="ads-icon ads-icon--plus"></span></button></div></div>
-    <button class="ads-btn ads-btn--block ads-btn--lg" type="button"><span class="ads-icon ads-icon--search"></span>Search trains</button>
-    <p class="sec">Recent</p><div class="panel">${row('New York (NYP) → Washington (WAS)', 'Today · Train 171')}${row('Boston (BOS) → New York (NYP)', 'Sep 14 · Train 2150')}</div>`
+  // The same New booking modal as the #booking section and the Sprint 4 prototype (js/ads-booking.js)
+  booking: () => sheetHeader({ id: 'sheetTitle', title: 'New booking', closeAttrs: 'data-close' })
+    + `<div class="ads-bookingsheet__body"><div class="ads-bookingsheet__form"><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trip type"><button class="ads-tab" type="button" role="tab" aria-selected="true">One-way</button><button class="ads-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Round-trip</button></div>`
+    + stationGroup({ from: { label: 'From', code: 'NYP', city: 'New York, NY', facility: 'Moynihan Train Hall at Penn Station' }, to: { label: 'To', code: 'WAS', city: 'Washington, DC', facility: 'Washington Union Station' } })
+    + dateGroup({ start: { label: 'Departure date', value: '10/13/2026', icon: 'calendar', sub: 'Tuesday' }, end: { label: 'Return date', value: 'Add return', icon: 'plus-circle' } })
+    + selectRow({ id: 'shTrav', label: 'Travelers', icon: 'person', value: '1 adult' }) + selectRow({ id: 'shCode', label: 'Coupon or promotional code', value: 'Apply discount code' })
+    + `</div></div><div class="ads-actionfooter">${pointsRow({ id: 'shPts', title: 'Pay with points', sub: '12,450 points available' })}<button class="ads-btn ads-btn--block" type="button">Find trains</button></div>`
 };
 function protoRender() {
   $('#screen').innerHTML = SCREENS[P.tab]();
@@ -786,7 +846,7 @@ function land() { const L = IA.landing.find(l => l.situation === P.situation); P
 $('#swSituation').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { P.situation = b.dataset.v; land(); } });
 $('#swStage').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { P.stage = b.dataset.v; P.tab = 'trips'; P.tripSeg = 'active'; protoRender(); } });
 $('#protoTabs').addEventListener('click', e => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); P.tab = a.dataset.tab; protoRender(); });
-function openSheet(k) { $('#sheet').innerHTML = SHEETS[k](); $('#sheetScrim').hidden = false; wireCounters($('#sheet')); $('#sheet [data-close]').focus(); }
+function openSheet(k) { const sh = $('#sheet'); sh.className = (k === 'booking' ? 'ads-bookingsheet' : 'ads-sheet') + ' proto__sheet'; if (k === 'booking') sh.setAttribute('data-platform', 'ios'); else sh.removeAttribute('data-platform'); sh.innerHTML = SHEETS[k](); $('#sheetScrim').hidden = false; wireCounters($('#sheet')); $('#sheet [data-close]').focus(); }
 function closeSheet() { $('#sheetScrim').hidden = true; }
 $('.proto__phone').addEventListener('click', e => {
   const s = e.target.closest('[data-sheet]'); if (s) { openSheet(s.dataset.sheet); return; }
@@ -808,4 +868,65 @@ renderShellMap(); land();
 
 renderRamps(); renderSemantic(); renderScales(); renderIcons(); renderDate();
 applyTheme(store.get('ads-theme') || 'system'); applyPlat(store.get('ads-plat') || 'web');
+
+// ---------- New booking (iOS): composed modal and component grid, from js/ads-booking.js ----------
+(function () {
+  const cell = (cap, html, flush) => `<div class="specimen"><p class="bk-cap">${cap}</p><div class="bk-cell${flush ? ' bk-cell--flush' : ''}">${html}</div></div>`;
+  const tabs = (sel, focus) => `<div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trip type">${[['ow', 'One-way'], ['rt', 'Round-trip']].map(([v, l]) => `<button class="ads-tab" type="button" role="tab" data-trip="${v}"${focus === v ? ' style="outline:var(--ads-focus-ring-width) solid var(--ads-border-focus);outline-offset:-2px"' : ''} aria-selected="${sel === v}" tabindex="${sel === v ? 0 : -1}">${l}</button>`).join('')}</div>`;
+  const NYP = { label: 'From', code: 'NYP', city: 'New York, NY', facility: 'Moynihan Train Hall at Penn Station' };
+  const WAS = { label: 'To', code: 'WAS', city: 'Washington, DC', facility: 'Washington Union Station' };
+  const dep = { label: 'Departure date', value: '01/01/2027', icon: 'calendar', sub: 'Friday', aria: 'Departure date: Friday, January 1, 2027' };
+  const ret = { label: 'Return date', value: '01/04/2027', icon: 'calendar', sub: 'Monday', aria: 'Return date: Monday, January 4, 2027' };
+  const addRet = { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-addret' };
+  // Composed modal
+  const BK = { trip: 'ow', from: NYP, to: WAS, pay: false };
+  function bkModal() {
+    const std = !BK.pay;
+    return sheetHeader({ id: 'bkm-title', title: 'New booking', closeAttrs: 'data-bk-close' })
+      + `<div class="ads-bookingsheet__body"><div class="ads-bookingsheet__form">${tabs(BK.trip)}`
+      + stationGroup({ from: Object.assign({}, BK.from, { label: 'From' }), to: Object.assign({}, BK.to, { label: 'To' }), swapAttrs: 'data-bk-swap' })
+      + dateGroup({ start: dep, end: BK.trip === 'ow' ? addRet : ret })
+      + selectRow({ id: 'bkm-trav', label: 'Travelers', icon: 'person', value: '1 adult' })
+      + (std ? selectRow({ id: 'bkm-code', label: 'Coupon or promotional code', value: 'Apply discount code' }) : '')
+      + `</div></div><div class="ads-actionfooter">${pointsRow({ id: 'bkm-pts', title: 'Pay with points', sub: '12,450 points available', checked: BK.pay, attrs: 'data-bk-pts' })}<button class="ads-btn ads-btn--block" type="button">Find trains</button></div>`;
+  }
+  const modal = document.getElementById('bkModal');
+  const draw = () => { modal.innerHTML = bkModal(); };
+  modal.addEventListener('click', e => {
+    const t = e.target.closest('[data-trip]'); if (t) { BK.trip = t.dataset.trip; draw(); modal.querySelector(`[data-trip="${BK.trip}"]`).focus(); return; }
+    if (e.target.closest('[data-addret]')) { BK.trip = 'rt'; draw(); return; }
+    if (e.target.closest('[data-bk-swap]')) { [BK.from, BK.to] = [BK.to, BK.from]; draw(); modal.querySelector('[data-bk-swap]').focus(); return; }
+  });
+  modal.addEventListener('change', e => { if (e.target.matches('[data-bk-pts]')) { BK.pay = e.target.checked; draw(); modal.querySelector('[data-bk-pts]').focus(); } });
+  draw();
+  // Component grid: variants and states
+  document.getElementById('bkHeaders').innerHTML =
+    cell('Brand · default', sheetHeader({ id: 'bkh1', title: 'New booking' }), true) +
+    cell('Plain · no brand arrows (long titles, nested sheets)', sheetHeader({ id: 'bkh2', title: 'Coupon or promotional code', plain: true }), true);
+  document.getElementById('bkTabs').innerHTML =
+    cell('One-way selected', tabs('ow')) + cell('Round-trip selected', tabs('rt')) + cell('Focused (keyboard)', tabs('ow', 'rt'));
+  document.getElementById('bkStations').innerHTML =
+    cell('Filled', stationGroup({ from: NYP, to: WAS })) +
+    cell('Empty · swap disabled', stationGroup({ from: { label: 'From', placeholder: 'Where from?' }, to: { label: 'To', placeholder: 'Where to?' }, swapDisabled: true })) +
+    cell('Error · after Find trains', stationGroup({ from: NYP, to: { label: 'To', placeholder: 'Where to?', errId: 'bks-err' }, errors: { to: 'Choose an arrival station' } })) +
+    cell('Focused field', stationGroup({ from: Object.assign({}, NYP, { attrs: 'data-focus' }), to: WAS }).replace('data-focus', 'data-focus style="outline:var(--ads-focus-ring-width) solid var(--ads-border-focus);outline-offset:-2px"'));
+  document.getElementById('bkDates').innerHTML =
+    cell('One-way · Add return', dateGroup({ start: dep, end: addRet })) +
+    cell('Round-trip', dateGroup({ start: dep, end: ret })) +
+    cell('Error · return missing', dateGroup({ start: dep, end: { label: 'Return date', placeholder: 'Choose date', icon: 'calendar', err: true }, error: 'Choose a return date', errId: 'bkd-err' }));
+  document.getElementById('bkRows').innerHTML =
+    cell('With icon · value', selectRow({ id: 'bkr1', label: 'Travelers', icon: 'person', value: '1 adult' })) +
+    cell('Prompt · no icon', selectRow({ id: 'bkr2', label: 'Coupon or promotional code', value: 'Apply discount code' })) +
+    cell('Supporting text', selectRow({ id: 'bkr3', label: 'Travelers', icon: 'person', value: '2 adults, 1 child', sub: 'Assistance for 1 traveler' })) +
+    cell('Error', selectRow({ id: 'bkr4', label: 'Coupon or promotional code', value: 'V12', invalid: true, describedby: 'bkr4-h', after: '<p class="ads-helper ads-helper--error" id="bkr4-h"><span class="ads-icon ads-icon--alert-diamond" aria-hidden="true"></span><span>This code isn’t valid. Check it and try again.</span></p>' })) +
+    cell('Disabled', selectRow({ id: 'bkr5', label: 'Travelers', icon: 'person', value: '1 adult · You', disabled: true })) +
+    cell('Selected (picker open, iPad)', selectRow({ id: 'bkr6', label: 'Travelers', icon: 'person', value: '1 adult', attrs: 'aria-current="true" style="border-color:var(--ads-border-brand);box-shadow:inset 0 0 0 1px var(--ads-border-brand)"' }));
+  document.getElementById('bkPoints').innerHTML =
+    cell('Off · member', pointsRow({ id: 'bkp1', title: 'Pay with points', sub: '12,450 points available' })) +
+    cell('On', pointsRow({ id: 'bkp2', title: 'Pay with points', sub: '12,450 points available', checked: true })) +
+    cell('Guest', pointsRow({ id: 'bkp3', title: 'Pay with points', sub: 'You’ll sign in to use your points after you choose a fare.' })) +
+    cell('Disabled', pointsRow({ id: 'bkp4', title: 'Pay with points', sub: 'Not available for this booking type', disabled: true })) +
+    cell('Action footer', `<div class="ads-actionfooter" style="margin:-20px">${pointsRow({ id: 'bkp5', title: 'Pay with points', sub: '12,450 points available' })}<button class="ads-btn ads-btn--block" type="button">Find trains</button></div>`) +
+    cell('Action footer · busy', `<div class="ads-actionfooter" style="margin:-20px"><button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled><span class="ads-icon ads-icon--spinner-static" aria-hidden="true"></span>Finding trains</button></div>`);
+})();
 </script>

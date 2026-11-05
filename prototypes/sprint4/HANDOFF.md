@@ -2,13 +2,20 @@
 
 ## Review scope (current)
 
-Two concepts are in review: **1 · Familiar** and **3 · Overview**. They keep their names, numbers and interaction models, and share the same scenarios, business rules and booking data, so they can be compared directly. **2 · Guided** and **4 · Compact** are archived. They still work from *Archive* in the toolbar and from the *Archive* groups at the end of the Flow menu, but they aren't part of the review and aren't re-checked when the shared code changes.
+One New booking design is in review: the modal from Figma Sprint 4 (node 3295:51258). The Familiar / Brand forward switch was removed, along with Concept 3's booking screens; there's no concept toggle in the prototype controls. **2 · Guided** and **4 · Compact** stay archived (reachable only from their demo entries).
+
+**New booking modal (Figma 3295:51258)**
+- Navy sheet header with close, "New booking" and the brand arrows; One-way / Round-trip tabs; From and To stacked in one field group with the circular swap button; departure and return side by side; Travelers and Coupon or promotional code as selector rows; an action footer with Pay with points (a switch) and Find trains.
+- Components live in the design system: `css/components.css` › Booking components and `js/ads-booking.js` (the markup renderers, shared with the DS catalog's *New booking (iOS)* section in `docs/`).
+- Kept: every booking rule and validation (station, return date, travelers, assistance, Pass Rider travel type, TripLink, Auto Train), exit confirmation, booking modes for eligible members above the tabs.
+- Changed interaction: the code is entered on its own screen (the row opens it; Done returns). Code results from Find trains show under the row. Pay with points is a switch instead of Cash / Points radios; turning it on still hides the code.
+- The sheet uses the iOS type layer (`data-platform="ios"`); dates read 01/01/2027 with the weekday below, as in the design.
 
 The sections below this one are the history of the exploration, and some still describe all four versions.
 
 ### 1. Confirmed stakeholder feedback
 
-- Advance Concepts 1 (Familiar) and 3 (Overview). Keep their names, numbering and distinct approaches, with comparable features and booking data.
+- (Superseded) Advance Concepts 1 (Familiar) and 3 (Overview). Replaced by one New booking design from Figma node 3295:51258.
 - Remove Concepts 2 and 4 from the review switcher and keep their implementation in an archive.
 - Booking is a focused modal with the bottom navigation hidden; stacked station fields; fewer repeated labels; scrolling is fine; design-system styling; selections are kept when returning from nested screens.
 - Assistance is answered per traveler, from Traveler selection, with no assistance check on the Fare Finder.

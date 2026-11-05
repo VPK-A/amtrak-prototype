@@ -1,42 +1,7 @@
-/* Sprint 4 prototype: Version 3 (Overview). The Fare Finder is the overview of the whole booking:
-   - a Travelers overview shows every traveler with their discount, assistance and companion pairing, each
-     editable on its own;
-   - booking as Pass Rider, an eligibility card shows role, travel type, companion passes and the
-     dependent age rule.
-   Editing a traveler opens one sheet level (no extra layers). It changes the booking live so the overview
-   updates at once; Cancel puts back what that sheet changed, Done keeps it. Assistance opens inside the same
-   sheet and returns to that traveler. */
+/* Sprint 4 prototype: one-traveler editing sheet (used by archived Concept 4), Cancel steps, Exit booking and
+   promotion-code clearing. The Concept 3 overview was retired with the Familiar / Brand forward switch. */
 
-// Travelers overview: one row per traveler, with discount, assistance and companion at a glance
-function overviewTravelers(r, ri, b) {
-  const it = intentOf(b), std = ['standard', 'personal'].includes(it), list = travelerList(b);
-  const rows = list.map(t => {
-    const a = assistRec(b, t.key), c = assistCat(b, t.key), err = travelerError(b, t);
-    const chips = [];
-    // Only what was chosen: no "No discount" or "No assistance" labels (the Edit sheet still offers both)
-    // NMA-611 BR10: the discount choice is open by default, so travelers who can choose one get it inline
-    const opts = std ? discOpts(b, t) : null, dx = std ? tdiscOf(b, t) : null, inlineDisc = opts && !['pwd', 'companion'].includes(dx);
-    const discSel = inlineDisc ? `<div class="ov-disc"><label class="ov-disc__label" for="ovd-${t.key}">Discount</label><div class="ads-control ads-control--select"><select id="ovd-${t.key}" data-f="ovd" data-nodirty data-hook="tdisc" data-key="${t.key}">${opts.map(o => `<option value="${o}" ${dx === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div></div>` : '';
-    if (std && !inlineDisc) { const x = dx; if (x !== 'none') chips.push(`<span class="ov-chip${['pwd', 'companion'].includes(x) ? ' ov-chip--set' : ''}">${ic('discount', 'ads-icon--sm')}${esc(TDISC_LABEL[x])}</span>`); }
-    if (asks(b, t.key) && !a.done) chips.push(`<span class="ov-chip ov-chip--todo">${ic('assistance', 'ads-icon--sm')}Assistance not answered</span>`);
-    const kindSel = it === 'pr' && t.key !== 'pr-you' ? `<div class="ov-disc"><label class="ov-disc__label" for="ovk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="ovk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${prKind(b, t.key) === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${prKind(b, t.key) === 'child' ? 'selected' : ''}>Child</option></select>${ic('chevron-down')}</div></div>` : '';
-    if (c && c !== 'none') chips.push(`<span class="ov-chip ov-chip--assist">${ic('assistance', 'ads-icon--sm')}${esc(c === 'companion' ? 'Personal companion' : CATS[c])}</span>`);
-    if (c === 'companion') chips.push(`<span class="ov-chip ov-chip--pair">Companion to ${esc(travelerLabel(b, a.m.for).replace(/ · .*/, ''))}</span>`);
-    if (c === 'disability') { const comp = companionOf(b, t.key); if (comp) chips.push(`<span class="ov-chip ov-chip--pair">Companion: ${esc(comp.label.replace(/ · .*/, ''))}</span>`); }
-    return `<li class="ov-trav${err ? ' has-error' : ''}" id="ovt-${t.key}"><div class="ov-trav__main"><span class="ov-trav__name">${esc(t.label)}${t.key === holderKey(b) && a.done && a.fromProfile && asks(b, t.key) ? ' <span class="ads-lock">From your profile</span>' : ''}</span>${chips.length ? `<span class="ov-chips">${chips.join('')}</span>` : ''}${discSel}${kindSel}${assistAsk(b, t, r)}${asks(b, t.key) && !a.done && !(r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy) ? `<span class="ov-trav__answer"><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-answer" data-t="${t.key}" aria-label="Add assistance for ${esc(t.label)}">Add</button></span>` : ''}${err ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(err)}</span></span>` : ''}</div></li>`;
-  }).join('');
-  // Inside the Travelers sheet: each traveler, with discount, assistance and companion edited on their own
-  return `${assistIntro()}<section class="ov-travs" aria-labelledby="ov-tr-h"><h4 class="ffc-h" id="ov-tr-h">Traveler details</h4>${assistNetAlert(r)}<ul class="ov-list">${rows}</ul></section>`;
-}
-// Pass Rider eligibility at a glance (NMA-623, 1016–1018; dependent age NMA-1017 AC4)
-function overviewPassRider(b) {
-  const d = D(), p = d.passrider; if (intentOf(b) !== 'pr' || !p) return '';
-  const can = prCanStart(d), rows = [['Booking as', `${prMeName(d)} on pass ${d.employee ? d.employee.pass.slice(0, 3) + '••••' + d.employee.pass.slice(-2) : ''}`], ['Travel type', b.prType === 'business' ? 'Business' : b.prType === 'leisure' ? 'Leisure' : 'Not chosen yet']];
-  if (p.role === 'employee') rows.push(['Companion passes', `${p.compLeft} of 16 left this year`]);
-  return `<section class="ov-pr" aria-label="Pass Rider eligibility"><p class="ov-pr__title">${ic(can.ok ? 'check-circle' : 'alert-diamond', 'ads-icon--sm')}Pass Rider ${can.ok ? 'eligible' : 'not available'}</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${can.ok ? '' : `<p class="ads-helper">${esc(can.text)}</p>`}</section>`;
-}
-
-// ---------- Editing one traveler from the overview ----------
+// ---------- Editing one traveler (archived Concept 4 traveler rows) ----------
 const TRAV_SNAP = b => clone({ prKinds: b.prKinds || {}, tdisc: b.tdisc, disc: b.disc, assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} });
 A['ov-traveler'] = (t, ri) => {
   const b = D().booking; push('traveler', { t: t.dataset.t }, +ri);
@@ -57,7 +22,7 @@ A['sheet-cancel'] = (t, ri) => {
 };
 A['sheet-done'] = (t, ri) => popTo(+ri - 1);
 
-// Steps with Cancel (Overview traveler sheet, Familiar Traveler selection): Escape and X don't keep their
+// Steps with Cancel (Traveler selection): Escape and X don't keep their
 // unconfirmed edits either. Escape cancels the step; X puts the step back, then closes the booking.
 function cancelActionFor(r) { return !r ? null : r.s === 'traveler' ? 'sheet-cancel' : r.s === 'travelers' && v1() ? 'trav-cancel' : null; }
 const closeBeforeCancel = A.close;
@@ -67,7 +32,7 @@ A.close = A.scrim = (t, ri) => {
   return closeBeforeCancel(t, ri);
 };
 
-// ---------- Exit booking? (Concepts 1 and 3) ----------
+// ---------- Exit booking? ----------
 // Something is filled out when the trip differs from a new booking's starting values (Profile prefills count as
 // starting values, so they don't trigger the question on their own)
 const FILL_KEYS = ['trip', 'from', 'to', 'dep', 'ret', 'disc', 'pax', 'tdisc', 'pay', 'intent', 'prType', 'prPax', 'prKinds', 'codeText', 'code', 'ask', 'ta', 'assist', 'assistDone'];
@@ -82,7 +47,7 @@ function bookingFilled(b) {
 const closeBeforeExit = A.close;
 A.close = A.scrim = (t, ri) => {
   const sh = sheet();
-  if (!sh || sh.id !== 'booking' || !(v1() || v3()) || nav().dialog) return closeBeforeExit(t, ri);
+  if (!sh || sh.id !== 'booking' || !v1() || nav().dialog) return closeBeforeExit(t, ri);
   const top = sh.stack[sh.stack.length - 1], step = cancelActionFor(top) || (top.u && top.u.dirty);
   if (!bookingFilled(D().booking) && !(top.u && top.u.dirty)) return closeBeforeExit(t, ri); // nothing filled out yet: close without asking
   dialog({ title: 'Exit booking?', returnFocus: '.sheet-layer [data-a="close"]',

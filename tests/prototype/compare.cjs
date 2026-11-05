@@ -14,7 +14,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await ev(() => { const c = document.querySelector('#protoCtl'); return c.contains(document.querySelector('#tbCmpAssist')) && !document.querySelector('#device #tbCmpAssist'); }), 'settings live in the Prototype controls, not in the app');
   await p.click('#chromeToggle');
   const travelers = v => ev(v => { TB.v = v; TB.dev = 'iphone'; VS[v] = makeVS('assist-multi'); const b = D().booking; b.pax.adult = 4; b.tdisc = { 'adult-3': 'military' }; goLoc('travelers'); }, v).then(() => w());
-  for (const v of [1, 3]) {
+  for (const v of [1]) {
     const T = `C${v}`, card = k => v === 1 ? `${D_}#tc-${k}` : `${D_}#ovt-${k}`;
     for (const [assist, bp] of [['current', 'current'], ['above', 'current'], ['current', 'compact'], ['above', 'compact']]) {
       const C = `${T} [${assist}/${bp}]`;
@@ -79,7 +79,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     await setCmp('current', 'current');
   }
   await p.addScriptTag({ content: require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8') });
-  for (const v of [1, 3]) { await setCmp('current', 'compact'); await ev(v => { TB.v = v; VS[v] = makeVS('passrider'); goLoc('ff'); }, v); await w();
+  for (const v of [1]) { await setCmp('current', 'compact'); await ev(v => { TB.v = v; VS[v] = makeVS('passrider'); goLoc('ff'); }, v); await w();
     const vio = await ev(async () => (await axe.run('#device', { resultTypes: ['violations'] })).violations.filter(x => x.nodes.some(n => !n.target.join(' ').includes('dev-status'))).map(x => x.id));
     ok(!vio.length, `C${v} axe with the dropdown ${vio.join(',')}`); }
   // unavailable options: not reachable in the Business Pass scenario today; checked against the rule functions

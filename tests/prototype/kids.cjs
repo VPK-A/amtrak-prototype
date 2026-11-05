@@ -8,7 +8,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a), D_ = '#device ';
   const vis = sel => p.locator(D_ + sel).first().isVisible().catch(() => false);
-  for (const v of [1, 3]) for (const dev of ['iphone', 'ipad']) for (const th of ['light', 'dark']) {
+  for (const v of [1]) for (const dev of ['iphone', 'ipad']) for (const th of ['light', 'dark']) {
     const T = `C${v} ${dev} ${th}`;
     await ev(([v, dev, th]) => { TB.v = v; TB.dev = dev; TB.theme = th; VS[v] = makeVS('returning'); goLoc('ff'); }, [v, dev, th]); await w(300);
     await p.locator(D_ + '[data-a="pick-travelers"]').click(); await w(400);
@@ -30,7 +30,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await head.click(); await head.click(); await w(200); ok(await ev(() => JSON.stringify(D().booking.pax)) === pax, `${T} repeated toggling never changes counts`);
     ok(await ev(() => D().booking.pax.child === 1 && D().booking.pax.infant === 1) && /Traveler 3 · Infant/.test(await ev(() => document.querySelector('#device').innerText)), `${T} Traveler details lists the child and infant`);
     await p.locator(D_ + '[data-a="pick-travelers-done"]').click(); await w(400);
-    ok(!(await ev(() => sheet().stack.some(r => r.s === 'travelers'))) && /1 child/.test(await ev(() => document.querySelector('#device #ff-trav').getAttribute('aria-label'))), `${T} Done returns with the counts`);
+    ok(!(await ev(() => sheet().stack.some(r => r.s === 'travelers'))) && /1 child/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)), `${T} Done returns with the counts`);
     await p.locator(D_ + '[data-a="pick-travelers"]').click(); await w(400);
     ok(await p.locator(D_ + '#ffc-kids-h').getAttribute('aria-expanded') === 'false' && /1 child, 1 infant/.test(await p.locator(D_ + '#ffc-kids-h').innerText()), `${T} reopening starts collapsed with the summary`);
     ok(await ev(() => !!document.querySelector('#device #ffc-kids-h').closest('.ffc-counts')), `${T} header sits in the same counter list`);

@@ -27,7 +27,7 @@ const firstKey = b => (travelerList(b)[0] || {}).key;
 // Whose record b.assist is. Concepts 1 and 3 tie it to the account holder ('adult-1', or 'pr-you' for Pass
 // Rider), so it can't move to someone else when travelers are removed or the booker leaves themselves off.
 // The archived concepts keep their original rule (whoever is first).
-const holderKey = b => (v1() || v3()) ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
+const holderKey = b => v1() ? (intentOf(b) === 'pr' ? 'pr-you' : 'adult-1') : firstKey(b);
 const travelerLabel = (b, key) => (travelerList(b).find(t => t.key === key) || { label: 'a traveler no longer on this booking' }).label;
 // The assistance record for one traveler: { m, done, fromProfile }
 function assistRec(b, key) {
@@ -49,7 +49,7 @@ function setAssistRec(b, key, m) {
 // Concepts 1 and 3: each traveler has their own "Traveler with disability or need help?" checkbox in Traveler
 // details (b.ask). b.assistOn is derived from it (any traveler checked), so shared summaries keep working.
 // The archived concepts keep one booking-level indication (b.assistOn).
-const perTraveler = () => v1() || v3();
+const perTraveler = () => v1();
 const asks = (b, key) => perTraveler() ? !!(b.ask && b.ask[key]) : !!b.assistOn;
 function setAsk(b, key, on) { b.ask = b.ask || {}; if (on) b.ask[key] = true; else delete b.ask[key]; syncAsk(b); }
 function syncAsk(b) { if (perTraveler()) b.assistOn = travelerList(b).some(t => asks(b, t.key)); }

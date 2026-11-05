@@ -1,6 +1,6 @@
 /* Sprint 4 prototype: screens. Shared pieces, arranged differently by each version. */
-const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => TB.v === 3, v4 = () => TB.v === 4;
-// Versions 3 and 4 share the booking sheets and the Fare Finder variants (codes, points, TripLink, Pass Rider)
+const v1 = () => TB.v === 1, v2 = () => TB.v === 2, v3 = () => false /* Concept 3 retired */, v4 = () => TB.v === 4;
+// Archived Concept 4 uses its own booking sheets (Concept 3 was retired: one New booking design)
 const rich = () => TB.v >= 3;
 
 // ---------- Small renderers ----------
@@ -96,24 +96,23 @@ function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '
 const fieldWrap = (cls, label, btn) => `<div class="ads-field ${cls}"><span class="ads-field__label" aria-hidden="true">${label}</span>${btn}</div>`;
 // The picker a field opened (iPad keeps the Fare Finder beside it): that field shows as selected
 const openPicker = s => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.s === s ? (top.p.field || true) : null; };
+// Booking components (stationGroup, dateGroup, selectRow, pointsRow, sheetHeader) live in js/ads-booking.js,
+// shared with the DS catalog (docs) so the screen and its examples use the same markup.
+// Dates in the Fare Finder read as in the design: 01/01/2027, then the weekday
+const fmtNumDate = s => parse(s).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+
 function routeField(r, ri, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
-  const half = (f, label) => {
-    const c = b[f], s = c && ST[c];
-    return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="pick-station" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-${f}-err"` : ''} aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${c}</span>` : ''}<span class="ads-routefield__body">${s ? `<span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span>` : `<span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span>`}</span></button>${e[f] ? `<p class="ads-helper ads-helper--error" id="ff-${f}-err">${ic('alert-diamond')}<span>${e[f]}</span></p>` : ''}`);
-  };
-  const errs = '';
-  return `<div class="ads-routefield">${half('from', 'From')}${half('to', 'To')}<button class="ads-btn ads-btn--tertiary ads-btn--icon-only ads-routefield__swap" type="button" data-a="swap" aria-label="Swap from and to" ${!b.from && !b.to ? 'disabled' : ''}>${ic('trip-swap-vertical')}</button></div>${errs}`;
+  const side = (f, label) => { const c = b[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', errId: `ff-${f}-err`, expanded: open === f, attrs: `data-a="pick-station" data-field="${f}" id="ff-${f}"` }; };
+  return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), errors: { from: e.from, to: e.to }, swapAttrs: 'data-a="swap"', swapDisabled: !b.from && !b.to });
 }
 function dateFields(r, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('calendar');
-  const cal = ic('calendar', 'ads-fieldbtn__trail');
-  const df = (f, label) => {
-    const val = b[f];
-    if (f === 'ret' && b.trip === 'ow') return fieldWrap('', 'Return', `<button class="ads-fieldbtn ads-datefield" type="button" data-a="add-return"><span class="ads-datefield__text"><span class="ads-datefield__add">${ic('plus-circle', 'ads-icon--sm')}Add return</span></span></button>`);
-    return fieldWrap('', label, `<button class="ads-fieldbtn ads-datefield" type="button" data-a="pick-date" data-field="${f}" id="ff-${f}"${open === f ? ' aria-expanded="true"' : ''} ${e[f] ? `aria-invalid="true" aria-describedby="ff-ret-err"` : ''} aria-label="${label}: ${val ? fmtWeekday(val) + ', ' + fmtDate(val) : 'not chosen'}"><span class="ads-datefield__text">${val ? `<span class="ads-datefield__value">${fmtDate(val)}</span><span class="ads-datefield__day">${fmtWeekday(val)}${val === TODAY_S ? ' · Today' : ''}</span>` : `<span class="ads-routefield__hint">Choose date</span>`}</span>${cal}</button>`);
-  };
-  return `<div class="ads-datefields">${df('dep', 'Depart')}${df('ret', 'Return')}</div>${e.ret ? `<p class="ads-helper ads-helper--error" id="ff-ret-err">${ic('alert-diamond')}<span>${e.ret}</span></p>` : ''}`;
+  const dep = { label: 'Departure date', value: b.dep ? fmtNumDate(b.dep) : '', placeholder: 'Choose date', icon: 'calendar', sub: b.dep ? fmtWeekday(b.dep) + (b.dep === TODAY_S ? ' · Today' : '') : '', aria: `Departure date: ${b.dep ? fmtWeekday(b.dep) + ', ' + fmtDate(b.dep) : 'not chosen'}`, expanded: open === 'dep', attrs: 'data-a="pick-date" data-field="dep" id="ff-dep"' };
+  const ret = b.trip === 'ow'
+    ? { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="add-return" id="ff-addret"' }
+    : { label: 'Return date', value: b.ret ? fmtNumDate(b.ret) : '', placeholder: 'Choose date', icon: 'calendar', sub: b.ret ? fmtWeekday(b.ret) + (b.ret === TODAY_S ? ' · Today' : '') : '', aria: `Return date: ${b.ret ? fmtWeekday(b.ret) + ', ' + fmtDate(b.ret) : 'not chosen'}`, err: !!e.ret, expanded: open === 'ret', attrs: 'data-a="pick-date" data-field="ret" id="ff-ret"' };
+  return dateGroup({ start: dep, end: ret, error: e.ret, errId: 'ff-ret-err' });
 }
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
@@ -121,18 +120,21 @@ function travField(r, b, opts = {}) {
   const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, d) : paxSummary(b);
   const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const err = travErr(r, b);
-  return fieldWrap('ffc-travfield', 'Travelers', `<button class="ads-fieldbtn ffc-trav" type="button" data-a="pick-travelers" id="ff-trav" aria-label="Travelers: ${esc(val)}${sub ? '. ' + esc(sub) : ''}. Edit travelers, discounts and assistance"${err ? ' aria-invalid="true" aria-describedby="trav-err"' : ''}${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}>${ic('people', 'ffc-trav__icon')}<span class="ffc-trav__text"><span class="ffc-trav__val">${esc(val)}</span>${sub ? `<span class="ffc-trav__sub">${esc(sub)}</span>` : ''}</span>${ic('chevron-right', 'ads-fieldbtn__trail')}</button>`) + err;
+  return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
 // ADS tabs used as a single-choice switch: roving tabindex, arrow keys handled in core.js
 const tabBtn = (sel, attrs, inner) => `<button class="ads-tab" type="button" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" ${attrs}>${inner}</button>`;
 const tripSeg = () => { const b = D().booking; return `<div class="ads-tabs ads-tabs--fill trip-tabs" role="tablist" aria-label="Trip type">${tabBtn(b.trip === 'ow', 'data-a="trip" data-v="ow"', 'One-way')}${tabBtn(b.trip === 'rt', 'data-a="trip" data-v="rt"', 'Round-trip')}</div>`; };
 // PWD applies to standard bookings; TripLink Corporate and Pass Rider don't take passenger discounts (Q12)
 const pwdApplies = b => asks(b, holderKey(b)) && b.assistDone && b.assist.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
-// Version 1: Pay with Cash / Points for signed-in members (NMA-624); points searches don't take codes
+// Pay with points (NMA-624): a switch in the action footer, off (cash) by default. Members see their balance;
+// a guest signs in later, after choosing a fare. Points searches don't take codes.
 function payV1(b) {
   ref('624');
-  return `<div class="v1pay">${payControl(b, 'v1pay')}</div>`;
+  const member = D().signedIn;
+  return pointsRow({ id: 'ff-points', title: 'Pay with points', sub: member ? '12,450 points available' : 'You’ll sign in to use your points after you choose a fare.', checked: b.pay === 'points', attrs: 'data-a="pay-points"' });
 }
+A['pay-points'] = t => { const b = D().booking; b.pay = t.checked ? 'points' : 'cash'; pendingFocus = '#ff-points'; render(); };
 // NMA-624: Cash or Points for guests and members, cash by default. Members see their balance. Choosing points
 // only changes what the search shops for; a guest signs in later, after choosing a fare.
 function payControl(b, id) {
@@ -182,15 +184,15 @@ SCR.ff = (r, ri) => {
   const b = D().booking, v = V();
   ref('607', '608', '1060');
   if (b.trip === 'rt') ref('608');
-  if (v3()) return ffClear(r, ri);
   if (v4()) return ffFlighty(r, ri);
   if (v2()) return ffGuided(r, ri);
   const std = ['standard', 'personal'].includes(intentOf(b));
   q(22); if (std) codeTips(); ffFlags(b);
-  // Travelers (assistance per traveler inside, Q7), the discount code (NMA-613), then Pay with (proposed order, Q21)
+  // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
+  // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeField(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${std ? payV1(b) : ''}${netAlert(r)}`;
-  return { title: 'New booking', kind: 'root', body, foot: findBtn(r), offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
+  const body = `<div class="ads-bookingsheet__form">${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
 A.trip = t => { const b = D().booking; b.trip = t.dataset.v; if (b.trip === 'rt') { if (!b.ret) b.ret = b.dep; } else b.ret = null; pendingFocus = `[data-a="trip"][data-v="${t.dataset.v}"]`; render(); };
@@ -457,7 +459,7 @@ function catBlock(r, x, idp, mode, e, branch) {
     const sup = off ? companionWhy(b, who.key) : (AC.catHelp[k] || '');
     return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
   }).join('');
-  const legend = mode === 'booking' ? ((v1() || v3()) ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
+  const legend = mode === 'booking' ? (v1() ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
   return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--required">Required</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${branch === undefined && mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {

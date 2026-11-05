@@ -6,7 +6,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href);
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   const w = ms => p.waitForTimeout(ms), D = '#device ', ev = (f, a) => p.evaluate(f, a);
-  for (const v of [1, 3]) for (const dev of ['iphone', 'ipad']) {
+  for (const v of [1]) for (const dev of ['iphone', 'ipad']) {
     const T = `C${v} ${dev}`;
     await ev(([v, dev]) => { TB.v = v; TB.dev = dev; TB.text = 100; TB.theme = 'light'; VS[v] = makeVS('returning'); V().toast = null; goLoc('ff'); }, [v, dev]); await w(300);
     // reach station search by tapping From

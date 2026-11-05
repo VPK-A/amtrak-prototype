@@ -13,7 +13,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const click = async sel => { await p.locator(D_ + sel).first().click(); await w(250); };
   const evs = () => ev(() => (V().analytics || []).map(e => e.ev));
   const mapView = async () => { await click('[data-a="ss-view"][data-v="map"]'); await w(200); };
-  for (const v of [1, 3]) {
+  for (const v of [1]) {
     const T = `C${v}`;
     // ---- Shared selector: Departure via the list returns to New booking and sets only From ----
     await go(v, 'returning', 'ff', {}, 'iphone', "D().booking.to = 'WAS';");

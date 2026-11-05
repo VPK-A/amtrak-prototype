@@ -1,51 +1,118 @@
-// Design system › ADS Next: New booking normalized against ADS Next (Global) and Mobile ADS: radius, borders and states, both concepts
+// New booking modal against Figma Sprint 4 node 3295:51258: layout and geometry, DS tokens, component states,
+// both trip types, the booking interactions, iOS safe area and scrolling, no concept toggle, axe in light and dark.
 const { chromium } = require('playwright');
+const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok   ' : 'FAIL ') + m); };
 (async () => {
   const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1100 }, reducedMotion: 'reduce' });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href);
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
-  const go = (v, sc, dev = 'iphone', th = 'light') => p.evaluate(([v, sc, dev, th]) => { TB.v = v; TB.dev = dev; TB.text = 100; TB.theme = th; TB.ds = 'next'; VS[v] = makeVS(sc); V().toast = null; goLoc('ff'); }, [v, sc, dev, th]);
-  const css = (sel, props) => p.evaluate(([s, props]) => { const e = document.querySelector('#device ' + s); if (!e) return null; const c = getComputedStyle(e), r = e.getBoundingClientRect(); const o = { w: r.width, h: e.offsetHeight }; props.forEach(k => o[k] = c[k]); return o; }, [sel, props]);
-  const tok = n => p.evaluate(n => { const i = document.createElement('i'); i.style.color = `var(${n})`; document.querySelector('#device .app').appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; }, n);
-  const P = ['borderTopWidth', 'borderTopColor', 'borderTopLeftRadius', 'boxShadow', 'outlineStyle', 'outlineOffset'];
-  for (const v of [1, 3]) for (const th of ['light', 'dark']) {
-    const T = `C${v} ${th}`;
-    await go(v, 'returning', 'iphone', th);
-    const def = await tok('--ads-border-default'), foc = await tok('--ads-border-focus'), brand = await tok('--ads-border-brand'), err = await tok('--ads-border-status-error'), sub = await tok('--ads-border-subtle');
-    for (const id of ['#ff-from', '#ff-to', '#ff-dep', '#ff-trav']) {
-      const s = await css(id, P);
-      ok(s && s.h === 60 && s.borderTopWidth === '1px' && s.borderTopColor === def && s.borderTopLeftRadius === '4px', `${T} ${id} rest: 60px field, 1px border/default, radius/4`);
-    }
-    const code = await css('.dcode .ads-control', P); ok(code.h === 44 && code.borderTopLeftRadius === '4px' && code.boxShadow.includes(def.replace(/\)$/, '')), `${T} coupon input rest: 44px, radius/4, border/default`);
-    const saved = await css('.dcode .ads-group__body', P); ok(saved && saved.borderTopLeftRadius === '4px' && saved.borderTopColor === sub, `${T} saved codes List surface: radius/4, border/subtle`);
-    const find = await css('[data-a="find-trains"]', P); ok(find.h === 44 && find.borderTopLeftRadius === '4px', `${T} Find trains: Primary, Default 44px, radius/4`);
-    const swap = await css('[data-a="swap"]', P); ok(swap.h === 44 && swap.borderTopLeftRadius === '4px' && swap.borderTopWidth === '1px', `${T} swap: Tertiary icon-only Button 44px, radius/4`);
-    const close = await css('.psheet .ads-navbar [data-a="close"]', ['borderTopWidth', 'backgroundColor']); ok(close.h === 44 && close.borderTopWidth === '0px' && close.backgroundColor === 'rgba(0, 0, 0, 0)', `${T} close: borderless Icon Button, 44px target`);
-    const sheet = await css('.psheet', ['borderTopLeftRadius']); ok(sheet.borderTopLeftRadius === '12px', `${T} mobile sheet: radius/12`);
-    if (v === 3) { const card = await css('.ffc-surface', ['borderTopLeftRadius']); ok(card.borderTopLeftRadius === '8px', `${T} Brand forward form card: radius/8`); }
-    // focus: thicken the field's own border, no layout or corner change
-    const before = await css('#ff-from', P);
-    await p.focus('#device [data-a="trip"][aria-selected="true"]'); await p.keyboard.press('Tab'); await p.waitForTimeout(250);
-    const f = await css('#ff-from', P);
-    ok(await p.evaluate(() => document.activeElement.id) === 'ff-from' && f.borderTopColor === foc && f.boxShadow.includes('1px inset') && f.outlineStyle === 'none' && f.w === before.w && f.h === before.h && f.borderTopLeftRadius === '4px', `${T} field focus: 2px border/focus, same size and corner`);
-    await p.focus('#device #ff-code'); await p.waitForTimeout(250);
-    ok((await css('.dcode .ads-control', P)).boxShadow.includes('2px inset'), `${T} coupon focus: border thickens to 2px`);
-    await p.focus('#device [data-a="find-trains"]'); await p.keyboard.press('Shift+Tab'); await p.keyboard.press('Tab'); await p.waitForTimeout(250);
-    const ff = await css('[data-a="find-trains"]', P); ok(ff.outlineStyle === 'solid' && ff.outlineOffset === '4px' && ff.h === 44, `${T} button focus: 2px ring 4px outside, no reflow`);
-    // error
-    await p.evaluate(() => document.activeElement.blur()); await p.locator('#device [data-a="find-trains"]').click(); await p.waitForTimeout(250);
-    const e1 = await css('#ff-to', P); ok(e1.borderTopColor === err && e1.borderTopWidth === '1px' && await p.locator('#device .ads-routefield__to #ff-to-err').count() === 1, `${T} error: border/status-error, message on the field's own helper`);
-    // disabled
-    ok(await p.evaluate(() => document.querySelector('#device [data-a="swap"]').disabled), `${T} swap disabled with no stations`);
-    if (v === 1 && th === 'light') {
-      await go(1, 'returning', 'ipad'); await p.locator('#device #ff-from').click(); await p.waitForTimeout(300);
-      const sel = await css('#ff-from', P); ok(sel.borderTopColor === brand && sel.borderTopWidth === '1px', `${T} iPad selected (picker open): border/brand`);
-      ok((await css('.psheet', ['borderTopLeftRadius'])).borderTopLeftRadius === '12px', `${T} iPad modal: radius/12`);
-      await go(1, 'passrider'); ok(await p.evaluate(() => document.querySelector('#device [data-a="find-trains"]').disabled), `${T} Pass Rider Find trains disabled until a travel type is chosen (flagged exception)`);
-    }
+  const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a), D_ = '#device ';
+  const go = (sc = 'returning', o = {}) => ev(([sc, o]) => { TB.v = 1; TB.dev = o.dev || 'iphone'; TB.orient = o.orient || 'portrait'; TB.text = 100; TB.theme = o.th || 'light'; VS[1] = makeVS(sc); V().toast = null; goLoc('ff'); if (o.fill) { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; render(); } }, [sc, o]).then(() => w(500));
+  const box = s => ev(s => { const d = document.querySelector('#device').getBoundingClientRect(), e = document.querySelector('#device ' + s); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left - d.left), y: Math.round(r.top - d.top), w: Math.round(r.width), h: Math.round(r.height), b: Math.round(r.bottom - d.top) }; }, s);
+  const cs = (s, k) => ev(([s, k]) => { const e = document.querySelector('#device ' + s); return e ? getComputedStyle(e)[k] : null; }, [s, k]);
+  const tok = (n, prop = 'color') => ev(([n, prop]) => { const i = document.createElement('i'); i.style[prop] = `var(${n})`; (document.querySelector('#device .psheet') || document.querySelector('#device .app')).appendChild(i); const c = getComputedStyle(i)[prop]; i.remove(); return c; }, [n, prop]);
+  const near = (a, b, t = 3) => Math.abs(a - b) <= t;
+  const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
+  const click = async s => { await p.locator(D_ + s).first().click(); await w(350); };
+
+  // ---- No concept toggle ----
+  ok(await p.locator('#tbVersion').count() === 0 && !/Brand forward|Familiar/.test(await ev(() => document.querySelector('#protoCtl').innerText)), 'prototype controls: no Familiar / Brand forward toggle');
+  ok(await ev(() => TB.v) === 1 && !/Brand forward/.test(await ev(() => JSON.stringify(FLOWS))), 'one New booking design; no Concept 3 entries in the flow list');
+
+  // ---- Layout and geometry (iPhone 390 × 844), matched to the Figma frame ----
+  await go('returning', { fill: true });
+  const sh = await box('.psheet'), hd = await box('.ads-sheet-header'), cl = await box('.ads-sheet-header__close'), ti = await box('.ads-sheet-header__title'), br_ = await box('.ads-sheet-header__brand');
+  ok(sh.y === 58 && await cs('.psheet', 'borderTopLeftRadius') === '16px' && await p.locator(D_ + '.psheet .ads-sheet__grabber').count() === 0, `sheet: top 58, radius/16, no grabber (${JSON.stringify(sh)})`);
+  ok(hd.h === 76 && await cs('.ads-sheet-header', 'backgroundColor') === await tok('--ads-brand-midnight-blue', 'backgroundColor'), `header: 76px, brand/midnight blue (${hd.h})`);
+  ok(cl.w >= 44 && cl.h >= 44 && near(cl.x + cl.w / 2, 38) && /Close/.test(await ev(() => document.querySelector('#device .ads-sheet-header__close').getAttribute('aria-label'))), `close: 44px target centered on the 36px slot at x 20, named Close (${JSON.stringify(cl)})`);
+  ok(near(ti.x, 56) && await cs('.ads-sheet-header__title', 'fontSize') === '22px' && /New booking/.test(await ev(() => document.querySelector('#device .ads-sheet-header__title').textContent)), `title: H2 22px at x 56 (${ti.x})`);
+  ok(br_.w === 160 && br_.x + br_.w === 390 && await p.locator(D_ + '.ads-sheet-header__brand svg').count() === 2 && await ev(() => document.querySelector('#device .ads-sheet-header__brand').getAttribute('aria-hidden')) === 'true', 'brand arrows: 160px at the trailing edge, two arrow ends, hidden from assistive tech');
+  const tb = await box('.trip-tabs');
+  ok(tb.y === hd.b + 12 && tb.h === 44 && tb.x === 20 && tb.w === 350, `trip tabs: 12px below the header, 44px, 20px margins (${JSON.stringify(tb)})`);
+  ok(await ev(() => { const s = [...document.querySelectorAll('#device .trip-tabs .ads-tab')]; return s.length === 2 && Math.abs(s[0].offsetWidth - s[1].offsetWidth) < 2; }) && await ev(() => getComputedStyle(document.querySelector('#device .trip-tabs [aria-selected="true"]'), '::after').backgroundColor) === await tok('--ads-border-brand', 'backgroundColor'), 'tabs: equal widths, active indicator border/brand');
+  const sg = await box('.ads-stationgroup'), sw = await box('.ads-swap-btn'), dg = await box('.ads-dategroup');
+  ok(sg.y === tb.b + 24 && near(sg.h, 145, 4), `station group: 24px below the tabs, ~145px (${JSON.stringify(sg)})`);
+  ok(sw.w === 44 && sw.h === 44 && near(sw.x + sw.w, sg.x + sg.w - 12, 1) && near(sw.y + 22, sg.y + sg.h / 2, 1) && await cs('.ads-swap-btn', 'borderTopLeftRadius') === '9999px', `swap: 44px circle, 12px from the edge, on the divider (${JSON.stringify(sw)})`);
+  ok(await cs('.ads-swap-btn', 'backgroundColor') === await tok('--ads-background-interactive-primary', 'backgroundColor') && await cs('.ads-swap-btn', 'boxShadow') !== 'none', 'swap: interactive-primary with the small elevation');
+  ok(await cs('.ads-stationgroup__code', 'fontSize') === '20px' && await cs('.ads-stationgroup__city', 'fontSize') === '13px' && await cs('.ads-stationgroup__facility', 'fontSize') === '11px', 'station field: code H3 20, city 13, facility 11');
+  ok(dg.y === sg.b + 24 && near(dg.h, 79, 4) && await ev(() => document.querySelectorAll('#device .ads-dategroup .ads-fieldgroup__field').length) === 2, `date group: two columns, ~79px (${JSON.stringify(dg)})`);
+  ok(await cs('.ads-fieldgroup', 'borderTopColor') === await tok('--ads-border-default') && await cs('.ads-fieldgroup', 'borderTopLeftRadius') === '4px' && await cs('.ads-fieldgroup', 'backgroundColor') === await tok('--ads-background-surface-default', 'backgroundColor'), 'field groups: 1px border/default, radius/4, surface-default');
+  const trl = await box('.ffc-travfield .ads-selectrow__label'), trb = await box('#ff-trav'), crb = await box('#ff-coderow');
+  ok(trl.y >= dg.b + 20 && trb.h === 53 && crb.h === 53 && trb.x === 20 && trb.w === 350, `selector rows: 53px, full width (${trb.h}, ${crb.h})`);
+  ok(await ev(() => !!document.querySelector('#device #ff-trav .ads-icon--person') && !!document.querySelector('#device #ff-trav .ads-icon--chevron-right') && !document.querySelector('#device #ff-coderow .ads-icon--person')), 'Travelers row: person icon and chevron; code row: chevron only');
+  ok(/Travelers\s*1 adult/.test(await txt()) && /Coupon or promotional code\s*Apply discount code/.test(await txt()), 'row labels and values as designed');
+  const ft = await box('.ads-actionfooter'), pr = await box('.ads-pointsrow'), fb = await box('.ads-actionfooter [data-a="find-trains"]');
+  ok(ft.y === 699 && ft.b === 844 && fb.h === 44 && fb.w === 350 && fb.b === 824 && pr.b <= fb.y - 16, `action footer: from y 699, Find trains 44px full width, 20px bottom (${JSON.stringify(ft)} ${JSON.stringify(fb)})`);
+  ok(await cs('.ads-actionfooter', 'backgroundColor') === await tok('--ads-background-surface-raised', 'backgroundColor') && await cs('.ads-actionfooter', 'borderTopColor') === await tok('--ads-border-subtle'), 'footer: surface-raised with a border/subtle rule');
+  ok(/Pay with points\s*12,450 points available/.test(await txt()) && await p.locator(D_ + '.ads-pointsrow input[role="switch"]').count() === 1, 'points row: title, balance and a switch');
+  ok(await ev(() => /env\(safe-area-inset-bottom\)/.test([...document.styleSheets].flatMap(s => [...s.cssRules]).filter(r => r.selectorText && r.selectorText.includes('ads-actionfooter')).map(r => r.cssText).join(' '))), 'footer keeps clear of the iOS home indicator (safe-area inset)');
+  ok(await ev(() => document.querySelector('#device .psheet').getAttribute('data-platform')) === 'ios', 'the sheet uses the iOS type layer');
+
+  // ---- Component states ----
+  ok(await ev(() => document.querySelector('#device .trip-tabs [data-v="ow"]').getAttribute('aria-selected')) === 'true', 'tabs: One-way selected by default');
+  await go('returning');
+  ok(await p.locator(D_ + '.ads-swap-btn:disabled').count() === 1 && /Where from\?/.test(await txt()) && /Where to\?/.test(await txt()), 'empty: placeholders, swap disabled');
+  await click('[data-a="find-trains"]');
+  ok(await p.locator(D_ + '.ads-stationgroup.ads-fieldgroup--error').count() === 1 && await p.locator(D_ + '#ff-from[aria-invalid="true"]').count() === 1 && await p.locator(D_ + '#ff-from-err').count() === 1 && await ev(() => document.activeElement.id) === 'ff-from', 'error: station group in error, From invalid with its message, focus on From');
+  ok(await cs('.ads-stationgroup', 'borderTopColor') === await tok('--ads-border-status-error'), 'error border uses border/status-error');
+  await go('returning', { fill: true }); await p.focus(D_ + '#ff-to'); await p.keyboard.press('Shift+Tab'); await w(150);
+  ok(await ev(() => { const e = document.activeElement, c = getComputedStyle(e); return e.id === 'ff-from' && c.outlineStyle === 'solid' && c.outlineWidth === '2px'; }), 'focus: 2px ring on the station field');
+  await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await w(100); // To, then the swap button
+  ok(await ev(() => document.activeElement.matches('.ads-swap-btn') && getComputedStyle(document.activeElement).outlineStyle === 'solid'), 'focus: swap button shows its ring');
+
+  // ---- Both trip types ----
+  ok(/Departure date\s*\d\d\/\d\d\/\d{4}/.test(await txt()) && /Return date\s*Add return/.test(await txt()), 'one-way: departure date (MM/DD/YYYY) and Add return');
+  await click('#ff-addret');
+  ok(await ev(() => D().booking.trip === 'rt' && !!D().booking.ret) && await ev(() => document.querySelector('#device .trip-tabs [data-v="rt"]').getAttribute('aria-selected')) === 'true' && await p.locator(D_ + '#ff-ret').count() === 1, 'Add return switches to Round-trip with a return date');
+  await click('.trip-tabs [data-v="ow"]'); ok(await ev(() => D().booking.trip === 'ow' && D().booking.ret === null), 'One-way tab removes the return');
+  await click('.trip-tabs [data-v="rt"]'); ok(await ev(() => D().booking.trip === 'rt') && /Return date\s*\d\d\/\d\d\/\d{4}/.test(await txt()), 'Round-trip tab shows the return date');
+  await p.focus(D_ + '.trip-tabs [data-v="rt"]'); await p.keyboard.press('ArrowLeft'); await w(300);
+  ok(await ev(() => D().booking.trip) === 'ow', 'tabs: arrow keys switch trip type');
+  await ev(() => { const b = D().booking; b.trip = 'rt'; b.ret = null; render(); }); await click('[data-a="find-trains"]');
+  ok(await p.locator(D_ + '.ads-dategroup.ads-fieldgroup--error').count() === 1 && /Choose a return date/.test(await txt()), 'round-trip without a return: date group in error');
+
+  // ---- Booking interactions ----
+  await go('returning', { fill: true });
+  await click('.ads-swap-btn'); ok(await ev(() => D().booking.from === 'WAS' && D().booking.to === 'NYP') && await ev(() => document.activeElement.matches('.ads-swap-btn')), 'swap exchanges From and To and keeps focus');
+  await click('#ff-from'); ok(await ev(() => sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), 'From opens the station selector');
+  await p.fill(D_ + '#ss-q', 'BOS'); await w(200); await click('[data-a="choose-station"][data-code="BOS"]');
+  ok(await ev(() => D().booking.from === 'BOS' && sheet().stack.length === 1), 'choosing a station fills From and returns');
+  await click('#ff-dep'); ok(await ev(() => sheet().stack.at(-1).s === 'calendar'), 'Departure date opens the calendar');
+  await ev(() => popTo(0)); await w(300);
+  await click('#ff-trav'); ok(await ev(() => sheet().stack.at(-1).s === 'travelers'), 'Travelers row opens Traveler selection');
+  await ev(() => popTo(0)); await w(300);
+  await click('#ff-coderow'); ok(await ev(() => sheet().stack.at(-1).s === 'dcode') && await p.locator(D_ + '#ff-code').count() === 1, 'code row opens the code screen');
+  await p.fill(D_ + '#ff-code', 'v123'); await click('[data-a="dcode-done"]');
+  ok(await ev(() => sheet().stack.length === 1 && D().booking.codeText === 'V123') && /V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Done returns; the row shows the code');
+  await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);
+  ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D_ + '#ff-coderow').count() === 0 && await ev(() => document.querySelector('#device #ff-points').checked), 'Pay with points on: points search, code row hidden');
+  await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);
+  ok(await ev(() => D().booking.pay) === 'cash' && await p.locator(D_ + '#ff-coderow').count() === 1, 'Pay with points off: code row back');
+  await go('returning', { fill: true }); await click('[data-a="find-trains"]'); await w(900);
+  ok(await ev(() => sheet().stack.at(-1).s === 'handoff'), 'Find trains with a complete trip opens the search hand-off');
+  await go('returning'); await ev(() => { const b = D().booking; b.from = 'NYP'; render(); }); await click('.ads-sheet-header__close');
+  ok(/Exit booking/.test(await txt()), 'close asks Exit booking? when something is filled in');
+  await go('passrider');
+  ok(await p.locator(D_ + '#ff-points').count() === 0 && await p.locator(D_ + '#ff-coderow').count() === 0 && /Booking type/.test(await txt()), 'Pass Rider: booking type above the tabs; no points or code');
+
+  // ---- Scrolling on small screens, iPad, landscape ----
+  await go('returning', { fill: true, orient: 'landscape' });
+  ok(await ev(() => { const s = document.querySelector('#device .pane--nb .pane__scroll'); return s.scrollHeight > s.clientHeight && getComputedStyle(s).overflowY === 'auto'; }) && await box('.ads-actionfooter').then(f => f.b <= 390), 'iPhone landscape: the form scrolls, the footer stays pinned');
+  await go('returning', { fill: true, dev: 'ipad' });
+  ok(await ev(() => { const s = document.querySelector('#device .psheet'), r = s.getBoundingClientRect(); return r.width <= 620 && getComputedStyle(s).borderTopLeftRadius === '16px'; }) && await p.locator(D_ + '.ads-sheet-header__brand').count() === 1, 'iPad: centered modal with the same header');
+  ok(await ev(() => [...document.querySelectorAll('#device .psheet button, #device .psheet [role="switch"]')].filter(e => e.offsetParent).every(e => { return (e.closest('label.ads-switch') || e).offsetHeight >= 44 || e.closest('.ads-tabs'); })), 'touch targets: every control in the modal is at least 44px tall');
+
+  // ---- axe ----
+  for (const th of ['light', 'dark']) {
+    await go('returning', { fill: true, th }); await p.addScriptTag({ content: AXE });
+    const v = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(v => v.id + ':' + v.nodes.length));
+    ok(v.length === 0, `axe ${th}: no violations (${v.join(', ')})`);
+    await go('returning', { th }); await ev(() => A['find-trains'](null, '0')); await w(400);
+    const v2 = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(v => v.id + ':' + v.nodes.length));
+    ok(v2.length === 0, `axe ${th} with errors: no violations (${v2.join(', ')})`);
   }
-  ok(!errs.length, 'no page errors ' + errs.join('|'));
+  ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();
 })();

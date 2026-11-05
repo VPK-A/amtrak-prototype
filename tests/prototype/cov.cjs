@@ -12,7 +12,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
   const stack = () => ev(() => nav().sheet ? nav().sheet.stack.map(r => r.s).join('>') : '');
   const notes = () => ev(() => document.querySelector('#notes').innerText);
-  for (const v of [1, 3]) {
+  for (const v of [1]) {
     const T = `C${v}`;
     // ---- 607/608/1060 ----
     await go(v, 'returning'); await w(200);
@@ -55,14 +55,14 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await ev(() => D().rec.length === 0 && D().fav.length === 1) && /No recent stations/.test(await txt()), `${T} 1004 cleared state, favorites kept, works offline`);
     // ---- 624 ----
     await go(v, 'guest'); await w(200);
-    ok(await p.locator(D + '[data-key="pay"][data-v="points"]').count() === 1 && await ev(() => D().booking.pay) === 'cash', `${T} 624 guest sees Cash/Points, cash by default`);
-    await dclick('[data-key="pay"][data-v="points"]');
+    ok(await p.locator(D + '#ff-points[role="switch"]').count() === 1 && await ev(() => D().booking.pay) === 'cash', `${T} 624 guest sees Pay with points (switch), cash by default`);
+    await dclick('#ff-points');
     ok(!(await ev(() => !!nav().cover)) && /sign in to use your points after you choose a fare/.test(await txt()), `${T} 624 guest chooses points without signing in`);
-    ok(await p.locator(D + '#ff-code').count() === 0, `${T} 613 code hidden for points`);
+    ok(await p.locator(D + '#ff-coderow').count() === 0, `${T} 613 code hidden for points`);
     await ev(() => { D().booking.from = 'NYP'; D().booking.to = 'WAS'; render(); }); await dclick('[data-a="find-trains"]'); await w(900);
     ok(/Points \(guest signs in after choosing a fare\)/.test(await txt()), `${T} 624 guest points carried into the search`);
-    await go(v, 'returning'); ok(/Points · 12,450/.test(await txt()), `${T} 624 member balance shown`);
-    for (const sc of ['passrider', 'triplink']) { await go(v, sc); ok(await p.locator(D + '[data-key="pay"]').count() === 0 && await p.locator(D + '#ff-code').count() === 0, `${T} 624/613 points and code hidden in ${sc}`); }
+    await go(v, 'returning'); ok(/12,450 points available/.test(await txt()), `${T} 624 member balance shown`);
+    for (const sc of ['passrider', 'triplink']) { await go(v, sc); ok(await p.locator(D + '#ff-points').count() === 0 && await p.locator(D + '#ff-coderow').count() === 0, `${T} 624/613 points and code hidden in ${sc}`); }
     // ---- 973/615/614 ----
     await go(v, 'returning'); await ev(() => { D().booking.pax.adult = 2; render(); });
     ok(!/Traveler with disability or need help/.test(await txt()), `${T} 973 indication not on the Fare Finder form (proposed mapping: Travelers)`);
@@ -134,7 +134,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await ev(() => !!document.querySelector('#protoCtl #tbNet') && !!document.querySelector('#protoCtl #notes')), `${T} Network and Screen notes in the reviewer controller`);
   }
   // no Jira IDs in the app
-  for (const v of [1, 3]) for (const sc of ['returning', 'guest', 'passrider', 'assist', 'triplink-passrider']) { await go(v, sc); ok(!/NMA-\d/.test(await txt()), `C${v} no Jira IDs on screen (${sc})`); }
+  for (const v of [1]) for (const sc of ['returning', 'guest', 'passrider', 'assist', 'triplink-passrider']) { await go(v, sc); ok(!/NMA-\d/.test(await txt()), `C${v} no Jira IDs on screen (${sc})`); }
   console.log('errors:', errs.length ? errs.join('\n') : 'none');
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   await br.close();

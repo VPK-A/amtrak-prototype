@@ -193,8 +193,8 @@ function goLoc(loc) {
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
     case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
-    case 'v1': case 'v2': case 'v3': case 'v4': {
-      // Version 3 and 4 demo entries: "v3:<scenario>:<place>"
+    case 'v1': case 'v2': case 'v4': {
+      // Demo entries (New booking, archived Concepts 2 and 4): "v4:<scenario>:<place>"
       const [, sc, place] = loc.split(':'), n = +k[1];
       TB.v = n; store.set('s4-v', String(n));
       const keep = { net: 'online', entry: VS[n].entry, token: VS[n].token };
@@ -344,6 +344,7 @@ function ipadNav() {
 // A pane = nav bar + optional offline banner + scrolling body + optional pinned footer.
 // Screens return { title, body, foot, kind: 'root'|'push'|'editor', save, wide, noBack }.
 function navbar(o, ri, ctx) {
+  if (o.header === 'brand') return sheetHeader({ id: `t-${ri}`, title: o.title, closeAttrs: 'data-a="close"', closeLabel: 'Close New booking' }); // New booking: navy brand header
   if (o.kind === 'focus' && o.headInBody) return ''; // the screen renders its own visible heading (id t-ri)
   if (o.kind === 'focus') return `<div class="ads-navbar ads-navbar--focus"><h2 class="ads-sr-only" tabindex="-1" id="t-${ri}">${esc(o.title)}</h2></div>`;
   let lead = '', trail = '';
@@ -363,7 +364,7 @@ function offlineBanner(what) { return V().net === 'offline' ? `<div class="ads-b
 function paneHtml(r, ri, ctx) {
   const o = SCR[r.s](r, ri);
   const body = typeof o.body === 'string' ? o.body : '';
-  return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot">${o.foot}</div>` : ''}</section>`;
+  return `<section class="pane${o.wide ? ' pane--wide' : ''}${o.cls ? ' ' + o.cls : ''}" data-ri="${ri}" aria-labelledby="t-${ri}">${navbar(o, ri, ctx)}${o.banner === false ? '' : offlineBanner(o.offlineText || 'You can view everything here. Saving needs a connection.')}<div class="pane__scroll" data-scroll="p${ri}-${r.s}"><div class="pane__body">${body}</div></div>${o.foot ? `<div class="pane__foot${o.footCls ? ' ' + o.footCls : ''}">${o.foot}</div>` : ''}</section>`;
 }
 // Second-level screens are pushed inside the same sheet (iOS navigation): the new screen slides in from
 // the right and Back slides it out. While the slide runs, the screen it replaces stays underneath (inert).
@@ -373,7 +374,9 @@ function renderSheet(sh, covered) {
   const st = sh.stack, n = st.length, ipad = IPAD();
   const splitOK = ipad && n >= 2 && SPLIT_PARENT(st[n - 2], st[n - 1]);
   const top = st[n - 1], selfSplit = ipad && SPLIT_SELF(top);
-  let cls = 'psheet' + (TB.v === 3 && sh.id === 'booking' ? ' psheet--clear' : TB.v === 4 && sh.id === 'booking' ? ' psheet--fl' : '');
+  let cls = 'psheet' + (TB.v === 4 && sh.id === 'booking' ? ' psheet--fl' : '');
+  const brand = sh.id === 'booking' && n === 1 && st[0].s === 'ff' && TB.v === 1; // New booking root: navy header, no grabber
+  if (brand) cls += ' psheet--brand';
   if (n > 1) cls += ' psheet--pushed';
   // Which way to slide: compare with the depth and top screen at the last render
   const replaced = sh._n === n && sh._top && sh._top !== top;
@@ -398,7 +401,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}">${ipad ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand ? ' data-platform="ios"' : ''}>${ipad || brand ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -489,7 +492,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbVersion', String(TB.v)); setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -503,9 +506,10 @@ function renderChrome() {
   scaleDevice();
 }
 function locLabel() { const l = locOf(); for (const [g, items] of FLOWS) for (const [k, label] of items) if (k === l) return `${g} › ${label}`; return l; }
-const VERSION_NAMES = { 1: 'Familiar', 2: 'Guided', 3: 'Brand forward', 4: 'Compact' };
-// Stakeholder feedback: Concepts 1 and 3 are advanced and reviewed; 2 and 4 are archived (still usable from Archive)
-const REVIEWED = [1, 3], ARCHIVED = [2, 4];
+// One New booking design (Figma Sprint 4 node 3295:51258). The Familiar / Brand forward switch was removed;
+// Concepts 2 and 4 stay archived (reachable only through their demo entries).
+const VERSION_NAMES = { 1: 'New booking', 2: 'Guided', 4: 'Compact' };
+const REVIEWED = [1], ARCHIVED = [2, 4];
 const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with Cancel and Save. On iPad the parent stays on the left and the editor opens on the right.', 2: 'Shows one decision at a time, explains dependencies before they cause errors, and skips steps that don’t apply. On iPad a step rail sits beside the question.', 3: 'Fare Finder: a navy header with the booking-mode controls over a rounded light surface; stations, dates and travelers open in rounded sheets over it; the discount code sits on the surface. It also carries the Sprint 4 Fare Finder variants: traveler types, discount codes, Use points, TripLink and Pass Rider. Profile: summaries you edit in place.', 4: 'Fare Finder: a white rounded sheet with a large “Find a train” heading, compact station and date controls, and aligned rows for travelers, assistance, discounts and codes, each with its own Edit action. Booking modes sit in context under the heading. Stations, dates and traveler details open in focused sheets. Profile and Account work as in Version 1.' };
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
@@ -520,8 +524,6 @@ function scaleDevice() {
 }
 function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
-  // Switching concept keeps the current scenario: the other concept's data is reloaded with it if it differs
-  seg('#tbVersion', v => { const loc = locOf(), cur = V(); TB.v = +v; if (V().sc !== cur.sc) VS[TB.v] = Object.assign(makeVS(cur.sc), { net: cur.net, entry: cur.entry, token: cur.token }); if (locOf() !== loc) goLoc(loc); else render(); store.set('s4-v', v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
   seg('#tbTheme', v => { TB.theme = v; render(); });

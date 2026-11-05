@@ -9,7 +9,7 @@ const SP = require('os').tmpdir() + '/';
   await p.addScriptTag({ path: require.resolve('axe-core/axe.min.js', { paths: [process.cwd(), __dirname] }) });
   const w = ms => p.waitForTimeout(ms), D = '#device ', ev = (f, a) => p.evaluate(f, a);
   const axe = async T => { const r = await ev(async () => (await axe.run({ include: ['#device'], exclude: ['.dev-status'] }, { resultTypes: ['violations'] })).violations.map(v => v.id + ' ' + v.nodes.slice(0,2).map(n => n.target.join(' ')).join(','))); ok(!r.length, `${T} axe ${r.join('|') || 'clean'}`); };
-  for (const v of [1, 3]) for (const th of ['light', 'dark']) {
+  for (const v of [1]) for (const th of ['light', 'dark']) {
     const T = `C${v} ${th}`;
     await ev(([v, th]) => { TB.v = v; TB.dev = 'iphone'; TB.text = 100; TB.theme = th; VS[v] = makeVS('returning'); V().toast = null; goLoc('ff'); }, [v, th]); await w(400);
     const tl = p.locator(D + '.trip-tabs[role="tablist"]');

@@ -1,6 +1,6 @@
 # Sprint 4 prototype app
 
-The Amtrak app Sprint 4 Fare Finder prototype (Concepts 1 · Familiar and 3 · Overview, with 2 and 4 archived), built on the ADS Next design system in this repository. It's a standard Vite + React project, set up for importing into Figma Make from GitHub or for running locally.
+The Amtrak app Sprint 4 Fare Finder prototype (one New booking design from Figma Sprint 4 node 3295:51258, with Concepts 2 and 4 archived), built on the ADS Next design system in this repository. The booking components are documented in `docs/` › New booking (iOS). It's a standard Vite + React project, set up for importing into Figma Make from GitHub or for running locally.
 
 **Requirements:** Node.js 18 or newer and npm. No environment variables, API keys or external services: all data is mocked in the browser, and nothing is saved or sent.
 

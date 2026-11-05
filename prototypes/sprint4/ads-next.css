@@ -24,23 +24,13 @@
 .ds-next .ads-routefield__swap { grid-area: swap; position: static; transform: none; align-self: center; margin-top: var(--ads-space-24); z-index: auto; border: 1px solid var(--_border); border-radius: var(--ads-radius-4); background: var(--_bg); }
 .ds-next .ads-routefield__swap:hover { background: var(--_bg-hover); }
 .ds-next .ads-routefield__swap:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); }
-.ds-next .ads-routefield__code, .ds-next .ffc-surface .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
-.ds-next .ads-routefield__body, .ds-next .ffc-surface .ads-routefield__body { flex: 1; min-width: 0; }
-.ds-next .ads-routefield__city, .ds-next .ffc-surface .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+.ds-next .ads-routefield__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); font-weight: var(--ads-type-h4-headline-weight); letter-spacing: normal; }
+.ds-next .ads-routefield__body { flex: 1; min-width: 0; }
+.ds-next .ads-routefield__city { font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
 
 /* Date fields: Text Input with a trailing calendar icon; stacked at phone width so nothing truncates */
-.ds-next .ads-datefields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ads-space-8); border: 0; border-radius: 0; background: none; overflow: visible; }
-.ds-next .ffc-surface, .ds-next .pane__body:has(.ads-datefields) { container: ffcol / inline-size; }
-@container ffcol (max-width: 420px) { .ds-next .ads-datefields { grid-template-columns: minmax(0, 1fr); } }
-.ds-next .ads-datefield { min-width: 0; flex-direction: row; justify-content: flex-start; }
-.ds-next .ads-datefield__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ds-next .ads-datefield__value, .ds-next .ads-datefield__day { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-next .ffc-surface .ads-datefield__value { font-weight: var(--ads-font-weight-regular); }
-.ds-next .ads-datefield__day { line-height: 1.3; }
-.ds-next .ads-routefield + .ads-helper, .ds-next .ads-datefields + .ads-helper { margin-top: 0; }
 
 /* Travelers: field/large with a leading icon and trailing chevron */
-.ds-next .ffc-trav > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
 
 /* Buttons, Radio Group, cards and surfaces */
 .ads-root .ds-next .ads-btn:focus-visible, .ds-next .ads-btn.ads-btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: var(--ads-space-4); }
@@ -48,8 +38,6 @@
 .ds-next .ads-group__body { border-radius: var(--ads-radius-8); }
 .ds-next .psheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
 .ds-next.device--ipad .psheet { border-radius: var(--ads-radius-12); }
-.ds-next .ffc-sheet { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
-.ds-next .ffc-surface { border-radius: var(--ads-radius-8); }
 
 /* Saved codes: List with one .list/row (ADS Next List anatomy)
    Surface background/surface-raised, 1px border/subtle, radius/4. Row 44px (size/interactive-md), space/12 at
@@ -120,7 +108,6 @@
 
 /* Alert, offline banner and mode notes: message panels at radius/8 */
 .ds-next .ads-alert { border-radius: var(--ads-radius-8); }
-.ds-next .ffc-banner, .ds-next .ffc-modenote { border-radius: var(--ads-radius-8); }
 
 /* Toast: no ADS toast exists (proposed extension) — a short message panel at radius/8 */
 .ds-next .ads-toast { border-radius: var(--ads-radius-8); }
@@ -145,12 +132,9 @@
    decorative leading icon · content/icon-secondary   navigation chevron · content/icon-secondary
    selected check / chosen favorite · content/icon-brand   info status · content/icon-info (unchanged)
    error · content/icon-error (unchanged)   disabled · content/icon-disabled (unchanged) */
-.ds-next :is(.ads-group__lead, .ffc-trav__icon) { color: var(--ads-content-icon-secondary); }
-.ds-next :is(.ads-group__row, .ffc-trav, .ads-fieldbtn, .bk-link) > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
 .ds-next .ads-stationrow__star:not([aria-pressed="true"]) { color: var(--ads-content-icon-secondary); }
 .ds-next .ads-stationrow__star[aria-pressed="true"], .ds-next .ss-check { color: var(--ads-content-icon-brand); }
 .ds-next :is(.dcode__info, .ss-details) { color: var(--ads-content-icon-primary); }
-.ds-next .ffc-surface { box-shadow: none; } /* Card: border/subtle, no elevation unless it floats */
 /* List row pressed (proposed extension: the List defines rest, hover, selected and disabled; on touch there is
    no hover, so pressed uses background/surface-active, the same as the station row's pressed state) */
 .ds-next button.ads-group__row:active, .ds-next a.ads-group__row:active { background: var(--ads-background-surface-active); }

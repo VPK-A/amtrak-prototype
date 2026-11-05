@@ -14,7 +14,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   const dlg = () => ev(() => nav().dialog && nav().dialog.title);
   const dlgBtn = async i => { await p.locator(D + `[data-dlg="${i}"]`).click(); await w(350); };
   const pickMode = async v => { await dclick('[data-a="mode-open"]'); await p.locator(`.info-sheet [data-a="mode-pick"][data-v="${v}"]`).dispatchEvent('click'); await w(250); };
-  for (const v of [1, 3]) {
+  for (const v of [1]) {
     const T = `C${v}`;
     // 1 avatar token
     await go(v, 'returning', 'tab:book');
@@ -24,21 +24,25 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     const t2 = await txt();
     ok(!/Recommended trips|Favorite stations|Routes near me|Book again|Rebook|Explore/.test(t2) && /New booking/.test(t2) && /Passes/.test(t2), `${T} 2 Book landing: no discovery, rebooking or Explore; New booking kept`);
     await go(v, 'returning', 'stations:from'); ok(await p.locator(D + '[aria-label="Favorite stations"]').count() === 1, `${T} 2 favorites still in the station selector`);
-    // 3-6 coupon field and saved codes
+    // 3-6 coupon row (Figma 3295:51258) and its code screen with saved codes
     await go(v, 'returning'); const t3 = await txt();
-    ok(/Coupon or promotion code Optional/.test(t3) && !/Discount code/.test(t3), `${T} 3 label "Coupon or promotion code", optional`);
-    ok(await ev(() => !document.querySelector('#device #dcode .ads-icon--payment-voucher')), `${T} 4 no ticket icon in the field`);
-    ok(await p.locator(D + '#dcode .ads-group [data-a="code-saved"]').count() === 1 && /Saved codes 3 available/.test(t3) && await p.locator(D + '.dcode__saved, .linkbtn[data-a="code-saved"]').count() === 0, `${T} 6 saved codes is a DS row with count and chevron`);
+    ok(/Coupon or promotional code\s*Apply discount code/.test(t3) && await p.locator(D + '#ff-coderow.ads-selectrow__btn').count() === 1, `${T} 3 coupon row: label "Coupon or promotional code", prompt "Apply discount code"`);
+    ok(await ev(() => !document.querySelector('#device #ff-coderow .ads-icon--payment-voucher')), `${T} 4 no ticket icon in the row`);
+    await dclick('#ff-coderow'); await w(500); const t3b = await txt();
+    ok(/Code\s*Optional/.test(t3b) && await p.locator(D + '#ff-code').count() === 1, `${T} 3 the row opens the code screen with an optional Code field`);
+    ok(await p.locator(D + '#dcode .ads-group [data-a="code-saved"]').count() === 1 && /Saved codes\s*3 available/.test(t3b) && await p.locator(D + '.dcode__saved, .linkbtn[data-a="code-saved"]').count() === 0, `${T} 6 saved codes is a DS row with count and chevron`);
     await dclick('[data-a="code-saved"]');
     ok(await ev(() => { const s = document.querySelector('.info-sheet'); return s && /^Saved codes/.test(s.querySelector('.info-title').textContent) && /Choose a coupon or promotion code for this trip\./.test(s.innerText) && /Expires/.test(s.innerText); }), `${T} 5 saved-code sheet copy, expiry kept`);
     await p.locator('.info-sheet [data-a="dcode-pick"][data-code="V123"]').dispatchEvent('click'); await w(300);
     ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === '') && /selected/.test(await txt()) && !/Code applied/.test(await txt()), `${T} 5 selecting doesn't apply before validation`);
     ok(await p.locator(D + '#ff-code').inputValue() === 'V123', `${T} 3 manual field shows the selected code`);
-    // 7 cash/points radio group
-    const pay = await ev(() => { const f = document.querySelector('#device .payset'); if (!f) return null; const fb = document.querySelector('#device [data-a="find-trains"]').getBoundingClientRect(), r = f.getBoundingClientRect(); return { radios: f.querySelectorAll('input[type=radio]').length, h: Math.round(r.height), btnH: Math.round(fb.height), checked: f.querySelector('input:checked').dataset.v }; });
-    ok(pay && pay.radios === 2 && pay.checked === 'cash' && pay.h <= pay.btnH, `${T} 7 cash/points is a compact radio group (no taller than Find trains), cash default (${JSON.stringify(pay)})`);
-    await dclick('.payset input[data-v="points"]'); ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D + '#ff-code').count() === 0, `${T} 7 points hides the code field`);
-    await go(v, 'guest'); await dclick('.payset input[data-v="points"]'); ok(/sign in to use your points after you choose a fare/.test(await txt()), `${T} 7 guest points kept`);
+    await dclick('[data-a="dcode-done"]'); await w(500);
+    ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Done returns to New booking; the row shows the code`);
+    // 7 Pay with points: a switch in the action footer
+    const pay = await ev(() => { const f = document.querySelector('#device .ads-actionfooter .ads-pointsrow'); if (!f) return null; const fb = document.querySelector('#device [data-a="find-trains"]').getBoundingClientRect(), r = f.getBoundingClientRect(), sw = f.querySelector('input[role="switch"]'); return { h: Math.round(r.height), btnH: Math.round(fb.height), checked: sw.checked, above: r.bottom <= fb.top }; });
+    ok(pay && !pay.checked && pay.h <= pay.btnH && pay.above, `${T} 7 Pay with points is a switch above Find trains, off by default (${JSON.stringify(pay)})`);
+    await dclick('#ff-points'); ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D + '#ff-coderow').count() === 0, `${T} 7 points hides the code row`);
+    await go(v, 'guest'); await dclick('#ff-points'); ok(/sign in to use your points after you choose a fare/.test(await txt()), `${T} 7 guest points kept`);
     // 8 no "Choosing"
     await go(v, 'returning', 'stations:to'); ok(!/Choosing|Changing/.test(await txt()), `${T} 8 station search without "Choosing"`);
     await go(v, 'returning', 'calendar:dep'); await ev(() => { D().booking.trip = 'rt'; D().booking.ret = D().booking.dep; render(); }); ok(!/Choosing/.test(await ev(() => document.querySelector('#device').innerHTML)), `${T} 8 calendar without "Choosing" (incl. labels)`);
@@ -89,8 +93,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'triplink-passrider'); ok(/Booking type Regular/.test(await txt()) && await ev(() => D().booking.intent) === 'standard', `${T} 15 dual eligibility: nothing special preselected`);
     // mode changes update points, coupons, discounts, travelers
     await go(v, 'passrider'); await pickMode('personal');
-    ok(await p.locator(D + '#ff-code').count() === 1 && await p.locator(D + '.payset').count() === 1 && /Booking type Regular/.test(await txt()), `${T} mode → Regular: code and points back`);
-    await pickMode('pr'); ok(await p.locator(D + '#ff-code').count() === 0 && await p.locator(D + '.payset').count() === 0 && await p.locator(D + '[data-a="pr-type"]').count() === 2, `${T} mode → Pass Rider: code and points gone, travel type shown`);
+    ok(await p.locator(D + '#ff-coderow').count() === 1 && await p.locator(D + '#ff-points').count() === 1 && /Booking type Regular/.test(await txt()), `${T} mode → Regular: code and points back`);
+    await pickMode('pr'); ok(await p.locator(D + '#ff-coderow').count() === 0 && await p.locator(D + '#ff-points').count() === 0 && await p.locator(D + '[data-a="pr-type"]').count() === 2, `${T} mode → Pass Rider: code and points gone, travel type shown`);
     await go(v, 'triplink'); ok(/Booking type Corporate \(TripLink\)/.test(await txt()) && await p.locator(D + '[data-a="pr-type"]').count() === 0, `${T} TripLink separate from Pass Rider Business`);
     await pickMode('personal'); await ev(() => { D().booking.pax.adult = 3; render(); }); await pickMode('corporate'); ok(await ev(() => paxAll(D().booking.pax)) === 1, `${T} corporate keeps 1 traveler`);
     await go(v, 'passrider-minor'); await pickMode('pr'); ok(await ev(() => D().booking.intent) === 'standard' && /15 or younger/.test(await ev(() => document.querySelector('.info-sheet').innerText)), `${T} minor dependent can't start Pass Rider; reason shown`);
@@ -163,7 +167,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   await p.click('[data-mail-close]'); await w(100);
   ok(await ev(() => document.querySelectorAll('#emails [data-mail-kind]').length === 3), 'every email design is inspectable from the controller');
   // customer UI stays clean
-  for (const v of [1, 3]) for (const sc of ['returning', 'passrider', 'triplink', 'guest']) { await go(v, sc); const h = await ev(() => document.querySelector('#device').innerText); ok(!/NMA-\d/.test(h) && await p.locator('#device .pq:visible').count() === 0, `C${v} ${sc}: no Jira IDs or question markers in the app`); }
+  for (const v of [1]) for (const sc of ['returning', 'passrider', 'triplink', 'guest']) { await go(v, sc); const h = await ev(() => document.querySelector('#device').innerText); ok(!/NMA-\d/.test(h) && await p.locator('#device .pq:visible').count() === 0, `C${v} ${sc}: no Jira IDs or question markers in the app`); }
   console.log('errors:', errs.length ? errs.join('\n') : 'none');
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   require('fs').writeFileSync('final-results.json', JSON.stringify(res));

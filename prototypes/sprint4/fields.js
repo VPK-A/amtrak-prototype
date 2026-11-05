@@ -41,8 +41,31 @@ function codeField(r, b) {
   const remove = text ? btn('code-remove', 'Remove', 'tertiary', `Remove code ${esc(text)}`) : '';
   // Saved codes: a DS grouped row with a count and chevron (opens the saved-code sheet)
   const pick = saved.length ? group('', [grow({ a: 'code-saved', label: 'Saved codes', value: `${saved.length} available`, k: 'row-saved-codes' })]) : '';
-  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Coupon or promotion code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
+  return `<div class="ads-field dcode" id="dcode"><div class="dcode__head"><label class="ads-field__label" for="ff-code">Code <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><button class="ads-icon-btn ads-icon-btn--sm dcode__info" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle', 'ads-icon--sm')}</button></div><div class="dcode__row">${input}${remove}</div>${msg}${pick}</div>`;
 }
+// New booking: the code is a selector row (Figma Sprint 4 node 3295:51258). It opens the code screen, which
+// holds the field above (same rules); results of the check at Find trains show under the row.
+function codeRow(r, b) {
+  if (!['standard', 'personal'].includes(intentOf(b)) || b.pay === 'points') return ''; // not shown for points (NMA-613 scenario 1)
+  ref('613'); q(21); q(23);
+  const st = codeStateOf(b), text = b.codeText || '', busy = r.u.busy && text;
+  const bad = !busy && ['invalid', 'ineligible', 'error'].includes(st);
+  const btn = (a, label, kind = 'secondary') => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${a}">${label}</button>`;
+  let sub = '', msg = '';
+  if (busy) sub = 'Checking your code';
+  else if (bad) msg = `<p class="ads-helper ads-helper--error dcode__msg" id="ff-code-h" tabindex="-1">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>${st === 'error' ? `<div class="dcode__acts">${btn('code-retry', 'Try again')}</div>` : st === 'ineligible' ? `<div class="dcode__acts">${btn('code-skip', 'Find trains without this code')}</div>` : ''}`;
+  else if (st === 'applied') sub = `Code applied${b.code && b.code.benefit ? `: ${b.code.benefit}` : ''}`;
+  else if (st === 'changed') sub = 'Your trip changed, so this code will be checked again when you find trains.';
+  else if (b.code && b.code.benefit) sub = `${b.code.kind}: ${b.code.benefit}`;
+  else if (text) sub = 'Checked when you find trains';
+  return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply discount code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
+}
+A['code-open'] = (t, ri) => push('dcode', {}, +ri);
+SCR.dcode = (r, ri) => {
+  const b = D().booking;
+  return { title: 'Coupon or promotional code', kind: 'push', body: codeField(r, b), foot: `<button class="ads-btn ads-btn--block" type="button" data-a="dcode-done">Done</button>`, footCls: 'ads-actionfooter' };
+};
+A['dcode-done'] = (t, ri) => { const inp = document.querySelector('#ff-code'); if (inp) setCodeText(D().booking, inp.value); popTo(+ri - 1); pendingFocus = '#ff-coderow'; };
 INFO['saved-codes'] = {
   title: 'Saved codes',
   body: () => `<p>Choose a coupon or promotion code for this trip.</p><ul class="ffc-codelist">${savedCodes().map(c => `<li><button class="ffc-code" type="button" data-a="dcode-pick" data-code="${c.code}"><span class="ffc-code__kind">${esc(c.kind)}</span><span class="ffc-code__benefit">${esc(c.benefit)}</span><span class="ffc-code__meta">${esc(c.code)} · Expires ${fmtExp(c.exp)}</span></button></li>`).join('')}</ul><p class="ss-note">Soonest to expire first. We check a code against your trip when you find trains.</p><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dcode-manual">Enter a different code</button>`

@@ -94,33 +94,7 @@ const codeApplies = b => !!(b.code || b.codeText) && ['standard', 'personal'].in
 const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 // ---------- Fare Finder ----------
-function ffClear(r, ri) {
-  const d = D(), b = d.booking, v = V(), member = d.signedIn;
-  const corp = b.intent === 'corporate', pr = b.intent === 'pr', std = !corp && !pr;
-  ref('607', '608', '1060', '611', '612'); if (std) ref('613', '624');
-  if (d.triplink && member) ref('622'); if (d.passrider && member) ref('623', '1016', '1017', '1018', '1019');
-  // 1. Heading and booking-mode controls
-  const modes = modeEntry(b, 'v3'); // one compact Booking type entry (only for members eligible for a mode)
-  const sub = '';
-  const modeNote = b.modeNote ? `<p class="ffc-modenote" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : '';
-  const hero = `<div class="ffc-hero"><h3 class="ffc-title" tabindex="-1" data-title>New booking</h3>${sub ? `<p class="ffc-sub">${sub}</p>` : ''}${modes ? `<div class="ffc-modes">${modes}</div>` : ''}${modeNote}${corp ? q(12) : ''}</div>`;
-  // 2. Rounded primary surface
-  let prType = '';
-  if (pr) {
-    const elig = d.passrider.role === 'employee' && d.passrider.business;
-    prType = elig && !bpCompact() ? `<div class="ffc-field" id="ffc-prtype"><span class="ffc-label" id="ffc-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="ffc-prt" aria-describedby="ffc-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="ffc-prt-h">${prTypeHelp(b)}</p></div>`
-      : ''; // Leisure only: shown in the Booking type entry
-  }
-  const trav = travField(r, b);
-  // Under travelers: the discount code (NMA-613, placement proposed Q21). Assistance is per traveler (Q7).
-  q(7);
-  const restricted = std ? '' : `<p class="ffc-restricted">${ic('info-circle', 'ads-icon--sm')}<span>Points, passenger discounts and coupon or promotion codes aren’t used for ${corp ? 'corporate bookings' : 'Pass Rider travel'}.</span></p>`;
-  q(22);
-  const surface = `<div class="ffc-surface">${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${prType}${trav}${codeField(r, b)}${restricted}${std ? `<div class="ffc-pay">${payControl(b, 'ffcpay')}</div>` : ''}</div>`;
-  if (std) codeTips(); ffFlags(b);
-  return { title: 'New booking', srTitle: true, cls: 'pane--clear', kind: 'root', banner: false, body: `${V().net === 'offline' ? `<div class="ads-banner ffc-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : ''}${hero}<div class="ffc-sheet">${surface}${netAlert(r)}</div>`, foot: findBtn(r) };
-}
-// Shared by Concepts 1 and 3
+// Shared Fare Finder rules
 // Reviewer flags for unresolved rules that affect the Fare Finder (shown in Screen notes, never in the app)
 function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (d.signedIn && d.triplink && d.passrider) q(26); if (intentOf(b) === 'pr') q(13); }
 const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
@@ -166,7 +140,7 @@ A['pr-type'] = t => { const b = D().booking; b.prType = t.dataset.v; b.notice = 
 A['find-trains'] = (t, ri) => {
   if (TB.v === 2) return findGuided(t, ri);
   const r = routeAt(ri), b = D().booking, e = ffErrors(b);
-  if (TB.v === 1 || TB.v === 3) {
+  if (TB.v === 1) {
     r.u.alert = null;
     const inp = document.querySelector('#ff-code'); if (inp) setCodeText(b, inp.value);
     const fail = sel => { r.u.showErr = true; pendingFocus = sel; render(); };
@@ -179,7 +153,7 @@ A['find-trains'] = (t, ri) => {
         actions: [['Switch to Personal', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
     }
     r.u.showErr = false;
-    if (codeFormatError(b)) { pendingFocus = '#ff-code'; render(); return; }
+    if (codeFormatError(b)) { pendingFocus = '#ff-code-h, #ff-code'; render(); return; }
     return searchWithCode(r, ri);
   }
   const prMissing = intentOf(b) === 'pr' && !b.prType, paxBad = intentOf(b) !== 'corporate' && intentOf(b) !== 'pr' && paxProblems(b.pax).length;
@@ -189,7 +163,7 @@ A['find-trains'] = (t, ri) => {
 };
 // Shared by Versions 2–4: check the discount code (mock back end), then hand off to search results
 function searchWithCode(r, ri) {
-  const b = D().booking, inline = v1() || v3(); b.codeErr = '';
+  const b = D().booking, inline = v1(); b.codeErr = '';
   if (intentOf(b) === 'pr' && !prCanStart(D()).ok) { dialog({ title: 'Pass Rider isn’t available', body: esc(prCanStart(D()).text), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
   const ap = assistProblems(b); // a personal companion without a traveler with a disability (NMA-615 BR2.1)
   if (ap.length) { dialog({ title: 'Check assistance', body: esc(ap[0]), actions: [['Close', 'primary', null]], returnFocus: '[data-a="find-trains"]' }); return; }
@@ -201,7 +175,7 @@ function searchWithCode(r, ri) {
     if (res && res.range) {
       b.codeState = 'ineligible'; b.codeErr = 'This code can’t be used for the dates you chose.';
       dialog({ title: 'Invalid coupon date range', body: 'This code can’t be used for the dates you chose.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) { pendingFocus = '#ff-code'; render(); } else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); push('handoff', {}, +ri); }], ['Close', 'tertiary', null]] });
+        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) push('dcode', {}, +ri); else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); push('handoff', {}, +ri); }], ['Close', 'tertiary', null]] });
       return;
     }
     if (inline && useCode) { b.codeState = 'applied'; b.codeSig = codeSig(b); }
@@ -268,7 +242,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam || v3() ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
@@ -309,10 +283,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
     body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Who’s traveling ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
-      ${fam ? travelerCards(b, r) : v3() ? overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost)}
-      ${fam || v3() ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
+      ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
+      ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? travelerCards(b, r) : v3() ? overviewPassRider(b) + overviewTravelers(r, ri, b) : assistBlock(r, ri, aHost);
+  if (corp || pr) body += fam ? travelerCards(b, r) : assistBlock(r, ri, aHost);
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -333,7 +307,7 @@ A.pax = t => {
   else b.pax[k] = Math.max(0, b.pax[k] + dlt);
   // A removed traveler takes their own selections with them (NMA-612 BR2, NMA-615 AC1): a traveler added
   // later starts fresh instead of inheriting someone else's discount or assistance
-  if (dlt < 0 && was > 0 && (v1() || v3())) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
+  if (dlt < 0 && was > 0 && v1()) forgetTraveler(b, g === 'pr' ? `pr-${k}-${was}` : `${k}-${was}`);
   pendingFocus = `[data-a="pax"][data-g="${g}"][data-k="${k}"][data-d="${dlt}"]:not(:disabled), [data-a="pax"][data-g="${g}"][data-k="${k}"]:not(:disabled)`; render();
 };
 function forgetTraveler(b, key) {

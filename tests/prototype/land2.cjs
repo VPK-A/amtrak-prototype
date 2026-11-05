@@ -9,7 +9,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   const go = (v, sc, dev = 'iphone', text = 100, theme = 'light', orient = 'portrait') => p.evaluate(([v, sc, dev, text, theme, orient]) => { TB.v = v; TB.dev = dev; TB.text = text; TB.theme = theme; TB.orient = orient; VS[v] = makeVS(sc); goLoc('tab:book'); }, [v, sc, dev, text, theme, orient]);
   const stack = () => p.evaluate(() => nav().sheet ? nav().sheet.id + ':' + nav().sheet.stack.map(r => r.s).join('>') : '');
   const txt = () => p.evaluate(() => document.querySelector('#device .app').innerText.replace(/\s+/g, ' '));
-  for (const dev of ['iphone', 'ipad']) for (const v of [1, 3]) {
+  for (const dev of ['iphone', 'ipad']) for (const v of [1]) {
     const T = `C${v} ${dev}`;
     await go(v, 'returning', dev); await w(250); const t = await txt();
     ok(/New booking/.test(t) && /Where to\?/.test(t) && /Passes/.test(t), `${T} New booking entry and Passes`);

@@ -13,7 +13,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const css = (sel, props = []) => p.evaluate(([s, props]) => { const e = document.querySelector('#device ' + s); if (!e) return null; const c = getComputedStyle(e); const o = { h: e.offsetHeight, r: c.borderTopLeftRadius, bw: c.borderTopWidth, bc: c.borderTopColor, bg: c.backgroundColor, sh: c.boxShadow, col: c.color, ol: c.outlineStyle, oo: c.outlineOffset }; props.forEach(k => o[k] = c[k]); return o; }, [sel, props]);
   const tok = (n, prop = 'color') => p.evaluate(([n, prop]) => { const i = document.createElement('i'); i.style[prop] = `var(${n})`; document.querySelector('#device .app').appendChild(i); const c = getComputedStyle(i)[prop]; i.remove(); return c; }, [n, prop]);
   const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a);
-  for (const v of [1, 3]) for (const th of ['light', 'dark']) {
+  for (const v of [1]) for (const th of ['light', 'dark']) {
     const T = `C${v} ${th}`;
     const DEF = await (go(v, 'returning', 'ff', th), w(200), tok('--ads-border-default')), SUB = await tok('--ads-border-subtle'), FOC = await tok('--ads-border-focus'), BRAND = await tok('--ads-border-brand');
     const ICON2 = await tok('--ads-content-icon-secondary'), ICONB = await tok('--ads-content-icon-brand'), ERR = await tok('--ads-border-status-error');

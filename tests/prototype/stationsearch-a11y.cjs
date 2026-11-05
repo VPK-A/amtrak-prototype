@@ -16,7 +16,7 @@ const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js', { 
     ['settings', 'stations:from', {}, "nav().native={kind:'settings',what:'app',platform:'ios'}"],
     ['details', 'stations:from', {}, "push('station-detail',{code:'NYP',field:'from'},0)"], ['train status', 'tab:train-status', {}, ''], ['multi-ride', 'tab:book', {}, "A['bk-passes']()"]];
   let n = 0, runs = 0;
-  for (const dev of ['iphone', 'ipad']) for (const theme of ['light', 'dark']) for (const text of [100, 140]) for (const v of [1, 3]) for (const [name, loc, L, js] of S) {
+  for (const dev of ['iphone', 'ipad']) for (const theme of ['light', 'dark']) for (const text of [100, 140]) for (const v of [1]) for (const [name, loc, L, js] of S) {
     runs++;
     await p.evaluate(([dev, theme, text, v, loc, L, js]) => { TB.dev = dev; TB.theme = theme; TB.text = text; TB.v = v; VS[v] = makeVS('returning'); V().loc = Object.assign(LOC_DEFAULT(), L); V().toast = null; goLoc(loc); if (js) eval(js); render(); }, [dev, theme, text, v, loc, L, js]);
     await p.waitForTimeout(350);

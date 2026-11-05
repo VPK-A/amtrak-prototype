@@ -12,13 +12,16 @@ export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROTO = join(ROOT, 'prototypes/sprint4');
 export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'), join(PROTO, 'ads-next.css'), join(PROTO, 'stationmap.css'));
 export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'familiar', 'overview', 'stationmap', 'gmap', 'compare', 'compact', 'chrome', 'boot'];
-export const JS_FILES = JS_ORDER.map(n => join(PROTO, `${n}.js`));
+// js/ads-booking.js (shared booking components) runs first; the DS catalog inlines the same file
+export const JS_FILES = [join(ROOT, 'js/ads-booking.js')].concat(JS_ORDER.map(n => join(PROTO, `${n}.js`)));
 export const SHELL = join(PROTO, 'src.html');
 export const HANDOFF = join(PROTO, 'HANDOFF.md');
 export const LOGO = join(ROOT, 'logos/travelmark-horizontal.svg');
+// Brand arrows in the New booking sheet header (Figma Sprint 4 node 3295:51258), inlined like the logo
+export const ARROWS = { __ARROW_RED__: join(ROOT, 'logos/brand-arrow-end-red.svg'), __ARROW_BLUE__: join(ROOT, 'logos/brand-arrow-end-blue.svg') };
 // Book tab card photos, inlined as data URIs so the standalone page stays self-contained
 export const IMAGES = { __IMG_TRIPS__: join(PROTO, 'img/recommended-trips.jpg'), __IMG_NEAR__: join(PROTO, 'img/favorite-stations.jpg') };
-export const WATCHED = [...CSS_FILES, ...JS_FILES, SHELL, HANDOFF, LOGO, ...Object.values(IMAGES)];
+export const WATCHED = [...CSS_FILES, ...JS_FILES, SHELL, HANDOFF, LOGO, ...Object.values(ARROWS), ...Object.values(IMAGES)];
 
 const read = f => readFileSync(f, 'utf8');
 
@@ -27,6 +30,7 @@ export function assemble() {
   if (logo.includes('`') || logo.includes('${')) throw new Error('logo SVG would break the template literals it is inserted into');
   const css = CSS_FILES.map(read).join('\n');
   let js = JS_FILES.map(read).join('\n').split('__LOGO_H__').join(logo);
+  for (const [token, file] of Object.entries(ARROWS)) js = js.split(token).join(read(file).trim().replace(/ style="[^"]*"/, ' aria-hidden="true" focusable="false"').replace(/ id="Arrow end"/, ''));
   for (const [token, file] of Object.entries(IMAGES)) js = js.split(token).join('data:image/jpeg;base64,' + readFileSync(file).toString('base64'));
   const handoff = marked.parse(read(HANDOFF), { gfm: true });
   const shell = read(SHELL).replace('<!--__HANDOFF__-->', () => handoff);

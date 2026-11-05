@@ -13,7 +13,7 @@
 
 ## How to review
 
-1. Open the controls with the round button at the right edge. Choose Concept › Familiar.
+1. Open the controls with the round button at the right edge.
 2. Use **Scenario** to load a starting point:
    - Returning member (default)
    - Assistance: 4 travelers, different needs
@@ -93,4 +93,4 @@ The entry point keeps its place, question and explanatory text in each traveler'
 7. **Booking beyond search.** Search results, seat selection and checkout aren't in Sprint 4, so "carried into booking" stops at the search hand-off.
 8. **Not built:** mobility device details (NMA-29), service animal forms (NMA-628), live station-assistance availability (NMA-620), Save to profile (NMA-1051).
 9. **Copy** in `ASSIST_COPY` is placeholder text standing in for AEM.
-10. **Shared with Concept 3.** Brand forward uses the same questionnaire, so it gets these rules too. Account › Assistance (profile) uses the same disability and station rules.
+10. **Shared rules.** Account › Assistance (profile) uses the same disability and station rules.
