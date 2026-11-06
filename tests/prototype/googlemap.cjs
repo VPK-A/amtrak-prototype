@@ -30,7 +30,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   let s = await st(p); ok(s.sel === 'WAS' && s.from === null && await p.locator(D_ + '.ss-mapcard [data-a="choose-station"]').count() === 1, 'fallback: marker highlights and opens the card; field unchanged');
   ok(/placeholder drawing \(Google Maps has no API key configured\)/.test(await p.evaluate(() => document.querySelector('#notes').innerText)), 'reviewer note explains the fallback');
   await p.click(D_ + '.ss-mapcard [data-a="choose-station"]'); await p.waitForTimeout(400);
-  ok(await p.evaluate(() => D().booking.from) === 'WAS' && await p.evaluate(() => sheet().stack.length) === 1, 'fallback: Select confirms and returns to New booking');
+  ok(await p.evaluate(() => D().booking.from) === 'WAS' && await p.evaluate(() => sheet().stack.length === 2 && sheet().stack[1].p.field === 'to'), 'fallback: Select confirms From and moves on to To');
   await p.close();
 
   // ---- 2. Network failure: placeholder takes over ----
@@ -92,7 +92,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   } else ok(false, 'expected a group marker in the predefined view');
   // confirm from the card, reopen from To
   await p.click(D_ + '.ss-mapcard [data-a="choose-station"]'); await p.waitForTimeout(400);
-  ok(await p.evaluate(() => sheet().stack.length === 1 && !!D().booking.from && !D().booking.to), 'Select fills only the originating field and returns');
+  ok(await p.evaluate(() => sheet().stack.length === 2 && sheet().stack[1].p.field === 'to' && !!D().booking.from && !D().booking.to), 'Select fills only the field being edited and stays open for To');
+  await p.click(D_ + '.ss-head__back'); await p.waitForTimeout(400);
   await p.click(D_ + '#ff-to'); await p.waitForTimeout(300); await p.click(D_ + '#ss-tab-map'); await p.waitForTimeout(400);
   ok(await provider(p) === 'google' && await p.evaluate(() => !!document.querySelector('#device .gmap-slot .gmap-host') && !selRoute().u.mapSel && __gmStub.maps.length === 1), 'reopening: same Google map instance, nothing highlighted');
   await p.click(D_ + '#ss-tab-list'); await p.waitForTimeout(300);

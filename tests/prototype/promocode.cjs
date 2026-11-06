@@ -26,7 +26,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await ev(() => D().booking.codeText === 'FALL' && D().booking.codeSrc === 'manual'), `${T} typed code entered (FALL)`);
     // navigate within the booking: stations, dates, travelers, Find trains check
     await click('#ff-from'); await p.fill(D_ + '#ss-q', 'NYP'); await w(150); await click('[data-a="choose-station"][data-code="NYP"]');
-    await click('#ff-to'); await p.fill(D_ + '#ss-q', 'WAS'); await w(150); await click('[data-a="choose-station"][data-code="WAS"]');
+    await p.fill(D_ + '#ss-q', 'WAS'); await w(150); await click('[data-a="choose-station"][data-code="WAS"]'); // the selector moves on to To
     await click('#ff-dep'); await p.locator(D_ + '.psheet [data-a="back"], ' + D_ + '.psheet .pane__foot .ads-btn').first().click(); await w(300);
     await click('[data-a="pick-travelers"]'); await click('[data-a="pick-travelers-done"]');
     ok(await rowVal() === 'FALL', `${T} code kept while editing and navigating within the booking`);

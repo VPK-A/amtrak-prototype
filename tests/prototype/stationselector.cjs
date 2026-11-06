@@ -39,7 +39,10 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     await q(() => goLoc('stations:to')); await wait();
     ok(await q(d => (d === 'iphone' ? document.querySelector('#device .ss-head__title') : [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent.startsWith('Select station') && document.querySelector('#device #ss-q').placeholder === 'Search station' && document.querySelector('#device #ss-f-to').getAttribute('aria-current') === 'true', dev), `${tag} To: heading, placeholder and the To field outlined`);
     await p.click('#device [data-k="st-rec-PHL"]'); await wait();
-    ok(await q(() => D().booking.to === 'PHL' && D().booking.from !== 'PHL'), `${tag} choosing fills To only`);
+    ok(await q(() => D().booking.to === 'PHL' && D().booking.from !== 'PHL' && sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), `${tag} choosing fills To only, then the selector stays open on From`);
+    ok(await q(() => /set as your arrival station\. Now choose your departure station\./.test(document.querySelector('#device .ss-top [role="status"]').textContent) && document.activeElement.id === 'ss-q'), `${tag} the move to the other field is announced; focus in search`);
+    await p.click('#device [data-k="st-rec-BOS"]'); await wait();
+    ok(await q(() => D().booking.from === 'BOS' && D().booking.to === 'PHL' && sheet().stack.length === 1), `${tag} after both stations, back on New booking`);
     if (dev === 'iphone') { await p.click('#device #ff-from'); await wait(); await p.click('#device .ss-head__back'); await wait(); ok(await q(() => sheet().stack.length === 1 && sheet().stack[0].s === 'ff'), `${tag} Back returns to New booking`); }
   }
   console.log('pass', pass, 'fail', fail); await b.close();

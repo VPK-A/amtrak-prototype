@@ -20,7 +20,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('#ff-from'); ok((await stack()).endsWith('stations'), `${T} From opens station search`);
     ok(await p.locator(D_ + '[data-a="ss-view"]').count() === 2 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} List and Map views; My Location offered before any permission`);
     await p.fill(D_ + '#ss-q', 'PHL'); await w(150); await click('[data-a="choose-station"][data-code="PHL"]');
-    ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'PHL' && D().booking.to === 'WAS'), `${T} Departure set; Arrival unchanged; back on New booking`);
+    ok((await stack()).endsWith('stations') && await ev(() => D().booking.from === 'PHL' && D().booking.to === 'WAS' && sheet().stack.at(-1).p.field === 'to'), `${T} Departure set; Arrival unchanged; the selector stays open on To`);
+    await click('.ss-head__back'); ok(await stack() === 'booking:ff', `${T} Back returns to New booking with the departure kept`);
     // ---- Arrival via the map (no permission request just for opening it) ----
     await click('#ff-to'); await mapView();
     ok(await ev(() => !nav().native) && await p.locator(D_ + '.ss-map').count() === 1, `${T} opening Map does not ask for location`);
@@ -53,7 +54,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('.psheet [data-a="back"]'); await w(300);
     ok((await stack()).endsWith('stations') && await ev(() => JSON.stringify(sheet().stack.at(-1).u.map)) === keep && await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} back from Details keeps position, zoom and selected marker`);
     await click('#map-card [data-a="choose-station"]');
-    ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} Select commits Arrival only`);
+    ok(await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL' && sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), `${T} Select commits Arrival only; the selector stays open on From`);
+    await click('.ss-head__back'); ok(await stack() === 'booking:ff', `${T} Back returns to New booking`);
     ok((await evs()).includes('map_station_selected'), `${T} analytics: map selection`);
     // switch back to List
     await click('#ff-to'); await mapView(); await click('[data-a="ss-view"][data-v="list"]'); ok(await p.locator(D_ + '.ss-map').count() === 0 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} switch back to List view`);
@@ -74,7 +76,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     }
     await w(1700);
     const lbl = await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().innerText(); ok(/miles away/.test(await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().evaluate(e => e.textContent)), `${T} distance has a spoken label`);
-    await click('.ss-nearlist .ads-stationrow__select'); ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'NYP'), `${T} a nearby result fills Departure and returns`);
+    await click('.ss-nearlist .ads-stationrow__select'); ok(await ev(() => D().booking.from === 'NYP' && sheet().stack.at(-1).p.field === 'to'), `${T} a nearby result fills Departure; the selector moves on to To`);
+    await click('.ss-head__back');
     ok((await evs()).includes('nearby_station_selected'), `${T} analytics: nearby selection with distance`);
     // approximate, allow once
     await go(v, 'returning', 'stations:from', { perm: 'approx' }); await click('[data-a="near-start"]'); await w(1700);
@@ -126,7 +129,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await ev(() => D().ts.from === 'WAS'), `${T} Train status: station changed from the map`);
     await go(v, 'returning', 'tab:book'); await click('[data-a="bk-passes"]'); ok(await stack() === 'mr:multiride', `${T} Book › Passes opens Multi-Ride`);
     await click('#mr-to'); await p.fill(D_ + '#ss-q', 'NHV'); await w(150); await click('[data-a="choose-station"][data-code="NHV"]');
-    ok(await stack() === 'mr:multiride' && await ev(() => D().mr.to === 'NHV' && !D().mr.from && !D().booking.to), `${T} Multi-Ride: To set there only`);
+    ok(await ev(() => D().mr.to === 'NHV' && !D().mr.from && !D().booking.to && sheet().stack.at(-1).p.field === 'from'), `${T} Multi-Ride: To set there only; the selector moves on to From`);
+    await p.fill(D_ + '#ss-q', 'BOS'); await w(150); await click('[data-a="choose-station"][data-code="BOS"]');
+    ok(await stack() === 'mr:multiride' && await ev(() => D().mr.from === 'BOS' && D().mr.to === 'NHV'), `${T} Multi-Ride: both set, back to Multi-Ride`);
     // iPad
     await go(v, 'returning', 'stations:from', {}, 'ipad'); await mapView(); ok(await p.locator(D_ + '.ss-map').count() === 1, `${T} iPad: map view`);
     // accessibility names

@@ -248,9 +248,9 @@ function stationSearch(r, ri, field, inline) {
   const backBtn = root ? `<button class="ads-icon-btn ss-head__back" type="button" data-a="close" aria-label="Close station search">${ic('chevron-left')}</button>` : `<button class="ads-icon-btn ss-head__back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('chevron-left')}</button>`;
   const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
-  if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
+  if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
   const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top">${r.p.ctx === 'ts' ? '' : selGroup(r, field)}${sq}`;
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${r.p.ctx === 'ts' ? '' : selGroup(r, field)}${sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   if (qv.trim()) {
@@ -321,7 +321,17 @@ A['choose-station'] = (t, ri) => {
     const pos = locKnown() ? devicePos() : null, mi = t.dataset.mi || (pos && geoOf(c) ? miles(pos, geoOf(c)).toFixed(1) : '');
     track(how === 'map' ? 'map_station_selected' : how === 'nearby' ? 'nearby_station_selected' : 'station_selected', { code: c, ...selProps(sr), ...(mi ? { distance_mi: mi } : {}), ...(t.dataset.rank ? { rank: t.dataset.rank } : {}) });
   }
-  // Back to the experience that opened station search, with only this field changed
+  // Stay open for the other station: after choosing one, the selector moves to the other field, until both have been
+  // chosen in this visit. Train status looks up one station, so it returns at once. Back leaves with what's chosen.
+  if (sr) sr.u.picked = [...new Set([...(sr.u.picked || []), f])];
+  const next = ctx === 'ts' || !sr ? null : !sr.u.picked.includes(other) ? other : null;
+  if (sr && next) {
+    sr.p.field = next; sr.u.d = Object.assign({}, sr.u.d, { q: '' }); sr.u.mapSel = null;
+    sr.u.selLive = `${ST[c].city} set as your ${f === 'from' ? 'departure' : 'arrival'} station. Now choose your ${next === 'from' ? 'departure' : 'arrival'} station.`;
+    if (si < sheet().stack.length - 1) popTo(si); // from Details, back to the selector
+    pendingFocus = sr.u.view === 'map' ? `#ss-f-${next}, #ss-tab-map` : '#ss-q'; render(); return;
+  }
+  // Both stations chosen (or Train status): back to the experience that opened station search
   if (si <= 0) { closeSheet(true); pendingFocus = `#${ctx}-${f}`; render(); return; }
   popTo(si - 1); pendingFocus = ctx === 'ff' ? `#ff-${f}` : `#${ctx}-${f}`; render();
 };

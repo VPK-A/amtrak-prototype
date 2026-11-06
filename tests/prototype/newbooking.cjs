@@ -78,7 +78,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('.ads-swap-btn'); ok(await ev(() => D().booking.from === 'WAS' && D().booking.to === 'NYP') && await ev(() => document.activeElement.matches('.ads-swap-btn')), 'swap exchanges From and To and keeps focus');
   await click('#ff-from'); ok(await ev(() => sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), 'From opens the station selector');
   await p.fill(D_ + '#ss-q', 'BOS'); await w(200); await click('[data-a="choose-station"][data-code="BOS"]');
-  ok(await ev(() => D().booking.from === 'BOS' && sheet().stack.length === 1), 'choosing a station fills From and returns');
+  ok(await ev(() => D().booking.from === 'BOS' && sheet().stack.length === 2 && sheet().stack[1].p.field === 'to'), 'choosing a station fills From and stays open for To');
+  await p.fill(D_ + '#ss-q', 'PHL'); await w(200); await click('[data-a="choose-station"][data-code="PHL"]');
+  ok(await ev(() => D().booking.from === 'BOS' && D().booking.to === 'PHL' && sheet().stack.length === 1), 'choosing To then returns to New booking');
   await click('#ff-dep'); ok(await ev(() => sheet().stack.at(-1).s === 'calendar'), 'Departure date opens the calendar');
   await ev(() => popTo(0)); await w(300);
   await click('#ff-trav'); ok(await ev(() => sheet().stack.at(-1).s === 'travelers'), 'Travelers row opens Traveler selection');
