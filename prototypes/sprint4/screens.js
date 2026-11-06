@@ -736,22 +736,22 @@ function profileRows(r, ri, opts = {}) {
   const d = D(), p = d.profile, cur = opts.current;
   const helper = t => v2() ? `<span class="rowhint">${t}</span>` : '';
   const miRow = p.mi ? `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Middle initial</span><span class="ads-group__value">${esc(p.mi)}</span></span>${lockChip}</div>`
-    : grow({ a: 'edit', data: 'data-field="mi"', label: 'Middle initial', value: v2() ? 'Not added · can be added once' : 'Add', empty: !v2(), current: cur === 'mi', k: 'row-mi' });
+    : grow({ a: 'edit', data: 'data-field="mi"', label: 'Middle initial', value: v2() ? 'Not added · can be added once' : 'Not added', empty: true, current: cur === 'mi', k: 'row-mi' });
   return `${group('Name', [
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</span></span>${lockChip}</div>`,
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
-    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone)), current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Add', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Add'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
-    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'No discount preference' : DISCOUNTS[d.discount.type].label, k: 'row-disc' })])}
-    ${group('Assistance', [grow({ a: 'push', data: 'data-s="assist-profile"', label: 'Assistance requests', value: assistProfileValue(d), k: 'row-assist' })], 'Used for you as Traveler 1 when you book. Changes for one trip don’t change it.')}
-    ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
+    ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone).replace(/^Mobile /, '')), empty: fmtPhone(p.phone) === 'Not added', current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Not added', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Not added'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
+    ${group('Discounts', [grow({ a: 'push', data: 'data-s="discounts"', label: 'Passenger discounts', value: d.discount.type === 'none' ? 'Not added' : DISCOUNTS[d.discount.type].label, empty: d.discount.type === 'none', k: 'row-disc' })])}
+    ${group('Assistance', [grow({ a: 'push', data: 'data-s="assist-profile"', label: 'Assistance requests', value: assistProfileValue(d), empty: assistProfileValue(d) === 'Not added', k: 'row-assist' })], 'Used for you as Traveler 1 when you book. Changes for one trip don’t change it.')}
+    ${group('Amtrak employee', [grow({ a: 'edit', data: 'data-field="employee"', label: 'Employee pass', value: esc(empSummary(d.employee)), empty: !d.employee, current: cur === 'employee', k: 'row-employee' })], 'For employees, retirees, spouses and dependents. Used for Pass Rider booking.')}
     ${group('Coupons', [grow({ a: 'push', data: 'data-s="coupons"', label: 'My coupons', value: `${d.coupons.length} available${d.coupons.some(soon) ? ' · one expires soon' : ''}`, k: 'row-coupons' })])}`;
 }
 SCR.profile = (r, ri) => {
   ref('19', '22', '23', '919', '21');
   prov('Account › Profile holds personal details and Passenger discounts. The IA lists Profile but not discounts (NMA-43 says My Profile › Discounts).');
   if (v3()) return profileV3(r, ri);
-  return { title: 'Profile', kind: 'push', body: profileRows(r, ri, { current: IPAD() && sheet().stack[+ri + 1] && sheet().stack[+ri + 1].s === 'edit' ? sheet().stack[+ri + 1].p.field : null }), offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
+  return { title: 'Profile', kind: 'push', backIcon: true, cls: 'pane--profile', body: profileRows(r, ri, { current: IPAD() && sheet().stack[+ri + 1] && sheet().stack[+ri + 1].s === 'edit' ? sheet().stack[+ri + 1].p.field : null }), offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
 };
 A.edit = (t, ri) => {
   const f = t.dataset.field;

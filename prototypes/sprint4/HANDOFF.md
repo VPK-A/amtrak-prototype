@@ -781,3 +781,13 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - **Station listing:** tapping a station shows the code, city and station 20px above the bottom of the map, with info (Details) and bookmark (Save) icon buttons. Escape, or tapping the badge again, clears it.
 - **Select** sits in the sheet footer and appears once a station is chosen.
 - The same listing is used for both Station selector settings. What Select does still follows the setting. The From / To map card, with fields inside it, is replaced by this listing; From / To stays in List view.
+
+## Profile (Figma Sprint 4 node 3376:68484)
+
+- **Header:** icon-only Back, centered *Profile* title and a plain close, with no grabber.
+- **Groups:** Name, Contact, Discounts, Assistance, Amtrak employee and Coupons. Each has a 13px semibold heading 12px above an ADS List (raised surface, subtle edge, 4px corners), with 24px between groups. Helper lines sit under Name, Assistance and Amtrak employee.
+- **Rows:** a small label above the value, with a chevron on every editable row. Empty values read *Not added*. Phone shows only the number.
+- **Read-only rows** (Name, Guest Rewards number) are plain, with no chevron. Screen readers still hear *Can't be changed*.
+- **Dark mode:** row labels use text-secondary, because text-tertiary falls below 4.5:1 on the raised surface.
+- Every row still opens its own editor, as before.
+- **Checks:** `tests/prototype/profile-figma.cjs`.

@@ -949,3 +949,28 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ffc-rider .ads-choice__label { padding-top: 0; }
 .ffc-rider .ads-choice__label > span:first-child { font-weight: var(--ads-font-weight-semibold); }
 .ffc-rider.is-disabled { cursor: not-allowed; color: var(--ads-content-text-disabled); }
+
+/* ---------- Profile (Figma Sprint 4 node 3376:68484) ---------- */
+/* Groups: heading 12px above a List (raised, subtle edge, 4px corners); 24px between groups; rows show a small
+   label above the value with a chevron; read-only rows stay plain (their "Can't be changed" is kept for screen readers) */
+:is(.ds-next, .device) .pane--profile .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-16) var(--ads-space-20) var(--ads-space-12); }
+:is(.ds-next, .device) .pane--profile .ads-group { gap: var(--ads-space-12); }
+:is(.ds-next, .device) .pane--profile .ads-group__title { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.5; font-weight: var(--ads-font-weight-semibold); letter-spacing: 0; text-transform: none; }
+:is(.ds-next, .device) .pane--profile .ads-group__body { border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); border-color: var(--ads-border-subtle); }
+:is(.ds-next, .device) .pane--profile .ads-group__row { gap: var(--ads-space-8); min-height: 53px; padding: var(--ads-space-12); background: var(--ads-background-interactive-secondary); }
+:is(.ds-next, .device) .pane--profile .ads-group__text { gap: 2px; }
+:is(.ds-next, .device) .pane--profile .ads-group__label { color: var(--ads-content-text-tertiary); font-size: var(--ads-type-caption-size); line-height: 1.4; }
+:is(.ds-next, .device) .pane--profile div.ads-group__row .ads-group__label { color: var(--ads-content-text-secondary); }
+:is(.ds-next, .device) .pane--profile .ads-group__value { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+:is(.ds-next, .device) .pane--profile .ads-group__value--empty { color: var(--ads-content-text-secondary); font-style: normal; }
+:is(.ds-next, .device) .pane--profile .ads-group__row > .ads-icon--chevron-right { color: var(--ads-content-icon-primary); }
+:is(.ds-next, .device) .pane--profile .ads-group__row[aria-current="true"] { background: var(--ads-background-surface-selected); }
+:is(.ds-next, .device) .pane--profile .ads-group__row .ads-lock { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:is(.ds-next, .device) .pane--profile .ads-group__foot { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.5; }
+:is(.ds-next, .device) .pane--profile .ads-group__foot .ads-link { font-size: var(--ads-type-body-small-size); }
+/* Header: icon-only Back and a plain close (Icon Button), centred title */
+:is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
+.ds-next .device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
+:is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+/* Dark: the List caption uses text-secondary, since text-tertiary falls under 4.5:1 on surface-raised (see ads-next.css) */
+[data-theme="dark"] .pane--profile .ads-group__label { color: var(--ads-content-text-secondary) !important; }
