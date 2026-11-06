@@ -431,12 +431,15 @@ function selField(ctx, f) {
   return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="sel-open" data-ctx="${ctx}" data-field="${f}" id="${ctx}-${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${v}</span><span class="ads-routefield__body"><span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span></span>` : `<span class="ads-routefield__body"><span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span></span>`}</button>`);
 }
 function selRouteFields(ctx) { return `<div class="ads-routefield ads-routefield--noswap">${selField(ctx, 'from')}${selField(ctx, 'to')}</div>`; }
-// Train status tab: station search reuses the shared selector
+// Train status tab: one station search entry (the same entry pattern as Book's New booking). It opens the shared
+// station selector; the chosen station shows on the entry, with its arrivals and departures below (outside Sprint 4).
 TABS['train-status'] = () => {
   ref('1084', '1085');
-  return `<div class="tabpage ts-page"><h1 class="ads-h3">Train status</h1><section class="ts-form" aria-label="Train status by station">${selRouteFields('ts')}<button class="ads-btn ads-btn--block" type="button" data-a="ts-check">Check status</button></section><p class="ts-or ads-body-small ads-text-secondary">Or search by train number</p><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div>${snote('Train status results are outside Sprint 4; only the shared station search is demonstrated here.')}</div>`;
+  const c = selTarget('ts').from, s = c && ST[c];
+  const entry = `<button class="bk-new ts-entry" type="button" data-a="sel-open" data-ctx="ts" data-field="from" id="ts-from" aria-label="${s ? `Station: ${esc(s.city)}, ${esc(s.name)}. Change station` : 'Search stations'}">${ic('search', 'bk-new__icon')}<span class="bk-new__text">${s ? `<span class="bk-new__title">${esc(s.city)}, ${s.st} · ${c}</span><span class="bk-new__sub">${esc(s.name)}</span>` : '<span class="bk-new__title">Search stations</span><span class="bk-new__sub">Station name, city or code</span>'}</span>${s ? ic('chevron-right', 'ts-entry__chev') : ''}</button>`;
+  const status = s ? `<section class="ts-result" aria-labelledby="ts-res-h"><h2 class="ads-h5" id="ts-res-h">Arrivals and departures</h2><div class="ads-summary"><p class="ads-summary__title">${esc(s.name)}</p><p class="ads-body-small">Content pending</p></div>${snote('Station arrivals and departures are outside Sprint 4. This tab demonstrates the shared station search entry point.')}</section>` : '';
+  return `<div class="tabpage ts-page"><h1 class="ads-h3">Train status</h1><div class="bk-headx ts-search">${entry}</div>${status}</div>`;
 };
-A['ts-check'] = () => openSheet('explore', [R('sel-stub', { t: 'Train status', ctx: 'ts' })], '[data-a="ts-check"]');
 // Multi-Ride (Book › Passes): station search reuses the shared selector
 SCR.multiride = (r, ri) => {
   ref('1084', '1085');

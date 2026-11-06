@@ -133,3 +133,10 @@
 .gmap-marker { transform: translateY(50%); }
 .gmap-marker .map-pin, .gmap-marker .map-group, .gmap-marker .map-me { position: relative; transform: none; }
 .gmap-marker .map-me { display: block; }
+/* Train status: one station search entry (Book's New booking entry pattern) */
+.ts-page { display: flex; flex-direction: column; gap: var(--ads-space-24); }
+.ts-page > h1 { margin: 0; }
+.ts-entry .bk-new__text { flex: 1 1 auto; }
+.ts-entry__chev { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
+.ts-result { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.ts-result h2 { margin: 0; }

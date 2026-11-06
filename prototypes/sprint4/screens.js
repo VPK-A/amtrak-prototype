@@ -239,11 +239,11 @@ function stationSearch(r, ri, field, inline) {
   ref('600', '118', '984');
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
-  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
+  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${r.p.ctx === 'ts' ? '' : field === 'from' ? 'departure ' : 'arrival '}stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
   // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
   // List view only, then My Location, favorites and recents. Map view: heading, tabs and the map.
-  const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
-  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
+  const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
+  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}</h2></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
   let h = head + tabs + '<!--why-->' + upSearch;
@@ -271,13 +271,13 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
-const selHeading = f => f === 'from' ? 'Select departure station' : 'Select arrival station';
+const selHeading = (f, ctx) => ctx === 'ts' ? 'Select a station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // Train status searches one station
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field;
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
-  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
   return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
 };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };

@@ -2793,6 +2793,13 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .gmap-marker { transform: translateY(50%); }
 .gmap-marker .map-pin, .gmap-marker .map-group, .gmap-marker .map-me { position: relative; transform: none; }
 .gmap-marker .map-me { display: block; }
+/* Train status: one station search entry (Book's New booking entry pattern) */
+.ts-page { display: flex; flex-direction: column; gap: var(--ads-space-24); }
+.ts-page > h1 { margin: 0; }
+.ts-entry .bk-new__text { flex: 1 1 auto; }
+.ts-entry__chev { flex: none; margin-left: auto; color: var(--ads-content-icon-secondary); }
+.ts-result { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.ts-result h2 { margin: 0; }
 
 </style>
 </head>
@@ -3926,11 +3933,11 @@ function stationSearch(r, ri, field, inline) {
   ref('600', '118', '984');
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
-  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${field === 'from' ? 'departure' : 'arrival'} stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
+  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${r.p.ctx === 'ts' ? '' : field === 'from' ? 'departure ' : 'arrival '}stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
   // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
   // List view only, then My Location, favorites and recents. Map view: heading, tabs and the map.
-  const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
-  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field)}</h2></div>` : '';
+  const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
+  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}</h2></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
   let h = head + tabs + '<!--why-->' + upSearch;
@@ -3958,13 +3965,13 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
-const selHeading = f => f === 'from' ? 'Select departure station' : 'Select arrival station';
+const selHeading = (f, ctx) => ctx === 'ts' ? 'Select a station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // Train status searches one station
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field;
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
-  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
   return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
 };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
@@ -4914,9 +4921,9 @@ A['code-info'] = t => dialog({ title: 'About discount codes', returnFocus: '[dat
 function stationsClear(r, ri) {
   const f = r.p.field, b = D().booking;
   const why = b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div></div>` : '';
-  const head = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${selHeading(f)}</h3><p class="ffc-sheetsub">Search by city, station name, code or ZIP code.</p></div>`;
+  const head = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${selHeading(f, r.p.ctx)}</h3><p class="ffc-sheetsub">Search by city, station name, code or ZIP code.</p></div>`;
   const sel = ' ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''); // shared selector layout: heading with Back, tabs, search
-  if (stationFocus()) return { title: selHeading(f), cls: 'pane--sheet pane--focus' + sel, kind: 'focus', headInBody: true, banner: false, body: stationSearch(r, ri, f, false).replace('<!--why-->', why) };
+  if (stationFocus()) return { title: selHeading(f, r.p.ctx), cls: 'pane--sheet pane--focus' + sel, kind: 'focus', headInBody: true, banner: false, body: stationSearch(r, ri, f, false).replace('<!--why-->', why) };
   return { title: f === 'from' ? 'From' : 'To', srTitle: true, cls: 'pane--sheet' + sel, kind: 'push', banner: false, body: head + stationSearch(r, ri, f, false).replace('<!--why-->', why) };
 }
 
@@ -6812,12 +6819,15 @@ function selField(ctx, f) {
   return fieldWrap(`ads-routefield__${f}`, label, `<button class="ads-fieldbtn ads-routefield__half" type="button" data-a="sel-open" data-ctx="${ctx}" data-field="${f}" id="${ctx}-${f}" aria-label="${label}: ${s ? `${s.city}, ${s.name}` : 'not chosen'}">${s ? `<span class="ads-routefield__code">${v}</span><span class="ads-routefield__body"><span class="ads-routefield__city">${s.city}, ${s.st}</span><span class="ads-routefield__station">${s.name}</span></span>` : `<span class="ads-routefield__body"><span class="ads-routefield__hint">${f === 'from' ? 'Where from?' : 'Where to?'}</span></span>`}</button>`);
 }
 function selRouteFields(ctx) { return `<div class="ads-routefield ads-routefield--noswap">${selField(ctx, 'from')}${selField(ctx, 'to')}</div>`; }
-// Train status tab: station search reuses the shared selector
+// Train status tab: one station search entry (the same entry pattern as Book's New booking). It opens the shared
+// station selector; the chosen station shows on the entry, with its arrivals and departures below (outside Sprint 4).
 TABS['train-status'] = () => {
   ref('1084', '1085');
-  return `<div class="tabpage ts-page"><h1 class="ads-h3">Train status</h1><section class="ts-form" aria-label="Train status by station">${selRouteFields('ts')}<button class="ads-btn ads-btn--block" type="button" data-a="ts-check">Check status</button></section><p class="ts-or ads-body-small ads-text-secondary">Or search by train number</p><div class="ads-field"><label class="ads-field__label" for="tsn">Train number</label><div class="ads-control"><input id="tsn" inputmode="numeric" placeholder="e.g. 171"></div></div>${snote('Train status results are outside Sprint 4; only the shared station search is demonstrated here.')}</div>`;
+  const c = selTarget('ts').from, s = c && ST[c];
+  const entry = `<button class="bk-new ts-entry" type="button" data-a="sel-open" data-ctx="ts" data-field="from" id="ts-from" aria-label="${s ? `Station: ${esc(s.city)}, ${esc(s.name)}. Change station` : 'Search stations'}">${ic('search', 'bk-new__icon')}<span class="bk-new__text">${s ? `<span class="bk-new__title">${esc(s.city)}, ${s.st} · ${c}</span><span class="bk-new__sub">${esc(s.name)}</span>` : '<span class="bk-new__title">Search stations</span><span class="bk-new__sub">Station name, city or code</span>'}</span>${s ? ic('chevron-right', 'ts-entry__chev') : ''}</button>`;
+  const status = s ? `<section class="ts-result" aria-labelledby="ts-res-h"><h2 class="ads-h5" id="ts-res-h">Arrivals and departures</h2><div class="ads-summary"><p class="ads-summary__title">${esc(s.name)}</p><p class="ads-body-small">Content pending</p></div>${snote('Station arrivals and departures are outside Sprint 4. This tab demonstrates the shared station search entry point.')}</section>` : '';
+  return `<div class="tabpage ts-page"><h1 class="ads-h3">Train status</h1><div class="bk-headx ts-search">${entry}</div>${status}</div>`;
 };
-A['ts-check'] = () => openSheet('explore', [R('sel-stub', { t: 'Train status', ctx: 'ts' })], '[data-a="ts-check"]');
 // Multi-Ride (Book › Passes): station search reuses the shared selector
 SCR.multiride = (r, ri) => {
   ref('1084', '1085');

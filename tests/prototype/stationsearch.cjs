@@ -119,9 +119,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     // ---- Train status and Multi-Ride reuse the selector ----
     await go(v, 'returning', 'tab:train-status'); await click('#ts-from'); ok((await stack()).startsWith('stations-ts:stations'), `${T} Train status opens the same station search`);
     await p.fill(D_ + '#ss-q', 'BAL'); await w(150); await click('[data-a="choose-station"][data-code="BAL"]');
-    ok(!(await stack()) && await ev(() => D().ts.from === 'BAL' && !D().ts.to && !D().booking.from), `${T} Train status: From set there only`);
-    await click('#ts-to'); await mapView(); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 38.9, lon: -77.0, z: 9 }; render(); }); await click('.map-pin[data-code="WAS"]'); await click('#map-card [data-a="choose-station"]');
-    ok(await ev(() => D().ts.to === 'WAS' && D().ts.from === 'BAL'), `${T} Train status: To set from the map`);
+    ok(!(await stack()) && await ev(() => D().ts.from === 'BAL' && !D().booking.from) && /Baltimore, MD · BAL/.test(await ev(() => document.querySelector('#device #ts-from').innerText)), `${T} Train status: the station shows on the search entry; the booking is untouched`);
+    ok(await p.locator(D_ + '#ts-to, [data-a="ts-check"], #tsn').count() === 0 && /Arrivals and departures/.test(await ev(() => document.querySelector('#device').innerText)), `${T} Train status: one station search entry, no From/To, Check status or train number`);
+    await click('#ts-from'); ok(await ev(() => document.querySelector('#device .ss-head__title').textContent) === 'Select a station' && await ev(() => document.querySelector('#device #ss-q').placeholder) === 'Search stations', `${T} Train status: selector says Select a station`);
+    await mapView(); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 38.9, lon: -77.0, z: 9 }; render(); }); await click('.map-pin[data-code="WAS"]'); await click('#map-card [data-a="choose-station"]');
+    ok(await ev(() => D().ts.from === 'WAS'), `${T} Train status: station changed from the map`);
     await go(v, 'returning', 'tab:book'); await click('[data-a="bk-passes"]'); ok(await stack() === 'mr:multiride', `${T} Book › Passes opens Multi-Ride`);
     await click('#mr-to'); await p.fill(D_ + '#ss-q', 'NHV'); await w(150); await click('[data-a="choose-station"][data-code="NHV"]');
     ok(await stack() === 'mr:multiride' && await ev(() => D().mr.to === 'NHV' && !D().mr.from && !D().booking.to), `${T} Multi-Ride: To set there only`);
