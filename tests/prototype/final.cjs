@@ -23,13 +23,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     // 2 Book landing focus
     const t2 = await txt();
     ok(!/Recommended trips|Favorite stations|Routes near me|Book again|Rebook|Explore/.test(t2) && /New booking/.test(t2) && /Passes/.test(t2), `${T} 2 Book landing: no discovery, rebooking or Explore; New booking kept`);
-    await go(v, 'returning', 'stations:from'); ok(await p.locator(D + '[aria-label="Favorite stations"]').count() === 1, `${T} 2 favorites still in the station selector`);
+    await go(v, 'returning', 'stations:from'); ok(await p.locator(D + '[aria-label="Saved stations"]').count() === 1, `${T} 2 favorites still in the station selector`);
     // 3-6 coupon row and the Apply coupon page
     await go(v, 'returning'); const t3 = await txt();
-    ok(/Coupon or promotional code\s*Apply discount code/.test(t3) && await p.locator(D + '#ff-coderow.ads-selectrow__btn').count() === 1, `${T} 3 coupon row: label "Coupon or promotional code", prompt "Apply discount code"`);
+    ok(/Coupon or promotional code\s*Apply code/.test(t3) && await p.locator(D + '#ff-coderow.ads-selectrow__btn').count() === 1, `${T} 3 coupon row: label "Coupon or promotional code", prompt "Apply discount code"`);
     ok(await ev(() => !document.querySelector('#device #ff-coderow .ads-icon--payment-voucher')), `${T} 4 no ticket icon in the row`);
     await dclick('#ff-coderow'); await w(500); const t3b = await txt();
-    ok(/Apply coupon/.test(t3b) && await p.locator(D + '#apc-in').count() === 1 && /Fall Northeast sale/.test(t3b), `${T} 3 the row opens Apply coupon with code entry and the saved codes`);
+    ok(/Apply code/.test(t3b) && await p.locator(D + '#apc-in').count() === 1 && /Fall Northeast sale/.test(t3b), `${T} 3 the row opens Apply coupon with code entry and the saved codes`);
     await dclick('[data-a="apc-pick"][data-code="V123"]'); await w(300); await dclick('[data-a="apc-save"]'); await w(500);
     ok(await ev(() => D().booking.codeText === 'V123' && D().booking.codeState === ''), `${T} 5 saving a code doesn't validate it before Find trains`);
     ok(/V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), `${T} 3 Save code returns to New booking; the row shows the code`);

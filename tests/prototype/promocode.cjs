@@ -43,7 +43,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await click('.psheet [data-a="close"]'); await click('[data-dlg="1"]'); await w(300);
     ok(await ev(() => !nav().sheet && D().booking.codeText === '' && D().booking.from === 'NYP'), `${T} after Abandon booking: code cleared, trip details kept`);
     await click('[data-a="open-booking"]');
-    ok(await rowVal() === 'Apply discount code', `${T} after abandoning, New booking starts with an empty code`);
+    ok(await rowVal() === 'Apply code', `${T} after abandoning, New booking starts with an empty code`);
     ok(await wallet() === before, `${T} account coupons unchanged after abandoning`);
     // removing a typed code doesn't touch account coupons
     await enterCode('ABCD'); await openCode(); await click('[data-a="apc-clear"]'); await save();

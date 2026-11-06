@@ -42,7 +42,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const trl = await box('.ffc-travfield .ads-selectrow__label'), trb = await box('#ff-trav'), crb = await box('#ff-coderow');
   ok(trl.y >= dg.b + 20 && trb.h === 53 && crb.h === 53 && trb.x === 20 && trb.w === 350, `selector rows: 53px, full width (${trb.h}, ${crb.h})`);
   ok(await ev(() => !!document.querySelector('#device #ff-trav .ads-icon--person') && !!document.querySelector('#device #ff-trav .ads-icon--chevron-right') && !document.querySelector('#device #ff-coderow .ads-icon--person')), 'Travelers row: person icon and chevron; code row: chevron only');
-  ok(/Travelers\s*1 adult/.test(await txt()) && /Coupon or promotional code\s*Apply discount code/.test(await txt()), 'row labels and values as designed');
+  ok(/Travelers\s*1 adult/.test(await txt()) && /Coupon or promotional code\s*Apply code/.test(await txt()), 'row labels and values as designed');
   const ft = await box('.ads-actionfooter'), pr = await box('.ads-pointsrow'), fb = await box('.ads-actionfooter [data-a="find-trains"]');
   ok(ft.y === 699 && ft.b === 844 && fb.h === 44 && fb.w === 350 && fb.b === 824 && pr.b <= fb.y - 16, `action footer: from y 699, Find trains 44px full width, 20px bottom (${JSON.stringify(ft)} ${JSON.stringify(fb)})`);
   ok(await cs('.ads-actionfooter', 'backgroundColor') === await tok('--ads-background-surface-raised', 'backgroundColor') && await cs('.ads-actionfooter', 'borderTopColor') === await tok('--ads-border-subtle'), 'footer: surface-raised with a border/subtle rule');
@@ -78,9 +78,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('.ads-swap-btn'); ok(await ev(() => D().booking.from === 'WAS' && D().booking.to === 'NYP') && await ev(() => document.activeElement.matches('.ads-swap-btn')), 'swap exchanges From and To and keeps focus');
   await click('#ff-from'); ok(await ev(() => sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), 'From opens the station selector');
   await p.fill(D_ + '#ss-q', 'BOS'); await w(200); await click('[data-a="choose-station"][data-code="BOS"]');
-  ok(await ev(() => D().booking.from === 'BOS' && sheet().stack.length === 2 && sheet().stack[1].p.field === 'to'), 'choosing a station fills From and stays open for To');
-  await p.fill(D_ + '#ss-q', 'PHL'); await w(200); await click('[data-a="choose-station"][data-code="PHL"]');
-  ok(await ev(() => D().booking.from === 'BOS' && D().booking.to === 'PHL' && sheet().stack.length === 1), 'choosing To then returns to New booking');
+  ok(await ev(() => D().booking.from === 'BOS' && D().booking.to === 'NYP' && sheet().stack.length === 1), 'changing only From returns at once; To kept');
   await click('#ff-dep'); ok(await ev(() => sheet().stack.at(-1).s === 'calendar'), 'Departure date opens the calendar');
   await ev(() => popTo(0)); await w(300);
   await click('#ff-trav'); ok(await ev(() => sheet().stack.at(-1).s === 'travelers'), 'Travelers row opens Traveler selection');

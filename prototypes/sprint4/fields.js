@@ -23,7 +23,7 @@ function setCodeText(b, v) {
 // it, so a new booking starts with an empty field. Account coupons are never touched.
 const manualCode = b => !!(b.codeText && b.codeSrc === 'manual');
 function clearManualCode(b) { if (manualCode(b)) Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); }
-// The code page is "Apply coupon" (applycoupon.js).
+// The code page is "Apply code" (applycoupon.js).
 // New booking: the code is a selector row (Figma Sprint 4 node 3295:51258). It opens the code screen, which
 // holds the field above (same rules); results of the check at Find trains show under the row.
 function codeRow(r, b) {
@@ -39,7 +39,7 @@ function codeRow(r, b) {
   else if (st === 'changed') sub = 'Your trip changed, so this code will be checked again when you find trains.';
   else if (b.code && b.code.benefit) sub = `${b.code.kind}: ${b.code.benefit}`;
   else if (text) sub = 'Checked when you find trains';
-  return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply discount code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
+  return selectRow({ id: 'ff-coderow', cls: 'dcode', label: 'Coupon or promotional code', value: text || 'Apply code', sub, invalid: bad, describedby: bad ? 'ff-code-h' : '', attrs: 'data-a="code-open"', after: msg });
 }
 A['code-open'] = (t, ri) => push('dcode', {}, +ri);
 

@@ -23,7 +23,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.locator(D + '[data-dlg="0"]').click(); await w(350);
     ok(await p.locator(D + '[aria-label="Recent stations"]').count() === 1 && await ev(() => nav().sheet && nav().sheet.stack.at(-1).s) === 'stations', `${T} Cancel keeps recents and station search`);
     await link.click(); await w(350); await p.locator(D + '[data-dlg="1"]').click(); await w(400);
-    ok(await p.locator(D + '[aria-label="Recent stations"]').count() === 0 && await p.locator(D + '[aria-label="Favorite stations"]').count() === 1 && await ev(() => D().rec.length) === 0, `${T} Confirm clears recents; favorites stay`);
+    ok(await p.locator(D + '[aria-label="Recent stations"]').count() === 0 && await p.locator(D + '[aria-label="Saved stations"]').count() === 1 && await ev(() => D().rec.length) === 0, `${T} Confirm clears recents; Saved stays`);
     ok(await ev(() => document.activeElement && document.activeElement.id) === 'ss-q' && await ev(() => nav().sheet.stack.at(-1).s) === 'stations', `${T} stays in station search, focus on search field`);
     ok(await ev(() => /Recent stations cleared/.test(document.querySelector('#device').innerText)), `${T} toast shown`);
   }

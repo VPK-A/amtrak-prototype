@@ -23,10 +23,10 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   // ---- layout (Figma 3346:47066) ----
   await open({ upgrades: true });
-  ok(await top() === 'ff>dcode' && await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Apply coupon', 'title "Apply coupon"');
+  ok(await top() === 'ff>dcode' && await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Apply code', 'title "Apply code"');
   ok(await ev(() => { const b = document.querySelector('#device .pane .ads-navbar [data-a="back"]'); return b && b.classList.contains('ads-navbar__iconback') && !b.textContent.trim() && /^Back to/.test(b.getAttribute('aria-label')) && b.offsetWidth >= 44; }), 'icon-only Back, 44px, with an accessible name');
   ok(await p.locator(D_ + '.pane [data-a="close"]').count() === 0 && await p.locator(D_ + '.psheet .ads-sheet__grabber').count() === 0, 'no X and no grabber');
-  ok(await ev(() => document.querySelector('#device label[for="apc-in"]').textContent) === 'Coupon or promotional code' && await ev(() => document.querySelector('#device #apc-in').placeholder) === 'Apply coupon', 'field label and placeholder as designed');
+  ok(await ev(() => document.querySelector('#device label[for="apc-in"]').textContent) === 'Coupon or promotional code' && await ev(() => document.querySelector('#device #apc-in').placeholder) === 'Enter code', 'field label and placeholder');
   ok(await p.locator(D_ + '.apc-label [data-a="code-info"][aria-label="About coupon and promotion codes"]').count() === 1, 'info icon beside the label');
   ok(/Codes should be 4 or 14 characters long\./.test(await txt()), 'helper line');
   ok(await ev(() => { const f = document.querySelector('#device .apc-field'), y = document.querySelector('#device .apc-yours'); return [...document.querySelector('#device .pane--apc .pane__body').children].find(e => e.offsetHeight) === f && (f.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'the field is first, then Your coupons');

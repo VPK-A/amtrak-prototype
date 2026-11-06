@@ -106,7 +106,7 @@ function travErr(r, b) {
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
 function codeTips() {
-  tip('Discount code: type V123 (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
+  tip('Apply code: type V123 (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
 }
 // Switching booking mode (TripLink NMA-622, Pass Rider NMA-623). Codes and travelers set aside are restored on the way back.
 function setIntent(b, val) {
@@ -356,7 +356,7 @@ function handoffExtra(b) {
   else if (intent === 'corporate') rows.push(['Travelers', '1 adult · You']);
   else rows.push(['Travelers', paxList(b).map(t => { const x = tdiscOf(b, t); return `Traveler ${t.n} · ${PAX_LABEL[t.type]}${x === 'none' ? '' : ` · ${TDISC_LABEL[x]}`}`; }).join('<br>')]);
   if (intent === 'pr' && b.prType) rows.push(['Travel type', b.prType === 'business' ? 'Business' : 'Leisure']);
-  if (codeApplies(b) && b.code) rows.push(['Discount code', `${esc(b.code.code)} (${esc(b.code.kind)})${b.codeState === 'applied' ? ' · applied' : ''}`]);
+  if (codeApplies(b) && b.code) rows.push(['Code', `${esc(b.code.code)} (${esc(b.code.kind)})${b.codeState === 'applied' ? ' · applied' : ''}`]);
   return rows.map(([k, val]) => `<dt>${k}</dt><dd>${val}</dd>`).join('');
 }
 

@@ -20,8 +20,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('#ff-from'); ok((await stack()).endsWith('stations'), `${T} From opens station search`);
     ok(await p.locator(D_ + '[data-a="ss-view"]').count() === 2 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} List and Map views; My Location offered before any permission`);
     await p.fill(D_ + '#ss-q', 'PHL'); await w(150); await click('[data-a="choose-station"][data-code="PHL"]');
-    ok((await stack()).endsWith('stations') && await ev(() => D().booking.from === 'PHL' && D().booking.to === 'WAS' && sheet().stack.at(-1).p.field === 'to'), `${T} Departure set; Arrival unchanged; the selector stays open on To`);
-    await click('.ss-head__back'); ok(await stack() === 'booking:ff', `${T} Back returns to New booking with the departure kept`);
+    ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'PHL' && D().booking.to === 'WAS'), `${T} Departure changed; Arrival kept; back on New booking at once`);
     // ---- Arrival via the map (no permission request just for opening it) ----
     await click('#ff-to'); await mapView();
     ok(await ev(() => !nav().native) && await p.locator(D_ + '.ss-map').count() === 1, `${T} opening Map does not ask for location`);
@@ -54,8 +53,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('.psheet [data-a="back"]'); await w(300);
     ok((await stack()).endsWith('stations') && await ev(() => JSON.stringify(sheet().stack.at(-1).u.map)) === keep && await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} back from Details keeps position, zoom and selected marker`);
     await click('#map-card [data-a="choose-station"]');
-    ok(await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL' && sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'from'), `${T} Select commits Arrival only; the selector stays open on From`);
-    await click('.ss-head__back'); ok(await stack() === 'booking:ff', `${T} Back returns to New booking`);
+    ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} map, both set: Select commits Arrival only and returns to New booking`);
     ok((await evs()).includes('map_station_selected'), `${T} analytics: map selection`);
     // switch back to List
     await click('#ff-to'); await mapView(); await click('[data-a="ss-view"][data-v="list"]'); ok(await p.locator(D_ + '.ss-map').count() === 0 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} switch back to List view`);
