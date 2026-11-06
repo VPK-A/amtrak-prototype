@@ -1446,12 +1446,13 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 /* ---------- Sheet header ----------
    Navy brand header for a full-height modal sheet: close (Icon Button, Small), the title in H2 and the
    red and blue brand arrows bleeding off the trailing edge. The arrows are decoration (aria-hidden). */
-.ads-sheet-header { position: relative; display: flex; align-items: center; gap: 0; flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
-.ads-sheet-header__close { position: relative; z-index: 1; color: var(--ads-content-icon-on-brand); margin: calc(-1 * var(--ads-space-4)); } /* 44px target, laid out as the 36px Small slot */
+.ads-sheet-header { position: relative; display: flex; align-items: center; gap: var(--ads-space-8); flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.ads-sheet-header__close { position: relative; z-index: 1; flex: none; width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); color: var(--ads-content-icon-on-brand); }
+.ads-sheet-header__close::before { content: ""; position: absolute; inset: -4px; } /* 44px touch target around the 36px outlined circle */
 .ads-sheet-header__close:hover { background: rgb(255 255 255 / 0.12); }
 .ads-sheet-header__close:active { background: rgb(255 255 255 / 0.2); }
-.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: -2px; }
-.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h2-headline-size); line-height: var(--ads-type-h2-headline-line-height); font-weight: var(--ads-font-weight-regular); letter-spacing: var(--ads-type-h2-headline-letter-spacing); color: inherit; }
+.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: 2px; }
+.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h3-headline-size); line-height: var(--ads-type-h3-headline-line-height); font-weight: var(--ads-font-weight-semibold); letter-spacing: var(--ads-type-h3-headline-letter-spacing); color: inherit; }
 .ads-sheet-header__title:focus, .ads-root .ads-sheet-header__title[tabindex]:focus-visible { outline: none; box-shadow: none; } /* a programmatic focus target, not a control */
 .ads-sheet-header__brand { position: absolute; top: 50%; right: 0; width: 160px; display: flex; flex-direction: column; gap: 5.672px; transform: translateY(-50%); pointer-events: none; }
 .ads-sheet-header__arrow { display: flex; justify-content: space-between; width: 100%; }
@@ -1495,7 +1496,7 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-stationgroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
 .ads-stationgroup .ads-fieldgroup__field:last-of-type { border-radius: 0 0 var(--ads-radius-4) var(--ads-radius-4); }
 .ads-stationgroup__value { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 25px; }
-.ads-stationgroup__code { flex: none; width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ads-stationgroup__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
 .ads-stationgroup__lines { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; color: var(--ads-content-text-tertiary); }
 .ads-stationgroup__city { font-size: var(--ads-type-body-small-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-stationgroup__facility { font-size: var(--ads-type-caption-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1531,7 +1532,7 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-selectrow__btn:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
 .ads-selectrow__btn[aria-invalid="true"] { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
 .ads-selectrow__btn:disabled { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); color: var(--ads-content-text-disabled); cursor: not-allowed; }
-.ads-selectrow__btn > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-primary); }
+.ads-selectrow__btn > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); color: var(--ads-content-icon-secondary); }
 .ads-selectrow__btn > .ads-selectrow__chev { color: var(--ads-content-icon-secondary); }
 .ads-selectrow__btn:disabled > .ads-icon { color: var(--ads-content-icon-disabled); }
 .ads-selectrow__text { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
@@ -1549,7 +1550,7 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 /* ---------- New booking sheet (composition) ----------
    The modal built from the components above: sheet header, a scrolling form (trip tabs, station group, date
    group, Travelers and code rows, 24px apart on the page surface) and the action footer. */
-.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
 .ads-bookingsheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
 .ads-bookingsheet__form { display: flex; flex-direction: column; gap: var(--ads-space-24); }
 .ads-bookingsheet__form > * { flex: none; }
@@ -1558,6 +1559,8 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
    Raised surface pinned under a sheet's content: optional rows above one full-width primary button.
    Bottom padding keeps clear of the iOS home indicator. */
 .ads-actionfooter { display: flex; flex-direction: column; gap: var(--ads-space-16); flex: none; padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-bottom: max(var(--ads-space-20), env(safe-area-inset-bottom)); border-top: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-raised); }
+/* The header close is a 36px outlined circle in every theme layer (Figma Sprint 4 node 3295:51258) */
+.ads-sheet-header > .ads-icon-btn.ads-sheet-header__close, .ds-next .ads-sheet-header > .ads-icon-btn.ads-sheet-header__close { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); min-width: 0; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); }
 
 
 /* ---- Docs chrome. Layout: fixed left index on desktop, stacked sections, each a heading + live specimen + usage. ---- */
@@ -2143,7 +2146,7 @@ gap: var(--ads-space-16);</pre>
     <div class="stack">
       <div class="specimen"><p class="ads-field-label specimen__label ads-text-secondary">Anatomy, top to bottom</p>
         <ol class="bk-list">
-          <li><b>Sheet header</b> · <code class="t">ads-sheet-header</code>: close (Icon Button, Small, 44px target), title in H2, brand arrows. 16px top radius.</li>
+          <li><b>Sheet header</b> · <code class="t">ads-sheet-header</code>: close (36px outlined circle, 44px target), title in H3 semibold, brand arrows. 12px top radius.</li>
           <li><b>Trip-type tabs</b> · <code class="t">ads-tabs ads-tabs--fill</code>: two equal tabs, 2px brand indicator on a 1px rule.</li>
           <li><b>Station field group</b> · <code class="t">ads-stationgroup</code> with the <b>swap button</b> <code class="t">ads-swap-btn</code> on the divider.</li>
           <li><b>Date group</b> · <code class="t">ads-dategroup</code>: departure and return side by side.</li>

@@ -873,10 +873,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* ---------- New booking (Figma Sprint 4 node 3295:51258) ----------
    The root screen of the booking sheet: navy brand header, form on the page surface, action footer with
    Pay with points and Find trains. Components: css/components.css › Booking components. */
-.psheet--brand { top: 58px; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
-.ds-next .psheet.psheet--brand { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
+.psheet--brand { top: 58px; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next .psheet.psheet--brand { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
 .device--iphone.device--landscape .psheet--brand { top: 12px; }
-.device--ipad .psheet--brand, .ds-next.device--ipad .psheet.psheet--brand { top: 50%; border-radius: var(--ads-radius-16); }
+.device--ipad .psheet--brand, .ds-next.device--ipad .psheet.psheet--brand { top: 50%; border-radius: var(--ads-radius-12); }
 .pane--nb .pane__scroll { background: var(--ads-background-surface-page); }
 .pane--nb .pane__body { padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
 .ads-bookingsheet__form > .ads-tabs { margin-bottom: 0; }

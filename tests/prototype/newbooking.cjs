@@ -24,10 +24,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // ---- Layout and geometry (iPhone 390 × 844), matched to the Figma frame ----
   await go('returning', { fill: true });
   const sh = await box('.psheet'), hd = await box('.ads-sheet-header'), cl = await box('.ads-sheet-header__close'), ti = await box('.ads-sheet-header__title'), br_ = await box('.ads-sheet-header__brand');
-  ok(sh.y === 58 && await cs('.psheet', 'borderTopLeftRadius') === '16px' && await p.locator(D_ + '.psheet .ads-sheet__grabber').count() === 0, `sheet: top 58, radius/16, no grabber (${JSON.stringify(sh)})`);
+  ok(sh.y === 58 && await cs('.psheet', 'borderTopLeftRadius') === '12px' && await p.locator(D_ + '.psheet .ads-sheet__grabber').count() === 0, `sheet: top 58, radius/12, no grabber (${JSON.stringify(sh)})`);
   ok(hd.h === 76 && await cs('.ads-sheet-header', 'backgroundColor') === await tok('--ads-brand-midnight-blue', 'backgroundColor'), `header: 76px, brand/midnight blue (${hd.h})`);
-  ok(cl.w >= 44 && cl.h >= 44 && near(cl.x + cl.w / 2, 38) && /Close/.test(await ev(() => document.querySelector('#device .ads-sheet-header__close').getAttribute('aria-label'))), `close: 44px target centered on the 36px slot at x 20, named Close (${JSON.stringify(cl)})`);
-  ok(near(ti.x, 56) && await cs('.ads-sheet-header__title', 'fontSize') === '22px' && /New booking/.test(await ev(() => document.querySelector('#device .ads-sheet-header__title').textContent)), `title: H2 22px at x 56 (${ti.x})`);
+  ok(cl.w === 36 && cl.h === 36 && cl.x === 20 && await cs('.ads-sheet-header__close', 'borderTopLeftRadius') === '9999px' && await cs('.ads-sheet-header__close', 'borderTopColor') === await tok('--ads-border-subtle') && /Close/.test(await ev(() => document.querySelector('#device .ads-sheet-header__close').getAttribute('aria-label'))), `close: 36px outlined circle at x 20 (border/subtle), named Close (${JSON.stringify(cl)})`);
+  ok(await ev(() => { const c = getComputedStyle(document.querySelector('#device .ads-sheet-header__close'), '::before'); return c.content !== 'none' && c.top === '-4px' && c.left === '-4px'; }), 'close: 44px touch target around the 36px circle');
+  ok(ti.x === 64 && await cs('.ads-sheet-header__title', 'fontSize') === '20px' && +(await cs('.ads-sheet-header__title', 'fontWeight')) >= 600 && /New booking/.test(await ev(() => document.querySelector('#device .ads-sheet-header__title').textContent)), `title: H3 20px semibold, 8px after the close (${ti.x})`);
   ok(br_.w === 160 && br_.x + br_.w === 390 && await p.locator(D_ + '.ads-sheet-header__brand svg').count() === 2 && await ev(() => document.querySelector('#device .ads-sheet-header__brand').getAttribute('aria-hidden')) === 'true', 'brand arrows: 160px at the trailing edge, two arrow ends, hidden from assistive tech');
   const tb = await box('.trip-tabs');
   ok(tb.y === hd.b + 12 && tb.h === 44 && tb.x === 20 && tb.w === 350, `trip tabs: 12px below the header, 44px, 20px margins (${JSON.stringify(tb)})`);
@@ -101,8 +102,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await go('returning', { fill: true, orient: 'landscape' });
   ok(await ev(() => { const s = document.querySelector('#device .pane--nb .pane__scroll'); return s.scrollHeight > s.clientHeight && getComputedStyle(s).overflowY === 'auto'; }) && await box('.ads-actionfooter').then(f => f.b <= 390), 'iPhone landscape: the form scrolls, the footer stays pinned');
   await go('returning', { fill: true, dev: 'ipad' });
-  ok(await ev(() => { const s = document.querySelector('#device .psheet'), r = s.getBoundingClientRect(); return r.width <= 620 && getComputedStyle(s).borderTopLeftRadius === '16px'; }) && await p.locator(D_ + '.ads-sheet-header__brand').count() === 1, 'iPad: centered modal with the same header');
-  ok(await ev(() => [...document.querySelectorAll('#device .psheet button, #device .psheet [role="switch"]')].filter(e => e.offsetParent).every(e => { return (e.closest('label.ads-switch') || e).offsetHeight >= 44 || e.closest('.ads-tabs'); })), 'touch targets: every control in the modal is at least 44px tall');
+  ok(await ev(() => { const s = document.querySelector('#device .psheet'), r = s.getBoundingClientRect(); return r.width <= 620 && getComputedStyle(s).borderTopLeftRadius === '12px'; }) && await p.locator(D_ + '.ads-sheet-header__brand').count() === 1, 'iPad: centered modal with the same header');
+  ok(await ev(() => [...document.querySelectorAll('#device .psheet button, #device .psheet [role="switch"]')].filter(e => e.offsetParent).every(e => { return (e.closest('label.ads-switch') || e).offsetHeight >= 44 || e.closest('.ads-tabs') || (e.matches('.ads-sheet-header__close') && getComputedStyle(e, '::before').top === '-4px'); })), 'touch targets: every control in the modal is at least 44px tall');
 
   // ---- axe ----
   for (const th of ['light', 'dark']) {

@@ -5,7 +5,7 @@
 One New booking design is in review: the modal from Figma Sprint 4 (node 3295:51258). The Familiar / Brand forward switch was removed, along with Concept 3's booking screens; there's no concept toggle in the prototype controls. **2 · Guided** and **4 · Compact** stay archived (reachable only from their demo entries).
 
 **New booking modal (Figma 3295:51258)**
-- Navy sheet header with close, "New booking" and the brand arrows; One-way / Round-trip tabs; From and To stacked in one field group with the circular swap button; departure and return side by side; Travelers and Coupon or promotional code as selector rows; an action footer with Pay with points (a switch) and Find trains.
+- Navy sheet header with a 36px outlined circular close, "New booking" in H3 semibold and the brand arrows (12px top radius); One-way / Round-trip tabs; From and To stacked in one field group with the circular swap button; departure and return side by side; Travelers and Coupon or promotional code as selector rows; an action footer with Pay with points (a switch) and Find trains.
 - Components live in the design system: `css/components.css` › Booking components and `js/ads-booking.js` (the markup renderers, shared with the DS catalog's *New booking (iOS)* section in `docs/`).
 - Kept: every booking rule and validation (station, return date, travelers, assistance, Pass Rider travel type, TripLink, Auto Train), exit confirmation, booking modes for eligible members above the tabs.
 - Changed interaction: the code is entered on its own screen (the row opens it; Done returns). Code results from Find trains show under the row. Pay with points is a switch instead of Cash / Points radios; turning it on still hides the code.

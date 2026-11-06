@@ -1450,12 +1450,13 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 /* ---------- Sheet header ----------
    Navy brand header for a full-height modal sheet: close (Icon Button, Small), the title in H2 and the
    red and blue brand arrows bleeding off the trailing edge. The arrows are decoration (aria-hidden). */
-.ads-sheet-header { position: relative; display: flex; align-items: center; gap: 0; flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
-.ads-sheet-header__close { position: relative; z-index: 1; color: var(--ads-content-icon-on-brand); margin: calc(-1 * var(--ads-space-4)); } /* 44px target, laid out as the 36px Small slot */
+.ads-sheet-header { position: relative; display: flex; align-items: center; gap: var(--ads-space-8); flex: none; min-height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-right: 168px; overflow: hidden; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.ads-sheet-header__close { position: relative; z-index: 1; flex: none; width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); color: var(--ads-content-icon-on-brand); }
+.ads-sheet-header__close::before { content: ""; position: absolute; inset: -4px; } /* 44px touch target around the 36px outlined circle */
 .ads-sheet-header__close:hover { background: rgb(255 255 255 / 0.12); }
 .ads-sheet-header__close:active { background: rgb(255 255 255 / 0.2); }
-.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: -2px; }
-.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h2-headline-size); line-height: var(--ads-type-h2-headline-line-height); font-weight: var(--ads-font-weight-regular); letter-spacing: var(--ads-type-h2-headline-letter-spacing); color: inherit; }
+.ads-sheet-header__close:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-content-icon-on-brand); outline-offset: 2px; }
+.ads-sheet-header__title { position: relative; z-index: 1; margin: 0; min-width: 0; font-size: var(--ads-type-h3-headline-size); line-height: var(--ads-type-h3-headline-line-height); font-weight: var(--ads-font-weight-semibold); letter-spacing: var(--ads-type-h3-headline-letter-spacing); color: inherit; }
 .ads-sheet-header__title:focus, .ads-root .ads-sheet-header__title[tabindex]:focus-visible { outline: none; box-shadow: none; } /* a programmatic focus target, not a control */
 .ads-sheet-header__brand { position: absolute; top: 50%; right: 0; width: 160px; display: flex; flex-direction: column; gap: 5.672px; transform: translateY(-50%); pointer-events: none; }
 .ads-sheet-header__arrow { display: flex; justify-content: space-between; width: 100%; }
@@ -1553,7 +1554,7 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 /* ---------- New booking sheet (composition) ----------
    The modal built from the components above: sheet header, a scrolling form (trip tabs, station group, date
    group, Travelers and code rows, 24px apart on the page surface) and the action footer. */
-.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.ads-bookingsheet { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
 .ads-bookingsheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
 .ads-bookingsheet__form { display: flex; flex-direction: column; gap: var(--ads-space-24); }
 .ads-bookingsheet__form > * { flex: none; }
@@ -1562,6 +1563,8 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
    Raised surface pinned under a sheet's content: optional rows above one full-width primary button.
    Bottom padding keeps clear of the iOS home indicator. */
 .ads-actionfooter { display: flex; flex-direction: column; gap: var(--ads-space-16); flex: none; padding: var(--ads-space-20) var(--ads-grid-margin, var(--ads-space-20)); padding-bottom: max(var(--ads-space-20), env(safe-area-inset-bottom)); border-top: 1px solid var(--ads-border-subtle); background: var(--ads-background-surface-raised); }
+/* The header close is a 36px outlined circle in every theme layer (Figma Sprint 4 node 3295:51258) */
+.ads-sheet-header > .ads-icon-btn.ads-sheet-header__close, .ds-next .ads-sheet-header > .ads-icon-btn.ads-sheet-header__close { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); min-width: 0; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-full); }
 
 /* Sprint 4 prototype: page chrome (device frame, prototype controller) and screen layout.
    Product components come from css/ads.css. Prototype-only things are prefixed p- or use plain names. */
@@ -2438,10 +2441,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* ---------- New booking (Figma Sprint 4 node 3295:51258) ----------
    The root screen of the booking sheet: navy brand header, form on the page surface, action footer with
    Pay with points and Find trains. Components: css/components.css › Booking components. */
-.psheet--brand { top: 58px; border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
-.ds-next .psheet.psheet--brand { border-radius: var(--ads-radius-16) var(--ads-radius-16) 0 0; }
+.psheet--brand { top: 58px; border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
+.ds-next .psheet.psheet--brand { border-radius: var(--ads-radius-12) var(--ads-radius-12) 0 0; }
 .device--iphone.device--landscape .psheet--brand { top: 12px; }
-.device--ipad .psheet--brand, .ds-next.device--ipad .psheet.psheet--brand { top: 50%; border-radius: var(--ads-radius-16); }
+.device--ipad .psheet--brand, .ds-next.device--ipad .psheet.psheet--brand { top: 50%; border-radius: var(--ads-radius-12); }
 .pane--nb .pane__scroll { background: var(--ads-background-surface-page); }
 .pane--nb .pane__body { padding: var(--ads-space-12) var(--ads-grid-margin, var(--ads-space-20)) var(--ads-space-24); }
 .ads-bookingsheet__form > .ads-tabs { margin-bottom: 0; }
