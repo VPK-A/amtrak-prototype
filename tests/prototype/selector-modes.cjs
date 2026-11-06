@@ -24,8 +24,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.fill(D_ + '#ss-q', 'NYP'); await w(200); await click('[data-a="choose-station"][data-code="NYP"]');
   ok(await ev(() => sheet().stack.at(-1).s === 'stations' && sheet().stack.at(-1).p.field === 'to' && D().booking.from === 'NYP'), 'pair: stays open on To after From');
   await toMap(); await pin('PHL');
-  ok(await ev(() => !!document.querySelector('#device #map-card .ss-group') && document.querySelector('#device #mc-f-to').innerText.includes('PHL')), 'pair: map card adds the booking fields after a selection');
-  await click('#map-card [data-a="choose-station"]');
+  ok(await ev(() => { const c = document.querySelector('#device #map-card'); return c && c.classList.contains('map-listing') && c.querySelector('.map-listing__code') && !c.querySelector('.ss-group') && !!c.querySelector('[data-a="map-details"]') && !!c.querySelector('[data-a="fav"]') && !!document.querySelector('#device .pane__foot [data-k="map-select"]'); }) && /PHL/.test(await ev(() => document.querySelector('#device #map-card').innerText)), 'pair: the Figma station listing (code, city, station, info, save) with Select in the footer');
+  await click('[data-k="map-select"]');
   ok(await stack() === 'ff' && await ev(() => D().booking.to === 'PHL'), 'pair: after both, back on New booking');
 
   // ---- Single field ----
@@ -37,8 +37,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('#ff-to', 700); ok(await ev(() => document.querySelector('#device .ss-head__title').textContent) === 'Select arrival station', 'single: To heading');
   await toMap(); ok(await p.locator(D_ + '.ss-group').count() === 0, 'single: no From / To in Map view');
   await pin('PHL');
-  ok(await ev(() => { const c = document.querySelector('#device #map-card'); return c && !c.querySelector('.ss-group') && /Type/.test(c.innerText) && /Address/.test(c.innerText) && !!c.querySelector('[data-a="map-unselect"]') && !!c.querySelector('[data-a="map-details"]') && !!c.querySelector('[data-a="choose-station"]'); }), 'single: the previous station card (details, close, Details, Select)');
-  await click('#map-card [data-a="choose-station"]');
+  ok(await ev(() => { const c = document.querySelector('#device #map-card'); return c && c.classList.contains('map-listing') && c.querySelector('.map-listing__code') && !c.querySelector('.ss-group') && !!c.querySelector('[data-a="map-details"]') && !!c.querySelector('[data-a="fav"]') && !!document.querySelector('#device .pane__foot [data-k="map-select"]'); }), 'single: the same station listing, Select in the footer');
+  await click('[data-k="map-select"]');
   ok(await stack() === 'ff' && await ev(() => D().booking.from === 'NYP' && D().booking.to === 'PHL'), 'single: Select fills To only and returns');
   // the setting persists and switches back
   await p.reload(); await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));

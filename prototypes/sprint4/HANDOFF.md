@@ -772,3 +772,12 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - Selections and the companion count are kept on the booking, so they survive Done, reopening and Back. Answers given for a rider stay with them if they're cleared and selected again.
 - **Prototype controls › Pass Rider traveler selection** switches between *Checkboxes for named riders (proposal)*, the default, and *Counters (current design)*. Business travel is unchanged: you alone, fixed at 1.
 - **Checks:** `tests/prototype/passrider-select.cjs`.
+
+## Station selection map view (Figma Sprint 4 node 3336:40155)
+
+- The List and Map tabs run the full width of the sheet, and the map starts right beneath them, edge to edge.
+- **Station badges:** 36px white discs with the station icon. The chosen station is tinted with a focus-blue edge. Code labels on the map are gone; each badge's accessible name still gives city, code, station and type.
+- **Controls:** zoom in and zoom out share one bordered box, with *my location* in its own box below, 20px from the top right.
+- **Station listing:** tapping a station shows the code, city and station 20px above the bottom of the map, with info (Details) and bookmark (Save) icon buttons. Escape, or tapping the badge again, clears it.
+- **Select** sits in the sheet footer and appears once a station is chosen.
+- The same listing is used for both Station selector settings. What Select does still follows the setting. The From / To map card, with fields inside it, is replaced by this listing; From / To stays in List view.

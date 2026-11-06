@@ -28,8 +28,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     const n0 = await p.locator(D_ + '.map-pin, ' + D_ + '.map-group').count(); ok(n0 > 0, `${T} markers for the visible area (${n0})`);
     // marker → info → another marker replaces it
     await ev(() => document.querySelector('#device .map-pin').click()); await w(250); const first = await ev(() => sheet().stack.at(-1).u.mapSel);
-    ok(first && await p.locator(D_ + `.map-pin[data-code="${first}"][aria-pressed="true"] .map-pin__tag`).count() === 1, `${T} selected marker: pressed state plus check and code (not colour alone)`);
-    ok(await p.locator(D_ + '#map-card .ss-group').count() === 1 && await p.locator(D_ + '#map-card .map-card__top [data-a="map-unselect"]').count() === 1 && await p.locator(D_ + '#map-card [data-a="map-unselect"]').count() === 1 && await p.locator(D_ + '#map-card [data-a="map-details"]').count() === 1 && await p.locator(D_ + '#map-card [data-a="choose-station"]').count() === 1, `${T} map card: From / To with close, Details and Select`);
+    ok(first && await p.locator(D_ + `.map-pin.is-selected[data-code="${first}"][aria-pressed="true"]`).count() === 1 && /Washington|,/.test(await p.locator(D_ + '#map-card-t').innerText()), `${T} selected marker: pressed state, tinted badge, and the listing names it (not colour alone)`);
+    ok(await p.locator(D_ + '#map-card.map-listing').count() === 1 && await p.locator(D_ + '#map-card [data-a="map-details"]').count() === 1 && await p.locator(D_ + '#map-card [data-a="fav"]').count() === 1 && await p.locator(D_ + '.pane__foot [data-k="map-select"]').count() === 1, `${T} station listing with info and save, Select in the footer`);
     const other = await ev(() => [...document.querySelectorAll('#device .map-pin')].map(b => b.dataset.code).find(c => c !== sheet().stack.at(-1).u.mapSel));
     if (other) { await click(`.map-pin[data-code="${other}"]`); ok(await ev(() => sheet().stack.at(-1).u.mapSel) === other && await p.locator(D_ + '.map-pin[aria-pressed="true"]').count() === 1, `${T} another marker replaces the tentative selection`); }
     ok(await ev(() => D().booking.to) === 'WAS', `${T} choosing a marker alone doesn't change the field`);
@@ -52,7 +52,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('#map-card [data-a="map-details"]'); ok((await stack()).endsWith('station-detail') && /Parking/.test(await txt()), `${T} Details shows station information, including parking`);
     await click('.psheet [data-a="back"]'); await w(300);
     ok((await stack()).endsWith('stations') && await ev(() => JSON.stringify(sheet().stack.at(-1).u.map)) === keep && await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} back from Details keeps position, zoom and selected marker`);
-    await click('#map-card [data-a="choose-station"]');
+    await click('[data-k="map-select"]');
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} map, both set: Select commits Arrival only and returns to New booking`);
     ok((await evs()).includes('map_station_selected'), `${T} analytics: map selection`);
     // switch back to List
@@ -123,7 +123,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(!(await stack()) && await ev(() => D().ts.from === 'BAL' && !D().booking.from) && /Baltimore, MD · BAL/.test(await ev(() => document.querySelector('#device #ts-from').innerText)), `${T} Train status: the station shows on the search entry; the booking is untouched`);
     ok(await p.locator(D_ + '#ts-to, [data-a="ts-check"], #tsn').count() === 0 && /Arrivals and departures/.test(await ev(() => document.querySelector('#device').innerText)), `${T} Train status: one station search entry, no From/To, Check status or train number`);
     await click('#ts-from'); ok(await ev(() => document.querySelector('#device .ss-head__title').textContent) === 'Select station' && await ev(() => document.querySelector('#device #ss-q').placeholder) === 'Search station' && await p.locator(D_ + '.ss-group').count() === 0, `${T} Train status: selector says Select station, with no From / To group`);
-    await mapView(); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 38.9, lon: -77.0, z: 9 }; render(); }); await click('.map-pin[data-code="WAS"]'); await click('#map-card [data-a="choose-station"]');
+    await mapView(); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 38.9, lon: -77.0, z: 9 }; render(); }); await click('.map-pin[data-code="WAS"]'); await click('[data-k="map-select"]');
     ok(await ev(() => D().ts.from === 'WAS'), `${T} Train status: station changed from the map`);
     await go(v, 'returning', 'tab:book'); await click('[data-a="bk-passes"]'); ok(await stack() === 'mr:multiride', `${T} Book › Passes opens Multi-Ride`);
     await click('#mr-to'); await p.fill(D_ + '#ss-q', 'NHV'); await w(150); await click('[data-a="choose-station"][data-code="NHV"]');

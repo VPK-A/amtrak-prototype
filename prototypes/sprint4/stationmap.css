@@ -195,3 +195,36 @@
 /* Close in its own row, right-aligned at the top of the card; the From / To fields run full width below */
 .map-card__top { display: flex; justify-content: flex-end; margin-right: calc(-1 * var(--ads-space-12)); }
 .map-card__top .map-card__close { margin-top: 0; }
+
+/* ---------- Map view (Figma Sprint 4 node 3336:40155) ---------- */
+/* Tabs run the full width of the sheet with their rule; the map starts right beneath them, edge to edge */
+.ss-upd .ss-views { margin-left: calc(-1 * var(--ads-space-20)); margin-right: calc(-1 * var(--ads-space-20)); }
+.ss-upd--map .ss-views { margin-bottom: 0; }
+.ss-upd--map .pane__body { gap: 0; }
+.ss-upd--map .ss-map-wrap--upd { margin: 0 calc(-1 * var(--ads-space-20)); }
+.ss-upd--map .ss-map-wrap--upd .ss-map { border-top: 0; }
+/* Station badges: 36px disc, white with a subtle edge and a large shadow; the chosen one tinted with a focus edge */
+.map-pin::before { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); background: var(--ads-background-interactive-secondary); box-shadow: inset 0 0 0 1px var(--ads-border-subtle), var(--ads-shadow-elevation-lg); }
+.map-pin { color: var(--ads-content-icon-brand); }
+.map-pin__glyph { width: 16px; height: 16px; }
+.map-pin.is-selected { color: var(--ads-content-icon-brand); }
+.map-pin.is-selected::before { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); background: var(--ads-background-interactive-secondary-active); box-shadow: inset 0 0 0 1px var(--ads-border-focus), var(--ads-shadow-elevation-lg); }
+/* Controls: zoom in and out share one box, my location has its own; 36px targets, top right at 20px */
+.ss-map-wrap--upd .map-ctl { top: var(--ads-space-20); right: var(--ads-space-20); gap: var(--ads-space-16); }
+.map-ctl__zoom, .map-ctl__locate { display: flex; flex-direction: column; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); box-shadow: var(--ads-shadow-elevation-lg); overflow: hidden; }
+.map-ctl .map-ctl__btn { width: var(--ads-size-interactive-sm); height: var(--ads-size-interactive-sm); min-width: 0; min-height: 0; margin: 0; border-radius: 0; color: var(--ads-content-icon-brand); }
+.map-ctl__zoom .map-ctl__btn + .map-ctl__btn { border-top: 1px solid var(--ads-border-subtle); }
+.map-ctl .map-ctl__btn:disabled { color: var(--ads-content-icon-disabled, var(--ads-content-text-disabled)); }
+.map-ctl__locate.map-ctl__btn { box-sizing: content-box; }
+/* Station listing: floats 20px above the bottom of the map */
+.ss-upd .ss-mapcard--listing { left: var(--ads-space-20); right: var(--ads-space-20); bottom: var(--ads-space-20); max-height: none; overflow: visible; border-radius: var(--ads-radius-4); box-shadow: var(--ads-shadow-elevation-sm); }
+.device--ipad .ss-upd .ss-mapcard--listing { left: auto; width: min(420px, calc(100% - 2 * var(--ads-space-20))); }
+.map-listing { display: flex; align-items: center; gap: var(--ads-space-8); min-height: 60px; padding: var(--ads-space-16); border-radius: var(--ads-radius-4); background: var(--ads-background-interactive-secondary); }
+.map-listing__code { flex: none; width: 48px; margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-h3-headline-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.2; }
+.map-listing__lines { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--ads-space-4); }
+.map-listing__city { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map-listing__city:focus { outline: none; }
+.map-listing__name { margin: 0; color: var(--ads-content-text-tertiary); font-size: var(--ads-type-caption-size); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map-listing__acts { flex: none; display: flex; align-items: center; gap: var(--ads-space-4); margin-right: calc(-1 * var(--ads-space-8)); }
+.map-listing__acts .ads-icon-btn { color: var(--ads-content-icon-primary); }
+.map-listing__save { color: var(--ads-content-icon-brand) !important; }

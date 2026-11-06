@@ -26,24 +26,24 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     ok(await q(d => d !== 'iphone' || (!!document.querySelector('#device .ss-head__back') && document.querySelector('#device .ss-head__title').textContent.startsWith('Select station')), dev), `${tag} Map view keeps heading and Back`);
     ok(await q(() => !document.querySelector('#device #ss-q') && !document.querySelector('#device .ss-route') && document.querySelector('#device .ss-map').getBoundingClientRect().height > 600), `${tag} map: no search, no route fields, prominent map`);
     await p.evaluate(() => document.querySelector('#device .map-pin[data-code="WAS"]').click()); await wait();
-    ok(await q(() => !!document.querySelector('.ss-mapcard #map-card [data-a="map-details"]') && !!document.querySelector('.ss-mapcard [data-a="choose-station"]')), `${tag} floating card with Details and Select`);
+    ok(await q(() => !!document.querySelector('.ss-mapcard #map-card [data-a="map-details"]') && !!document.querySelector('#device .pane__foot [data-k="map-select"]')), `${tag} floating listing with Details, Select in the footer`);
     await axe(`${tag} updated map + card`);
     await p.click('#device [aria-label="Zoom out"]'); await wait();
     ok(await q(() => !!document.querySelector('#map-card')), `${tag} map interactive with card visible`);
     await p.evaluate(() => { const e = [...document.querySelectorAll('#device .map-pin')].find(x => x.dataset.code !== 'WAS'); window.__c = e.dataset.code; e.click(); }); await wait();
     ok(await q(() => document.querySelector('#map-card-t').textContent.includes(ST[window.__c].city)), `${tag} card updates for another station`);
-    // From / To card (mock): the fields with close beside them, then Details and Select
-    ok(await q(() => { const c = document.querySelector('#device #map-card'); return !!c.querySelector('.ss-group') && !!c.querySelector('.map-card__top [data-a="map-unselect"]') && c.querySelector('#mc-f-' + sheet().stack.at(-1).p.field).innerText.includes(window.__c) && c.querySelectorAll('.map-card__acts .ads-btn').length === 2; }), `${tag} map card: From / To with close beside it; the tapped station previews in the field being edited; Details and Select`);
-    ok(await q(() => { const c = document.querySelector('#device #map-card'), cr = c.getBoundingClientRect(), g = c.querySelector('.ss-group').getBoundingClientRect(), x = c.querySelector('.map-card__close').getBoundingClientRect(), pad = parseFloat(getComputedStyle(c).paddingLeft) * cr.width / c.offsetWidth; return x.bottom <= g.top + 1 && Math.abs(cr.right - x.right) < pad && Math.abs(g.left - cr.left - pad) < 2 && Math.abs(cr.right - g.right - pad) < 2; }), `${tag} close right-aligned at the top of the card; From / To full width below`);
-    await p.click('#device #map-card [data-a="choose-station"]'); await wait();
+    // Station listing (Figma 3336:40155): code, city, station; info and save; 20px above the bottom of the map
+    ok(await q(() => { const c = document.querySelector('#device #map-card'); return c.querySelector('.map-listing__code').textContent === window.__c && c.querySelectorAll('.map-listing__acts .ads-icon-btn').length === 2 && !c.querySelector('.ss-group'); }), `${tag} station listing: code, city and station; info and save`);
+    ok(await q(() => { const c = document.querySelector('#device .ss-mapcard').getBoundingClientRect(), m = document.querySelector('#device .ss-map').getBoundingClientRect(), k = m.width / document.querySelector('#device .ss-map').offsetWidth; return Math.abs(m.bottom - c.bottom - 20 * k) < 2 && Math.abs(m.right - c.right - 20 * k) < 2; }), `${tag} listing sits 20px from the map's bottom and right edges`);
+    await p.click('#device [data-k="map-select"]'); await wait();
     const after = await q(() => { const r = sheet().stack.at(-1), b = D().booking; return { s: r.s, view: r.u.view, f: r.p.field, both: !!(b.from && b.to), search: !!document.querySelector('#device #ss-q') }; });
     ok(after.both ? after.s === 'ff' : (after.s === 'stations' && after.view === 'list' && after.f === 'to' && after.search), `${tag} Select on the map: back to the list while To is still needed, otherwise to New booking (${JSON.stringify(after)})`);
     if (after.s === 'ff') { await p.click('#device #ff-from'); await wait(); }
     await p.click('#device #ss-tab-map'); await wait();
     await p.evaluate(() => { const e = [...document.querySelectorAll('#device .map-pin')].find(x => x.dataset.code !== D().booking.from && x.dataset.code !== D().booking.to); window.__d = e.dataset.code; e.click(); }); await wait();
-    ok(await q(() => document.querySelector('#device #mc-f-' + sheet().stack.at(-1).p.field).innerText.includes(window.__d) && !!document.querySelector('#device #map-card [data-a="choose-station"]')), `${tag} a tapped station previews in the field being edited, with Select`);
-    await p.click('#device [data-a="map-unselect"]'); await wait();
-    ok(await q(() => !document.querySelector('#map-card') && sheet().stack.at(-1).s === 'stations'), `${tag} close clears the card and stays on the map`);
+    ok(await q(() => document.querySelector('#device .map-listing__code').textContent === window.__d && document.querySelector('#device [data-k="map-select"]').dataset.code === window.__d), `${tag} a tapped station shows in the listing, with Select for it`);
+    await p.focus('#device #ss-map'); await p.keyboard.press('Escape'); await wait();
+    ok(await q(() => !document.querySelector('#map-card') && !document.querySelector('#device [data-k="map-select"]') && sheet().stack.at(-1).s === 'stations'), `${tag} Escape clears the listing and Select, and stays on the map`);
     await p.click('#device #ss-tab-list'); await wait();
     ok(await q(() => !!document.querySelector('#device #ss-q')), `${tag} search returns in List view`);
     await q(() => { D().booking.from = null; goLoc('stations:to'); }); await wait(); // From empty: the selector stays for it after To

@@ -27,9 +27,9 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await provider(p) === 'placeholder' && await p.evaluate(() => GM.reason) === 'no-key', 'no key: placeholder map, Google not requested');
   ok(await p.evaluate(() => ![...document.scripts].some(s => /maps\.googleapis/.test(s.src))), 'no key: no request to Google');
   await p.evaluate(() => document.querySelector('#device .map-pin[data-code="WAS"]').click()); await p.waitForTimeout(300);
-  let s = await st(p); ok(s.sel === 'WAS' && s.from === null && await p.locator(D_ + '.ss-mapcard [data-a="choose-station"]').count() === 1, 'fallback: marker highlights and opens the card; field unchanged');
+  let s = await st(p); ok(s.sel === 'WAS' && s.from === null && await p.locator(D_ + '[data-k="map-select"]').count() === 1, 'fallback: marker highlights and opens the listing with Select; field unchanged');
   ok(/placeholder drawing \(Google Maps has no API key configured\)/.test(await p.evaluate(() => document.querySelector('#notes').innerText)), 'reviewer note explains the fallback');
-  await p.click(D_ + '.ss-mapcard [data-a="choose-station"]'); await p.waitForTimeout(400);
+  await p.click(D_ + '[data-k="map-select"]'); await p.waitForTimeout(400);
   ok(await p.evaluate(() => D().booking.from) === 'WAS' && await p.evaluate(() => sheet().stack.length === 2 && sheet().stack[1].p.field === 'to'), 'fallback: Select confirms From and moves on to To');
   await p.close();
 
@@ -91,7 +91,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     ok(await p.evaluate(c => selRoute().u.mapSel === c && !!document.querySelector(`#device .gmap-host .map-pin.is-selected[data-code="${c}"]`), grp[0]), 'choosing from the card list highlights that marker on the map');
   } else ok(false, 'expected a group marker in the predefined view');
   // confirm from the card, reopen from To
-  await p.click(D_ + '.ss-mapcard [data-a="choose-station"]'); await p.waitForTimeout(400);
+  await p.click(D_ + '[data-k="map-select"]'); await p.waitForTimeout(400);
   ok(await p.evaluate(() => sheet().stack.length === 2 && sheet().stack[1].p.field === 'to' && !!D().booking.from && !D().booking.to), 'Select fills only the field being edited and stays open for To');
   await p.click(D_ + '.ss-head__back'); await p.waitForTimeout(400);
   await p.click(D_ + '#ff-to'); await p.waitForTimeout(300); await p.click(D_ + '#ss-tab-map'); await p.waitForTimeout(400);

@@ -288,7 +288,8 @@ SCR.stations = (r, ri) => {
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
-  return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
+  const foot = typeof mapFoot === 'function' ? mapFoot(r) : null, fo = foot ? { foot, footCls: 'ads-actionfooter' } : {};
+  return stationFocus() ? Object.assign({ title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false }, fo) : Object.assign({ title: heading, kind: 'push', cls, body, banner: false }, fo);
 };
 // From / To inside the selector: the field being edited is outlined; tapping the other one edits it instead; the swap
 // button swaps the two stations of the experience that opened the selector

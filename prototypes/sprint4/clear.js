@@ -227,8 +227,9 @@ function stationsClear(r, ri) {
   const why = b.notice ? `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${b.notice}</p></div></div>` : '';
   const head = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>${selHeading(f, r.p.ctx)}</h3><p class="ffc-sheetsub">Search by city, station name, code or ZIP code.</p></div>`;
   const sel = ' ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''); // shared selector layout: heading with Back, tabs, search
-  if (stationFocus()) return { title: selHeading(f, r.p.ctx), cls: 'pane--sheet pane--focus' + sel, kind: 'focus', headInBody: true, banner: false, body: stationSearch(r, ri, f, false).replace('<!--why-->', why) };
-  return { title: f === 'from' ? 'From' : 'To', srTitle: true, cls: 'pane--sheet' + sel, kind: 'push', banner: false, body: head + stationSearch(r, ri, f, false).replace('<!--why-->', why) };
+  const foot = mapFoot(r), fo = foot ? { foot, footCls: 'ads-actionfooter' } : {};
+  if (stationFocus()) return Object.assign({ title: selHeading(f, r.p.ctx), cls: 'pane--sheet pane--focus' + sel, kind: 'focus', headInBody: true, banner: false, body: stationSearch(r, ri, f, false).replace('<!--why-->', why) }, fo);
+  return Object.assign({ title: f === 'from' ? 'From' : 'To', srTitle: true, cls: 'pane--sheet' + sel, kind: 'push', banner: false, body: head + stationSearch(r, ri, f, false).replace('<!--why-->', why) }, fo);
 }
 
 // ---------- Travelers sheet ----------
