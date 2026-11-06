@@ -332,12 +332,17 @@ function mapView(r, ri, field) {
     <p class="${inView ? 'ads-sr-only' : 'ss-map__count ss-map__empty'}" id="ss-map-count" role="status">${inView ? `${inView} station${inView === 1 ? '' : 's'} in view` : 'No stations in this area. Zoom out or move the map.'}</p>
     ${card ? `<div class="ss-mapcard">${card}</div>` : ''}</div>`;
 }
+// Highlighted station on the map (Figma Sprint 4 node 3354:45235): a floating panel with the From / To group, where
+// the field being edited previews the highlighted station (not saved until Select), and Details and Select.
+// Train status looks up one station, so its panel has a single Station field.
 function stationCard(code, r, ri, pos) {
-  const s = ST[code], g = geoOf(code), t = STATION_TYPES[g.type], f = r.p.field;
-  const dist = pos ? `<span class="map-card__dist">${fmtMi(miles(pos, g), pos.approx)}</span>` : '';
-  return `<section class="map-card ads-card" aria-labelledby="map-card-t" id="map-card"><div class="map-card__head"><div class="map-card__type">${ic(t.icon)}</div><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${esc(s.city)}, ${s.st} <span class="map-card__code">${s.code}</span></h3><p class="map-card__name">${esc(s.name)}</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station information">${ic('close')}</button></div>
-    <dl class="map-card__dl"><dt>Type</dt><dd>${t.label}</dd><dt>Address</dt><dd>${esc(g.address)}</dd>${dist ? `<dt>Distance</dt><dd>${dist}</dd>` : ''}</dl>
-    <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button><button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${f === 'from' ? 'departure' : 'arrival'} station">Select</button></div></section>`;
+  const s = ST[code], f = r.p.field, ctx = r.p.ctx || 'ff', tg = selTarget(ctx);
+  const side = (k, label) => { const c = k === f ? code : tg[k], x = c && ST[c]; return { label, code: c || '', city: x ? `${x.city}, ${x.st}` : '', facility: x ? x.name : '', placeholder: k === 'from' ? 'Where from?' : 'Where to?', attrs: `data-a="ss-field" data-v="${k}" id="mc-f-${k}"${k === f ? ' aria-current="true"' : ''}` }; };
+  const grp = ctx === 'ts'
+    ? `<div class="ads-fieldgroup ads-stationgroup ss-group ss-group--one"><div class="ads-fieldgroup__field" aria-current="true"><span class="ads-fieldgroup__label">Station</span><span class="ads-stationgroup__value"><span class="ads-stationgroup__code">${code}</span><span class="ads-stationgroup__lines"><span class="ads-stationgroup__city">${esc(s.city)}, ${s.st}</span><span class="ads-stationgroup__facility">${esc(s.name)}</span></span></span></div></div>`
+    : stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
+  return `<section class="map-card map-card--sel" aria-labelledby="map-card-t" id="map-card"><h3 class="ads-sr-only" id="map-card-t" tabindex="-1">${esc(s.city)}, ${s.st} ${s.code} highlighted${ctx === 'ts' ? '' : `, shown in ${f === 'from' ? 'From' : 'To'}. Not selected yet`}</h3>${grp}
+    <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button><button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${ctx === 'ts' ? '' : f === 'from' ? 'departure ' : 'arrival '}station">Select</button></div></section>`;
 }
 function groupCard(r) {
   const codes = r.u.mapGroup;
@@ -346,6 +351,7 @@ function groupCard(r) {
 // Interactions: select a marker (tentative), group, zoom, pan, locate, details
 A['map-pin'] = (t, ri) => {
   const r = routeAt(selIndex()), c = t.dataset.code, prev = r.u.mapSel;
+  if (prev === c && !t.closest('#map-card')) { r.u.mapSel = null; pendingFocus = '#ss-map'; render(); return; } // tapping the highlighted marker again clears it
   r.u.mapSel = c; r.u.mapGroup = null;
   track('map_marker_selected', { code: c, replaced: prev && prev !== c ? prev : '' });
   pendingFocus = '#map-card-t'; render();
@@ -390,6 +396,12 @@ function mapPanBy(dx, dy, via) {
   const x = wx(m.lon, m.z) + dx, y = wy(m.lat, m.z) + dy; m.lon = unx(x, m.z); m.lat = Math.max(-80, Math.min(80, uny(y, m.z))); m.why = 'moved';
   track('map_panned', { via, zoom: m.z }); pendingFocus = via === 'key' ? '#ss-map' : null; render();
 }
+// Escape on the map or its station panel clears the highlight (the panel has no close button); otherwise Escape goes Back
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || !e.target.closest || !e.target.closest('#device #ss-map, #device #map-card')) return;
+  const r = selIndex() >= 0 ? routeAt(selIndex()) : null; if (!r || !(r.u.mapSel || r.u.mapGroup)) return;
+  e.preventDefault(); e.stopPropagation(); A['map-unselect']();
+}, true);
 document.addEventListener('keydown', e => {
   const map = e.target.id === 'ss-map' && e.target.closest('#device'); if (!map) return;
   const k = { ArrowLeft: [-80, 0], ArrowRight: [80, 0], ArrowUp: [0, -80], ArrowDown: [0, 80] }[e.key];

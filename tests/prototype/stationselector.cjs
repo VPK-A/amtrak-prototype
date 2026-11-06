@@ -32,8 +32,12 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
     ok(await q(() => !!document.querySelector('#map-card')), `${tag} map interactive with card visible`);
     await p.evaluate(() => { const e = [...document.querySelectorAll('#device .map-pin')].find(x => x.dataset.code !== 'WAS'); window.__c = e.dataset.code; e.click(); }); await wait();
     ok(await q(() => document.querySelector('#map-card-t').textContent.includes(ST[window.__c].city)), `${tag} card updates for another station`);
-    await p.click('#device [data-a="map-unselect"]'); await wait();
-    ok(await q(() => !document.querySelector('#map-card')), `${tag} card dismissed`);
+    ok(await q(() => { const c = document.querySelector('#device #map-card'), f = c.querySelector('.ads-fieldgroup__field[aria-current="true"]'); return !c.querySelector('[data-a="map-unselect"]') && f && f.innerText.includes(window.__c) && document.querySelectorAll('#device #map-card .map-card__acts .ads-btn').length === 2; }), `${tag} panel (Figma 3354:45235): edited field previews the highlighted station; Details and Select; no close button`);
+    await p.focus('#device #map-card-t'); await p.keyboard.press('Escape'); await wait();
+    ok(await q(() => !document.querySelector('#map-card') && sheet().stack.at(-1).s === 'stations'), `${tag} Escape clears the highlight and stays on the map`);
+    await p.evaluate(() => document.querySelector('#device .map-pin[data-code="' + window.__c + '"]').click()); await wait();
+    await p.evaluate(() => document.querySelector('#device .map-pin[data-code="' + window.__c + '"]').click()); await wait();
+    ok(await q(() => !document.querySelector('#map-card')), `${tag} tapping the highlighted marker again clears it`);
     await p.click('#device #ss-tab-list'); await wait();
     ok(await q(() => !!document.querySelector('#device #ss-q')), `${tag} search returns in List view`);
     await q(() => goLoc('stations:to')); await wait();

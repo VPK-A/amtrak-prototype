@@ -689,7 +689,7 @@ button.ads-group__row:focus-visible, a.ads-group__row:focus-visible { outline: v
 .ads-stationgroup .ads-fieldgroup__field:first-of-type { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
 .ads-stationgroup .ads-fieldgroup__field:last-of-type { border-radius: 0 0 var(--ads-radius-4) var(--ads-radius-4); }
 .ads-stationgroup__value { display: flex; align-items: center; gap: var(--ads-space-4); min-height: 25px; }
-.ads-stationgroup__code { flex: none; width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ads-stationgroup__code { flex: none; width: auto; min-width: 48px; font-size: var(--ads-type-h3-headline-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
 .ads-stationgroup__lines { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1 1 auto; color: var(--ads-content-text-tertiary); }
 .ads-stationgroup__city { font-size: var(--ads-type-body-small-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ads-stationgroup__facility { font-size: var(--ads-type-caption-size); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

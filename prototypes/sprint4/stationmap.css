@@ -172,3 +172,11 @@
 .ss-upd .ss-listpanel > .stsection { margin-top: 0; margin-bottom: 0; }
 .ss-upd .stsection + .stsection { margin-top: 0; }
 .ss-upd .ads-stationrow[aria-current="true"] .ads-stationrow__detail { color: var(--ads-content-text-secondary); } /* the selected row is tinted; keep its detail at AA contrast */
+/* Map station panel (Figma Sprint 4 node 3354:45235) */
+.ss-upd .ss-mapcard { left: var(--ads-space-20); right: var(--ads-space-20); bottom: var(--ads-space-20); border-radius: var(--ads-radius-12); box-shadow: var(--ads-shadow-elevation-sm); }
+.map-card--sel { gap: var(--ads-space-24); padding: var(--ads-space-16); border: 0; border-bottom: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
+.map-card--sel .map-card__acts { gap: var(--ads-space-24); }
+.map-card--sel .ads-btn--secondary { border-color: var(--ads-border-brand); color: var(--ads-content-text-link); }
+.ss-group--one .ads-fieldgroup__field { cursor: default; }
+.ss-group--one .ads-fieldgroup__field:hover { background: none; }
+.map-card--sel .map-card__acts .ads-btn { min-width: 0; padding-inline: var(--ads-space-12); }
