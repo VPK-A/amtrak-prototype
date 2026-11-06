@@ -332,17 +332,30 @@ function mapView(r, ri, field) {
     <p class="${inView ? 'ads-sr-only' : 'ss-map__count ss-map__empty'}" id="ss-map-count" role="status">${inView ? `${inView} station${inView === 1 ? '' : 's'} in view` : 'No stations in this area. Zoom out or move the map.'}</p>
     ${card ? `<div class="ss-mapcard">${card}</div>` : ''}</div>`;
 }
-// Highlighted station on the map (Figma Sprint 4 node 3354:45235): a floating panel with the From / To group, where
-// the field being edited previews the highlighted station (not saved until Select), and Details and Select.
-// Train status looks up one station, so its panel has a single Station field.
+// The map's station card: one card that grows with the task.
+// - First tap on a station: the station card (type, name, code, facility, close; Type, Address, Distance; Details, Select).
+// - After Select: the same card keeps the chosen station (marked as set) and adds the booking fields (Figma Sprint 4
+//   node 3354:45235) with the remaining field outlined, prompting to tap the next station on the map.
+// - Tapping the next station: its details, the booking fields previewing it in the remaining field, Details and Select.
+// Train status needs one station, so it never shows the booking fields.
 function stationCard(code, r, ri, pos) {
-  const s = ST[code], f = r.p.field, ctx = r.p.ctx || 'ff', tg = selTarget(ctx);
-  const side = (k, label) => { const c = k === f ? code : tg[k], x = c && ST[c]; return { label, code: c || '', city: x ? `${x.city}, ${x.st}` : '', facility: x ? x.name : '', placeholder: k === 'from' ? 'Where from?' : 'Where to?', attrs: `data-a="ss-field" data-v="${k}" id="mc-f-${k}"${k === f ? ' aria-current="true"' : ''}` }; };
-  const grp = ctx === 'ts'
-    ? `<div class="ads-fieldgroup ads-stationgroup ss-group ss-group--one"><div class="ads-fieldgroup__field" aria-current="true"><span class="ads-fieldgroup__label">Station</span><span class="ads-stationgroup__value"><span class="ads-stationgroup__code">${code}</span><span class="ads-stationgroup__lines"><span class="ads-stationgroup__city">${esc(s.city)}, ${s.st}</span><span class="ads-stationgroup__facility">${esc(s.name)}</span></span></span></div></div>`
-    : stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
-  return `<section class="map-card map-card--sel" aria-labelledby="map-card-t" id="map-card"><h3 class="ads-sr-only" id="map-card-t" tabindex="-1">${esc(s.city)}, ${s.st} ${s.code} highlighted${ctx === 'ts' ? '' : `, shown in ${f === 'from' ? 'From' : 'To'}. Not selected yet`}</h3>${grp}
-    <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button><button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${ctx === 'ts' ? '' : f === 'from' ? 'departure ' : 'arrival '}station">Select</button></div></section>`;
+  const s = ST[code], g = geoOf(code), t = STATION_TYPES[g.type], f = r.p.field, ctx = r.p.ctx || 'ff', tg = selTarget(ctx);
+  const just = r.u.mapJust === code && (tg.from === code || tg.to === code), trip = ctx !== 'ts' && (r.u.picked || []).length > 0;
+  const role = tg.from === code ? 'departure' : 'arrival', fieldName = k => k === 'from' ? 'From' : 'To';
+  const dist = pos ? fmtMi(miles(pos, g), pos.approx) : '';
+  const head = `<div class="map-card__head"><div class="map-card__type">${ic(t.icon)}</div><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${esc(s.city)}, ${s.st} <span class="map-card__code">${s.code}</span></h3><p class="map-card__name">${esc(s.name)}</p>${just ? `<p class="map-card__set">${ic('check-circle', 'ads-icon--sm')}<span>Set as ${fieldName(tg.from === code ? 'from' : 'to')}</span></p>` : ''}</div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station information">${ic('close')}</button></div>`;
+  let fields = '';
+  if (trip) {
+    const side = (k, label) => { const c = k === f && !just ? code : tg[k], x = c && ST[c]; return { label, code: c || '', city: x ? `${x.city}, ${x.st}` : '', facility: x ? x.name : '', placeholder: 'Tap a station on the map', attrs: `data-a="ss-field" data-v="${k}" id="mc-f-${k}"${k === f ? ' aria-current="true"' : ''}` }; };
+    fields = `<div class="map-card__trip"><p class="map-card__hint" id="map-card-hint">${just ? `Now tap a station on the map for your ${f === 'from' ? 'departure' : 'arrival'}.` : `${esc(s.city)} is shown in ${fieldName(f)}. Select it to keep it.`}</p>${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}</div>`;
+  }
+  const select = just
+    ? `<button class="ads-btn map-card__done" type="button" aria-disabled="true" data-a="noop" aria-describedby="map-card-hint">${ic('check', 'ads-icon--sm')}Selected</button>`
+    : `<button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${ctx === 'ts' ? '' : f === 'from' ? 'departure ' : 'arrival '}station">Select</button>`;
+  // Station facts: the full list on its own; one line once the booking fields share the card (Details has everything)
+  const facts = just ? '' : trip ? `<p class="map-card__facts">${[t.label, esc(g.address), dist].filter(Boolean).join(' · ')}</p>` : `<dl class="map-card__dl"><dt>Type</dt><dd>${t.label}</dd><dt>Address</dt><dd>${esc(g.address)}</dd>${dist ? `<dt>Distance</dt><dd>${dist}</dd>` : ''}</dl>`;
+  return `<section class="map-card ads-card${trip ? ' map-card--trip' : ''}" aria-labelledby="map-card-t" id="map-card">${head}${facts}${fields}
+    <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button>${select}</div></section>`;
 }
 function groupCard(r) {
   const codes = r.u.mapGroup;
@@ -362,7 +375,7 @@ A['map-group'] = (t, ri) => {
   Object.assign(m, { lat, lon, z: Math.min(Z_MAX, m.z + 2) }); r.u.mapSel = null; r.u.mapGroup = codes;
   track('map_zoomed', { zoom: m.z, via: 'group' }); pendingFocus = '#map-card-t'; render();
 };
-A['map-unselect'] = () => { const r = routeAt(selIndex()); r.u.mapSel = null; r.u.mapGroup = null; pendingFocus = '#ss-map'; render(); };
+A['map-unselect'] = () => { const r = routeAt(selIndex()); r.u.mapSel = null; r.u.mapGroup = null; r.u.mapJust = null; pendingFocus = '#ss-map'; render(); };
 A['map-zoom'] = t => { const r = routeAt(selIndex()), m = r.u.map; m.z = Math.max(Z_MIN, Math.min(Z_MAX, m.z + (+t.dataset.d))); track('map_zoomed', { zoom: m.z, via: 'button' }); pendingFocus = `[data-a="map-zoom"][data-d="${t.dataset.d}"]:not(:disabled), #ss-map`; render(); };
 A['map-retry'] = () => { loc().map = 'ok'; track('map_load_succeeded', { retry: 1 }); pendingFocus = '#ss-map'; render(); };
 A['map-locate'] = t => {

@@ -172,11 +172,14 @@
 .ss-upd .ss-listpanel > .stsection { margin-top: 0; margin-bottom: 0; }
 .ss-upd .stsection + .stsection { margin-top: 0; }
 .ss-upd .ads-stationrow[aria-current="true"] .ads-stationrow__detail { color: var(--ads-content-text-secondary); } /* the selected row is tinted; keep its detail at AA contrast */
-/* Map station panel (Figma Sprint 4 node 3354:45235) */
+/* Map station card: station details first; after Select, the booking fields join it (Figma 3354:45235) */
 .ss-upd .ss-mapcard { left: var(--ads-space-20); right: var(--ads-space-20); bottom: var(--ads-space-20); border-radius: var(--ads-radius-12); box-shadow: var(--ads-shadow-elevation-sm); }
-.map-card--sel { gap: var(--ads-space-24); padding: var(--ads-space-16); border: 0; border-bottom: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
-.map-card--sel .map-card__acts { gap: var(--ads-space-24); }
-.map-card--sel .ads-btn--secondary { border-color: var(--ads-border-brand); color: var(--ads-content-text-link); }
-.ss-group--one .ads-fieldgroup__field { cursor: default; }
-.ss-group--one .ads-fieldgroup__field:hover { background: none; }
-.map-card--sel .map-card__acts .ads-btn { min-width: 0; padding-inline: var(--ads-space-12); }
+.ss-upd .ss-mapcard .map-card { border-radius: var(--ads-radius-12); }
+.map-card__set { display: flex; align-items: center; gap: var(--ads-space-4); margin: var(--ads-space-4) 0 0; color: var(--ads-content-text-success); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); }
+.map-card__trip { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.map-card__hint { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); }
+.map-card--trip .ss-group .ads-fieldgroup__placeholder { font-size: var(--ads-type-body-small-size); }
+.map-card__done[aria-disabled="true"] { background: var(--ads-background-interactive-primary-disabled); color: var(--ads-content-text-disabled); cursor: default; }
+.map-card__acts .ads-btn { min-width: 0; padding-inline: var(--ads-space-12); }
+.map-card__facts { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map-card--trip { gap: var(--ads-space-12); }

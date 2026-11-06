@@ -326,10 +326,12 @@ A['choose-station'] = (t, ri) => {
   if (sr) sr.u.picked = [...new Set([...(sr.u.picked || []), f])];
   const next = ctx === 'ts' || !sr ? null : !sr.u.picked.includes(other) ? other : null;
   if (sr && next) {
-    sr.p.field = next; sr.u.d = Object.assign({}, sr.u.d, { q: '' }); sr.u.mapSel = null;
+    sr.p.field = next; sr.u.d = Object.assign({}, sr.u.d, { q: '' });
+    // On the map, the card stays on the station just chosen and adds the booking fields for the next one
+    if (sr.u.view === 'map') { sr.u.mapSel = c; sr.u.mapJust = c; } else sr.u.mapSel = null;
     sr.u.selLive = `${ST[c].city} set as your ${f === 'from' ? 'departure' : 'arrival'} station. Now choose your ${next === 'from' ? 'departure' : 'arrival'} station.`;
     if (si < sheet().stack.length - 1) popTo(si); // from Details, back to the selector
-    pendingFocus = sr.u.view === 'map' ? `#ss-f-${next}, #ss-tab-map` : '#ss-q'; render(); return;
+    pendingFocus = sr.u.view === 'map' ? '#map-card-t' : '#ss-q'; render(); return;
   }
   // Both stations chosen (or Train status): back to the experience that opened station search
   if (si <= 0) { closeSheet(true); pendingFocus = `#${ctx}-${f}`; render(); return; }
