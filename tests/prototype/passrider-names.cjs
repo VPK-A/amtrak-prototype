@@ -1,3 +1,4 @@
+// Runs with the current-design counters (Prototype controls › Pass Rider traveler selection); passrider-select.cjs covers the checkbox proposal.
 // Pass Rider traveler selection by name: the signed-in traveler's checkbox shows their name; each other person on
 // the pass is a 0/1 counter; Companions is the only counter above 1; no relationship labels anywhere; saved details
 // prefill Traveler details; identity and assistance answers survive selection changes; Business and Leisure.
@@ -10,7 +11,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
   const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(URL);
   const ev = (f, a) => p.evaluate(f, a), w = (ms = 250) => p.waitForTimeout(ms), D_ = '#device ';
   const pane = () => ev(() => [...document.querySelectorAll('#device .pane')].pop().innerText);
-  const go = (v, sc, type = 'leisure', loc = 'travelers') => ev(([v, sc, type, loc]) => { TB.v = v; TB.dev = 'iphone'; VS[v] = makeVS(sc); const b = D().booking; if (prCanStart(D()).ok) b.intent = 'pr'; b.prType = type; goLoc(loc); }, [v, sc, type, loc]).then(() => w());
+  const go = (v, sc, type = 'leisure', loc = 'travelers') => ev(([v, sc, type, loc]) => { TB.v = v; TB.dev = 'iphone'; PRSEL.v = 'counter'; VS[v] = makeVS(sc); const b = D().booking; if (prCanStart(D()).ok) b.intent = 'pr'; b.prType = type; goLoc(loc); }, [v, sc, type, loc]).then(() => w());
   for (const v of [1]) {
     const T = `C${v}`;
     for (const sc of ['passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'triplink-passrider']) {
@@ -78,7 +79,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
   }
   // name, subtext and counter aligned in every layout
   for (const [v, dev, or, type] of [[1, 'iphone', 'portrait', 'leisure'], [1, 'iphone', 'landscape', 'leisure'], [1, 'ipad', 'portrait', 'leisure'], [1, 'ipad', 'landscape', 'business'], [3, 'iphone', 'portrait', 'business'], [3, 'ipad', 'landscape', 'leisure']]) {
-    await ev(([v, dev, or, type]) => { TB.v = v; TB.dev = dev; TB.orient = or; VS[v] = makeVS('passrider'); D().booking.intent = 'pr'; D().booking.prType = type; goLoc('travelers'); }, [v, dev, or, type]); await w(350);
+    await ev(([v, dev, or, type]) => { TB.v = v; TB.dev = dev; PRSEL.v = 'counter'; TB.orient = or; VS[v] = makeVS('passrider'); D().booking.intent = 'pr'; D().booking.prType = type; goLoc('travelers'); }, [v, dev, or, type]); await w(350);
     const bad = await ev(() => [...document.querySelectorAll('#device .ffc-count')].filter(r => { const t = r.querySelector('.ffc-count__text').getBoundingClientRect(), c = r.querySelector('.ads-counter').getBoundingClientRect(); return t.right > c.left + 1 || r.scrollWidth > r.clientWidth + 1; }).length);
     ok(bad === 0, `C${v} ${dev} ${or} ${type}: rows without overlap or clipping`);
   }

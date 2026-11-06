@@ -763,3 +763,12 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - **Companions aren't paired with a traveler.** There's no *Personal companion to* select, no companion picker on the traveler card, and no *Companion to Traveler 1* wording. Companion status shows once, in the assistance summary. The allowance is checked by count: there can't be more personal companions than travelers with a disability. Who accompanies whom is collected in Traveler information.
 - **Traveler type is carried through.** Every label and summary uses the type chosen in traveler selection, for example *Traveler 2 · Senior*. The questionnaire never asks Adult or Senior again. To change the type, go back to traveler selection.
 - **Checks:** `tests/prototype/assistance.cjs` covers each of these points.
+
+## Pass Rider traveler selection: proposal for team review
+
+- In Leisure, each eligible rider on the pass is listed by name under *People on your pass*, with an ADS checkbox in place of the 0–1 counter. The signed-in traveler is first, marked *You*. A rider is either selected or not, so nobody can be added twice.
+- *Companions* keep the counter, with the companion passes left beneath it.
+- At the 8-traveler limit, riders who aren't selected are disabled; selected riders can still be cleared.
+- Selections and the companion count are kept on the booking, so they survive Done, reopening and Back. Answers given for a rider stay with them if they're cleared and selected again.
+- **Prototype controls › Pass Rider traveler selection** switches between *Checkboxes for named riders (proposal)*, the default, and *Counters (current design)*. Business travel is unchanged: you alone, fixed at 1.
+- **Checks:** `tests/prototype/passrider-select.cjs`.

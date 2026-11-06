@@ -941,3 +941,11 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .apc-info { flex: none; margin-right: var(--ads-space-12); color: var(--ads-content-icon-secondary); }
 .apc-detail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
 .apc-detail h3, .apc-detail p { margin: 0; }
+/* Pass Rider traveler selection (proposal): one checkbox per named rider, the Companions counter below */
+.ffc-riders { margin: 0; padding: 0; border: 0; min-width: 0; }
+.ffc-riders__legend { padding: var(--ads-space-12) 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); line-height: var(--ads-type-body-small-line-height); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ffc-rider { align-items: center; padding: var(--ads-space-4) 0; border-bottom: 1px solid var(--ads-border-subtle); }
+.ffc-rider .ads-choice__control { margin-left: calc(-1 * var(--ads-space-12)); }
+.ffc-rider .ads-choice__label { padding-top: 0; }
+.ffc-rider .ads-choice__label > span:first-child { font-weight: var(--ads-font-weight-semibold); }
+.ffc-rider.is-disabled { cursor: not-allowed; color: var(--ads-content-text-disabled); }

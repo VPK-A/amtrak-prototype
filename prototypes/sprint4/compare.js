@@ -48,6 +48,8 @@ HOOKS.bpcombo = (r, t) => {
 (function wireCompare() {
   const a = document.getElementById('tbCmpAssist'), p = document.getElementById('tbCmpBp');
   if (a) { a.value = CMP.assist; a.addEventListener('change', () => { CMP.assist = a.value; store.set('s4-cmp-assist', a.value); pendingFocus = null; render(); }); }
+  const ps = document.getElementById('tbCmpPrSel');
+  if (ps) { ps.value = PRSEL.v; ps.addEventListener('change', () => { PRSEL.v = ps.value; store.set('s4-cmp-prsel', ps.value); pendingFocus = null; render(); }); }
   const sl = document.getElementById('tbCmpSel');
   if (sl) { sl.value = SELMODE.v; sl.addEventListener('change', () => { SELMODE.v = sl.value; store.set('s4-cmp-sel', sl.value); const sh = sheet(); if (sh) sh.stack.forEach(r => { r.u.picked = []; r.u.mapJust = null; }); pendingFocus = null; render(); }); }
   if (p) { p.value = CMP.bp; p.addEventListener('change', () => { CMP.bp = p.value; store.set('s4-cmp-bp', p.value); pendingFocus = null; render(); }); }

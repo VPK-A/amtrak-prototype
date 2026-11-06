@@ -256,8 +256,12 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       // The signed-in traveler uses the same 0/1 counter row as everyone else on the pass
       const me = counter('me', esc(prMeName(d)), 'Set to 0 to book for your family without you.', prMe(b) ? 1 : 0, prMe(b), !prMe(b) && room, 'prme');
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3><div class="ffc-counts">${me}${prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
-        ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
+      // Reviewer toggle (Prototype controls › Pass Rider traveler selection). Proposal for team review: each named
+      // rider is one checkbox, selected or not, so nobody can be added twice; Companions keep their counter.
+      const riders = prChecks() ? `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>` : me + prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('');
+      if (prChecks()) snote('Proposal for team review: named Pass Rider travelers are checkboxes instead of 0–1 counters. Companions keep the counter. Compare with Prototype controls › Pass Rider traveler selection.');
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3><div class="ffc-counts${prChecks() ? ' ffc-counts--riders' : ''}">${riders}${comp}</div>
+        ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
     }
@@ -295,6 +299,20 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
+// Pass Rider traveler selection: checkboxes for named riders (proposal) or 0–1 counters (current design)
+const PRSEL = { v: store.get('s4-cmp-prsel') === 'counter' ? 'counter' : 'check' };
+const prChecks = () => PRSEL.v === 'check';
+function riderCheck(k, name, sub, on, enabled) {
+  const id = `prr-${k}`;
+  return `<label class="ads-choice ads-checkbox ffc-rider${enabled ? '' : ' is-disabled'}" for="${id}"><input type="checkbox" id="${id}" data-a="pr-pick" data-k="${k}" ${on ? 'checked' : ''} ${enabled ? '' : 'disabled aria-describedby="prr-limit"'}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(name)}</span>${sub ? `<span class="ads-choice__supporting">${esc(sub)}</span>` : ''}</span></label>`;
+}
+// Selecting or clearing a named rider: one at most each; their answers stay with them if they're added again
+A['pr-pick'] = t => {
+  const b = D().booking, k = t.dataset.k;
+  if (k === 'me') b.prPax.me = t.checked;
+  else { b.prPax.people = Object.assign({}, b.prPax.people); if (t.checked) b.prPax.people[k] = 1; else delete b.prPax.people[k]; }
+  pendingFocus = `#prr-${k}`; render();
+};
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
   if (g === 'prme') { b.prPax.me = dlt > 0; pendingFocus = `[data-a="pax"][data-g="prme"][data-d="${-dlt}"]:not(:disabled), [data-a="pax"][data-g="prme"]:not(:disabled)`; render(); return; } // the signed-in traveler: 0 or 1

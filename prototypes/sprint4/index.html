@@ -2509,6 +2509,14 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .apc-info { flex: none; margin-right: var(--ads-space-12); color: var(--ads-content-icon-secondary); }
 .apc-detail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
 .apc-detail h3, .apc-detail p { margin: 0; }
+/* Pass Rider traveler selection (proposal): one checkbox per named rider, the Companions counter below */
+.ffc-riders { margin: 0; padding: 0; border: 0; min-width: 0; }
+.ffc-riders__legend { padding: var(--ads-space-12) 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); line-height: var(--ads-type-body-small-line-height); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-secondary); }
+.ffc-rider { align-items: center; padding: var(--ads-space-4) 0; border-bottom: 1px solid var(--ads-border-subtle); }
+.ffc-rider .ads-choice__control { margin-left: calc(-1 * var(--ads-space-12)); }
+.ffc-rider .ads-choice__label { padding-top: 0; }
+.ffc-rider .ads-choice__label > span:first-child { font-weight: var(--ads-font-weight-semibold); }
+.ffc-rider.is-disabled { cursor: not-allowed; color: var(--ads-content-text-disabled); }
 
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
@@ -2871,6 +2879,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpAssist">Traveler assistance layout</label><div class="ads-control ads-control--select"><select id="tbCmpAssist"><option value="current">Current design</option><option value="above">Content above traveler details</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpBp">Pass Rider Business Pass controls</label><div class="ads-control ads-control--select"><select id="tbCmpBp"><option value="current">Current design</option><option value="compact">Compact dropdown</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpPrSel">Pass Rider traveler selection</label><div class="ads-control ads-control--select"><select id="tbCmpPrSel"><option value="check">Checkboxes for named riders (proposal)</option><option value="counter">Counters (current design)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpSel">Station selector</label><div class="ads-control ads-control--select"><select id="tbCmpSel"><option value="pair">From / To in the selector, stays open</option><option value="single">Single field, returns after one choice</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
@@ -5058,8 +5067,12 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       // The signed-in traveler uses the same 0/1 counter row as everyone else on the pass
       const me = counter('me', esc(prMeName(d)), 'Set to 0 to book for your family without you.', prMe(b) ? 1 : 0, prMe(b), !prMe(b) && room, 'prme');
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3><div class="ffc-counts">${me}${prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('')}${comp}</div>
-        ${!room ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
+      // Reviewer toggle (Prototype controls › Pass Rider traveler selection). Proposal for team review: each named
+      // rider is one checkbox, selected or not, so nobody can be added twice; Companions keep their counter.
+      const riders = prChecks() ? `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>` : me + prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('');
+      if (prChecks()) snote('Proposal for team review: named Pass Rider travelers are checkboxes instead of 0–1 counters. Companions keep the counter. Compare with Prototype controls › Pass Rider traveler selection.');
+      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3><div class="ffc-counts${prChecks() ? ' ffc-counts--riders' : ''}">${riders}${comp}</div>
+        ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
     }
@@ -5097,6 +5110,20 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
+// Pass Rider traveler selection: checkboxes for named riders (proposal) or 0–1 counters (current design)
+const PRSEL = { v: store.get('s4-cmp-prsel') === 'counter' ? 'counter' : 'check' };
+const prChecks = () => PRSEL.v === 'check';
+function riderCheck(k, name, sub, on, enabled) {
+  const id = `prr-${k}`;
+  return `<label class="ads-choice ads-checkbox ffc-rider${enabled ? '' : ' is-disabled'}" for="${id}"><input type="checkbox" id="${id}" data-a="pr-pick" data-k="${k}" ${on ? 'checked' : ''} ${enabled ? '' : 'disabled aria-describedby="prr-limit"'}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(name)}</span>${sub ? `<span class="ads-choice__supporting">${esc(sub)}</span>` : ''}</span></label>`;
+}
+// Selecting or clearing a named rider: one at most each; their answers stay with them if they're added again
+A['pr-pick'] = t => {
+  const b = D().booking, k = t.dataset.k;
+  if (k === 'me') b.prPax.me = t.checked;
+  else { b.prPax.people = Object.assign({}, b.prPax.people); if (t.checked) b.prPax.people[k] = 1; else delete b.prPax.people[k]; }
+  pendingFocus = `#prr-${k}`; render();
+};
 A.pax = t => {
   const b = D().booking, k = t.dataset.k, dlt = +t.dataset.d, g = t.dataset.g;
   if (g === 'prme') { b.prPax.me = dlt > 0; pendingFocus = `[data-a="pax"][data-g="prme"][data-d="${-dlt}"]:not(:disabled), [data-a="pax"][data-g="prme"]:not(:disabled)`; render(); return; } // the signed-in traveler: 0 or 1
@@ -7163,6 +7190,8 @@ HOOKS.bpcombo = (r, t) => {
 (function wireCompare() {
   const a = document.getElementById('tbCmpAssist'), p = document.getElementById('tbCmpBp');
   if (a) { a.value = CMP.assist; a.addEventListener('change', () => { CMP.assist = a.value; store.set('s4-cmp-assist', a.value); pendingFocus = null; render(); }); }
+  const ps = document.getElementById('tbCmpPrSel');
+  if (ps) { ps.value = PRSEL.v; ps.addEventListener('change', () => { PRSEL.v = ps.value; store.set('s4-cmp-prsel', ps.value); pendingFocus = null; render(); }); }
   const sl = document.getElementById('tbCmpSel');
   if (sl) { sl.value = SELMODE.v; sl.addEventListener('change', () => { SELMODE.v = sl.value; store.set('s4-cmp-sel', sl.value); const sh = sheet(); if (sh) sh.stack.forEach(r => { r.u.picked = []; r.u.mapJust = null; }); pendingFocus = null; render(); }); }
   if (p) { p.value = CMP.bp; p.addEventListener('change', () => { CMP.bp = p.value; store.set('s4-cmp-bp', p.value); pendingFocus = null; render(); }); }
