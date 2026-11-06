@@ -38,7 +38,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.focus('#device #ss-q'); await w(150); ok((await css('.ss-search .ads-control')).sh.includes('2px inset'), `${T} Search focus: 2px border/focus, no layout change`);
     const star = await css('.ads-stationrow__star:not(.ss-details)'); ok(star.r === '4px', `${T} Icon Button radius/4`);
     ok((await css('.ads-stationrow__star[aria-pressed="true"]') || {}).col === ICONB || !(await css('.ads-stationrow__star[aria-pressed="true"]')), `${T} chosen favorite: content/icon-brand`);
-    ok(!(await css('.ss-route__item')) && (await ev(() => (document.querySelector('#device .ss-head__title') || [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent)) === 'Select arrival station', `${T} station search: heading instead of route fields`);
+    ok(!(await css('.ss-route__item')) && (await ev(() => (document.querySelector('#device .ss-head__title') || [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop()).textContent)).startsWith('Select station'), `${T} station search: heading instead of route fields`);
     // Calendar: vertical month list (design review)
     await go(v, 'returning', 'calendar:dep', th); await w(250);
     ok(await p.locator('#device [data-a="cal-month"]').count() === 0 && await p.evaluate(() => getComputedStyle(document.querySelector('#device .pane--calx .pane__scroll')).overflowY) === 'auto', `${T} Dates: months scroll vertically (no month arrows)`);

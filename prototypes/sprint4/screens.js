@@ -243,11 +243,16 @@ function stationSearch(r, ri, field, inline) {
   // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
   // List view only, then My Location, favorites and recents. Map view: heading, tabs and the map.
   const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
-  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}</h2></div>` : '';
+  // Figma Sprint 4 node 3295:51259: chevron Back, centered "Select station" (the field being edited is named for
+  // screen readers and shown in the From / To group below)
+  const backBtn = root ? `<button class="ads-icon-btn ss-head__back" type="button" data-a="close" aria-label="Close station search">${ic('chevron-left')}</button>` : `<button class="ads-icon-btn ss-head__back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('chevron-left')}</button>`;
+  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
-  let h = head + tabs + '<!--why-->' + upSearch;
-  h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
+  const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top">${r.p.ctx === 'ts' ? '' : selGroup(r, field)}${sq}`;
+  const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
+  if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
@@ -256,7 +261,8 @@ function stationSearch(r, ri, field, inline) {
     return h + q(3) + '</div>';
   }
   selNotes(r.p.ctx || 'ff');
-  h += nearSection(r, ri);
+  const [nearTop, nearList] = nearSection(r, ri).split('<!--near-split-->');
+  h += nearTop + '</div>' + PANEL + nearList; // top block: group, search, Nearby stations; then the lists
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
@@ -271,7 +277,7 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
-const selHeading = (f, ctx) => ctx === 'ts' ? 'Select a station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // Train status searches one station
+const selHeading = () => 'Select station'; // Figma Sprint 4 node 3295:51259; the field being edited is shown in the From / To group
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field;
@@ -280,6 +286,14 @@ SCR.stations = (r, ri) => {
   const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
   return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
 };
+// From / To inside the selector: the field being edited is outlined; tapping the other one edits it instead; the swap
+// button swaps the two stations of the experience that opened the selector
+function selGroup(r, field) {
+  const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
+  return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
+}
+A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = '#ss-q'; render(); return; } r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
+A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {

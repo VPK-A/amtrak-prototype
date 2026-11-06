@@ -67,14 +67,14 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
       await go(v, 'returning', 'stations:from', { platform: P }); await click('[data-a="near-start"]');
       ok(await p.locator(D_ + `.native--${P}[role="alertdialog"]`).count() === 1, `${T} ${P}: native permission prompt the first time`);
       await click(`.native [data-v="while"]`); await w(1700);
-      const rows = await ev(() => [...document.querySelectorAll('#device .ss-near .ads-stationrow__select')].map(b => +b.dataset.mi));
+      const rows = await ev(() => [...document.querySelectorAll('#device .ss-nearlist .ads-stationrow__select')].map(b => +b.dataset.mi));
       ok(rows.length >= 3 && rows.every((x, i) => i === 0 || rows[i - 1] <= x) && rows[0] < 20, `${T} ${P}: nearby results closest first, within 20 miles (${rows.join(', ')})`);
       ok(/within 20 mi/.test(await txt()) && /0\.7 mi/.test(await txt()), `${T} ${P}: distance shown with the radius`);
       await click('[data-a="near-start"]'); ok(await ev(() => !nav().native), `${T} ${P}: allowed already: no second prompt`);
     }
     await w(1700);
-    const lbl = await p.locator(D_ + '.ss-near .ads-stationrow__select').first().innerText(); ok(/miles away/.test(await p.locator(D_ + '.ss-near .ads-stationrow__select').first().evaluate(e => e.textContent)), `${T} distance has a spoken label`);
-    await click('.ss-near .ads-stationrow__select'); ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'NYP'), `${T} a nearby result fills Departure and returns`);
+    const lbl = await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().innerText(); ok(/miles away/.test(await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().evaluate(e => e.textContent)), `${T} distance has a spoken label`);
+    await click('.ss-nearlist .ads-stationrow__select'); ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'NYP'), `${T} a nearby result fills Departure and returns`);
     ok((await evs()).includes('nearby_station_selected'), `${T} analytics: nearby selection with distance`);
     // approximate, allow once
     await go(v, 'returning', 'stations:from', { perm: 'approx' }); await click('[data-a="near-start"]'); await w(1700);
@@ -104,7 +104,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     // offline: displayed station still selectable; new nearby search needs a connection
     await go(v, 'returning', 'stations:from', { perm: 'precise' }); await click('[data-a="near-start"]'); await w(1700);
     await ev(() => { V().net = 'offline'; render(); });
-    await click('.ss-near .ads-stationrow__select'); ok(await ev(() => D().booking.from === 'NYP'), `${T} offline: a station already shown can still be chosen`);
+    await click('.ss-nearlist .ads-stationrow__select'); ok(await ev(() => D().booking.from === 'NYP'), `${T} offline: a station already shown can still be chosen`);
     await go(v, 'returning', 'stations:from', { perm: 'precise' }); await ev(() => { V().net = 'offline'; render(); }); await click('[data-a="near-start"]');
     ok(await ev(() => !!document.querySelector('#device #near-msg[data-k="offline"]')), `${T} offline: nearby search says it needs a connection`);
     await mapView(); ok(/can’t load new areas/.test(await txt()), `${T} offline: the map says it can't load new areas`);
@@ -121,7 +121,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.fill(D_ + '#ss-q', 'BAL'); await w(150); await click('[data-a="choose-station"][data-code="BAL"]');
     ok(!(await stack()) && await ev(() => D().ts.from === 'BAL' && !D().booking.from) && /Baltimore, MD · BAL/.test(await ev(() => document.querySelector('#device #ts-from').innerText)), `${T} Train status: the station shows on the search entry; the booking is untouched`);
     ok(await p.locator(D_ + '#ts-to, [data-a="ts-check"], #tsn').count() === 0 && /Arrivals and departures/.test(await ev(() => document.querySelector('#device').innerText)), `${T} Train status: one station search entry, no From/To, Check status or train number`);
-    await click('#ts-from'); ok(await ev(() => document.querySelector('#device .ss-head__title').textContent) === 'Select a station' && await ev(() => document.querySelector('#device #ss-q').placeholder) === 'Search stations', `${T} Train status: selector says Select a station`);
+    await click('#ts-from'); ok(await ev(() => document.querySelector('#device .ss-head__title').textContent) === 'Select station' && await ev(() => document.querySelector('#device #ss-q').placeholder) === 'Search station' && await p.locator(D_ + '.ss-group').count() === 0, `${T} Train status: selector says Select station, with no From / To group`);
     await mapView(); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 38.9, lon: -77.0, z: 9 }; render(); }); await click('.map-pin[data-code="WAS"]'); await click('#map-card [data-a="choose-station"]');
     ok(await ev(() => D().ts.from === 'WAS'), `${T} Train status: station changed from the map`);
     await go(v, 'returning', 'tab:book'); await click('[data-a="bk-passes"]'); ok(await stack() === 'mr:multiride', `${T} Book › Passes opens Multi-Ride`);

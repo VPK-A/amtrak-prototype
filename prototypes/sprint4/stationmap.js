@@ -186,7 +186,7 @@ function visibleMarkers(m) {
 // ---------- Selector views: List and Map tabs ----------
 function selViewTabs(r) {
   const view = r.u.view || 'list';
-  return `<div class="ads-tabs ads-tabs--fill ss-views" role="tablist" aria-label="Station search view">${tabBtn(view === 'list', 'data-a="ss-view" data-v="list" id="ss-tab-list" aria-controls="ss-panel"', `${ic('trip-multiple-train', 'ads-icon--sm')}List`)}${tabBtn(view === 'map', 'data-a="ss-view" data-v="map" id="ss-tab-map" aria-controls="ss-panel"', `${ic('map', 'ads-icon--sm')}Map`)}</div>`;
+  return `<div class="ads-tabs ads-tabs--fill ss-views" role="tablist" aria-label="Station search view">${tabBtn(view === 'list', 'data-a="ss-view" data-v="list" id="ss-tab-list" aria-controls="ss-panel"', 'List')}${tabBtn(view === 'map', 'data-a="ss-view" data-v="map" id="ss-tab-map" aria-controls="ss-panel"', 'Map')}</div>`;
 }
 A['ss-view'] = (t, ri) => {
   const r = routeAt(ri), v = t.dataset.v; if (r.u.view === v) return;
@@ -201,7 +201,8 @@ const selProps = r => ({ experience: SEL_NAMES[r.p.ctx || 'ff'], field: r.p.fiel
 function nearSection(r, ri) {
   const n = r.u.near || { st: 'idle' }, P = loc().platform;
   ref('1085');
-  const myloc = `<div class="ss-myloc">${group('', [grow({ a: 'near-start', icon: 'map-pin', label: 'My Location', value: n.st === 'results' ? 'Update stations near you' : 'Find stations near you', k: 'near-start', cls: 'ss-myloc__row' })])}</div>`;
+  // "Nearby stations" link (Figma Sprint 4 node 3295:51259) replaces the My Location row; it starts the same nearby search
+  const myloc = `<button class="ads-link ss-nearlink" type="button" data-a="near-start" data-k="near-start" aria-describedby="ss-near-h">Nearby stations${ic('map-pin', 'ads-icon--sm')}</button><span class="ads-sr-only" id="ss-near-h">${n.st === 'results' ? 'Update the stations near you' : 'Find stations near you'}</span>`;
   let body = '';
   const recovery = (k, msg, acts) => `<div class="ads-alert ads-alert--${k === 'none' ? 'info' : 'warning'} ss-near__msg" role="status" id="near-msg" data-k="${k}">${ic(k === 'none' ? 'info-circle' : 'alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(msg.title)}</p><p class="ads-alert__description ads-body-small">${esc(msg.body)}</p>${acts ? `<div class="ss-near__acts">${acts}</div>` : ''}</div></div>`;
   const btn = (a, label, kind = 'secondary', extra = '') => `<button class="ads-btn ads-btn--${kind}" type="button" data-a="${a}" ${extra}>${label}</button>`;
@@ -215,14 +216,15 @@ function nearSection(r, ri) {
   else if (n.st === 'none') body = recovery('none', NEAR_MSG.none, btn('near-explore', 'Explore map'));
   else if (n.st === 'results') {
     const approx = n.approx, rows = n.results.map((x, i) => stationRow(ST[x.code], r.p.field, 'near', { mi: x.mi, approx, rank: i + 1 })).join('');
-    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
+    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection ss-nearlist"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
   }
   if (n.st === 'none') snote('Conflict (NMA-1085): the no-nearby-results scenario asks to zoom out to find a station, but the nearby rule caps the search at 150 miles. The prototype stops at 150 miles and offers Explore map instead of searching further. Needs a decision.');
   if (n.st === 'denied-first' || n.st === 'denied') snote('Follows native OS behavior: iOS can’t ask again after Don’t Allow (Settings only); Android can ask once more, then only Settings. Jira’s re-prompt notes are TBD and conflict with “don’t prompt again”. Needs a product decision.');
   if (n.approx) snote('Approximate location: distances are labelled as estimates. Jira’s approximate-location handling is TBD; this is a proposal.');
   snote('Nearby results: 20 miles, widened by 20 miles only while nothing is found, to a maximum of 150 miles; no result-count limit. Station ineligibility filtering (“Hide Ineligible Stations”) is not applied: Jennifer’s Nov 3 comment moved it to a separate improvement story.');
   snote('Error and status messages for location and nearby search are configurable (NEAR_MSG in stationmap.js).');
-  return `<section class="ss-near" aria-label="Stations near you">${myloc}${body}</section>`;
+  const list = n.st === 'results' ? body : '', msg = n.st === 'results' ? '' : body;
+  return `<section class="ss-near" aria-label="Stations near you">${myloc}${msg}</section><!--near-split-->${list}`; // the link and messages end the selector's top block; nearby results start the list
 }
 // My Location: ask the OS only if permission hasn't been requested; otherwise use what's allowed
 A['near-start'] = (t, ri) => {
@@ -251,7 +253,7 @@ function nearLocate(r) {
       if (!res.results.length) { n.st = 'none'; track('nearby_no_results', { max_radius_mi: 150 }); pendingFocus = '#near-msg'; render(); return; }
       Object.assign(n, { st: 'results', results: res.results, radius: res.radius, approx: p.approx });
       track('nearby_results_loaded', { radius_mi: res.radius, count: res.results.length, precision: p.approx ? 'approximate' : 'precise' });
-      pendingFocus = '.ss-near .stlist .ads-stationrow__select'; render();
+      pendingFocus = '.ss-nearlist .ads-stationrow__select'; render();
     }, 700);
   }, 800);
 }

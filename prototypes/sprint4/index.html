@@ -2801,6 +2801,38 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ts-result { display: flex; flex-direction: column; gap: var(--ads-space-12); }
 .ts-result h2 { margin: 0; }
 
+/* ---------- Select station (Figma Sprint 4 node 3295:51259) ---------- */
+.ss-head--c { display: grid; grid-template-columns: var(--ads-size-interactive-md) 1fr var(--ads-size-interactive-md); align-items: center; gap: var(--ads-space-8); padding-top: var(--ads-space-8); }
+.ss-head--c .ss-head__back { border-radius: var(--ads-radius-full); }
+.ss-head--c .ss-head__title { text-align: center; font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.2; }
+.ss-upd .pane__body { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); gap: 0; }
+.ss-upd .ss-views { margin-bottom: var(--ads-space-24); }
+.ss-top { display: flex; flex-direction: column; gap: var(--ads-space-16); margin: 0 calc(-1 * var(--ads-space-20)); padding: 0 var(--ads-space-20) var(--ads-space-20); border-bottom: 1px solid var(--ads-border-subtle); }
+.ss-top .ss-group { margin-bottom: var(--ads-space-8); }
+.ss-group .ads-fieldgroup__field[aria-current="true"] { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
+.ss-search--sq .ads-control { min-height: var(--ads-size-interactive-md); border-radius: var(--ads-radius-4); }
+.ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-primary); }
+.ss-upd .ss-near { margin: 0; gap: var(--ads-space-12); }
+.ss-nearlink { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--ads-space-4); min-height: var(--ads-size-interactive-sm); padding: 0; border: 0; background: none; font: inherit; font-size: var(--ads-type-body-size); cursor: pointer; }
+.ss-nearlink .ads-icon { color: var(--ads-content-icon-brand); text-decoration: none; }
+.ss-upd .stsection, .ss-upd .stlist { margin-left: calc(-1 * var(--ads-space-20)); margin-right: calc(-1 * var(--ads-space-20)); }
+.ss-upd .stsection .stlist { margin: 0; }
+.ss-upd .ads-stationrow__header { min-height: 36px; padding: 0 var(--ads-space-20); background: var(--ads-background-surface-sunken); color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); text-transform: none; letter-spacing: 0; }
+.ss-upd .ads-stationrow { min-height: 60px; background: var(--ads-background-interactive-secondary); }
+.ss-upd .ads-stationrow__select { padding-left: var(--ads-space-20); gap: var(--ads-space-8); }
+.ss-upd .ads-stationrow__code { width: 48px; font-size: var(--ads-type-h3-headline-size); font-weight: var(--ads-font-weight-semibold); letter-spacing: 0; }
+.ss-upd .ads-stationrow__text { gap: 0; }
+.ss-upd .ads-stationrow__name { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-primary); }
+.ss-upd .ads-stationrow__detail { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+.ss-upd .ads-stationrow__star { margin: auto 0; color: var(--ads-content-icon-secondary); }
+.ss-upd .ads-stationrow__star[aria-pressed="true"] { color: var(--ads-content-icon-brand); }
+.ss-upd .ads-stationrow__star:last-child { margin-right: var(--ads-space-8); }
+.ss-upd .ss-listpanel > .ads-btn { margin-top: var(--ads-space-16); }
+.ss-upd .ss-listpanel { display: flex; flex-direction: column; gap: 0; }
+.ss-upd .ss-listpanel > .stsection { margin-top: 0; margin-bottom: 0; }
+.ss-upd .stsection + .stsection { margin-top: 0; }
+.ss-upd .ads-stationrow[aria-current="true"] .ads-stationrow__detail { color: var(--ads-content-text-secondary); } /* the selected row is tinted; keep its detail at AA contrast */
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -3557,7 +3589,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -3937,11 +3969,16 @@ function stationSearch(r, ri, field, inline) {
   // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
   // List view only, then My Location, favorites and recents. Map view: heading, tabs and the map.
   const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
-  const head = focus ? `<div class="ss-head">${lead.replace('class="ss-back"', 'class="ads-icon-btn ads-icon-btn--round ss-head__back"')}<h2 class="ads-body-emphasis ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}</h2></div>` : '';
+  // Figma Sprint 4 node 3295:51259: chevron Back, centered "Select station" (the field being edited is named for
+  // screen readers and shown in the From / To group below)
+  const backBtn = root ? `<button class="ads-icon-btn ss-head__back" type="button" data-a="close" aria-label="Close station search">${ic('chevron-left')}</button>` : `<button class="ads-icon-btn ss-head__back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('chevron-left')}</button>`;
+  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + mapView(r, ri, field);
-  let h = head + tabs + '<!--why-->' + upSearch;
-  h += '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
+  const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top">${r.p.ctx === 'ts' ? '' : selGroup(r, field)}${sq}`;
+  const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
+  if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   if (qv.trim()) {
     const res = searchStations(qv);
     if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
@@ -3950,7 +3987,8 @@ function stationSearch(r, ri, field, inline) {
     return h + q(3) + '</div>';
   }
   selNotes(r.p.ctx || 'ff');
-  h += nearSection(r, ri);
+  const [nearTop, nearList] = nearSection(r, ri).split('<!--near-split-->');
+  h += nearTop + '</div>' + PANEL + nearList; // top block: group, search, Nearby stations; then the lists
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Favorites</span></div><ul class="stlist" aria-label="Favorite stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
@@ -3965,7 +4003,7 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
-const selHeading = (f, ctx) => ctx === 'ts' ? 'Select a station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // Train status searches one station
+const selHeading = () => 'Select station'; // Figma Sprint 4 node 3295:51259; the field being edited is shown in the From / To group
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field;
@@ -3974,6 +4012,14 @@ SCR.stations = (r, ri) => {
   const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
   return stationFocus() ? { title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false } : { title: heading, kind: 'push', cls, body, banner: false };
 };
+// From / To inside the selector: the field being edited is outlined; tapping the other one edits it instead; the swap
+// button swaps the two stations of the experience that opened the selector
+function selGroup(r, field) {
+  const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
+  return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
+}
+A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = '#ss-q'; render(); return; } r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
+A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {
@@ -6574,7 +6620,7 @@ function visibleMarkers(m) {
 // ---------- Selector views: List and Map tabs ----------
 function selViewTabs(r) {
   const view = r.u.view || 'list';
-  return `<div class="ads-tabs ads-tabs--fill ss-views" role="tablist" aria-label="Station search view">${tabBtn(view === 'list', 'data-a="ss-view" data-v="list" id="ss-tab-list" aria-controls="ss-panel"', `${ic('trip-multiple-train', 'ads-icon--sm')}List`)}${tabBtn(view === 'map', 'data-a="ss-view" data-v="map" id="ss-tab-map" aria-controls="ss-panel"', `${ic('map', 'ads-icon--sm')}Map`)}</div>`;
+  return `<div class="ads-tabs ads-tabs--fill ss-views" role="tablist" aria-label="Station search view">${tabBtn(view === 'list', 'data-a="ss-view" data-v="list" id="ss-tab-list" aria-controls="ss-panel"', 'List')}${tabBtn(view === 'map', 'data-a="ss-view" data-v="map" id="ss-tab-map" aria-controls="ss-panel"', 'Map')}</div>`;
 }
 A['ss-view'] = (t, ri) => {
   const r = routeAt(ri), v = t.dataset.v; if (r.u.view === v) return;
@@ -6589,7 +6635,8 @@ const selProps = r => ({ experience: SEL_NAMES[r.p.ctx || 'ff'], field: r.p.fiel
 function nearSection(r, ri) {
   const n = r.u.near || { st: 'idle' }, P = loc().platform;
   ref('1085');
-  const myloc = `<div class="ss-myloc">${group('', [grow({ a: 'near-start', icon: 'map-pin', label: 'My Location', value: n.st === 'results' ? 'Update stations near you' : 'Find stations near you', k: 'near-start', cls: 'ss-myloc__row' })])}</div>`;
+  // "Nearby stations" link (Figma Sprint 4 node 3295:51259) replaces the My Location row; it starts the same nearby search
+  const myloc = `<button class="ads-link ss-nearlink" type="button" data-a="near-start" data-k="near-start" aria-describedby="ss-near-h">Nearby stations${ic('map-pin', 'ads-icon--sm')}</button><span class="ads-sr-only" id="ss-near-h">${n.st === 'results' ? 'Update the stations near you' : 'Find stations near you'}</span>`;
   let body = '';
   const recovery = (k, msg, acts) => `<div class="ads-alert ads-alert--${k === 'none' ? 'info' : 'warning'} ss-near__msg" role="status" id="near-msg" data-k="${k}">${ic(k === 'none' ? 'info-circle' : 'alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(msg.title)}</p><p class="ads-alert__description ads-body-small">${esc(msg.body)}</p>${acts ? `<div class="ss-near__acts">${acts}</div>` : ''}</div></div>`;
   const btn = (a, label, kind = 'secondary', extra = '') => `<button class="ads-btn ads-btn--${kind}" type="button" data-a="${a}" ${extra}>${label}</button>`;
@@ -6603,14 +6650,15 @@ function nearSection(r, ri) {
   else if (n.st === 'none') body = recovery('none', NEAR_MSG.none, btn('near-explore', 'Explore map'));
   else if (n.st === 'results') {
     const approx = n.approx, rows = n.results.map((x, i) => stationRow(ST[x.code], r.p.field, 'near', { mi: x.mi, approx, rank: i + 1 })).join('');
-    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
+    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection ss-nearlist"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
   }
   if (n.st === 'none') snote('Conflict (NMA-1085): the no-nearby-results scenario asks to zoom out to find a station, but the nearby rule caps the search at 150 miles. The prototype stops at 150 miles and offers Explore map instead of searching further. Needs a decision.');
   if (n.st === 'denied-first' || n.st === 'denied') snote('Follows native OS behavior: iOS can’t ask again after Don’t Allow (Settings only); Android can ask once more, then only Settings. Jira’s re-prompt notes are TBD and conflict with “don’t prompt again”. Needs a product decision.');
   if (n.approx) snote('Approximate location: distances are labelled as estimates. Jira’s approximate-location handling is TBD; this is a proposal.');
   snote('Nearby results: 20 miles, widened by 20 miles only while nothing is found, to a maximum of 150 miles; no result-count limit. Station ineligibility filtering (“Hide Ineligible Stations”) is not applied: Jennifer’s Nov 3 comment moved it to a separate improvement story.');
   snote('Error and status messages for location and nearby search are configurable (NEAR_MSG in stationmap.js).');
-  return `<section class="ss-near" aria-label="Stations near you">${myloc}${body}</section>`;
+  const list = n.st === 'results' ? body : '', msg = n.st === 'results' ? '' : body;
+  return `<section class="ss-near" aria-label="Stations near you">${myloc}${msg}</section><!--near-split-->${list}`; // the link and messages end the selector's top block; nearby results start the list
 }
 // My Location: ask the OS only if permission hasn't been requested; otherwise use what's allowed
 A['near-start'] = (t, ri) => {
@@ -6639,7 +6687,7 @@ function nearLocate(r) {
       if (!res.results.length) { n.st = 'none'; track('nearby_no_results', { max_radius_mi: 150 }); pendingFocus = '#near-msg'; render(); return; }
       Object.assign(n, { st: 'results', results: res.results, radius: res.radius, approx: p.approx });
       track('nearby_results_loaded', { radius_mi: res.radius, count: res.results.length, precision: p.approx ? 'approximate' : 'precise' });
-      pendingFocus = '.ss-near .stlist .ads-stationrow__select'; render();
+      pendingFocus = '.ss-nearlist .ads-stationrow__select'; render();
     }, 700);
   }, 800);
 }
