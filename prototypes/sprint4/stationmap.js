@@ -339,6 +339,7 @@ function mapView(r, ri, field) {
 // - Tapping the next station: its details, the booking fields previewing it in the remaining field, Details and Select.
 // Train status needs one station, so it never shows the booking fields.
 function stationCard(code, r, ri, pos) {
+  if (selPair() && (r.p.ctx || 'ff') !== 'ts') return pairCard(code, r);
   const s = ST[code], g = geoOf(code), t = STATION_TYPES[g.type], f = r.p.field, ctx = r.p.ctx || 'ff', tg = selTarget(ctx);
   const just = r.u.mapJust === code && (tg.from === code || tg.to === code), trip = ctx !== 'ts' && selPair() && (r.u.picked || []).length > 0;
   const role = tg.from === code ? 'departure' : 'arrival', fieldName = k => k === 'from' ? 'From' : 'To';
@@ -357,6 +358,24 @@ function stationCard(code, r, ri, pos) {
   return `<section class="map-card ads-card${trip ? ' map-card--trip' : ''}" aria-labelledby="map-card-t" id="map-card">${head}${facts}${fields}
     <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button>${select}</div></section>`;
 }
+// Station selector › From / To (default): a compact card with the From / To fields and close beside them, then
+// Details and Select. The field being edited previews the tapped station (not saved until Select). Right after a
+// Select, the remaining field is outlined and empty ("Tap a station on the map"); Details shows the station just
+// chosen, and Select asks for a station first.
+function pairCard(code, r) {
+  const s = ST[code], f = r.p.field, tg = selTarget(r.p.ctx || 'ff');
+  const just = r.u.mapJust === code && (tg.from === code || tg.to === code);
+  const side = (k, label) => { const c = k === f && !just ? code : tg[k], x = c && ST[c]; return { label, code: c || '', city: x ? `${x.city}, ${x.st}` : '', facility: x ? x.name : '', placeholder: 'Tap a station on the map', attrs: `data-a="ss-field" data-v="${k}" id="mc-f-${k}"${k === f ? ' aria-current="true"' : ''}` }; };
+  const status = just ? `${s.city} set as ${tg.from === code ? 'From' : 'To'}. Now tap a station on the map for ${f === 'from' ? 'From' : 'To'}.` : `${s.city}, ${s.st} ${s.code} shown in ${f === 'from' ? 'From' : 'To'}. Select it to keep it.`;
+  const select = just
+    ? `<button class="ads-btn" type="button" data-a="map-select-first" aria-describedby="map-card-t">Select</button>`
+    : `<button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${f === 'from' ? 'departure' : 'arrival'} station">Select</button>`;
+  return `<section class="map-card map-card--pair" aria-labelledby="map-card-t" id="map-card"><p class="ads-sr-only" id="map-card-t" tabindex="-1" role="status">${esc(r.u.mapAsk || status)}</p>
+    <div class="map-card__row">${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}<button class="ads-icon-btn map-card__close" type="button" data-a="map-unselect" aria-label="Close">${ic('close')}</button></div>
+    <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button>${select}</div></section>`;
+}
+// Select with nothing new tapped (right after a selection): say what to do; nothing changes
+A['map-select-first'] = (t, ri) => { const r = routeAt(selIndex()); r.u.mapAsk = `Tap a station on the map for ${r.p.field === 'from' ? 'From' : 'To'} first.`; pendingFocus = '#map-card-t'; render(); };
 function groupCard(r) {
   const codes = r.u.mapGroup;
   return `<section class="map-card ads-card" aria-labelledby="map-card-t" id="map-card"><div class="map-card__head"><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${codes.length} stations here</h3><p class="map-card__name">Choose one to see its information.</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station list">${ic('close')}</button></div>${group('', codes.map(c => grow({ a: 'map-pin', data: `data-code="${c}"`, icon: STATION_TYPES[geoOf(c).type].icon, label: `${ST[c].city}, ${ST[c].st}`, value: ST[c].name })))}</section>`;
@@ -365,7 +384,7 @@ function groupCard(r) {
 A['map-pin'] = (t, ri) => {
   const r = routeAt(selIndex()), c = t.dataset.code, prev = r.u.mapSel;
   if (prev === c && !t.closest('#map-card')) { r.u.mapSel = null; pendingFocus = '#ss-map'; render(); return; } // tapping the highlighted marker again clears it
-  r.u.mapSel = c; r.u.mapGroup = null;
+  r.u.mapSel = c; r.u.mapGroup = null; r.u.mapAsk = null;
   track('map_marker_selected', { code: c, replaced: prev && prev !== c ? prev : '' });
   pendingFocus = '#map-card-t'; render();
 };
