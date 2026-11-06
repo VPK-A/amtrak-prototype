@@ -371,7 +371,8 @@ function pairCard(code, r) {
     ? `<button class="ads-btn" type="button" data-a="map-select-first" aria-describedby="map-card-t">Select</button>`
     : `<button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${f === 'from' ? 'departure' : 'arrival'} station">Select</button>`;
   return `<section class="map-card map-card--pair" aria-labelledby="map-card-t" id="map-card"><p class="ads-sr-only" id="map-card-t" tabindex="-1" role="status">${esc(r.u.mapAsk || status)}</p>
-    <div class="map-card__row">${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}<button class="ads-icon-btn map-card__close" type="button" data-a="map-unselect" aria-label="Close">${ic('close')}</button></div>
+    <div class="map-card__top"><button class="ads-icon-btn map-card__close" type="button" data-a="map-unselect" aria-label="Close">${ic('close')}</button></div>
+    ${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}
     <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button>${select}</div></section>`;
 }
 // Select with nothing new tapped (right after a selection): say what to do; nothing changes

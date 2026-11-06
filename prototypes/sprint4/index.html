@@ -2844,7 +2844,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .map-card__facts { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .map-card--trip { gap: var(--ads-space-12); }
 /* From / To map card (Station selector › From / To): fields with close beside them, then Details and Select */
-.map-card--pair { gap: var(--ads-space-16); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-16); border: 0; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
+.map-card--pair { gap: var(--ads-space-12); padding: var(--ads-space-8) var(--ads-space-20) var(--ads-space-16); border: 0; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
 .map-card__row { display: flex; align-items: flex-start; gap: var(--ads-space-12); }
 .map-card__row .ss-group { flex: 1 1 auto; min-width: 0; }
 .map-card__close { flex: none; margin-top: var(--ads-space-4); border-radius: var(--ads-radius-full); }
@@ -2852,6 +2852,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .map-card--pair .ads-btn--secondary { border-color: var(--ads-border-brand); color: var(--ads-content-text-link); }
 .map-card--pair .ss-group .ads-fieldgroup__placeholder { font-size: var(--ads-type-body-small-size); }
 .map-card__row > .ads-fieldwrap { flex: 1 1 auto; min-width: 0; }
+/* Close in its own row, right-aligned at the top of the card; the From / To fields run full width below */
+.map-card__top { display: flex; justify-content: flex-end; margin-right: calc(-1 * var(--ads-space-12)); }
+.map-card__top .map-card__close { margin-top: 0; }
 
 </style>
 </head>
@@ -6842,7 +6845,8 @@ function pairCard(code, r) {
     ? `<button class="ads-btn" type="button" data-a="map-select-first" aria-describedby="map-card-t">Select</button>`
     : `<button class="ads-btn" type="button" data-a="choose-station" data-code="${code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${f === 'from' ? 'departure' : 'arrival'} station">Select</button>`;
   return `<section class="map-card map-card--pair" aria-labelledby="map-card-t" id="map-card"><p class="ads-sr-only" id="map-card-t" tabindex="-1" role="status">${esc(r.u.mapAsk || status)}</p>
-    <div class="map-card__row">${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}<button class="ads-icon-btn map-card__close" type="button" data-a="map-unselect" aria-label="Close">${ic('close')}</button></div>
+    <div class="map-card__top"><button class="ads-icon-btn map-card__close" type="button" data-a="map-unselect" aria-label="Close">${ic('close')}</button></div>
+    ${stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group')}
     <div class="map-card__acts"><button class="ads-btn ads-btn--secondary" type="button" data-a="map-details" data-code="${code}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">Details</button>${select}</div></section>`;
 }
 // Select with nothing new tapped (right after a selection): say what to do; nothing changes

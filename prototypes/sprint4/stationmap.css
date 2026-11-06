@@ -184,7 +184,7 @@
 .map-card__facts { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .map-card--trip { gap: var(--ads-space-12); }
 /* From / To map card (Station selector › From / To): fields with close beside them, then Details and Select */
-.map-card--pair { gap: var(--ads-space-16); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-16); border: 0; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
+.map-card--pair { gap: var(--ads-space-12); padding: var(--ads-space-8) var(--ads-space-20) var(--ads-space-16); border: 0; border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
 .map-card__row { display: flex; align-items: flex-start; gap: var(--ads-space-12); }
 .map-card__row .ss-group { flex: 1 1 auto; min-width: 0; }
 .map-card__close { flex: none; margin-top: var(--ads-space-4); border-radius: var(--ads-radius-full); }
@@ -192,3 +192,6 @@
 .map-card--pair .ads-btn--secondary { border-color: var(--ads-border-brand); color: var(--ads-content-text-link); }
 .map-card--pair .ss-group .ads-fieldgroup__placeholder { font-size: var(--ads-type-body-small-size); }
 .map-card__row > .ads-fieldwrap { flex: 1 1 auto; min-width: 0; }
+/* Close in its own row, right-aligned at the top of the card; the From / To fields run full width below */
+.map-card__top { display: flex; justify-content: flex-end; margin-right: calc(-1 * var(--ads-space-12)); }
+.map-card__top .map-card__close { margin-top: 0; }
