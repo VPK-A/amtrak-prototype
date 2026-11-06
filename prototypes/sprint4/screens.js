@@ -482,10 +482,16 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 // =====================================================================
 // The traveler a booking questionnaire is for (route param t), and their label
 const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
-const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], for: m.for || '', animal: m.animal || '' });
-const fromDraft = x => withAnimal(x, { for: x.cat === 'companion' ? x.for || null : null, cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+// A legacy "none" answer reads as nothing selected. In booking mode a small or medium service animal answered
+// earlier is kept aside (animalLater) for the second questionnaire in Traveler information.
+const toDraft = (m, mode) => {
+  const x = { cat: m.cat === 'none' ? '' : m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], animal: m.animal || '', animalLater: m.animalLater || '' };
+  if (mode === 'booking' && x.needs.includes('animal') && x.animal && x.animal !== 'large') { x.animalLater = x.animal; x.animal = ''; x.needs = x.needs.filter(n => n !== 'animal'); }
+  return x;
+};
+const fromDraft = x => withAnimal(x, { cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
 // The service animal's size is kept only while Service animal is chosen
-const withAnimal = (x, m) => Object.assign(m, { animal: m.needs.includes('animal') ? x.animal || null : null });
+const withAnimal = (x, m) => Object.assign(m, { animal: m.needs.includes('animal') ? x.animal || null : null, animalLater: x.animalLater || null });
 const AC = ASSIST_COPY;
 // Wheelchair space allows an accessible seat or a large service animal, not both (NMA-995). A conflict is only
 // possible after changing the wheelchair answer to Yes; it is never resolved silently.
@@ -495,11 +501,10 @@ const needLabel = k => NEEDS.find(n => n[0] === k)[1];
 const listWords = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
-  if (mode === 'booking' && !x.cat) e.cat = AC.err.cat(who);
   if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = AC.err.wc;
   if (assistConflict(x)) e.needs = AC.err.conflict;
-  if (x.needs.includes('animal') && !x.animal) e.animal = AC.err.size;
+  if (mode !== 'booking' && x.needs.includes('animal') && !x.animal) e.animal = AC.err.size; // booking: large only, so no size question
   return e;
 }
 // Editing the draft: answers that still apply are kept; the rest are removed and the removal is announced
@@ -515,30 +520,36 @@ HOOKS.assist = (r, t) => {
     if (!x.dis.length) drop(() => false, AC.why.noDisability);
   }
   if (!x.needs.includes('animal')) x.animal = '';
+  else if (r.u.mode === 'booking') x.animal = 'large'; // before search only a large service animal is asked about
   r.u.assistNote = notes.join(' ') || null;
   if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
 };
 // Inline choice when wheelchair space makes an accessible seat and a large service animal conflict
 A['assist-keep'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, keep = t.dataset.v; r.u.dirty = true;
-  if (keep === 'seat') { x.animal = ''; r.u.assistNote = AC.sizeCleared; } // the animal can stay at a smaller size
+  if (keep === 'seat' && r.u.mode === 'booking') { x.needs = x.needs.filter(n => n !== 'animal'); x.animal = ''; r.u.assistNote = AC.removed.needs(AC.largeAnimal, AC.why.wcChoice); }
+  else if (keep === 'seat') { x.animal = ''; r.u.assistNote = AC.sizeCleared; } // the animal can stay at a smaller size
   else { x.needs = x.needs.filter(n => n !== 'seat'); r.u.assistNote = AC.removed.needs(needLabel('seat'), AC.why.wcChoice); }
   if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
-  pendingFocus = keep === 'seat' ? '[data-f="animal"][value="small"]' : '[data-f="needs"][value="animal"]'; render();
+  pendingFocus = keep === 'seat' ? (r.u.mode === 'booking' ? '[data-f="needs"][value="seat"]' : '[data-f="animal"][value="small"]') : '[data-f="needs"][value="animal"]'; render();
 };
 function needsBlock(r, x, idp, explain, e = {}) {
+  const bookingMode = r.u.mode === 'booking';
   const wcYes = x.wc === 'yes', comp = x.cat === 'companion', st = x.cat === 'station';
   const locked = x.cat === 'disability' && !x.dis.length, conflict = assistConflict(x);
   const items = st ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
+  if (bookingMode && x.needs.includes('animal')) snote('Proposal, needs team confirmation: before search only large service animals are asked about. Small and medium service animal details move to the second questionnaire in Traveler information, after you choose a fare.');
   const opts = items.map(([k, l, s]) => {
     let dis = locked, why = '';
-    if (!conflict && wcYes && k === 'seat' && bigAnimal(x)) { dis = true; why = AC.seatBlocked; }
+    if (!conflict && wcYes && k === 'seat' && bigAnimal(x)) { dis = true; why = bookingMode ? AC.seatBlockedLarge : AC.seatBlocked; }
     if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = AC.compSeatAfter; }
-    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? `disabled aria-describedby="${idp}-needs-why"` : ''}`) + (k === 'animal' && x.needs.includes('animal') ? animalSize(x, idp, e, !locked && !conflict && wcYes && x.needs.includes('seat')) : '');
+    // Booking (before search): only a large service animal is asked about; small and medium come later
+    if (bookingMode && k === 'animal') { l = AC.largeAnimal; s = AC.largeAnimalHelp; if (!conflict && wcYes && x.needs.includes('seat')) { dis = true; why = AC.largeBlocked; } }
+    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? `disabled aria-describedby="${idp}-needs-why"` : ''}`) + (!bookingMode && k === 'animal' && x.needs.includes('animal') ? animalSize(x, idp, e, !locked && !conflict && wcYes && x.needs.includes('seat')) : '');
   }).join('');
   const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
   const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
-  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
@@ -552,7 +563,7 @@ function companionWhy(b, key) {
 }
 // Type of help. branch (one-page form) is the follow-up for the chosen type, shown directly beneath it.
 function catBlock(r, x, idp, mode, e, branch) {
-  const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
+  const cats = mode === 'booking' ? ['disability', 'station', 'companion'] : ['disability', 'station'];
   const b = D().booking, who = assistWho(r), open = mode === 'booking' && companionOpen(b, who.key);
   const opts = cats.map(k => {
     const sel = x.cat === k, off = k === 'companion' && !open && !sel;
@@ -560,7 +571,7 @@ function catBlock(r, x, idp, mode, e, branch) {
     return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
   }).join('');
   const legend = mode === 'booking' ? (v1() ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--required">Required</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${branch === undefined && mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--optional">Optional</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? (x.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : `<p class="ads-body-small ads-text-secondary">${AC.noneSelected}</p>`) + q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
@@ -571,13 +582,14 @@ function wcBlock(r, x, idp, e) {
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
   const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
-  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
+  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, o.mode); r.u.mode = o.mode; }
   const x = r.u.d, e = r.u.err || {}, idp = o.idp;
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let branch = '';
   if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
   if (x.cat === 'station') branch = needsBlock(r, x, idp, false, e);
-  if (x.cat === 'companion') branch = (o.mode === 'booking' ? companionFor(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
+  if (x.cat === 'companion') branch = needsBlock(r, x, idp, false, e);
+  if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. A personal companion isn’t paired with a traveler here; who they accompany is collected in Traveler information. Each traveler with a disability may still bring one.');
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') snote('Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) aren’t designed in Sprint 4.');
   // Conditional changes are announced from one live region at the top of the form
@@ -585,16 +597,15 @@ function assistForm(r, ri, o) {
   return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
-  if (!m.cat) return ['No assistance saved'];
-  if (m.cat === 'none') return [AC.noneSummary];
+  if (!m.cat || m.cat === 'none') return [AC.noneSummary];
   const out = [CATS[m.cat]];
   if (m.cat === 'station') out.push(AC.stationSummary);
-  if (m.cat === 'companion' && m.for) out.push(`${AC.companionFor} ${travelerLabel(D().booking, m.for)}`);
   if (m.cat === 'disability') out.push(m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', '));
   if (m.wc === true) out.push('Bringing a wheelchair (wheelchair space)');
   if (m.wc === false) out.push('Not bringing a wheelchair');
-  if (m.needs.length) out.push(m.needs.map(k => k === 'animal' && m.animal ? `Service animal (${m.animal})` : NEEDS.find(x => x[0] === k)[1]).join(', '));
+  if (m.needs.length) out.push(m.needs.map(k => k === 'animal' && m.animal ? (m.animal === 'large' ? AC.largeAnimal : `Service animal (${m.animal})`) : NEEDS.find(x => x[0] === k)[1]).join(', '));
   else if (m.cat !== 'station') out.push('No other needs');
+  if (m.animalLater) out.push(AC.animalLaterSummary(m.animalLater));
   return out;
 }
 function assistSummaryCard(m, o) {
@@ -612,7 +623,7 @@ function wizSteps(x, mode) {
 const STEP_NAMES = { cat: 'Type of help', dis: 'Disabilities', wc: 'Wheelchair', needs: 'Other needs', review: 'Review' };
 function wizard(r, ri, mode, title) {
   const src = mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
-  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
+  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, mode); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
   const x = r.u.d, steps = wizSteps(x, mode); if (!steps.includes(r.u.step)) r.u.step = 'cat';
   const i = steps.indexOf(r.u.step), e = r.u.err || {}, idp = 'wz';
   ref(mode === 'booking' ? '615' : '26', '27', '28', '995', '996');
@@ -634,7 +645,7 @@ function wizard(r, ri, mode, title) {
   return { title, kind: 'push', body, foot, wide: IPAD() };
 }
 function stepValue(s, m) {
-  if (s === 'cat') return m.cat ? CATS[m.cat] + (m.cat === 'companion' && m.for ? ` · ${travelerLabel(D().booking, m.for)}` : '') : 'Nothing selected';
+  if (s === 'cat') return m.cat ? CATS[m.cat] : 'Nothing selected';
   if (s === 'dis') return m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', ');
   if (s === 'wc') return m.wc ? 'Yes, I’ll bring a wheelchair' : 'No';
   if (s === 'needs') return m.needs.length ? m.needs.map(k => NEEDS.find(x => x[0] === k)[1]).join(', ') : 'None';
@@ -649,7 +660,7 @@ A['wiz-next'] = (t, ri) => {
   if (k && all[k]) { r.u.err = { [k]: all[k] }; pendingFocus = `[data-f="${k}"]`; render(); return; }
   r.u.err = null; const s = wizSteps(x); r.u.step = s[s.indexOf(r.u.step) + 1]; pendingFocus = '.ads-steps__count'; render();
 };
-A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '', dis: [], wc: '', needs: [] }; r.u.dirty = true; render(); };
+A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
 
 // ---- Booking assistance screen ----
 SCR.assist = (r, ri) => {

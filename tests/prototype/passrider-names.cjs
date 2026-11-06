@@ -70,7 +70,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
     const ff = await ev(() => document.querySelector('#device #ff-trav').innerText);
     ok(/Alex Rivera, Jordan Rivera, Maya Rivera, 1 companion/.test(ff) && !REL.test(ff), `${T} New booking summary lists names (${ff.split('\n')[0]})`);
     await p.click(D_ + '[data-a="find-trains"]'); await w(1000);
-    const ho = await pane(); ok(/Traveler 2 · Jordan Rivera/.test(ho) && /Personal companion to Traveler 1 · Alex Rivera/.test(ho) && !REL.test(ho.replace(/Pass Rider/g, '')), `${T} search hand-off uses names`);
+    const ho = await pane(); ok(/Traveler 2 · Jordan Rivera/.test(ho) && /Traveler 2 · Jordan Rivera: I am a personal companion/.test(ho) && !/companion to Traveler 1/.test(ho) && !REL.test(ho.replace(/Pass Rider/g, '')), `${T} search hand-off uses names`);
     // Business: the signed-in traveler alone, by name
     await go(v, 'passrider', 'business');
     ok(await ev(() => { const r = document.querySelector('#device [data-g="prme"]').closest('.ffc-count'); return r.querySelector('.ads-counter').innerText.replace(/\D/g, '') === '1' && [...r.querySelectorAll('button')].every(x => x.disabled); }), `${T} Business: signed-in traveler row fixed at 1`);

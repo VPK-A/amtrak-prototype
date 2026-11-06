@@ -37,8 +37,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
       // assistance still per traveler in the variant
       if (assist === 'current') {
         await p.click(card('adult-4') + ' [data-a="assist-answer"]'); await w(1000);
-        await p.click(`${D_}label:has(input[name$="-cat"][value="none"])`); await p.click(D_ + '[data-a="assist-confirm"]'); await w(500);
-        ok(await ev(() => { const b = D().booking; return assistCat(b, 'adult-4') === 'none' && assistCat(b, 'adult-1') === 'disability'; }) && (v === 3 || /No assistance requested/.test(await ev(s => document.querySelector(s).innerText, card('adult-4')))), `${C} (variant on) Add assistance applies to that traveler only`);
+        await p.click(`${D_}label:has(input[name$="-cat"][value="station"])`); await p.click(D_ + '[data-a="assist-confirm"]'); await w(500);
+        ok(await ev(() => { const b = D().booking; return assistCat(b, 'adult-4') === 'station' && assistCat(b, 'adult-1') === 'disability'; }) && (v === 3 || /Station assistance/.test(await ev(s => document.querySelector(s).innerText, card('adult-4')))), `${C} (variant on) Add assistance applies to that traveler only`);
       }
       // ---- Business Pass ----
       await ev(v => { VS[v] = makeVS('passrider'); goLoc('ff'); }, v); await w();

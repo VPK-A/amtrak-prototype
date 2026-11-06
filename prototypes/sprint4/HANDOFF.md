@@ -753,3 +753,13 @@ The densest of the four, without hiding anything required (`compact.js`).
 - **Version 3:** the status box (*items to finish*, *ready*) is removed. Problems still show on each traveler's row.
 - **No hover states in the device:** the app is for phones and tablets, so the page drops every hover style when it loads, except on the prototype controls outside the device. Press, focus and selected states are unchanged. The design system CSS itself is untouched.
 - **Sentence case throughout:** labels, buttons, titles and toolbar text use sentence case (for example *New booking*, *Find trains*, *Traveler selection*, *My coupons*, *Station assistance*, *2 adults, 1 child*). Proper names keep their capitals: Amtrak, Guest Rewards, Select Plus, TripLink, Pass Rider, Companion Pass, Business Pass, Auto Train, Northeast Regional, Fare Finder, stations and places. Styles that forced labels into capitals are turned off when the page loads; the ADS CSS itself is untouched.
+
+## Assistance questionnaire: proposal awaiting team confirmation
+
+These changes are proposals. Each is marked in the prototype's notes as needing team confirmation.
+
+- **No "I do not need assistance" option.** The three types are optional. Confirming with nothing selected means no assistance is requested, and the traveler's card goes back to *Add assistance*. *Clear selection* empties every answer; confirming after that removes the request and updates the summary.
+- **Service animals before search: large only.** Before search, the questionnaire asks only about a *Large service animal*, with no size question. Small and medium service animal details move to the second questionnaire in Traveler information, after a fare is chosen. An earlier small or medium answer isn't lost: it's kept on the traveler (`animalLater`), and the summary says it'll be confirmed in Traveler information. The wheelchair-space rule still applies: an accessible seat or a large service animal, not both.
+- **Companions aren't paired with a traveler.** There's no *Personal companion to* select, no companion picker on the traveler card, and no *Companion to Traveler 1* wording. Companion status shows once, in the assistance summary. The allowance is checked by count: there can't be more personal companions than travelers with a disability. Who accompanies whom is collected in Traveler information.
+- **Traveler type is carried through.** Every label and summary uses the type chosen in traveler selection, for example *Traveler 2 · Senior*. The questionnaire never asks Adult or Senior again. To change the type, go back to traveler selection.
+- **Checks:** `tests/prototype/assistance.cjs` covers each of these points.

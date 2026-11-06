@@ -11,7 +11,7 @@ function companionCandidates(b, forKey) {
   return travelerList(b).filter(t => {
     if (t.key === forKey) return false;
     const c = assistCat(b, t.key);
-    return !c || c === 'none' || (c === 'companion' && assistRec(b, t.key).m.for === forKey);
+    return !c || c === 'none';
   });
 }
 function discountRow(b, t, fromProfile) {
@@ -45,8 +45,7 @@ function assistanceRow(b, t, r) {
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
   if (c === 'companion') {
-    const f = assistRec(b, t.key).m.for;
-    return famRow('Personal companion', `Companion to <b>${esc(travelerLabel(b, f))}</b>`, 'To change this, edit this traveler’s assistance, or choose a different companion on their card.');
+    return ''; // proposal: companion status shows once, in the assistance summary, without naming a traveler
   }
   if (c !== 'disability') return '';
   const cur = companionOf(b, t.key), opts = companionCandidates(b, t.key);
@@ -58,7 +57,7 @@ function travelerCards(b, r) {
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
   return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Travelers details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }

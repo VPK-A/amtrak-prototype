@@ -3056,14 +3056,11 @@ const ASSIST_COPY = {
   catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
   companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
   companionFull: 'Not available: each traveler with a disability may bring one personal companion, and every traveler with a disability on this booking already has one.',
-  companionFor: 'Personal companion to', companionChoose: 'Choose a traveler',
-  companionForHelp: 'Each traveler with a disability may bring one personal companion.',
-  companionInvalid: who => `${who} no longer has a disability in assistance, or already has a personal companion. Choose another traveler, or another type of help.`,
-  companionNone: 'No traveler on this booking can have a personal companion right now. Choose another type of help.',
   disLegend: 'Select applicable disabilities',
   wcQuestion: 'Will you bring a wheelchair (need wheelchair space)?',
   needsLegend: 'Do you have other needs?', needsLocked: 'Select at least one disability above to choose other needs.',
   wcRule: 'With wheelchair space you can choose an accessible seat or a large service animal, not both. Small and medium service animals and station assistance are always available.',
+  seatBlockedLarge: 'Not available with a large service animal when you bring a wheelchair. Clear Large service animal to choose this.',
   seatBlocked: 'Not available with a large service animal when you bring a wheelchair. Choose a smaller size or clear Service animal to choose this.',
   conflictTitle: 'Choose an accessible seat or a large service animal',
   conflictBody: 'With wheelchair space you can have one of them, not both. Which do you want to keep?',
@@ -3071,6 +3068,10 @@ const ASSIST_COPY = {
   sizeCleared: 'The large size was cleared: choose small or medium, or clear Service animal.',
   stationIncluded: 'Station assistance is included with this answer.', stationSeatLegend: 'Do you need an accessible seat?',
   compLegend: 'Do you need help as a personal companion?', compSeatAfter: 'Available after you choose Station assistance.',
+  largeAnimal: 'Large service animal', largeAnimalHelp: 'A trained service animal that needs more space. You’ll add small or medium service animals in Traveler information after you choose a fare.',
+  animalLaterKept: size => `Your ${size} service animal is kept. You’ll confirm it in Traveler information after you choose a fare.`,
+  animalLaterSummary: size => `Service animal (${size}): add details in Traveler information`,
+  noneSelected: 'With nothing selected, no assistance is requested for this traveler.',
   noneSummary: 'No assistance requested', stationSummary: 'Station assistance included',
   removed: {
     disability: 'Disabilities and the wheelchair answer were removed: they only apply to “I have a disability”.',
@@ -3078,7 +3079,7 @@ const ASSIST_COPY = {
     needs: (what, why) => `${what} ${/ and /.test(what) ? 'were' : 'was'} removed ${why}.`
   },
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
-  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.', forMissing: 'Choose the traveler you’re a personal companion to.' }
+  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.' }
 };
 // People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
 // rules only and is never shown; travelers are listed by name. kind (Adult or Child) and date of birth come from the
@@ -3098,24 +3099,24 @@ const prSelf = sc => PR_FAMILY.find(p => p.id === (PR_SELF[sc] || 'alex'));
 // The other people on the pass record for whoever is signed in (a retiree's record has the spouse and Maya)
 const prRoster = (selfId, role) => PR_FAMILY.filter(p => p.id !== selfId && !(role === 'retiree' && p.id === 'sam')).map(p => Object.assign({}, p));
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
-const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
+const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [] }, o), done: true });
 const ASSIST_DEMO = {
   'assist-multi': (d, b) => {
     b.pax = { adult: 3, senior: 1, ya: 0, youth: 0, child: 0, infant: 0 };
     b.assist = asst('disability', { dis: ['vision', 'mobility'], wc: true, needs: ['station', 'seat'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station', 'seat'] }), 'adult-3': asst('station', { needs: ['seat'] }), 'senior-1': asst('none') };
+    b.ta = { 'adult-2': asst('companion', { needs: ['station', 'seat'] }), 'adult-3': asst('station', { needs: ['seat'] }), 'senior-1': asst(null) };
     b.ask = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true }; b.formLoaded = true; b.taSeen = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true };
   },
   'assist-invalid': (d, b) => {
     b.pax = { adult: 2, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 };
-    b.assist = asst('none').m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station'] }) };
+    b.assist = asst(null).m; b.assistDone = true; b.assistFromProfile = false;
+    b.ta = { 'adult-2': asst('companion', { needs: ['station'] }) };
     b.ask = { 'adult-1': true, 'adult-2': true }; b.taSeen = { 'adult-1': true, 'adult-2': true };
   },
   'passrider-assist': (d, b) => {
     d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, people: { jordan: 1, maya: 1 }, comp: 1 };
     b.assist = asst('disability', { dis: ['hearing'], wc: null, needs: ['station'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'pr-jordan': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-maya': asst('station') };
+    b.ta = { 'pr-jordan': asst('companion', { needs: ['station'] }), 'pr-maya': asst('station') };
     b.ask = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true }; b.taSeen = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true };
   }
 };
@@ -3138,9 +3139,9 @@ const SCENARIOS = [
   ['passrider-dependent', 'Pass Rider dependent, 16 or older', 'Dependent 16 or older: Leisure only, can book on their own and bring the employee, their spouse and other dependents (NMA-1017 AC4). The age comes from this fixture: the pass file has no date of birth.'],
   ['passrider-removed', 'Pass Rider employee, pass removed', 'The backend found this member is no longer eligible, so their Pass number, Personal index number and designation were removed from the app (NMA-20 BR4 AC4). Profile shows no pass details and Pass Rider booking isn’t offered.'],
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
-  ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is their personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
-  ['assist-invalid', 'Assistance: companion needs reassignment', 'Traveler 2 is a personal companion to Traveler 1, but Traveler 1 needs no assistance, so the pairing is invalid: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
-  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with Jordan, Maya and a Companion Pass traveler. You: hearing loss with station assistance; Jordan: your personal companion; Maya: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
+  ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is a personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
+  ['assist-invalid', 'Assistance: companion without a traveler with a disability', 'Traveler 2 is a personal companion, but no traveler has a disability in assistance, so there are more companions than travelers with a disability: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
+  ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with Jordan, Maya and a Companion Pass traveler. You: hearing loss with station assistance; Jordan: a personal companion; Maya: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
 const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow connection (120-second timeout)'], ['slow6', 'Slow connection (6-second timeout, demo)'], ['error', 'Server error']];
@@ -3163,7 +3164,7 @@ const QUESTIONS = {
   16: ['Pass Rider identifiers', 'NMA-623 says the Pass Rider experience needs a SAP ID and Index number in the profile; NMA-20 stores a 9-digit Pass number and a 3-digit Personal index number. The prototype uses NMA-20’s fields. How the relationship (employee, spouse, dependent) is known, and whether the dependent experience differs (NMA-623 AC3–AC6), are open.'],
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
   20: ['Fares on the calendar', 'Removed after stakeholder feedback: the calendar shows no prices or fare shading. A fare calendar has no Sprint 4 story or fare source; if it returns it needs a fares service and a decision on which fare to show.'],
-  19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. The prototype lets any traveler be one, and asks who they accompany so the one-each rule can be checked.'],
+  19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. Proposal awaiting team confirmation: assistance doesn’t ask who a companion accompanies; the one-each rule is checked by count (no more companions than travelers with a disability), and the pairing is collected in Traveler information.'],
   18: ['Wheelchair and mobility device details (NMA-29)', 'Partly defined, awaiting clarification: the story asks for device details under “I have a disability and reduced mobility”, its prerequisite names “I do not have a disability, but need assistance”, and most of its table is still Open. Not built beyond the existing wheelchair question.'],
   10: ['Young adult with an infant', 'Conflict in NMA-611. BR7 lets an infant travel with an Adult, Senior or Young adult, and BR3 seats lap infants 1:1 with those three types. BR9 says a Young adult can’t bring a Youth, Child or Infant without an Adult or Senior. The prototype follows BR9 (blocked) and counts Young adults toward lap seats. This case isn’t counted as verified until it’s decided. Age bands follow the CORE rules listed in the story (Adult 18–64, Senior 65+, Young adult 16–17, Youth 13–15, Child 2–12, Infant under 2).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
@@ -4235,10 +4236,16 @@ A['bk-disc'] = t => { D().booking.disc = t.value; pendingFocus = `[data-a="bk-di
 // =====================================================================
 // The traveler a booking questionnaire is for (route param t), and their label
 const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || firstKey(b); return travelerList(b).find(t => t.key === key) || { key, n: 1, label: 'Traveler 1' }; };
-const toDraft = m => ({ cat: m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], for: m.for || '', animal: m.animal || '' });
-const fromDraft = x => withAnimal(x, { for: x.cat === 'companion' ? x.for || null : null, cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+// A legacy "none" answer reads as nothing selected. In booking mode a small or medium service animal answered
+// earlier is kept aside (animalLater) for the second questionnaire in Traveler information.
+const toDraft = (m, mode) => {
+  const x = { cat: m.cat === 'none' ? '' : m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], animal: m.animal || '', animalLater: m.animalLater || '' };
+  if (mode === 'booking' && x.needs.includes('animal') && x.animal && x.animal !== 'large') { x.animalLater = x.animal; x.animal = ''; x.needs = x.needs.filter(n => n !== 'animal'); }
+  return x;
+};
+const fromDraft = x => withAnimal(x, { cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
 // The service animal's size is kept only while Service animal is chosen
-const withAnimal = (x, m) => Object.assign(m, { animal: m.needs.includes('animal') ? x.animal || null : null });
+const withAnimal = (x, m) => Object.assign(m, { animal: m.needs.includes('animal') ? x.animal || null : null, animalLater: x.animalLater || null });
 const AC = ASSIST_COPY;
 // Wheelchair space allows an accessible seat or a large service animal, not both (NMA-995). A conflict is only
 // possible after changing the wheelchair answer to Yes; it is never resolved silently.
@@ -4248,11 +4255,10 @@ const needLabel = k => NEEDS.find(n => n[0] === k)[1];
 const listWords = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
-  if (mode === 'booking' && !x.cat) e.cat = AC.err.cat(who);
   if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = AC.err.wc;
   if (assistConflict(x)) e.needs = AC.err.conflict;
-  if (x.needs.includes('animal') && !x.animal) e.animal = AC.err.size;
+  if (mode !== 'booking' && x.needs.includes('animal') && !x.animal) e.animal = AC.err.size; // booking: large only, so no size question
   return e;
 }
 // Editing the draft: answers that still apply are kept; the rest are removed and the removal is announced
@@ -4268,30 +4274,36 @@ HOOKS.assist = (r, t) => {
     if (!x.dis.length) drop(() => false, AC.why.noDisability);
   }
   if (!x.needs.includes('animal')) x.animal = '';
+  else if (r.u.mode === 'booking') x.animal = 'large'; // before search only a large service animal is asked about
   r.u.assistNote = notes.join(' ') || null;
   if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
 };
 // Inline choice when wheelchair space makes an accessible seat and a large service animal conflict
 A['assist-keep'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, keep = t.dataset.v; r.u.dirty = true;
-  if (keep === 'seat') { x.animal = ''; r.u.assistNote = AC.sizeCleared; } // the animal can stay at a smaller size
+  if (keep === 'seat' && r.u.mode === 'booking') { x.needs = x.needs.filter(n => n !== 'animal'); x.animal = ''; r.u.assistNote = AC.removed.needs(AC.largeAnimal, AC.why.wcChoice); }
+  else if (keep === 'seat') { x.animal = ''; r.u.assistNote = AC.sizeCleared; } // the animal can stay at a smaller size
   else { x.needs = x.needs.filter(n => n !== 'seat'); r.u.assistNote = AC.removed.needs(needLabel('seat'), AC.why.wcChoice); }
   if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
-  pendingFocus = keep === 'seat' ? '[data-f="animal"][value="small"]' : '[data-f="needs"][value="animal"]'; render();
+  pendingFocus = keep === 'seat' ? (r.u.mode === 'booking' ? '[data-f="needs"][value="seat"]' : '[data-f="animal"][value="small"]') : '[data-f="needs"][value="animal"]'; render();
 };
 function needsBlock(r, x, idp, explain, e = {}) {
+  const bookingMode = r.u.mode === 'booking';
   const wcYes = x.wc === 'yes', comp = x.cat === 'companion', st = x.cat === 'station';
   const locked = x.cat === 'disability' && !x.dis.length, conflict = assistConflict(x);
   const items = st ? NEEDS.filter(n => n[0] === 'seat') : comp ? NEEDS.filter(n => n[0] === 'station' || n[0] === 'seat').sort((a, c) => (a[0] === 'station' ? -1 : 1)) : NEEDS;
+  if (bookingMode && x.needs.includes('animal')) snote('Proposal, needs team confirmation: before search only large service animals are asked about. Small and medium service animal details move to the second questionnaire in Traveler information, after you choose a fare.');
   const opts = items.map(([k, l, s]) => {
     let dis = locked, why = '';
-    if (!conflict && wcYes && k === 'seat' && bigAnimal(x)) { dis = true; why = AC.seatBlocked; }
+    if (!conflict && wcYes && k === 'seat' && bigAnimal(x)) { dis = true; why = bookingMode ? AC.seatBlockedLarge : AC.seatBlocked; }
     if (comp && k === 'seat' && !x.needs.includes('station')) { dis = true; why = AC.compSeatAfter; }
-    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? `disabled aria-describedby="${idp}-needs-why"` : ''}`) + (k === 'animal' && x.needs.includes('animal') ? animalSize(x, idp, e, !locked && !conflict && wcYes && x.needs.includes('seat')) : '');
+    // Booking (before search): only a large service animal is asked about; small and medium come later
+    if (bookingMode && k === 'animal') { l = AC.largeAnimal; s = AC.largeAnimalHelp; if (!conflict && wcYes && x.needs.includes('seat')) { dis = true; why = AC.largeBlocked; } }
+    return choice('checkbox', `${idp}-needs`, 'needs', k, x.needs.includes(k), l, why || s, `data-hook="assist" ${dis ? `disabled aria-describedby="${idp}-needs-why"` : ''}`) + (!bookingMode && k === 'animal' && x.needs.includes('animal') ? animalSize(x, idp, e, !locked && !conflict && wcYes && x.needs.includes('seat')) : '');
   }).join('');
   const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
   const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
-  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
@@ -4305,7 +4317,7 @@ function companionWhy(b, key) {
 }
 // Type of help. branch (one-page form) is the follow-up for the chosen type, shown directly beneath it.
 function catBlock(r, x, idp, mode, e, branch) {
-  const cats = mode === 'booking' ? ['disability', 'station', 'companion', 'none'] : ['disability', 'station'];
+  const cats = mode === 'booking' ? ['disability', 'station', 'companion'] : ['disability', 'station'];
   const b = D().booking, who = assistWho(r), open = mode === 'booking' && companionOpen(b, who.key);
   const opts = cats.map(k => {
     const sel = x.cat === k, off = k === 'companion' && !open && !sel;
@@ -4313,7 +4325,7 @@ function catBlock(r, x, idp, mode, e, branch) {
     return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
   }).join('');
   const legend = mode === 'booking' ? (v1() ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--required">Required</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${branch === undefined && mode === 'booking' && x.cat === 'companion' ? companionFor(r, x, idp, e) : ''}${mode === 'booking' ? q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--optional">Optional</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? (x.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : `<p class="ads-body-small ads-text-secondary">${AC.noneSelected}</p>`) + q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
@@ -4324,13 +4336,14 @@ function wcBlock(r, x, idp, e) {
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
   const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
-  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = o.mode; }
+  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, o.mode); r.u.mode = o.mode; }
   const x = r.u.d, e = r.u.err || {}, idp = o.idp;
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let branch = '';
   if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
   if (x.cat === 'station') branch = needsBlock(r, x, idp, false, e);
-  if (x.cat === 'companion') branch = (o.mode === 'booking' ? companionFor(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
+  if (x.cat === 'companion') branch = needsBlock(r, x, idp, false, e);
+  if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. A personal companion isn’t paired with a traveler here; who they accompany is collected in Traveler information. Each traveler with a disability may still bring one.');
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') snote('Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) aren’t designed in Sprint 4.');
   // Conditional changes are announced from one live region at the top of the form
@@ -4338,16 +4351,15 @@ function assistForm(r, ri, o) {
   return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
-  if (!m.cat) return ['No assistance saved'];
-  if (m.cat === 'none') return [AC.noneSummary];
+  if (!m.cat || m.cat === 'none') return [AC.noneSummary];
   const out = [CATS[m.cat]];
   if (m.cat === 'station') out.push(AC.stationSummary);
-  if (m.cat === 'companion' && m.for) out.push(`${AC.companionFor} ${travelerLabel(D().booking, m.for)}`);
   if (m.cat === 'disability') out.push(m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', '));
   if (m.wc === true) out.push('Bringing a wheelchair (wheelchair space)');
   if (m.wc === false) out.push('Not bringing a wheelchair');
-  if (m.needs.length) out.push(m.needs.map(k => k === 'animal' && m.animal ? `Service animal (${m.animal})` : NEEDS.find(x => x[0] === k)[1]).join(', '));
+  if (m.needs.length) out.push(m.needs.map(k => k === 'animal' && m.animal ? (m.animal === 'large' ? AC.largeAnimal : `Service animal (${m.animal})`) : NEEDS.find(x => x[0] === k)[1]).join(', '));
   else if (m.cat !== 'station') out.push('No other needs');
+  if (m.animalLater) out.push(AC.animalLaterSummary(m.animalLater));
   return out;
 }
 function assistSummaryCard(m, o) {
@@ -4365,7 +4377,7 @@ function wizSteps(x, mode) {
 const STEP_NAMES = { cat: 'Type of help', dis: 'Disabilities', wc: 'Wheelchair', needs: 'Other needs', review: 'Review' };
 function wizard(r, ri, mode, title) {
   const src = mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
-  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
+  if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, mode); r.u.mode = mode; r.u.step = r.u.step || (src.cat ? 'review' : 'cat'); }
   const x = r.u.d, steps = wizSteps(x, mode); if (!steps.includes(r.u.step)) r.u.step = 'cat';
   const i = steps.indexOf(r.u.step), e = r.u.err || {}, idp = 'wz';
   ref(mode === 'booking' ? '615' : '26', '27', '28', '995', '996');
@@ -4387,7 +4399,7 @@ function wizard(r, ri, mode, title) {
   return { title, kind: 'push', body, foot, wide: IPAD() };
 }
 function stepValue(s, m) {
-  if (s === 'cat') return m.cat ? CATS[m.cat] + (m.cat === 'companion' && m.for ? ` · ${travelerLabel(D().booking, m.for)}` : '') : 'Nothing selected';
+  if (s === 'cat') return m.cat ? CATS[m.cat] : 'Nothing selected';
   if (s === 'dis') return m.dis.map(k => DISABILITIES.find(x => x[0] === k)[1]).join(', ');
   if (s === 'wc') return m.wc ? 'Yes, I’ll bring a wheelchair' : 'No';
   if (s === 'needs') return m.needs.length ? m.needs.map(k => NEEDS.find(x => x[0] === k)[1]).join(', ') : 'None';
@@ -4402,7 +4414,7 @@ A['wiz-next'] = (t, ri) => {
   if (k && all[k]) { r.u.err = { [k]: all[k] }; pendingFocus = `[data-f="${k}"]`; render(); return; }
   r.u.err = null; const s = wizSteps(x); r.u.step = s[s.indexOf(r.u.step) + 1]; pendingFocus = '.ads-steps__count'; render();
 };
-A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri); r.u.d = { cat: '', dis: [], wc: '', needs: [] }; r.u.dirty = true; render(); };
+A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
 
 // ---- Booking assistance screen ----
 SCR.assist = (r, ri) => {
@@ -5467,56 +5479,39 @@ const asks = (b, key) => perTraveler() ? !!(b.ask && b.ask[key]) : !!b.assistOn;
 function setAsk(b, key, on) { b.ask = b.ask || {}; if (on) b.ask[key] = true; else delete b.ask[key]; syncAsk(b); }
 function syncAsk(b) { if (perTraveler()) b.assistOn = travelerList(b).some(t => asks(b, t.key)); }
 // The assistance type that counts for a traveler: only once answered, and only while that traveler asks for help
-function assistCat(b, key) { const a = assistRec(b, key); return asks(b, key) && a.done ? a.m.cat : null; }
+function assistCat(b, key) { const a = assistRec(b, key); return asks(b, key) && a.done && a.m.cat !== 'none' ? a.m.cat || null : null; }
 const catCount = (b, cat, except) => travelerList(b).filter(t => t.key !== except && assistCat(b, t.key) === cat).length;
-// NMA-615 BR2.1–2.2: a personal companion accompanies one traveler with a disability, and each of them may
-// bring one companion. The companion names who they accompany, so the pairing is explicit.
-const companionOf = (b, forKey, except) => travelerList(b).find(t => t.key !== except && assistCat(b, t.key) === 'companion' && assistRec(b, t.key).m.for === forKey);
-const companionTargets = (b, key) => travelerList(b).filter(t => t.key !== key && assistCat(b, t.key) === 'disability' && !companionOf(b, t.key, key));
-const companionOpen = (b, key) => companionTargets(b, key).length > 0;
-// Problems that stop the search: companions whose traveler with a disability is missing, changed or shared
+// NMA-615 BR2.1–2.2: each traveler with a disability may bring one personal companion. Proposal awaiting team
+// confirmation: assistance doesn't pair a companion with a specific traveler. It only checks the count (no more
+// companions than travelers with a disability); who accompanies whom is collected in Traveler information.
+const companionOf = () => null; // no pairing any more (kept for the archived concepts)
+const companionOpen = (b, key) => catCount(b, 'disability', key) > catCount(b, 'companion', key);
+// The companions over the allowance, in traveler order (the first ones within it are fine)
+function extraCompanions(b) {
+  const list = travelerList(b), allow = catCount(b, 'disability');
+  return list.filter(t => assistCat(b, t.key) === 'companion').slice(allow);
+}
+// Problems that stop the search: more personal companions than travelers with a disability
 function assistProblems(b) {
   if (!b.assistOn) return [];
-  const out = [], seen = {};
-  for (const t of travelerList(b)) {
-    if (assistCat(b, t.key) !== 'companion') continue;
-    const f = assistRec(b, t.key).m.for;
-    if (!f || assistCat(b, f) !== 'disability') out.push(`${t.label} is a personal companion, but ${f ? travelerLabel(b, f) + ' no longer has a disability in assistance' : 'no traveler with a disability is chosen'}. Edit ${t.label}’s assistance.`);
-    else if (seen[f]) out.push(`${travelerLabel(b, f)} has two personal companions. Each traveler with a disability may bring one. Edit ${t.label}’s assistance.`);
-    seen[f] = true;
-  }
-  return out;
+  return extraCompanions(b).map(t => `${t.label} is a personal companion, but there are more personal companions than travelers with a disability. Each traveler with a disability may bring one. Edit ${t.label}’s assistance.`);
 }
 // Errors that belong to one traveler (from the shared rules)
 function travelerError(b, t) {
-  if (assistCat(b, t.key) !== 'companion') return '';
-  const f = assistRec(b, t.key).m.for;
-  if (!f || assistCat(b, f) !== 'disability') return `${f ? travelerLabel(b, f) + ' no longer has a disability in assistance' : 'No traveler with a disability is chosen'}, so this traveler can’t be a personal companion. Edit their assistance, or remove it.`;
-  const first = travelerList(b).find(x => assistCat(b, x.key) === 'companion' && assistRec(b, x.key).m.for === f);
-  if (first && first.key !== t.key) return `${travelerLabel(b, f)} already has a personal companion (${first.label}). Each traveler with a disability may bring one.`;
-  return '';
-}
-// The type step's "Personal companion to" choice
-function companionFor(r, x, idp, e) {
-  const b = D().booking, key = assistWho(r).key, opts = companionTargets(b, key);
-  if (!opts.length) return `<p class="ads-helper ads-helper--error cmp-for" id="${idp}-for-h">${ic('alert-diamond')}<span>${x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.companionNone}</span></p>`;
-  // A saved pairing that no longer works must be reassigned; it is never switched to someone else silently
-  if (!x.for && opts.length === 1) x.for = opts[0].key;
-  const valid = opts.some(t => t.key === x.for);
-  const err = e.for || (x.for && !valid ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : '');
-  return `<div class="cmp-for">${fieldHtml({ id: `${idp}-for`, f: 'for', label: ASSIST_COPY.companionFor, value: valid ? x.for : '', select: [['', ASSIST_COPY.companionChoose], ...opts.map(t => [t.key, t.label])], req: true, help: ASSIST_COPY.companionForHelp, err })}</div>`;
+  if (!extraCompanions(b).some(x => x.key === t.key)) return '';
+  return catCount(b, 'disability') ? 'There are more personal companions than travelers with a disability. Each traveler with a disability may bring one. Edit this traveler’s assistance, or remove it.' : 'No traveler on this booking has a disability in assistance, so this traveler can’t be a personal companion. Edit their assistance, or remove it.';
 }
 // Passenger discount from assistance (standard and TripLink Personal bookings only): PWD or Companion
 function assistDiscount(b, key) {
   if (!['standard', 'personal'].includes(intentOf(b))) return null;
   const c = assistCat(b, key);
-  return c === 'disability' ? 'pwd' : c === 'companion' && !travelerError(b, travelerList(b).find(t => t.key === key) || { key }) ? 'companion' : null; // only a valid pairing gets Companion
+  return c === 'disability' ? 'pwd' : c === 'companion' && !travelerError(b, travelerList(b).find(t => t.key === key) || { key }) ? 'companion' : null; // only a companion within the allowance gets Companion
 }
 function assistLine(b, key) {
   const a = assistRec(b, key);
   if (!asks(b, key)) return 'Not requested';
   if (!a.done) return 'Not answered';
-  return a.m.cat === 'none' ? ASSIST_COPY.noneSummary : CATS[a.m.cat];
+  return !a.m.cat || a.m.cat === 'none' ? ASSIST_COPY.noneSummary : CATS[a.m.cat];
 }
 // One line for compact hosts (Compact rows, Guided summaries)
 function assistSummaryLine(b) {
@@ -5552,14 +5547,13 @@ function assistTravelerList(b) {
     const a = assistRec(b, t.key), items = a.done ? assistSummaryItems(a.m) : [], disc = assistDiscount(b, t.key);
     const tag = a.done && t.n === 1 && a.fromProfile ? '<span class="ads-lock">From your profile</span>' : '';
     const c = a.done ? a.m.cat : null;
-    const sub = [c === 'companion' ? `Companion to ${travelerLabel(b, a.m.for)}` : '', ...(a.done ? items.slice(1).filter(x => x !== 'No other needs') : [])].filter(Boolean).join(' · ');
-    const comp = c === 'disability' ? companionOf(b, t.key) : null;
-    const pair = c === 'disability' ? `<span class="atl__sub">${comp ? `Personal companion: ${esc(comp.label)}` : 'May bring one personal companion'}</span>` : '';
+    const sub = (a.done ? items.slice(1).filter(x => x !== 'No other needs') : []).join(' · ');
+    const pair = c === 'disability' ? '<span class="atl__sub">May bring one personal companion</span>' : '';
     const discNote = disc ? `<span class="atl__disc">${TDISC_LABEL[disc]} discount applies</span>` : '';
-    const state = !a.done ? 'No assistance requested' : c === 'none' ? ASSIST_COPY.noneSummary : items[0];
+    const state = !a.done || !c || c === 'none' ? 'No assistance requested' : items[0];
     const acts = `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-edit" data-t="${t.key}" aria-label="${a.done ? 'Edit' : 'Add'} assistance for ${esc(t.label)}">${a.done ? 'Edit' : 'Add'}</button>${a.done ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}" aria-label="Remove assistance for ${esc(t.label)}">Remove</button>` : ''}`;
     const terr = travelerError(b, t);
-    return `<li class="atl__row${a.done && c !== 'none' ? ' is-requested' : ''}${terr ? ' has-error' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}${terr ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(terr)}</span></span>` : ''}</div><div class="atl__acts">${acts}</div></li>`;
+    return `<li class="atl__row${a.done && c && c !== 'none' ? ' is-requested' : ''}${terr ? ' has-error' : ''}"><div class="atl__text"><span class="atl__who">${esc(t.label)} ${tag}${a.done && c && c !== 'none' ? '<span class="atl__badge">Requested</span>' : ''}</span><span class="atl__val">${esc(state)}</span>${sub ? `<span class="atl__sub">${esc(sub)}</span>` : ''}${pair}${discNote}${terr ? `<span class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(terr)}</span></span>` : ''}</div><div class="atl__acts">${acts}</div></li>`;
   }).join('');
   const err = prob.length ? `<p class="ads-helper ads-helper--error" id="atl-err" role="alert" tabindex="-1">${ic('alert-diamond')}<span>${prob.length > 1 ? `${prob.length} travelers need changes to their assistance.` : 'A traveler needs a change to their assistance.'} See below.</span></p>` : '';
   return `<div class="atl"><p class="atl__head">${list.length > 1 ? 'Answer for each traveler who needs help. Others can stay without answers.' : 'Answer the questions for this traveler.'}</p>${err}<ul class="atl__list" aria-label="Assistance by traveler">${rows}</ul></div>`;
@@ -5580,7 +5574,7 @@ function prCanStart(d) {
 V3_PLACES.companion = () => {
   const b = D().booking; b.from = b.from || 'NYP'; b.to = b.to || 'WAS'; b.pax.adult = 2; b.assistOn = true;
   setAssistRec(b, 'adult-1', { cat: 'disability', dis: ['mobility'], wc: false, needs: ['station'] });
-  b.ta['adult-2'] = { m: { cat: 'companion', for: 'adult-1', dis: [], wc: null, needs: ['station', 'seat'] }, done: true }; setAsk(b, 'adult-2', true);
+  b.ta['adult-2'] = { m: { cat: 'companion', dis: [], wc: null, needs: ['station', 'seat'] }, done: true }; setAsk(b, 'adult-2', true);
   if (v2()) sheet().stack[0].u.open = 'who';
   render();
 };
@@ -5588,10 +5582,11 @@ V3_PLACES.companion = () => {
 // ---------- Actions ----------
 // Remove one traveler's assistance; the others keep theirs
 A['assist-remove'] = t => {
-  const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), comp = assistCat(b, key) === 'disability' ? companionOf(b, key) : null;
+  const b = D().booking, key = t.dataset.t, label = travelerLabel(b, key), before = extraCompanions(b).length;
   clearAssistRec(b, key); if (perTraveler()) setAsk(b, key, false);
+  const comp = extraCompanions(b).length > before;
   pendingFocus = `[data-a="assist-answer"][data-t="${key}"], [data-a="assist-edit"][data-t="${key}"]`;
-  toast(comp ? `Assistance removed for ${label}. ${comp.label} is no longer a valid personal companion.` : `Assistance removed for ${label}`, 'info');
+  toast(comp ? `Assistance removed for ${label}. There are now more personal companions than travelers with a disability.` : `Assistance removed for ${label}`, 'info');
 };
 // Opening the questionnaire needs a connection (NMA-973); once open it can be finished offline (NMA-995–997)
 // Three cases (NMA-973, 995–997): turning assistance on or off works offline; opening a traveler's questions
@@ -5625,9 +5620,8 @@ A['fl-assist-on'] = (t, ri) => {
 A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
   const e = assistErrors(x, 'booking', who);
-  if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability who doesn’t have a companion yet.';
-  else if (x.cat === 'companion' && !companionTargets(b, key).some(t => t.key === x.for)) e.for = x.for ? ASSIST_COPY.companionInvalid(travelerLabel(b, x.for)) : ASSIST_COPY.err.forMissing;
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat || e.for ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability, and each of them may bring one.';
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   // Replacing a different discount with Passenger with disability asks first (design review). Only when a discount is
   // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
   // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).
@@ -5640,6 +5634,13 @@ A['assist-confirm'] = (t, ri) => {
       actions: [['Replace discount', 'primary', () => { r.u.replaceOk = true; A['assist-confirm'](t, ri); }], ['Keep editing', 'secondary', null]] });
   }
   r.u.replaceOk = false;
+  // Proposal awaiting team confirmation: nothing selected means no assistance is requested (no "I do not need
+  // assistance" option). Clearing everything removes this traveler's request and updates the summary.
+  if (!x.cat) {
+    clearAssistRec(b, key); if (perTraveler()) setAsk(b, key, false);
+    if (b.discReplaced && b.discReplaced[key]) { const o = Object.assign({}, b.discReplaced); delete o[key]; b.discReplaced = o; }
+    r.u.dirty = false; popTo(+ri - 1); pendingFocus = `[data-a="assist-answer"][data-t="${key}"], [data-a="assist-edit"]`; render(); return;
+  }
   if (replacing) { b.discReplaced = Object.assign({}, b.discReplaced, { [key]: before }); }
   else if (b.discReplaced && b.discReplaced[key] && !willPwd) { const o = Object.assign({}, b.discReplaced); delete o[key]; b.discReplaced = o; }
   setAssistRec(b, key, saved); b.assistOn = true;
@@ -6351,7 +6352,7 @@ function companionCandidates(b, forKey) {
   return travelerList(b).filter(t => {
     if (t.key === forKey) return false;
     const c = assistCat(b, t.key);
-    return !c || c === 'none' || (c === 'companion' && assistRec(b, t.key).m.for === forKey);
+    return !c || c === 'none';
   });
 }
 function discountRow(b, t, fromProfile) {
@@ -6385,8 +6386,7 @@ function assistanceRow(b, t, r) {
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
   if (c === 'companion') {
-    const f = assistRec(b, t.key).m.for;
-    return famRow('Personal companion', `Companion to <b>${esc(travelerLabel(b, f))}</b>`, 'To change this, edit this traveler’s assistance, or choose a different companion on their card.');
+    return ''; // proposal: companion status shows once, in the assistance summary, without naming a traveler
   }
   if (c !== 'disability') return '';
   const cur = companionOf(b, t.key), opts = companionCandidates(b, t.key);
@@ -6398,7 +6398,7 @@ function travelerCards(b, r) {
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${companionRow(b, t)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
   return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Travelers details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
