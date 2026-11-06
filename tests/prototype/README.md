@@ -19,6 +19,7 @@ Browser checks for the Sprint 4 prototype (`prototypes/sprint4/index.html`). The
 | `stationsearch-a11y.cjs` | NMA-1084 / NMA-1085: axe and overflow across the new screens and states |
 | `kids.cjs` | Traveler selection: Youth, Child and Infant under a collapsible "Children and infants" row; summary, counts kept, starts collapsed |
 | `promocode.cjs` | Typed promotion code: this booking only, cleared on abandoning; account coupons untouched; lounge passes removed |
+| `selector-modes.cjs` | Prototype controls › Station selector: From / To in the selector (stays open, map card grows) vs single field (no From / To in List or Map, previous station card, returns after one choice); remembered setting |
 | `stationselector.cjs` | Select station (Figma 3295:51259): chevron Back and centered title, List / Map tabs, From / To group with the edited field outlined, Search station, Nearby stations link (replaces My Location), sectioned favorites and recents; prominent map, floating controls and card; axe |
 | `assistance.cjs` | Assistance questionnaire: four types, disability/wheelchair/station/companion rules, conflict choice, removals, draft and discard, summaries, search hand-off, invalid companion, multiple and Pass Rider travelers, offline, cancel, timeout, axe |
 | `googlemap.cjs` | Google Maps surface for the station map: fallback (no key, blocked script, live invalid key), Google path via `fixtures/google-maps-stub.js` (markers, highlight vs Select, pan/zoom never select, sync, back and reopen), invalid coordinates via `fixtures/stations.mock.json` |

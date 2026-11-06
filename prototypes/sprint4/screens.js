@@ -246,11 +246,11 @@ function stationSearch(r, ri, field, inline) {
   // Figma Sprint 4 node 3295:51259: chevron Back, centered "Select station" (the field being edited is named for
   // screen readers and shown in the From / To group below)
   const backBtn = root ? `<button class="ads-icon-btn ss-head__back" type="button" data-a="close" aria-label="Close station search">${ic('chevron-left')}</button>` : `<button class="ads-icon-btn ss-head__back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('chevron-left')}</button>`;
-  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
+  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
   const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${r.p.ctx === 'ts' ? '' : selGroup(r, field)}${sq}`;
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${r.p.ctx === 'ts' || !selPair() ? '' : selGroup(r, field)}${sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   if (qv.trim()) {
@@ -277,7 +277,11 @@ function stationSearch(r, ri, field, inline) {
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder
 const stationFocus = () => !IPAD();
-const selHeading = () => 'Select station'; // Figma Sprint 4 node 3295:51259; the field being edited is shown in the From / To group
+// Prototype controls › Station selector: "pair" (From / To in the selector, stays open for the other station) or
+// "single" (no From / To; choosing fills the field being edited and returns, as before)
+const SELMODE = { v: store.get('s4-cmp-sel') === 'single' ? 'single' : 'pair' };
+const selPair = () => SELMODE.v === 'pair';
+const selHeading = (f, ctx) => selPair() || ctx === 'ts' ? 'Select station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // single field: the heading names it
 SCR.stations = (r, ri) => {
   if (rich()) return stationsClear(r, ri);
   const f = r.p.field;
@@ -324,7 +328,7 @@ A['choose-station'] = (t, ri) => {
   // Stay open for the other station: after choosing one, the selector moves to the other field, until both have been
   // chosen in this visit. Train status looks up one station, so it returns at once. Back leaves with what's chosen.
   if (sr) sr.u.picked = [...new Set([...(sr.u.picked || []), f])];
-  const next = ctx === 'ts' || !sr ? null : !sr.u.picked.includes(other) ? other : null;
+  const next = ctx === 'ts' || !sr || !selPair() ? null : !sr.u.picked.includes(other) ? other : null;
   if (sr && next) {
     sr.p.field = next; sr.u.d = Object.assign({}, sr.u.d, { q: '' });
     // On the map, the card stays on the station just chosen and adds the booking fields for the next one

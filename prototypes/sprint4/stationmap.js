@@ -340,7 +340,7 @@ function mapView(r, ri, field) {
 // Train status needs one station, so it never shows the booking fields.
 function stationCard(code, r, ri, pos) {
   const s = ST[code], g = geoOf(code), t = STATION_TYPES[g.type], f = r.p.field, ctx = r.p.ctx || 'ff', tg = selTarget(ctx);
-  const just = r.u.mapJust === code && (tg.from === code || tg.to === code), trip = ctx !== 'ts' && (r.u.picked || []).length > 0;
+  const just = r.u.mapJust === code && (tg.from === code || tg.to === code), trip = ctx !== 'ts' && selPair() && (r.u.picked || []).length > 0;
   const role = tg.from === code ? 'departure' : 'arrival', fieldName = k => k === 'from' ? 'From' : 'To';
   const dist = pos ? fmtMi(miles(pos, g), pos.approx) : '';
   const head = `<div class="map-card__head"><div class="map-card__type">${ic(t.icon)}</div><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${esc(s.city)}, ${s.st} <span class="map-card__code">${s.code}</span></h3><p class="map-card__name">${esc(s.name)}</p>${just ? `<p class="map-card__set">${ic('check-circle', 'ads-icon--sm')}<span>Set as ${fieldName(tg.from === code ? 'from' : 'to')}</span></p>` : ''}</div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station information">${ic('close')}</button></div>`;
