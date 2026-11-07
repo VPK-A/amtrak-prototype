@@ -68,9 +68,9 @@ function freshBooking(d) {
     assist: d.signedIn && d.assist.cat ? clone(d.assist) : blankAssist(), assistDone: d.signedIn && !!d.assist.cat, assistFromProfile: d.signedIn && !!d.assist.cat, notice: null,
     // Version 3 Fare Finder fields
     pax: { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }, tdisc: {}, pay: 'cash',
-    // Each mode defaults on for its eligible members (NMA-622 AC2, NMA-623 AC2). For an account eligible for both,
-    // no precedence is defined, so neither is preselected (Q26).
-    intent: d.signedIn && d.triplink && d.passrider ? 'standard' : d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
+    // Each mode's switch defaults on for its eligible members (NMA-622 AC2, NMA-623 AC2). For an account eligible
+    // for both, TripLink starts on and only one can be on; precedence is still open (Q26).
+    intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };

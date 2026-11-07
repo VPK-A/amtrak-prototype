@@ -1,6 +1,5 @@
-// Pass Rider traveler selection (proposal for team review): each named rider is a checkbox, selected or not, so a
-// rider can't be added twice; Companions keep their counter; selections and counts survive navigation; the reviewer
-// control switches back to the current counters.
+// Pass Rider traveler selection (Leisure): each named rider is a checkbox, selected or not, so a rider can't be
+// added twice; Companions keep their counter; selections and counts survive navigation.
 const { chromium } = require('playwright');
 const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok   ' : 'FAIL ') + m); };
@@ -12,7 +11,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.addScriptTag({ content: AXE });
   const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a), D_ = '#device ';
   const pax = () => ev(() => JSON.parse(JSON.stringify(D().booking.prPax)));
-  const open = (th = 'light') => ev(th => { TB.v = 1; TB.dev = 'iphone'; TB.theme = th; PRSEL.v = 'check'; VS[1] = makeVS('passrider'); const b = D().booking; b.intent = 'pr'; b.prType = 'leisure'; b.from = 'NYP'; b.to = 'WAS'; goLoc('travelers'); }, th).then(() => w(600));
+  const open = (th = 'light') => ev(th => { TB.v = 1; TB.dev = 'iphone'; TB.theme = th; VS[1] = makeVS('passrider'); const b = D().booking; b.intent = 'pr'; b.prType = 'leisure'; b.from = 'NYP'; b.to = 'WAS'; goLoc('travelers'); }, th).then(() => w(600));
   const tick = async k => { await p.click(`${D_}label[for="prr-${k}"]`); await w(250); };
   const axe = async n => { const v = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes.length)); ok(!v.length, `axe ${n} (${v})`); };
 
@@ -47,10 +46,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/Alex Rivera, Jordan Rivera, Maya Rivera, 1 companion/.test(ff), `Fare Finder summary (${ff.split('\n')[0]})`);
   await p.click(D_ + '#ff-trav'); await w(700);
   ok(await ev(() => ['me', 'jordan', 'maya', 'sam'].map(k => document.querySelector('#device #prr-' + k).checked).join()) === 'true,true,true,false' && await ev(() => document.querySelector('#device .ffc-count .ads-counter__value').textContent) === '1', 'reopening keeps selections and the companion count');
-  // reviewer control: back to counters, same state
-  await ev(() => { const s = document.getElementById('tbCmpPrSel'); s.value = 'counter'; s.dispatchEvent(new Event('change')); }); await w(400);
-  ok(await p.locator(D_ + '.ffc-riders').count() === 0 && await p.locator(D_ + '[data-a="pax"][data-g="prp"][data-k="jordan"]').count() === 2 && (await pax()).people.jordan === 1, 'Prototype controls switch to the current counters with the same selection');
-  await ev(() => { const s = document.getElementById('tbCmpPrSel'); s.value = 'check'; s.dispatchEvent(new Event('change')); }); await w(300);
+  ok(await ev(() => !document.getElementById('tbCmpPrSel')), 'design settled: no Pass Rider traveler selection switcher in Prototype controls');
   await open('dark'); await axe('dark');
   ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();

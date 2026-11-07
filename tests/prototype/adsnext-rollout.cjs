@@ -47,9 +47,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await go(v, 'returning', 'travelers', th, 'iphone', 'D().booking.pax.adult=2'); await w(250);
     ok((await css(v === 1 ? '.fam-card' : '.ov-list')).r === '8px', `${T} traveler card: radius/8`);
     ok(await p.evaluate(() => document.querySelector('#device [data-a="pax"][data-k="senior"][data-d="-1"]').disabled), `${T} counter at-min: minus disabled`);
+    await go(v, 'passrider', 'travelers', th, 'iphone', "D().booking.prType='leisure'"); await w(250);
+    ok(await p.evaluate(() => { const t = document.querySelector('#device #prt-leisure'), b = document.querySelector('#device #prt-business'); return t && t.closest('.ads-tabs') && t.getAttribute('aria-selected') === 'true' && b.getAttribute('aria-selected') === 'false'; }), `${T} travel type: ADS tabs in Traveler selection, Leisure selected`);
     await go(v, 'passrider', 'ff', th, 'iphone', "D().booking.prType='leisure'"); await w(250);
-    const seg = await css('.ads-segmented'); const sel = await css('.ads-segmented > button[aria-pressed="true"]');
-    ok(seg && seg.r === '4px' && seg.bc === DEF && sel.sh.includes(BRAND.replace(/\)$/, '')), `${T} travel type: one radius/4 boundary, selected = inset border/brand`);
     ok(await p.evaluate(() => { D().booking.prType = null; render(); return document.querySelector('#device [data-a="find-trains"]').disabled; }), `${T} Find trains disabled without a travel type`);
     // Buttons: pressed and focus
     await go(v, 'returning', 'ff', th); await w(200);

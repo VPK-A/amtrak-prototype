@@ -117,8 +117,8 @@ function dateFields(r, opts = {}) {
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
   const d = D(), it = intentOf(b);
-  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? prSummary(b, d) : paxSummary(b);
-  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? 'Pass Rider fare' : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : paxSummary(b);
+  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', travelerChoices(b)].filter(Boolean).join(' · ');
   const err = travErr(r, b);
   return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
@@ -146,16 +146,29 @@ function payControl(b, id) {
 }
 function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
+// Each special booking type is a switch, on by default for eligible members; turning it off books regular fares.
+// An account with both has two switches and only one can be on. Business or Leisure is chosen in Traveler selection.
 function modesV1(r, b) {
-  const d = D(), entry = modeEntry(b, 'v1'); if (!entry) return '';
-  let extra = '';
-  if (b.intent === 'pr') {
-    const elig = d.passrider.role === 'employee' && d.passrider.business;
-    extra = elig && !bpCompact() ? `<div class="gs-mode modes-type"><span class="gs-mode__label" id="v1-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="v1-prt" aria-describedby="v1-prt-h">${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div><p class="ads-helper" id="v1-prt-h">${prTypeHelp(b)}</p></div>` : '';
+  const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
+  const regular = 'Off: regular fares, with points, passenger discounts and codes.';
+  const rows = [];
+  if (d.triplink) {
+    ref('622'); const on = b.intent === 'corporate';
+    rows.push(pointsRow({ id: 'ff-mode-corporate', title: 'TripLink corporate booking', sub: on ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : regular, checked: on, attrs: 'data-a="mode-toggle" data-v="corporate"' }));
+  }
+  if (d.passrider) {
+    ref('623', '1016'); const on = b.intent === 'pr', can = prCanStart(d);
+    rows.push(pointsRow({ id: 'ff-mode-pr', title: 'Pass Rider booking', sub: !can.ok ? can.text : on ? 'Employee pass travel. Choose Business or Leisure in Travelers. Points, passenger discounts and codes aren’t used.' : regular, checked: on, disabled: !can.ok, attrs: 'data-a="mode-toggle" data-v="pr"' }));
   }
   if (b.intent === 'corporate') q(12);
-  return `<div class="v1modes">${entry}${extra}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  if (d.triplink && d.passrider) snote('Both TripLink and Pass Rider: the TripLink switch starts on and only one switch can be on at a time. Which one starts on is still open (Q26).');
+  return `<div class="v1modes v1modes--toggles">${rows.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
+A['mode-toggle'] = t => {
+  const d = D(), b = d.booking, v = t.dataset.v; b.modeNote = null;
+  if (t.checked && v === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = '#' + t.id; render(); return; }
+  setIntent(b, t.checked ? v : 'personal'); pendingFocus = '#' + t.id; render();
+};
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
   ref('973', '614');
@@ -177,7 +190,7 @@ function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
   if (r.u.busy) return busyBtn(r, '', 'Finding trains');
   const off = needType;
-  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure travel to find trains.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure in Travelers to find trains.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
 SCR.ff = (r, ri) => {
@@ -279,7 +292,7 @@ function stationSearch(r, ri, field, inline) {
 const stationFocus = () => !IPAD();
 // Prototype controls › Station selector: "pair" (From / To in the selector, stays open for the other station) or
 // "single" (no From / To; choosing fills the field being edited and returns, as before)
-const SELMODE = { v: store.get('s4-cmp-sel') === 'single' ? 'single' : 'pair' };
+const SELMODE = { v: 'pair' }; // design decision: From / To in the selector, stays open (the single-field option was retired)
 const selPair = () => SELMODE.v === 'pair';
 const selHeading = (f, ctx) => selPair() || ctx === 'ts' ? 'Select station' : f === 'from' ? 'Select departure station' : 'Select arrival station'; // single field: the heading names it
 SCR.stations = (r, ri) => {

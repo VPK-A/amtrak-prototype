@@ -112,7 +112,7 @@ function codeTips() {
 function setIntent(b, val) {
   const was = b.intent; if (was === val) return; b.intent = val;
   if (val === 'corporate') { // NMA-622 AC4, AC6, AC7: 1 adult, no points, discounts or codes
-    if (paxAll(b.pax) > 1 || b.pax.adult !== 1) { b.paxSaved = clone(b.pax); b.modeNote = 'Corporate bookings are for you only, so the other travelers were set aside. Switch to Personal to bring them back.'; }
+    if (paxAll(b.pax) > 1 || b.pax.adult !== 1) { b.paxSaved = clone(b.pax); b.modeNote = 'Corporate bookings are for you only, so the other travelers were set aside. Turn off TripLink corporate booking to bring them back.'; }
     b.paySaved = b.pay; b.pax = { adult: 1, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 }; b.pay = 'cash';
   }
   if (val === 'pr') { b.paySaved = b.pay; b.pay = 'cash'; clearAutoTrainIfBlocked(b); }
@@ -134,7 +134,7 @@ A['ffc-set'] = t => {
   if (k === 'intent') setIntent(b, val);
   pendingFocus = `[data-a="ffc-set"][data-key="${k}"][data-v="${val}"]`; render();
 };
-A['pr-type'] = t => { const b = D().booking; b.prType = t.dataset.v; b.notice = null; clearAutoTrainIfBlocked(b); pendingFocus = `[data-a="pr-type"][data-v="${t.dataset.v}"]`; render(); };
+A['pr-type'] = t => { const b = D().booking; b.prType = t.dataset.v; b.notice = null; clearAutoTrainIfBlocked(b); pendingFocus = `#prt-${t.dataset.v}, [data-a="pr-type"][data-v="${t.dataset.v}"]`; render(); };
 
 // Find trains: every check in source order, then the discount code (format first, then the simulated back end)
 A['find-trains'] = (t, ri) => {
@@ -145,12 +145,12 @@ A['find-trains'] = (t, ri) => {
     const inp = document.querySelector('#ff-code'); if (inp) setCodeText(b, inp.value);
     const fail = sel => { r.u.showErr = true; pendingFocus = sel; render(); };
     if (e.from || e.to || e.ret) return fail(e.from ? '#ff-from' : e.to ? '#ff-to' : '#ff-ret');
-    if (intentOf(b) === 'pr' && !b.prType) return fail('[data-a="pr-type"]'); // the button is disabled too (NMA-1016 AC2)
+    if (intentOf(b) === 'pr' && !b.prType) return fail('#ff-trav'); // the button is disabled too (NMA-1016 AC2)
     if (travelerProblems(b).length || assistProblems(b).length || assistMissing(b).length) return fail('#trav-err'); // NMA-615 BR1.2: everyone answers while assistance is on
     if (intentOf(b) === 'corporate' && (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to])) { // NMA-622 AC8: an error after Find trains
       r.u.showErr = false;
-      return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, switch to Personal.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Switch to Personal', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
+      return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, turn off TripLink corporate booking.', returnFocus: '[data-a="find-trains"]',
+        actions: [['Turn off corporate booking', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
     }
     r.u.showErr = false;
     if (codeFormatError(b)) { pendingFocus = '#ff-code-h, #ff-code'; render(); return; }
@@ -243,29 +243,32 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const d = D(), b = d.booking, corp = intentOf(b) === 'corporate', pr = intentOf(b) === 'pr';
   ref('611', '612');
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
-  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, discReplaced: b.discReplaced || {}, prPax: b.prPax, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
+  if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, discReplaced: b.discReplaced || {}, prPax: b.prPax, prType: b.prType, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
   if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
   else if (pr) {
-    ref('1017', '1018', '1081');
+    ref('1017', '1018', '1081', '1016');
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
-    if (b.prType === 'business') body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers</h3><div class="ffc-counts">${counter('me', esc(prMeName(d)), 'Business travel is for you alone. Choose Leisure on the Fare Finder to bring family or companions.', 1, false, false, 'prme')}</div></section>${policy}`; // Business: you, fixed at 1
+    // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
+    // Neither is preselected (AC2): until one is chosen, the panel asks for it and Find trains stays disabled.
+    const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType;
+    const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'business') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
+    const tabs = elig ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
+    const help = elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
+    let panel;
+    if (!t0) { ok = false; why = 'Choose Business or Leisure travel.'; panel = `<p class="pr-choose">Choose Business or Leisure travel to see who can travel.</p>`; }
+    else if (t0 === 'business') panel = `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', true, false, 'prt-h')}</fieldset>`; // Business: you alone
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
-      // The signed-in traveler uses the same 0/1 counter row as everyone else on the pass
-      const me = counter('me', esc(prMeName(d)), 'Set to 0 to book for your family without you.', prMe(b) ? 1 : 0, prMe(b), !prMe(b) && room, 'prme');
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      // Reviewer toggle (Prototype controls › Pass Rider traveler selection). Proposal for team review: each named
-      // rider is one checkbox, selected or not, so nobody can be added twice; Companions keep their counter.
-      const riders = prChecks() ? `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>` : me + prPeople(d).map(p => counter(p.id, esc(p.name), '', picked[p.id] ? 1 : 0, !!picked[p.id], !picked[p.id] && room, 'prp')).join('');
-      if (prChecks()) snote('Proposal for team review: named Pass Rider travelers are checkboxes instead of 0–1 counters. Companions keep the counter. Compare with Prototype controls › Pass Rider traveler selection.');
-      body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3><div class="ffc-counts${prChecks() ? ' ffc-counts--riders' : ''}">${riders}${comp}</div>
+      panel = `<div class="ffc-counts ffc-counts--riders"><fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
         ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
-        ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}${policy}</section>`;
+        ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}`;
     }
+    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
@@ -291,7 +294,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
       ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
-  if (corp || pr) body += fam ? travelerCards(b, r) : assistBlock(r, ri, aHost);
+  if (corp || (pr && b.prType)) body += fam ? travelerCards(b, r) : assistBlock(r, ri, aHost); // Pass Rider: traveler details once Business or Leisure is chosen
   const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
@@ -300,12 +303,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
-// Pass Rider traveler selection: checkboxes for named riders (proposal) or 0–1 counters (current design)
-const PRSEL = { v: store.get('s4-cmp-prsel') === 'counter' ? 'counter' : 'check' };
-const prChecks = () => PRSEL.v === 'check';
-function riderCheck(k, name, sub, on, enabled) {
+// Pass Rider traveler selection: one checkbox per named rider (a rider is selected or not, never added twice)
+function riderCheck(k, name, sub, on, enabled, why = 'prr-limit') {
   const id = `prr-${k}`;
-  return `<label class="ads-choice ads-checkbox ffc-rider${enabled ? '' : ' is-disabled'}" for="${id}"><input type="checkbox" id="${id}" data-a="pr-pick" data-k="${k}" ${on ? 'checked' : ''} ${enabled ? '' : 'disabled aria-describedby="prr-limit"'}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(name)}</span>${sub ? `<span class="ads-choice__supporting">${esc(sub)}</span>` : ''}</span></label>`;
+  return `<label class="ads-choice ads-checkbox ffc-rider${enabled ? '' : ' is-disabled'}" for="${id}"><input type="checkbox" id="${id}" data-a="pr-pick" data-k="${k}" ${on ? 'checked' : ''} ${enabled ? '' : `disabled aria-describedby="${why}"`}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(name)}</span>${sub ? `<span class="ads-choice__supporting">${esc(sub)}</span>` : ''}</span></label>`;
 }
 // Selecting or clearing a named rider: one at most each; their answers stay with them if they're added again
 A['pr-pick'] = t => {

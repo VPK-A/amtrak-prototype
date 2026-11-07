@@ -974,3 +974,12 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 :is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
 /* Dark: the List caption uses text-secondary, since text-tertiary falls under 4.5:1 on surface-raised (see ads-next.css) */
 [data-theme="dark"] .pane--profile .ads-group__label { color: var(--ads-content-text-secondary) !important; }
+
+/* ---------- Booking type switches (Fare Finder) and Pass Rider Business / Leisure tabs (Traveler selection) ---------- */
+.v1modes--toggles { display: flex; flex-direction: column; gap: var(--ads-space-8); padding: var(--ads-space-4) var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-raised); }
+.v1modes--toggles .ads-pointsrow + .ads-pointsrow { padding-top: var(--ads-space-8); border-top: 1px solid var(--ads-border-subtle); }
+.v1modes--toggles .ads-pointsrow { padding: var(--ads-space-8) 0; }
+.v1modes--toggles > .ads-helper { margin: 0 0 var(--ads-space-8); }
+.pr-tabs { margin: var(--ads-space-4) 0 var(--ads-space-8); }
+.pr-tabs__help { margin: 0 0 var(--ads-space-4); }
+.pr-choose { margin: var(--ads-space-12) 0; padding: var(--ads-space-16); border: 1px dashed var(--ads-border-subtle); border-radius: var(--ads-radius-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); text-align: center; }

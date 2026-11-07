@@ -22,12 +22,12 @@ One New booking design is in review: the modal from Figma Sprint 4 (node 3295:51
 - Profile editing: every editable row is one button with a chevron and no extra action text (Email no longer shows "Change"). Each opens its own third-level screen with Cancel and Save, on iPhone and iPad (editors no longer open beside the Profile list on iPad). Assistance requests opens the questionnaire directly as a Cancel / Save editor (no summary screen with its own Edit) and returns to Profile on Save; Cancel with changes asks Discard changes?. Employee pass, Phone, Billing address, Date of birth, Middle initial and Passenger discounts open their editors as before; Email opens verification, then the change.
 - Code: the Fare Finder row reads "Apply code" and the code screen is titled "Apply code" (field placeholder "Enter code"); the search hand-off lists "Code". The separate screen, manual entry and saved-code selection are unchanged.
 
-**Station selector setting** (Prototype controls › Station selector): "From / To in the selector, stays open" (default; described below) or "Single field, returns after one choice": no From / To group in List or Map view, the heading names the field (Select departure station / Select arrival station), the map shows only the station card (details, close, Details, Select), and choosing a station fills only the field being edited and returns to the screen that opened the selector.
+**Station selector:** From / To in the selector, which stays open until both stations are chosen (design decision; the Prototype controls option and the single-field mode are retired).
 
 **Select station** (station selector from New booking, Train status and Multi-Ride), matched to Figma Sprint 4 node 3295:51259
 - Header: chevron Back and centered "Select station" (the field being edited is named for screen readers). List / Map tabs (text only). iOS type layer, no grabber.
 - List view: the From / To group with the field being edited outlined (tap the other field to edit it instead; the swap button swaps both stations), "Search station", then the "Nearby stations" link, which replaces the My Location row and starts the same location and nearby search (permissions, errors and results unchanged). Nearby results, Favorites and Recents (with Clear recents) follow as full-width sections with 60px rows: code, city, station name, info and bookmark.
-- Map view (Station selector › From / To): a compact card with the close button right-aligned at the top, the From / To fields full width below it, then Details and Select. The field being edited previews the tapped station (not saved until Select). After Select, that station stays in its field and the remaining field is outlined and empty ("Tap a station on the map"); Select then asks for a station first. Details opens the tapped (or just-chosen) station. Close, tapping the highlighted marker again or Escape clears the card. In the single-field setting and in Train status the map shows the station card (details, close, Details, Select).
+- Map view: the station listing from Figma 3336:40155 (code, city, station, info and save), with Select in the sheet footer. See *Station selection map view* below.
 - Choosing a station fills the field being edited; the selector moves to the other field only while that field is empty (announced, focus in Search station), otherwise it returns to the screen that opened it. Back leaves at any point and keeps what's been chosen. Train status searches one station, so it has no From / To group and returns after one choice.
 
 **Apply coupon** (New booking › Coupon or promotional code), matched to Figma Sprint 4 node 3346:47066
@@ -764,13 +764,12 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - **Traveler type is carried through.** Every label and summary uses the type chosen in traveler selection, for example *Traveler 2 · Senior*. The questionnaire never asks Adult or Senior again. To change the type, go back to traveler selection.
 - **Checks:** `tests/prototype/assistance.cjs` covers each of these points.
 
-## Pass Rider traveler selection: proposal for team review
+## Pass Rider traveler selection
 
 - In Leisure, each eligible rider on the pass is listed by name under *People on your pass*, with an ADS checkbox in place of the 0–1 counter. The signed-in traveler is first, marked *You*. A rider is either selected or not, so nobody can be added twice.
 - *Companions* keep the counter, with the companion passes left beneath it.
 - At the 8-traveler limit, riders who aren't selected are disabled; selected riders can still be cleared.
 - Selections and the companion count are kept on the booking, so they survive Done, reopening and Back. Answers given for a rider stay with them if they're cleared and selected again.
-- **Prototype controls › Pass Rider traveler selection** switches between *Checkboxes for named riders (proposal)*, the default, and *Counters (current design)*. Business travel is unchanged: you alone, fixed at 1.
 - **Checks:** `tests/prototype/passrider-select.cjs`.
 
 ## Station selection map view (Figma Sprint 4 node 3336:40155)
@@ -780,7 +779,7 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - **Controls:** zoom in and zoom out share one bordered box, with *my location* in its own box below, 20px from the top right.
 - **Station listing:** tapping a station shows the code, city and station 20px above the bottom of the map, with info (Details) and bookmark (Save) icon buttons. Escape, or tapping the badge again, clears it.
 - **Select** sits in the sheet footer and appears once a station is chosen.
-- The same listing is used for both Station selector settings. What Select does still follows the setting. The From / To map card, with fields inside it, is replaced by this listing; From / To stays in List view.
+- The From / To map card, with fields inside it, is replaced by this listing; From / To stays in List view.
 
 ## Profile (Figma Sprint 4 node 3376:68484)
 
@@ -791,3 +790,21 @@ These changes are proposals. Each is marked in the prototype's notes as needing 
 - **Dark mode:** row labels use text-secondary, because text-tertiary falls below 4.5:1 on the raised surface.
 - Every row still opens its own editor, as before.
 - **Checks:** `tests/prototype/profile-figma.cjs`.
+
+## Settled design decisions (comparison controls retired)
+
+The comparison options in Prototype controls were removed, and the prototype keeps the recommended design of each:
+
+- **Traveler assistance:** the "Traveler with disability or need help?" copy stays in each traveler's card.
+- **Station selector:** From / To in the selector, which stays open until both stations are chosen. The single-field mode is retired; any earlier note about choosing a station selector setting no longer applies.
+- **Pass Rider travelers:** in Leisure, one checkbox per named rider; Companions keep the counter. Business Pass controls on the Fare Finder are replaced by the tabs below.
+
+## Booking type switches and Pass Rider Business / Leisure tabs
+
+- **Fare Finder:** TripLink and Pass Rider each have a switch above the trip tabs: *TripLink corporate booking* and *Pass Rider booking*. Each is on by default for eligible members; turning it off books regular fares, and points, passenger discounts and codes come back. An account with both has two switches and only one can be on. TripLink starts on; which one should start on is still open (Q26). If Pass Rider can't be started (a dependent 15 or younger, or a removed pass), its switch is off and disabled, with the reason beneath.
+- **Business or Leisure** moves to Traveler selection, as tabs at the top for employees with a Business Pass. Neither is preselected (NMA-1016 AC2): until one is chosen, the panel asks for it, Done waits, the Fare Finder's Travelers row reads *Choose Business or Leisure*, and Find trains stays disabled.
+  - *Leisure:* named riders as checkboxes, with the Companions counter. Selections are kept when switching tabs.
+  - *Business:* you alone; Auto Train stations are cleared as before.
+  - Back undoes the choice along with the other traveler changes.
+- **Members without a Business Pass** (retirees, spouses, dependents, employees without one) have no tabs. They see Leisure, with the reason Business isn't available.
+- **Checks:** `tests/prototype/booking-modes.cjs`.

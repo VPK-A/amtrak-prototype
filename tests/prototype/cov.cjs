@@ -107,7 +107,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'guest'); ok(!(await ev(() => D().booking.assistOn)), `${T} 614 guests aren't prefilled`);
     await go(v, 'returning'); ok(!(await ev(() => D().booking.assistOn)), `${T} 614 indication off without saved requests or disability discount`);
     // ---- 1019: Pass Rider assistance, including companions ----
-    await go(v, 'passrider'); await dclick('[data-a="pr-type"][data-v="leisure"]');
+    await go(v, 'passrider'); await ev(() => { D().booking.prType = 'leisure'; render(); });
     await ev(() => { D().booking.prPax.comp = 1; render(); }); await dclick('[data-a="pick-travelers"]'); await w(300);
     ok(await p.locator(D + '#ask-pr-you').count() === 1 && await p.locator(D + '#ask-pr-comp-1').count() === 1, `${T} 1019 each Pass Rider traveler has Add assistance, including companions`);
     await dclick('#ask-pr-comp-1'); await w(950);
@@ -124,7 +124,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await stack() === 'ff>handoff' && await ev(() => D().passrider.compLeft) === 5, `${T} 1018 searching doesn't use passes`);
     // ---- dual eligibility ----
     await go(v, 'triplink-passrider'); b = await ev(() => D().booking);
-    ok(b.intent === 'standard' && /Booking type Regular/.test(await txt()) && await ev(() => modeOptions(D()).map(o => o[0]).join()) === 'corporate,pr,personal', `${T} dual eligibility: both modes offered, none preselected`);
+    ok(b.intent === 'corporate' && await ev(() => [...document.querySelectorAll('#device [data-a="mode-toggle"]')].map(i => i.dataset.v + ':' + i.checked).join()) === 'corporate:true,pr:false', `${T} dual eligibility: both switches offered, TripLink on, only one on at a time (Q26)`);
     ok(/Accounts eligible for TripLink and Pass Rider/.test(await notes()), `${T} dual eligibility flagged`);
     // eligibility fixtures in the controller
     const scs = await ev(() => [...document.querySelectorAll('#tbScenario option')].map(o => o.value));
