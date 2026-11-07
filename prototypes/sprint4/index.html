@@ -3985,7 +3985,8 @@ function payControl(b, id) {
 }
 function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
-// Booking type: a compact dropdown with the member's special type and Regular (TripLink corporate or Regular, or
+// Booking type: a compact dropdown with the member's special type and Regular. Only TripLink has a description line
+// beneath it; Pass Rider shows a line only when an option is unavailable (the reason). (TripLink corporate or Regular, or
 // Pass Rider or Regular). The special type is selected by default for eligible members (NMA-622 AC2, NMA-623 AC2).
 // A member is never both a TripLink traveler and a Pass Rider. Business or Leisure is chosen in Traveler selection.
 function modesV1(r, b) {
@@ -4007,7 +4008,7 @@ function modesV1(r, b) {
     : 'Regular fares, with points, passenger discounts and codes.';
   const why = !can.ok ? `Pass Rider isn’t available: ${can.text}` : inDd && !biz ? prLeisureWhy(d) : '';
   if (cur === 'corporate') q(12);
-  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode"${cur ? '' : ' class="is-placeholder" aria-required="true"'} data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode"${cur ? '' : ' class="is-placeholder" aria-required="true"'} data-f="ffmode" data-nodirty data-hook="ffmode" ${tl || why ? ` aria-describedby="${[tl ? 'ff-mode-h' : '', why ? 'ff-mode-why' : ''].filter(Boolean).join(' ')}"` : ''}>${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div>${tl ? `<p class="ads-helper" id="ff-mode-h">${help}</p>` : ''}${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 // Booking type, then (in the dropdown version) Business or Leisure, with the existing rules (Auto Train cleared for Business)
 HOOKS.ffmode = (r, t) => {

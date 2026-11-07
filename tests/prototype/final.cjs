@@ -80,7 +80,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await p.locator(D + '[data-a="mode-open"]').count() === 0 && await p.locator(D + '[data-a="pr-type"]').count() === 0, `${T} 15 no Booking type sheet and no Business / Leisure on the Fare Finder`);
     // mode changes update points, coupons, discounts, travelers
     await go(v, 'passrider'); await pickMode('personal');
-    ok(await p.locator(D + '#ff-coderow').count() === 1 && await p.locator(D + '#ff-points').count() === 1 && /Regular fares, with points/.test(await txt()), `${T} Regular: code and points back`);
+    ok(await p.locator(D + '#ff-coderow').count() === 1 && await p.locator(D + '#ff-points').count() === 1 && await ev(() => document.querySelector('#device #ff-mode').value) === 'personal', `${T} Regular: code and points back`);
     await pickMode('pr'); ok(await p.locator(D + '#ff-coderow').count() === 0 && await p.locator(D + '#ff-points').count() === 0 && /Choose Business or Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)), `${T} Pass Rider: code and points gone; Travelers asks for Business or Leisure`);
     await go(v, 'triplink'); ok(await ev(() => document.querySelector('#device #ff-mode').value) === 'corporate' && !(await ev(() => [...document.querySelectorAll('#device #ff-mode option')].some(o => o.value === 'pr'))), `${T} TripLink separate from Pass Rider Business`);
     await pickMode('personal'); await ev(() => { D().booking.pax.adult = 3; render(); }); await pickMode('corporate'); ok(await ev(() => paxAll(D().booking.pax)) === 1, `${T} corporate keeps 1 traveler`);

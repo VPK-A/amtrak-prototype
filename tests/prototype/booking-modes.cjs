@@ -83,6 +83,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await opts() === 'pr:leisure:Pass Rider — Leisure,personal:Regular' && /Business travel needs an active Business Pass/.test(await ev(() => document.querySelector('#device .v1modes').innerText)), 'no Business Pass: Pass Rider — Leisure and Regular, with the reason');
   await go('passrider'); await axe('dropdown version, Fare Finder');
   await setPrType('tabs');
+  // Description line under Booking type: TripLink only; Pass Rider shows a line only for an unavailable option
+  for (const [sc, m, want] of [['triplink', 'tabs', 'ff-mode-h'], ['passrider', 'tabs', ''], ['passrider', 'dropdown', ''], ['passrider-retiree', 'tabs', ''], ['passrider-nopass', 'dropdown', 'ff-mode-why'], ['passrider-minor', 'tabs', 'ff-mode-why']]) {
+    await setPrType(m); await go(sc);
+    const got = await ev(() => [...document.querySelectorAll('#device .v1modes .ads-helper')].map(x => x.id).join());
+    ok(got === want, `${sc} (${m}): lines under Booking type: ${got || 'none'}`);
+  }
+  await setPrType('tabs');
 
   await go('passrider', 'dark'); await p.click(D_ + '#ff-trav'); await w(700); await p.click(D_ + '#prt-leisure'); await w(300); await axe('dark tabs');
   ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
