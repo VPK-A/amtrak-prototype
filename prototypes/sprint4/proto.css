@@ -983,3 +983,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .pr-tabs { margin: var(--ads-space-4) 0 var(--ads-space-8); }
 .pr-tabs__help { margin: 0 0 var(--ads-space-4); }
 .pr-choose { margin: var(--ads-space-12) 0; padding: var(--ads-space-16); border: 1px dashed var(--ads-border-subtle); border-radius: var(--ads-radius-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); text-align: center; }
+
+/* Booking type dropdown (Fare Finder): compact, above the trip tabs */
+.v1modes--select .ff-mode { gap: var(--ads-space-4); }
+.v1modes--select .ff-mode .ads-control--select { max-width: 240px; }
+.v1modes--select .ff-mode .ads-helper { margin: 0; }
+.ds-next .v1modes--select #ff-mode, .device .v1modes--select #ff-mode { color: var(--ads-content-text-primary); }

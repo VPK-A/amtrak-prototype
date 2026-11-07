@@ -187,7 +187,6 @@ const SCENARIOS = [
   ['intl', 'International member', 'International phone number and a UK billing address.'],
   ['unverified', 'Unverified account', 'Saving a Profile change asks for verification first, then finishes the save (NMA-980 scenario 6).'],
   ['triplink', 'TripLink member', 'Signed in with an account connected to Concur TripLink. Every version shows Corporate or Personal booking; Corporate is the default (NMA-622).'],
-  ['triplink-passrider', 'TripLink and Pass Rider (both)', 'Linked to Concur and holds an employee pass. Both mode controls show and neither is preselected: no precedence is defined for an account eligible for both (Q26).'],
   ['passrider', 'Pass Rider employee, Business Pass', 'Employee Pass Rider with an active Business Pass and 5 of 16 companion passes left. Business or Leisure must be chosen before Find trains (NMA-623, 1016–1018).'],
   ['passrider-nopass', 'Pass Rider employee, no Business Pass', 'Employee without a Business Pass, so Leisure only, and 0 companion passes left: Companions show but are disabled (NMA-1016 AC3, NMA-1018 AC8).'],
   ['passrider-retiree', 'Pass Rider retiree', 'Retiree: Leisure only, can bring a spouse and dependents, no companion passes (NMA-1016 AC3, NMA-1017 AC2, NMA-1018 AC2).'],
@@ -228,7 +227,7 @@ const QUESTIONS = {
   13: ['Pass Rider travelers and companion passes', 'NMA-1017 doesn’t give counts per group; the prototype allows one spouse (two parents for a dependent), up to 6 dependents and companions, 8 travelers in all. Unresolved (NMA-1018): whether a round trip uses companion passes per companion or per booking, and the picker limit that follows. The picker only stops at the remaining balance and searching never uses passes. Pass Rider policy is a placeholder (NMA-1081).'],
   14: ['Cash or points (NMA-624)', 'Approved: guests and members can choose Points before results, cash by default. Members see their balance; a guest signs in after choosing a fare, so choosing Points doesn’t ask them to sign in. Hidden for Pass Rider and TripLink Corporate. Whether traveler discounts apply to points searches isn’t defined; the prototype keeps them and hides the discount code (NMA-613).'],
   25: ['Missing return date (NMA-1060)', 'Unresolved: whether a round trip without a return shows a message or disables Find trains. The prototype shows an error on the return field when Find trains is tapped.'],
-  26: ['Accounts eligible for TripLink and Pass Rider', 'No precedence is defined for a member who is both a TripLink traveler and a Pass Rider. The prototype shows both mode controls and preselects neither (Scenario › TripLink and Pass Rider).'],
+  26: ['Accounts eligible for TripLink and Pass Rider', 'Resolved: a member is never both a TripLink traveler and a Pass Rider, so the dual scenario was removed.'],
   9: ['Replacing or removing PWD', 'Saving “I have a disability” replaces the current discount with PWD. What happens to PWD when assistance changes to station help, or is cleared, follows the NMA-43 table where it gives an answer and is open otherwise.']
 };
 

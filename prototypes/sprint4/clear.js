@@ -96,7 +96,7 @@ const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 
 // ---------- Fare Finder ----------
 // Shared Fare Finder rules
 // Reviewer flags for unresolved rules that affect the Fare Finder (shown in Screen notes, never in the app)
-function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (d.signedIn && d.triplink && d.passrider) q(26); if (intentOf(b) === 'pr') q(13); }
+function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (intentOf(b) === 'pr') q(13); }
 const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {

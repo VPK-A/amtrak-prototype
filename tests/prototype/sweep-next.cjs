@@ -6,7 +6,7 @@ const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), '
   let n = 0, runs = 0;
   const screens = [
     ['book', 'returning', 'tab:book', ''], ['ff long names', 'returning', 'ff', "const b=D().booking; b.from='PHL'; b.to='BWI'; b.pax.adult=2; b.codeText='V123'; b.code=clone(D().coupons[0]);"],
-    ['ff points guest', 'guest', 'ff', "D().booking.pay='points'"], ['pass rider', 'passrider', 'ff', ''], ['mode sheet', 'triplink-passrider', 'ff', "openInfo('booking-type')"],
+    ['ff points guest', 'guest', 'ff', "D().booking.pay='points'"], ['pass rider', 'passrider', 'ff', ''], ['booking type', 'triplink', 'ff', ''],
     ['apply coupon', 'returning', 'ff', "push('dcode', {}, 0)"], ['codes info', 'returning', 'ff', "push('dcode', {}, 0); openInfo('codes')"], ['stations selected', 'returning', 'stations:to', "D().booking.from='PHL'; D().booking.to='WAS';"],
     ['travelers', 'assist', 'travelers', "D().booking.pax.adult=2"], ['assistance', 'returning', 'assist-booking', ''], ['exit dialog', 'returning', 'ff', "A.close(null,'0')"],
     ['profile', 'passrider', 'profile', ''], ['employee', 'passrider', 'edit:employee', ''], ['address', 'returning', 'edit:address', ''], ['profile assistance', 'assist', 'assist-profile', ''], ['account', 'returning', 'account', ''], ['calendar', 'returning', 'calendar:dep', ''], ['discounts', 'returning', 'discounts', ''], ['rules', 'returning', 'rules', ''], ['coupons', 'returning', 'coupons', ''], ['verify', 'returning', 'verify:change-email', ''], ['trips empty', 'returning', 'tab:trips', ''], ['offline ff', 'returning', 'ff', "V().net='offline'"], ['clear recents', 'returning', 'clear-recents', ''], ['dob error', 'returning', 'edit:dob', '']];

@@ -799,9 +799,10 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Station selector:** From / To in the selector, which stays open until both stations are chosen. The single-field mode is retired; any earlier note about choosing a station selector setting no longer applies.
 - **Pass Rider travelers:** in Leisure, one checkbox per named rider; Companions keep the counter. Business Pass controls on the Fare Finder are replaced by the tabs below.
 
-## Booking type switches and Pass Rider Business / Leisure tabs
+## Booking type dropdown and Pass Rider Business / Leisure tabs
 
-- **Fare Finder:** TripLink and Pass Rider each have a switch above the trip tabs: *TripLink corporate booking* and *Pass Rider booking*. Each is on by default for eligible members; turning it off books regular fares, and points, passenger discounts and codes come back. An account with both has two switches and only one can be on. TripLink starts on; which one should start on is still open (Q26). If Pass Rider can't be started (a dependent 15 or younger, or a removed pass), its switch is off and disabled, with the reason beneath.
+- **Fare Finder:** a compact *Booking type* dropdown above the trip tabs offers *TripLink corporate* and *Regular* for TripLink members, or *Pass Rider* and *Regular* for Pass Rider members. The special type is selected by default (NMA-622 AC2, NMA-623 AC2). Choosing Regular brings back points, passenger discounts and codes. If Pass Rider can't be started (a dependent 15 or younger, or a removed pass), the dropdown shows Regular, lists Pass Rider as unavailable, and gives the reason beneath.
+- **No dual accounts:** a member is never both a TripLink traveler and a Pass Rider, so the dual scenario was removed and Q26 is resolved.
 - **Business or Leisure** moves to Traveler selection, as tabs at the top for employees with a Business Pass. Neither is preselected (NMA-1016 AC2): until one is chosen, the panel asks for it, Done waits, the Fare Finder's Travelers row reads *Choose Business or Leisure*, and Find trains stays disabled.
   - *Leisure:* named riders as checkboxes, with the Companions counter. Selections are kept when switching tabs.
   - *Business:* you alone; Auto Train stations are cleared as before.

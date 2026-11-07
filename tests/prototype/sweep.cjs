@@ -5,7 +5,7 @@ const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), '
   let n = 0, runs = 0;
   const screens = [
     ['book', 'returning', 'tab:book', ''], ['ff long names', 'returning', 'ff', "const b=D().booking; b.from='PHL'; b.to='BWI'; b.pax.adult=2; b.codeText='V123'; b.code=clone(D().coupons[0]);"],
-    ['ff points guest', 'guest', 'ff', "D().booking.pay='points'"], ['pass rider', 'passrider', 'ff', ''], ['mode sheet', 'triplink-passrider', 'ff', "openInfo('booking-type')"],
+    ['ff points guest', 'guest', 'ff', "D().booking.pay='points'"], ['pass rider', 'passrider', 'ff', ''], ['booking type', 'triplink', 'ff', ''],
     ['saved codes', 'returning', 'ff', "openInfo('saved-codes')"], ['stations selected', 'returning', 'stations:to', "D().booking.from='PHL'; D().booking.to='WAS';"],
     ['travelers', 'assist', 'travelers', "D().booking.pax.adult=2"], ['assistance', 'returning', 'assist-booking', ''], ['exit dialog', 'returning', 'ff', "A.close(null,'0')"],
     ['profile', 'passrider', 'profile', ''], ['employee', 'passrider', 'edit:employee', ''], ['address', 'returning', 'edit:address', ''], ['profile assistance', 'assist', 'assist-profile', '']];

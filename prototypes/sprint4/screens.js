@@ -146,28 +146,26 @@ function payControl(b, id) {
 }
 function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
-// Each special booking type is a switch, on by default for eligible members; turning it off books regular fares.
-// An account with both has two switches and only one can be on. Business or Leisure is chosen in Traveler selection.
+// Booking type: a compact dropdown with the member's special type and Regular (TripLink corporate or Regular, or
+// Pass Rider or Regular). The special type is selected by default for eligible members (NMA-622 AC2, NMA-623 AC2).
+// A member is never both a TripLink traveler and a Pass Rider. Business or Leisure is chosen in Traveler selection.
 function modesV1(r, b) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
-  const regular = 'Off: regular fares, with points, passenger discounts and codes.';
-  const rows = [];
-  if (d.triplink) {
-    ref('622'); const on = b.intent === 'corporate';
-    rows.push(pointsRow({ id: 'ff-mode-corporate', title: 'TripLink corporate booking', sub: on ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : regular, checked: on, attrs: 'data-a="mode-toggle" data-v="corporate"' }));
-  }
-  if (d.passrider) {
-    ref('623', '1016'); const on = b.intent === 'pr', can = prCanStart(d);
-    rows.push(pointsRow({ id: 'ff-mode-pr', title: 'Pass Rider booking', sub: !can.ok ? can.text : on ? 'Employee pass travel. Choose Business or Leisure in Travelers. Points, passenger discounts and codes aren’t used.' : regular, checked: on, disabled: !can.ok, attrs: 'data-a="mode-toggle" data-v="pr"' }));
-  }
-  if (b.intent === 'corporate') q(12);
-  if (d.triplink && d.passrider) snote('Both TripLink and Pass Rider: the TripLink switch starts on and only one switch can be on at a time. Which one starts on is still open (Q26).');
-  return `<div class="v1modes v1modes--toggles">${rows.join('')}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  const tl = !!d.triplink, sp = tl ? 'corporate' : 'pr', can = tl ? { ok: true } : prCanStart(d);
+  if (tl) ref('622'); else ref('623', '1016');
+  const cur = b.intent === sp ? sp : 'personal';
+  const opts = [[sp, tl ? 'TripLink corporate' : 'Pass Rider', !can.ok], ['personal', 'Regular', false]];
+  const help = cur === 'corporate' ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.'
+    : cur === 'pr' ? 'Employee pass travel. Choose Business or Leisure in Travelers. Points, passenger discounts and codes aren’t used.'
+    : 'Regular fares, with points, passenger discounts and codes.';
+  const why = can.ok ? '' : `Pass Rider isn’t available: ${can.text}`;
+  if (cur === 'corporate') q(12);
+  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode" data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
-A['mode-toggle'] = t => {
-  const d = D(), b = d.booking, v = t.dataset.v; b.modeNote = null;
-  if (t.checked && v === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = '#' + t.id; render(); return; }
-  setIntent(b, t.checked ? v : 'personal'); pendingFocus = '#' + t.id; render();
+HOOKS.ffmode = (r, t) => {
+  const d = D(), b = d.booking; b.modeNote = null;
+  if (t.value === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = '#ff-mode'; return; }
+  setIntent(b, t.value); pendingFocus = '#ff-mode';
 };
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';

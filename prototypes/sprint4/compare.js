@@ -2,7 +2,7 @@
    Pass Rider Business Pass controls, Pass Rider traveler selection, Station selector) were retired; the
    recommended design of each is the one the prototype uses:
    - Traveler assistance: the "Traveler with disability or need help?" copy stays in each traveler's card.
-   - Booking type: a switch for TripLink and for Pass Rider on the Fare Finder (on by default; off is regular), and
+   - Booking type: a compact dropdown on the Fare Finder (TripLink corporate or Regular, Pass Rider or Regular), and
      Business / Leisure as tabs in Traveler selection.
    - Pass Rider travelers: one checkbox per named rider; Companions keep the counter.
    - Station selector: From / To in the selector, and it stays open until both stations are chosen. */

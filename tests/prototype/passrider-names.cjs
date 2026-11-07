@@ -16,7 +16,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
   const chk = k => ev(k => { const e = document.querySelector('#device #prr-' + k); return e ? { on: e.checked, off: e.disabled } : null; }, k);
   for (const v of [1]) {
     const T = `C${v}`;
-    for (const sc of ['passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'triplink-passrider']) {
+    for (const sc of ['passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent']) {
       await go(v, sc);
       const roster = await ev(() => D().passrider.people.map(x => x.id));
       const me = await ev(() => { const i = document.querySelector('#device #prr-me'), l = i.closest('.ffc-rider'); return { name: l.querySelector('.ads-choice__label > span').textContent, sub: (l.querySelector('.ads-choice__supporting') || {}).textContent, on: i.checked, off: i.disabled, first: l === document.querySelector('#device .ffc-rider') }; });

@@ -122,18 +122,14 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await ev(() => { const b = D().booking; b.prPax.comp = 1; b.from = 'NYP'; b.to = 'WAS'; while (sheet().stack.length > 1) sheet().stack.pop(); render(); });
     await dclick('[data-a="find-trains"]'); await w(900);
     ok(await stack() === 'ff>handoff' && await ev(() => D().passrider.compLeft) === 5, `${T} 1018 searching doesn't use passes`);
-    // ---- dual eligibility ----
-    await go(v, 'triplink-passrider'); b = await ev(() => D().booking);
-    ok(b.intent === 'corporate' && await ev(() => [...document.querySelectorAll('#device [data-a="mode-toggle"]')].map(i => i.dataset.v + ':' + i.checked).join()) === 'corporate:true,pr:false', `${T} dual eligibility: both switches offered, TripLink on, only one on at a time (Q26)`);
-    ok(/Accounts eligible for TripLink and Pass Rider/.test(await notes()), `${T} dual eligibility flagged`);
     // eligibility fixtures in the controller
     const scs = await ev(() => [...document.querySelectorAll('#tbScenario option')].map(o => o.value));
-    ok(['triplink', 'triplink-passrider', 'passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'passrider-minor'].every(s => scs.includes(s)), `${T} reviewer scenarios for every eligibility group`);
+    ok(['triplink', 'passrider', 'passrider-nopass', 'passrider-retiree', 'passrider-spouse', 'passrider-dependent', 'passrider-minor'].every(s => scs.includes(s)) && !scs.includes('triplink-passrider'), `${T} reviewer scenarios for every eligibility group (no dual TripLink and Pass Rider)`);
     // reviewer controls
     ok(await ev(() => !!document.querySelector('#protoCtl #tbNet') && !!document.querySelector('#protoCtl #notes')), `${T} Network and Screen notes in the reviewer controller`);
   }
   // no Jira IDs in the app
-  for (const v of [1]) for (const sc of ['returning', 'guest', 'passrider', 'assist', 'triplink-passrider']) { await go(v, sc); ok(!/NMA-\d/.test(await txt()), `C${v} no Jira IDs on screen (${sc})`); }
+  for (const v of [1]) for (const sc of ['returning', 'guest', 'passrider', 'assist', 'triplink']) { await go(v, sc); ok(!/NMA-\d/.test(await txt()), `C${v} no Jira IDs on screen (${sc})`); }
   console.log('errors:', errs.length ? errs.join('\n') : 'none');
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   await br.close();

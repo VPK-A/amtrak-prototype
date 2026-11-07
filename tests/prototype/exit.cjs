@@ -9,7 +9,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const close = async () => { await p.locator('#device .psheet [data-a="close"]').first().click(); await w(400); return ev(() => ({ dlg: nav().dialog && nav().dialog.title, open: !!nav().sheet })); };
   // Design review: leaving New booking never warns before something is in the cart; selections are kept.
   // With an item in the cart, "Abandon booking?" offers Continue booking / Abandon booking.
-  for (const v of [1]) for (const sc of ['returning', 'guest', 'assist', 'passrider', 'triplink', 'triplink-passrider', 'rpa', 'passrider-retiree']) {
+  for (const v of [1]) for (const sc of ['returning', 'guest', 'assist', 'passrider', 'triplink', 'rpa', 'passrider-retiree']) {
     const T = `C${v} ${sc}`;
     await open(v, sc); let r = await close(); ok(!r.dlg && !r.open, `${T} untouched: closes without asking`);
     await open(v, sc); await ev(() => { D().booking.from = 'NYP'; render(); }); r = await close();
