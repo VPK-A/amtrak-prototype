@@ -2554,9 +2554,11 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* Booking type dropdown (Fare Finder): compact, above the trip tabs */
 .v1modes--select .ff-mode { gap: var(--ads-space-4); }
-.v1modes--select .ff-mode .ads-control--select { max-width: 240px; }
+.v1modes--select .ff-mode .ads-control--select { max-width: 300px; }
 .v1modes--select .ff-mode .ads-helper { margin: 0; }
 .ds-next .v1modes--select #ff-mode, .device .v1modes--select #ff-mode { color: var(--ads-content-text-primary); }
+.ds-next .v1modes--select #ff-mode.is-placeholder, .device .v1modes--select #ff-mode.is-placeholder { color: var(--ads-content-text-tertiary); }
+.v1modes--select #ff-mode option { color: var(--ads-content-text-primary); }
 
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
@@ -3366,8 +3368,8 @@ function freshBooking(d) {
     // The special booking type is selected by default for its eligible members (NMA-622 AC2, NMA-623 AC2). A member
     // is never both a TripLink traveler and a Pass Rider.
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    // Business by default for Business Pass holders (team decision; NMA-1016 AC2 said neither); Leisure otherwise
-    prType: d.passrider ? (d.passrider.business ? 'business' : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
+    // Business Pass holders choose Business or Leisure; neither is preselected (NMA-1016 AC2). Leisure otherwise.
+    prType: d.passrider ? (d.passrider.business ? null : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
@@ -4005,8 +4007,7 @@ function modesV1(r, b) {
     : 'Regular fares, with points, passenger discounts and codes.';
   const why = !can.ok ? `Pass Rider isn’t available: ${can.text}` : inDd && !biz ? prLeisureWhy(d) : '';
   if (cur === 'corporate') q(12);
-  if (biz) snote('Business is selected by default for Business Pass holders (team decision). Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
-  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode" data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode"${cur ? '' : ' class="is-placeholder" aria-required="true"'} data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 // Booking type, then (in the dropdown version) Business or Leisure, with the existing rules (Auto Train cleared for Business)
 HOOKS.ffmode = (r, t) => {

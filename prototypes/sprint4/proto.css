@@ -986,6 +986,8 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* Booking type dropdown (Fare Finder): compact, above the trip tabs */
 .v1modes--select .ff-mode { gap: var(--ads-space-4); }
-.v1modes--select .ff-mode .ads-control--select { max-width: 240px; }
+.v1modes--select .ff-mode .ads-control--select { max-width: 300px; }
 .v1modes--select .ff-mode .ads-helper { margin: 0; }
 .ds-next .v1modes--select #ff-mode, .device .v1modes--select #ff-mode { color: var(--ads-content-text-primary); }
+.ds-next .v1modes--select #ff-mode.is-placeholder, .device .v1modes--select #ff-mode.is-placeholder { color: var(--ads-content-text-tertiary); }
+.v1modes--select #ff-mode option { color: var(--ads-content-text-primary); }
