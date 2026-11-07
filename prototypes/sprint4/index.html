@@ -6348,7 +6348,7 @@ SCR.coupons = (r, ri) => {
   if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
   const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
   const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
-  const help = e ? `<p class="ads-helper ads-helper--error" id="cpn-in-h" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : `<p class="ads-helper" id="cpn-in-h">Codes should be 4 or 14 characters long.</p>`;
+  const help = e ? `<p class="ads-helper ads-helper--error" id="cpn-in-h" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : `<p class="ads-helper" id="cpn-in-h">Coupon codes should be 14 characters long.</p>`;
   const add = `<section class="ed-card cpn-addcard" aria-label="Add a coupon"><div class="ads-field"><div class="apc-label"><label class="ads-field__label" for="cpn-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
     <div class="ads-control${e ? ' ads-control--error' : ''}"><input id="cpn-in" type="text" data-f="add" data-nodirty value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cpn-in-h"${e ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="cpn-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>
     ${r.u.busy ? `<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" data-a="coupon-add">Add</button>'}</section>`;
@@ -6371,7 +6371,7 @@ A['coupons-save'] = (t, ri) => {
 A['coupon-add'] = (t, ri, then) => {
   const r = routeAt(ri), inp = document.querySelector('#cpn-in'); if (inp) r.u.d.add = inp.value;
   const d = D(), c = (r.u.d.add || '').trim().toUpperCase();
-  if (!CODE_FORMAT.test(c)) { r.u.err = 'This code isn’t valid. Codes should be 4 or 14 characters long.'; pendingFocus = '#cpn-in'; render(); return; }
+  if (!/^[A-Z0-9]{14}$/.test(c)) { r.u.err = 'This code isn’t valid. Coupon codes should be 14 characters long.'; pendingFocus = '#cpn-in'; render(); return; } // My coupons takes coupons only (14 characters)
   if (d.coupons.some(x => x.code === c)) { r.u.err = 'This coupon is already in your account.'; pendingFocus = '#cpn-in'; render(); return; }
   r.u.err = '';
   runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {

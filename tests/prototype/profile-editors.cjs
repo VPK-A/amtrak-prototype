@@ -58,15 +58,15 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await axe('Employee pass');
   // My coupons
   await open('row-coupons');
-  ok(/Coupons sent to you by email can be added here and used by anyone you share them with\./.test(await pane()) && await ev(() => document.querySelector('#device #cpn-in').placeholder) === 'Apply code' && await p.locator(D_ + '.cpn-addcard [data-a="code-info"]').count() === 1 && /Codes should be 4 or 14 characters long\./.test(await pane()), 'My coupons: intro, add card with info, field and helper');
+  ok(/Coupons sent to you by email can be added here and used by anyone you share them with\./.test(await pane()) && await ev(() => document.querySelector('#device #cpn-in').placeholder) === 'Apply code' && await p.locator(D_ + '.cpn-addcard [data-a="code-info"]').count() === 1 && /Coupon codes should be 14 characters long\./.test(await pane()), 'My coupons: intro, add card with info, field and helper');
   const rows = await ev(() => [...document.querySelectorAll('#device .cpl-list[aria-label="Available coupons"] .cpl')].map(r => r.innerText.replace(/\n/g, ' | ')));
   ok(rows.length === 3 && /Fall Northeast sale \| Code: V123 \| Expires: \d\d\/\d\d\/\d{4} \| 20% off Northeast Regional Coach\./.test(rows[0]) && await p.locator(D_ + '.cpl-list[aria-label="Available coupons"] .cpl__info').count() === 3, `Available: name, code, expiry, benefit, info (${rows[0]})`);
   ok(await ev(() => document.querySelector('#device #cpn-past-h').getAttribute('aria-expanded')) === 'false' && await p.locator(D_ + '#cpn-past-panel[hidden]').count() === 1, 'Used and expired starts collapsed');
   await p.click(D_ + '#cpn-past-h'); await w(300);
   ok(await ev(() => document.querySelector('#device #cpn-past-h').getAttribute('aria-expanded')) === 'true' && await p.locator(D_ + '#cpn-past-panel .cpl').count() >= 1, 'Used and expired expands');
   await p.click(D_ + '.cpl__info >> nth=0'); await w(400); ok(await ev(() => !!nav().info), 'the info button opens coupon details'); await ev(() => A['info-close']()); await w(300);
-  await p.fill(D_ + '#cpn-in', 'ab'); await w(100); await p.click(D_ + '[data-a="coupon-add"]'); await w(300);
-  ok(/This code isn’t valid/.test(await pane()) && await ev(() => document.querySelector('#device #cpn-in').value) === 'AB' || /This code isn’t valid/.test(await pane()), 'wrong length: inline error');
+  for (const bad of ['ab', 'HALF']) { await p.fill(D_ + '#cpn-in', bad); await w(100); await p.click(D_ + '[data-a="coupon-add"]'); await w(300);
+    ok(/Coupon codes should be 14 characters long/.test(await ev(() => document.querySelector('#device #cpn-in-h').textContent)) && await ev(() => document.querySelector('#device #cpn-in').getAttribute('aria-invalid')) === 'true' && await ev(() => !D().coupons.some(c => c.code === 'HALF')), `${bad}: not 14 characters, inline error, not added`); }
   await p.fill(D_ + '#cpn-in', '60111122223333'); await w(100); await p.click(D_ + '.pane__foot [data-a="coupons-save"]'); await w(1500);
   ok(await top() === 'profile' && await ev(() => D().coupons.some(c => c.code === '60111122223333')), 'Save adds a typed code and returns to Profile');
   await open('row-coupons'); await axe('My coupons');
