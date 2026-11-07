@@ -1,5 +1,5 @@
 // Assistance questionnaire: traveler-specific answers, three optional types (no "none" option), disability / wheelchair /
-// station / companion branches (no pairing), large service animal only before search, draft and confirm, summaries, hand-off, a11y
+// station / companion branches (Personal companion to: Traveler N only), large service animal only before search, draft and confirm, summaries, hand-off, a11y
 const { chromium } = require('playwright');
 const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const URL = require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href;
@@ -90,13 +90,13 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await ask('adult-2');
   ok(await p.locator(D_ + 'input[name$="-cat"][value="companion"]:disabled').count() === 0, 'companion available once another traveler has a disability');
   await pick('cat', 'companion');
-  ok(await p.locator(D_ + 'select[data-f="for"], ' + D_ + '.cmp-for').count() === 0 && !/Personal companion to|Choose a traveler/.test(await txt()), 'no control to pair the companion with a traveler');
+  ok(await ev(() => document.querySelector('#device select[data-f="for"]').value) === 'adult-1' && await ev(() => [...document.querySelectorAll('#device select[data-f="for"] option')].map(o => o.textContent).join()) === 'Choose a traveler,Traveler 1' && /Personal companion to/.test(await txt()), 'Personal companion to: single eligible traveler preselected, listed as “Traveler 1” with no type');
   ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 1 && /Available after you choose Station assistance\./.test(await txt()), 'companion seat disabled until station, explained');
   await pick('needs', 'station'); ok(await p.locator(D_ + 'input[value="seat"]:disabled').count() === 0, 'station enables seat');
   await pick('needs', 'seat'); await pick('needs', 'station');
   ok(await p.locator(D_ + 'input[value="seat"]:checked').count() === 0 && /removed because it needs Station assistance/.test(await txt()), 'deselecting station clears and disables seat');
-  await confirm(); r = await rec('adult-2'); ok(r.m.cat === 'companion' && !('for' in r.m) && !r.m.needs.length, 'companion confirms without optional needs or a pairing');
-  { const c2 = await card('adult-2'); ok(!/companion to Traveler \d/i.test(c2) && (c2.match(/Personal companion/g) || []).length === 0 && (c2.match(/I am a personal companion/g) || []).length === 1 && /I am a personal companion/.test(c2), `companion shown once, in the assistance summary, no traveler named`); }
+  await confirm(); r = await rec('adult-2'); ok(r.m.cat === 'companion' && r.m.for === 'adult-1' && !r.m.needs.length, 'companion confirms with the pairing, without optional needs');
+  { const c2 = await card('adult-2'); ok(!/companion to Traveler \d/i.test(c2) && !/Personal companion to/.test(c2) && /I am a personal companion/.test(c2) && /Discount\s*Companion/.test(c2), 'card: Companion discount, no extra pairing line'); }
   await ask('adult-3');
   ok(await p.locator(D_ + 'input[name$="-cat"][value="companion"]:disabled').count() === 1 && /already has one/.test(await txt()), 'one companion per traveler with a disability (capacity)');
   await p.click(D_ + '[data-a="back"]'); await w();
@@ -105,15 +105,15 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await p.click(D_ + '[data-a="assist-edit"][data-t="adult-2"]'); await w(500); await pick('needs', 'station'); await confirm();
   ok(JSON.stringify(await rec('adult-1')) === before && (await rec('adult-2')).m.needs.join() === 'station', 'stable identity: editing Traveler 2 leaves Traveler 1');
 
-  // ---- Companion without a traveler with a disability ----
+  // ---- Invalid companion: reassignment required ----
   await scen('assist-invalid');
-  ok(/No traveler on this booking has a disability/.test(await card('adult-2')), 'invalid companion shown on the card, no traveler named');
+  ok(/Traveler 1 no longer has a disability in assistance/.test(await card('adult-2')) && !/Traveler 1 · Adult/.test(await card('adult-2').then(t => t.split('Traveler with disability')[1] || '')), 'invalid pairing shown on the card, by traveler number');
   await p.click(D_ + '[data-a="pick-travelers-done"]').catch(() => {}); await w();
   await ev(() => goLoc('ff')); await w(); await ev(() => { const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; render(); }); await p.click(D_ + '[data-a="find-trains"]'); await w(500);
   ok(await top() === 'ff' && /Open travelers to fix it\./.test(await txt()), 'Find trains blocked by an invalid companion');
   await ev(() => goLoc('travelers')); await w(); await p.click(D_ + '[data-a="assist-edit"][data-t="adult-2"]'); await w(500);
-  ok(await ev(() => document.querySelector('#device select[data-f="for"], #device .cmp-for') === null), 'questionnaire has no reassignment control');
-  await confirm(); ok(await top() === 'assist' && /needs another traveler with a disability/.test(await txt()), 'cannot confirm a companion without a traveler with a disability');
+  ok(/Traveler 1 no longer has a disability in assistance/.test(await txt()) && await ev(() => document.querySelector('#device .cmp-for') !== null), 'questionnaire asks for reassignment');
+  await confirm(); ok(await top() === 'assist', 'cannot confirm without reassignment');
   await pick('cat', 'station'); await confirm(); ok(await top() === 'travelers' && (await rec('adult-2')).m.cat === 'station', 'another type resolves it');
 
   // ---- Multiple travelers and the search hand-off ----

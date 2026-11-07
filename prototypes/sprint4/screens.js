@@ -486,11 +486,11 @@ const assistWho = r => { const b = D().booking, key = (r && r.p && r.p.t) || fir
 // A legacy "none" answer reads as nothing selected. In booking mode a small or medium service animal answered
 // earlier is kept aside (animalLater) for the second questionnaire in Traveler information.
 const toDraft = (m, mode) => {
-  const x = { cat: m.cat === 'none' ? '' : m.cat || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], animal: m.animal || '', animalLater: m.animalLater || '' };
+  const x = { cat: m.cat === 'none' ? '' : m.cat || '', for: m.for || '', dis: [...m.dis], wc: m.wc === true ? 'yes' : m.wc === false ? 'no' : '', needs: [...m.needs], animal: m.animal || '', animalLater: m.animalLater || '' };
   if (mode === 'booking' && x.needs.includes('animal') && x.animal && x.animal !== 'large') { x.animalLater = x.animal; x.animal = ''; x.needs = x.needs.filter(n => n !== 'animal'); }
   return x;
 };
-const fromDraft = x => withAnimal(x, { cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
+const fromDraft = x => withAnimal(x, { for: x.cat === 'companion' ? x.for || null : null, cat: x.cat || null, dis: x.cat === 'disability' ? [...x.dis] : [], wc: x.cat === 'disability' && x.dis.includes('mobility') ? x.wc === 'yes' : null, needs: x.cat === 'disability' ? [...x.needs] : x.cat === 'station' ? x.needs.filter(n => n === 'seat') : x.cat === 'companion' ? x.needs.filter(n => n === 'station' || (n === 'seat' && x.needs.includes('station'))) : [] });
 // The service animal's size is kept only while Service animal is chosen
 const withAnimal = (x, m) => Object.assign(m, { animal: m.needs.includes('animal') ? x.animal || null : null, animalLater: x.animalLater || null });
 const AC = ASSIST_COPY;
@@ -589,8 +589,8 @@ function assistForm(r, ri, o) {
   let branch = '';
   if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
   if (x.cat === 'station') branch = needsBlock(r, x, idp, false, e);
-  if (x.cat === 'companion') branch = needsBlock(r, x, idp, false, e);
-  if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. A personal companion isn’t paired with a traveler here; who they accompany is collected in Traveler information. Each traveler with a disability may still bring one.');
+  if (x.cat === 'companion') branch = (o.mode === 'booking' ? companionFor(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e);
+  if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. ');
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') snote('Service animal and mobility device forms (NMA-628, 629) and live station-assistance availability (NMA-620) aren’t designed in Sprint 4.');
   // Conditional changes are announced from one live region at the top of the form
@@ -661,7 +661,7 @@ A['wiz-next'] = (t, ri) => {
   if (k && all[k]) { r.u.err = { [k]: all[k] }; pendingFocus = `[data-f="${k}"]`; render(); return; }
   r.u.err = null; const s = wizSteps(x); r.u.step = s[s.indexOf(r.u.step) + 1]; pendingFocus = '.ads-steps__count'; render();
 };
-A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
+A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', for: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
 
 // ---- Booking assistance screen ----
 SCR.assist = (r, ri) => {

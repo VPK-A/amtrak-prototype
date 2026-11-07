@@ -107,6 +107,10 @@ const ASSIST_COPY = {
   typeLegend: 'Type of help', profileTypeLegend: 'Assistance type',
   catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
   companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
+  companionFor: 'Personal companion to', companionChoose: 'Choose a traveler',
+  companionForHelp: 'Each traveler with a disability may bring one personal companion.',
+  companionInvalid: who => `${who} no longer has a disability in assistance, or already has a personal companion. Choose another traveler, or another type of help.`,
+  companionNone: 'No traveler on this booking can have a personal companion right now. Choose another type of help.',
   companionFull: 'Not available: each traveler with a disability may bring one personal companion, and every traveler with a disability on this booking already has one.',
   disLegend: 'Select applicable disabilities',
   wcQuestion: 'Will you bring a wheelchair (need wheelchair space)?',
@@ -131,7 +135,7 @@ const ASSIST_COPY = {
     needs: (what, why) => `${what} ${/ and /.test(what) ? 'were' : 'was'} removed ${why}.`
   },
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
-  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.' }
+  err: { cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.', forMissing: 'Choose the traveler you’re a personal companion to.' }
 };
 // People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
 // rules only and is never shown; travelers are listed by name. kind (Adult or Child) and date of birth come from the
@@ -151,24 +155,24 @@ const prSelf = sc => PR_FAMILY.find(p => p.id === (PR_SELF[sc] || 'alex'));
 // The other people on the pass record for whoever is signed in (a retiree's record has the spouse and Maya)
 const prRoster = (selfId, role) => PR_FAMILY.filter(p => p.id !== selfId && !(role === 'retiree' && p.id === 'sam')).map(p => Object.assign({}, p));
 // Reviewer scenarios for the assistance questionnaire (Scenario menu). Each sets up a booking after the base seed.
-const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [] }, o), done: true });
+const asst = (cat, o = {}) => ({ m: Object.assign({ cat, dis: [], wc: null, needs: [], for: null }, o), done: true });
 const ASSIST_DEMO = {
   'assist-multi': (d, b) => {
     b.pax = { adult: 3, senior: 1, ya: 0, youth: 0, child: 0, infant: 0 };
     b.assist = asst('disability', { dis: ['vision', 'mobility'], wc: true, needs: ['station', 'seat'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'adult-2': asst('companion', { needs: ['station', 'seat'] }), 'adult-3': asst('station', { needs: ['seat'] }), 'senior-1': asst(null) };
+    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station', 'seat'] }), 'adult-3': asst('station', { needs: ['seat'] }), 'senior-1': asst(null) };
     b.ask = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true }; b.formLoaded = true; b.taSeen = { 'adult-1': true, 'adult-2': true, 'adult-3': true, 'senior-1': true };
   },
   'assist-invalid': (d, b) => {
     b.pax = { adult: 2, senior: 0, ya: 0, youth: 0, child: 0, infant: 0 };
     b.assist = asst(null).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'adult-2': asst('companion', { needs: ['station'] }) };
+    b.ta = { 'adult-2': asst('companion', { for: 'adult-1', needs: ['station'] }) };
     b.ask = { 'adult-1': true, 'adult-2': true }; b.taSeen = { 'adult-1': true, 'adult-2': true };
   },
   'passrider-assist': (d, b) => {
     d.passrider.compLeft = 5; b.intent = 'pr'; b.prType = 'leisure'; b.prPax = { me: true, people: { jordan: 1, maya: 1 }, comp: 1 };
     b.assist = asst('disability', { dis: ['hearing'], wc: null, needs: ['station'] }).m; b.assistDone = true; b.assistFromProfile = false;
-    b.ta = { 'pr-jordan': asst('companion', { needs: ['station'] }), 'pr-maya': asst('station') };
+    b.ta = { 'pr-jordan': asst('companion', { for: 'pr-you', needs: ['station'] }), 'pr-maya': asst('station') };
     b.ask = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true }; b.taSeen = { 'pr-you': true, 'pr-jordan': true, 'pr-maya': true };
   }
 };
@@ -192,7 +196,7 @@ const SCENARIOS = [
   ['passrider-removed', 'Pass Rider employee, pass removed', 'The backend found this member is no longer eligible, so their Pass number, Personal index number and designation were removed from the app (NMA-20 BR4 AC4). Profile shows no pass details and Pass Rider booking isn’t offered.'],
   ['passrider-minor', 'Pass Rider dependent, 15 or younger', 'Dependent 15 or younger: can’t book Pass Rider travel on their own, so the Fare Finder starts as Regular (NMA-1017 table, AC5). The age comes from this fixture.'],
   ['assist-multi', 'Assistance: 4 travelers, different needs', 'Traveler 1 has vision loss and reduced mobility with wheelchair space, station assistance and an accessible seat; Traveler 2 is a personal companion with station assistance and a seat; Traveler 3 needs station assistance and a seat; Traveler 4 needs no assistance (NMA-615, 995–997).'],
-  ['assist-invalid', 'Assistance: companion without a traveler with a disability', 'Traveler 2 is a personal companion, but no traveler has a disability in assistance, so there are more companions than travelers with a disability: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
+  ['assist-invalid', 'Assistance: companion needs reassignment', 'Traveler 2 is a personal companion to Traveler 1, but Traveler 1 needs no assistance, so the pairing is invalid: Find trains is blocked until it’s fixed (NMA-615 BR2.1).'],
   ['passrider-assist', 'Assistance: Pass Rider Leisure family', 'Pass Rider Leisure with Jordan, Maya and a Companion Pass traveler. You: hearing loss with station assistance; Jordan: a personal companion; Maya: station assistance; the Companion Pass traveler hasn’t asked for help (a Companion Pass isn’t a personal companion) (NMA-1019).'],
   ['guest', 'Guest (signed out)', 'No Profile. Booking assistance starts unchecked. Account › Sign in shows the verification step for a device that isn’t remembered.']
 ];
@@ -216,7 +220,7 @@ const QUESTIONS = {
   16: ['Pass Rider identifiers', 'NMA-623 says the Pass Rider experience needs a SAP ID and Index number in the profile; NMA-20 stores a 9-digit Pass number and a 3-digit Personal index number. The prototype uses NMA-20’s fields. How the relationship (employee, spouse, dependent) is known, and whether the dependent experience differs (NMA-623 AC3–AC6), are open.'],
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
   20: ['Fares on the calendar', 'Removed after stakeholder feedback: the calendar shows no prices or fare shading. A fare calendar has no Sprint 4 story or fare source; if it returns it needs a fares service and a decision on which fare to show.'],
-  19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. Proposal awaiting team confirmation: assistance doesn’t ask who a companion accompanies; the one-each rule is checked by count (no more companions than travelers with a disability), and the pairing is collected in Traveler information.'],
+  19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. The companion chooses who they accompany (Personal companion to, listed as Traveler 1, Traveler 2…) so the one-each rule can be checked. Summaries don’t repeat the pairing.'],
   18: ['Wheelchair and mobility device details (NMA-29)', 'Partly defined, awaiting clarification: the story asks for device details under “I have a disability and reduced mobility”, its prerequisite names “I do not have a disability, but need assistance”, and most of its table is still Open. Not built beyond the existing wheelchair question.'],
   10: ['Young adult with an infant', 'Conflict in NMA-611. BR7 lets an infant travel with an Adult, Senior or Young adult, and BR3 seats lap infants 1:1 with those three types. BR9 says a Young adult can’t bring a Youth, Child or Infant without an Adult or Senior. The prototype follows BR9 (blocked) and counts Young adults toward lap seats. This case isn’t counted as verified until it’s decided. Age bands follow the CORE rules listed in the story (Adult 18–64, Senior 65+, Young adult 16–17, Youth 13–15, Child 2–12, Infant under 2).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
