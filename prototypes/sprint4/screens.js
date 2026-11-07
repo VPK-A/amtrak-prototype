@@ -154,6 +154,9 @@ function modesV1(r, b) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
   const tl = !!d.triplink, sp = tl ? 'corporate' : 'pr', can = tl ? { ok: true } : prCanStart(d);
   if (tl) ref('622'); else ref('623', '1016');
+  // Pass Rider that can't be started (a dependent 15 or younger): no dropdown at all; the booking is regular.
+  // NMA-1017 only says they can't book on their own; nothing requires showing the option.
+  if (!can.ok) { snote('A dependent 15 or younger can’t book Pass Rider travel on their own (NMA-1017), so New booking shows no Booking type dropdown and books regular fares.'); return ''; }
   // Pass Rider with Business / Leisure in this dropdown (Prototype controls › Pass Rider travel type)
   const inDd = !tl && prTypeInDropdown(), biz = !tl && d.passrider.role === 'employee' && d.passrider.business;
   let opts, cur;
@@ -167,7 +170,7 @@ function modesV1(r, b) {
   const help = cur === 'corporate' ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.'
     : cur === '' || cur.startsWith('pr') ? (inDd ? `${prTypeHelp(b)} Points, passenger discounts and codes aren’t used.` : 'Employee pass travel. Business or Leisure is chosen in Travelers. Points, passenger discounts and codes aren’t used.')
     : 'Regular fares, with points, passenger discounts and codes.';
-  const why = !can.ok ? `Pass Rider isn’t available: ${can.text}` : inDd && !biz ? prLeisureWhy(d) : '';
+  const why = ''; // no reason lines under the dropdown (an unavailable Business option is simply not listed)
   if (cur === 'corporate') q(12);
   return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode"${cur ? '' : ' class="is-placeholder" aria-required="true"'} data-f="ffmode" data-nodirty data-hook="ffmode" ${tl || why ? ` aria-describedby="${[tl ? 'ff-mode-h' : '', why ? 'ff-mode-why' : ''].filter(Boolean).join(' ')}"` : ''}>${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div>${tl ? `<p class="ads-helper" id="ff-mode-h">${help}</p>` : ''}${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
