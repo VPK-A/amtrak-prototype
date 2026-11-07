@@ -6,7 +6,7 @@
      adding a coupon, and Apply, which starts a booking with the code. Lounge passes are a separate user story and aren't part of this wallet. */
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
-PFIELDS.employee = 'Amtrak employee pass';
+PFIELDS.employee = 'Employee pass'; // Figma 3430:140680
 const EMP_REL = { employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
 const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
@@ -28,13 +28,13 @@ EDITORS.employee = (r, ri, inline) => {
   prov('NMA-623 identifies Pass Riders by SAP ID and Index number; NMA-20 by Pass number and Personal index number. The prototype uses NMA-20’s fields (Q16).');
   let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}`;
   body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
-  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
-  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, placeholder: '123456789', help: primary ? 'The primary pass holder’s number. Must be 9 digits.' : 'Must be 9 digits.', err: e.pass });
+  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, placeholder: '123', help: 'Must be 3 digits.', err: e.index });
   if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
   if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
   const unchanged = cur ? (x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : !x.pass && !x.index;
   tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3). Scenario › Pass Rider employee, pass removed shows details the backend removed (BR4 AC4).');
-  return { body, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
+  return { body, unchanged: !!cur && unchanged, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
 };
 SAVE.employee = (r, ri) => {
   const x = r.u.d, d = D(), e = {};
@@ -74,30 +74,55 @@ function couponLoad(r) {
   return r.u.load;
 }
 A['coupon-retry'] = (t, ri) => { const r = routeAt(ri); r.u.load = null; pendingFocus = 'title'; render(); };
+// My coupons (Figma Sprint 4 node 3430:147004): chevron Back and title; the intro; a card to add a coupon or promotional
+// code (info beside the label, clear inside the field, helper, Add); Available as one bordered list (name, code,
+// expiry, benefit, info button for details); Used and expired in an accordion; Save in the action footer.
+const fmtNum = s => { const [y, m, d] = s.split('-'); return `${m}/${d}/${y}`; };
+function couponRow(c) {
+  const st = couponState(c), name = c.name || c.kind;
+  const exp = st === 'used' ? `Used · Expires: ${fmtNum(c.exp)}` : st === 'expired' ? `Expired: ${fmtNum(c.exp)}` : `Expires: ${fmtNum(c.exp)}`;
+  return `<li class="cpl"><div class="cpl__lines"><span class="cpl__name">${esc(name)}</span><span class="cpl__code">Code: ${c.code}</span><span class="cpl__exp">${exp}</span><span class="cpl__benefit">${esc(c.benefit)}.</span></div><button class="ads-icon-btn ads-icon-btn--sm cpl__info" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(name)}">${ic('info-circle')}</button></li>`;
+}
 SCR.coupons = (r, ri) => {
-  const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '';
+  const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Save', 'Saving', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
-  if (load === 'loading') return { title: 'My coupons', kind: 'push', banner: false, body: `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>` };
-  if (load === 'error') return { title: 'My coupons', kind: 'push', banner: false, body: alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>') };
+  if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
+  if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
   const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
   const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
-  const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div>${r.u.busy ? `<button class="ads-btn ads-btn--secondary" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button>'}</div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
-  const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
-  const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
-  tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
-  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided. ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
-  return { title: 'My coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
+  const help = e ? `<p class="ads-helper ads-helper--error" id="cpn-in-h" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : `<p class="ads-helper" id="cpn-in-h">Codes should be 4 or 14 characters long.</p>`;
+  const add = `<section class="ed-card cpn-addcard" aria-label="Add a coupon"><div class="ads-field"><div class="apc-label"><label class="ads-field__label" for="cpn-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
+    <div class="ads-control${e ? ' ads-control--error' : ''}"><input id="cpn-in" type="text" data-f="add" data-nodirty value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cpn-in-h"${e ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="cpn-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>
+    ${r.u.busy ? `<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" data-a="coupon-add">Add</button>'}</section>`;
+  const availH = avail.length ? `<ul class="cpl-list" aria-label="Available coupons">${avail.map(couponRow).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you add here show up in this list.</p></div>`;
+  const open = !!r.u.pastOpen;
+  const pastH = `<div class="cpn-acc${open ? ' is-open' : ''}"><button class="cpn-acc__head" type="button" data-a="cpn-past" aria-expanded="${open}" aria-controls="cpn-past-panel" id="cpn-past-h"><span>Used and expired</span>${ic('chevron-down', 'cpn-acc__chev')}</button><div class="cpn-acc__panel" id="cpn-past-panel" role="region" aria-labelledby="cpn-past-h"${open ? '' : ' hidden'}>${past.length ? `<ul class="cpl-list" aria-label="Used and expired coupons">${past.map(couponRow).join('')}</ul>` : '<p class="ads-body-small ads-text-secondary">No used or expired coupons.</p>'}</div></div>`;
+  tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other code (not found).');
+  snote('Coupon reminders and added-coupon notices depend on a notification channel that isn’t decided; used and expired coupons are kept for a time that isn’t defined (Q17). Save keeps a code you typed (it’s added) and returns to Profile.');
+  return shell(`${netAlert(r)}<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
 };
-A['coupon-add'] = (t, ri) => {
-  const r = routeAt(ri), d = D(), c = (r.u.d.add || '').trim().toUpperCase();
-  if (!/^[A-Z0-9]{14}$/.test(c)) { r.u.err = 'Enter the 14-character coupon code.'; pendingFocus = '#cpn-in'; render(); return; }
+A['cpn-past'] = (t, ri) => { const r = routeAt(ri); r.u.pastOpen = !r.u.pastOpen; pendingFocus = '#cpn-past-h'; render(); };
+A['cpn-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = ''; r.u.err = ''; pendingFocus = '#cpn-in'; render(); };
+// Save: a typed code is added first; then back to Profile
+A['coupons-save'] = (t, ri) => {
+  const r = routeAt(ri), inp = document.querySelector('#cpn-in'); if (inp) r.u.d.add = inp.value;
+  const back = () => { popTo(+ri - 1); pendingFocus = '[data-k="row-coupons"]'; render(); };
+  if (!(r.u.d.add || '').trim()) return back();
+  A['coupon-add'](t, ri, back);
+};
+A['coupon-add'] = (t, ri, then) => {
+  const r = routeAt(ri), inp = document.querySelector('#cpn-in'); if (inp) r.u.d.add = inp.value;
+  const d = D(), c = (r.u.d.add || '').trim().toUpperCase();
+  if (!CODE_FORMAT.test(c)) { r.u.err = 'This code isn’t valid. Codes should be 4 or 14 characters long.'; pendingFocus = '#cpn-in'; render(); return; }
   if (d.coupons.some(x => x.code === c)) { r.u.err = 'This coupon is already in your account.'; pendingFocus = '#cpn-in'; render(); return; }
   r.u.err = '';
   runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
     if (res.err) { r.u.err = res.err; pendingFocus = '#cpn-in'; render(); return; } // NMA-697 BR8 AC3
     d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
-    r.u.d.add = ''; pendingFocus = `[data-a="coupon-apply"][data-code="${c}"]`; toast('Coupon added to your account'); // BR8 AC4
+    r.u.d.add = ''; pendingFocus = `[data-a="info"][data-topic="coupon:${c}"]`; toast('Coupon added to your account'); // BR8 AC4
+    if (then) then();
   }, { what: 'add a coupon' });
 };
 // Apply: start a booking with this code (standard booking, paying cash)

@@ -809,3 +809,16 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Nothing preselected** for employees with a Business Pass, in both versions (NMA-1016 AC2): until Business or Leisure is chosen, the Travelers row (tabs version) or the dropdown (dropdown version) asks for it, Done waits, and Find trains stays disabled with a note saying where to choose.
 - **Members without a Business Pass** (retirees, spouses, dependents, employees without one) get Leisure: no tabs, and in the dropdown version only *Pass Rider — Leisure* and *Regular*.
 - **Checks:** `tests/prototype/booking-modes.cjs`.
+
+## Profile editors and My coupons (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513, 3430:133325, 3430:137973, 3430:140680, 3430:147004)
+
+- **Every editor** (Middle initial, Phone, Billing address, Date of birth, Passenger discounts, Assistance requests, Employee pass) has a chevron Back, the title, a plain close, and **Save in the action footer**, with no grabber. Cancel and the header Save are gone. Save is always available: with nothing changed it returns to Profile; otherwise the editor's checks run as before. Back with unsaved changes still asks *Discard changes?*.
+- **Middle initial:** one full-width field with its helper; no marker.
+- **Phone:** a *Mobile phone number* card: Phone number (helper *Must be 10 digits; numbers only.*), then Number type (US/Canada, International, stacked) and its helper. *Add phone number* (secondary, full width) adds an *Other phone numbers* card with Home, Business and Extension.
+- **Billing address:** one column (State, then ZIP code). Required markers are kept, as requested. *Remove billing address* is a full-width destructive button.
+- **Date of birth:** one optional field with the MM/DD/YYYY placeholder; the open question about allowed dates (Q6) moved to the screen notes.
+- **Passenger discounts:** descriptions without *Eligibility details: content pending.*
+- **Assistance requests:** the two types, with no empty-state line.
+- **Employee pass:** title *Employee pass*; Relationship, Pass number (*Must be 9 digits.*) and Personal index number (*Must be 3 digits.*); required markers kept, as requested.
+- **My coupons:** chevron Back and title (no close); the intro line; a card with *Coupon or promotional code* (info beside the label, clear inside the field, *Codes should be 4 or 14 characters long.*) and *Add*; *Available* as one bordered list (name, code, expiry, benefit, info button for details); *Used and expired* as an accordion, collapsed; Save in the footer adds a typed code and returns to Profile. Codes of 4 or 14 characters can be added. The per-coupon Apply buttons are gone, as in the design; codes are still applied from New booking › Apply code.
+- **Checks:** `tests/prototype/profile-editors.cjs`.

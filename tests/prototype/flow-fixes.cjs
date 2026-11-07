@@ -57,11 +57,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(editable.length >= 8 && editable.every(r => r.btn && r.chev && !r.meta), `${dev}: every editable row is one button with a chevron, no extra action text (${editable.map(r => r.l).join(', ')})`);
     ok(rows.filter(r => r.locked).every(r => !r.btn && !r.chev), `${dev}: read-only rows have no chevron`);
     const base = await stack();
-    for (const [k, s, title] of [['row-phone', 'edit', 'Phone'], ['row-address', 'edit', 'Billing address'], ['row-employee', 'edit', 'Amtrak employee pass'], ['row-disc', 'discounts', 'Passenger discounts'], ['row-assist', 'assist-profile', 'Assistance requests']]) {
+    for (const [k, s, title] of [['row-phone', 'edit', 'Phone'], ['row-address', 'edit', 'Billing address'], ['row-employee', 'edit', 'Employee pass'], ['row-disc', 'discounts', 'Passenger discounts'], ['row-assist', 'assist-profile', 'Assistance requests']]) {
       await click(`[data-k="${k}"]`, 600);
       const st = await stack(), panes = await ev(() => document.querySelectorAll('#device .psheet .pane:not(.navstage__under .pane)').length);
       ok(st.startsWith(base + '>' + s) && panes === 1 && await ev(t => [...document.querySelectorAll('#device .pane .ads-navbar__title')].pop().textContent === t, title), `${dev}: ${title} opens its own third-level screen (${st})`);
-      ok(await p.locator(D_ + '.pane .ads-navbar [data-a="back"], ' + D_ + '.pane .ads-navbar__btn').count() >= 1 && await p.locator(D_ + '[data-a="assist-p-edit"], .ads-summary [data-a="edit"]').count() === 0, `${dev}: ${title}: Cancel / Save editor, no inline Edit inside`);
+      ok(await p.locator(D_ + '.pane .ads-navbar [data-a="back"], ' + D_ + '.pane .ads-navbar__btn').count() >= 1 && await p.locator(D_ + '[data-a="assist-p-edit"], .ads-summary [data-a="edit"]').count() === 0, `${dev}: ${title}: Back, close and Save editor, no inline Edit inside`);
       await ev(() => { const r = sheet().stack.at(-1); r.u.dirty = false; popTo(sheet().stack.length - 2); }); await w(400);
     }
     await click('[data-k="row-email"]', 600); ok(await ev(() => !!nav().cover), `${dev}: Email opens its own screen (verify, then change)`); await ev(() => endVerify(false)); await w(300);
@@ -69,10 +69,10 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // assistance editor saves and returns to Profile
   await ev(() => { TB.dev = 'iphone'; VS[1] = makeVS('returning'); goLoc('profile'); }); await w(500);
   await click('[data-k="row-assist"]', 600);
-  ok(await p.locator(D_ + 'input[name$="-cat"]').count() >= 2 && await p.locator(D_ + '.ads-navbar [data-a="assist-save"]').count() === 1, 'Assistance requests: the questionnaire opens directly with Save');
-  await click('label:has(input[name$="-cat"][value="station"])', 300); await click('.ads-navbar [data-a="assist-save"]', 900);
+  ok(await p.locator(D_ + 'input[name$="-cat"]').count() >= 2 && await p.locator(D_ + '.pane__foot [data-a="assist-save"]').count() === 1, 'Assistance requests: the questionnaire opens directly with Save');
+  await click('label:has(input[name$="-cat"][value="station"])', 300); await click('.pane__foot [data-a="assist-save"]', 900);
   ok(await stack() === 'account>profile' && await ev(() => D().assist.cat === 'station') && /Station assistance/i.test(await ev(() => document.querySelector('#device [data-k="row-assist"]').innerText)), 'saving returns to Profile with the new value');
-  await click('[data-k="row-assist"]', 600); await click('label:has(input[name$="-cat"][value="disability"])', 300); await click('.ads-navbar [data-a="assist-p-cancel"]', 500);
+  await click('[data-k="row-assist"]', 600); await click('label:has(input[name$="-cat"][value="disability"])', 300); await click('.pane .ads-navbar [data-a="back"]', 500);
   ok(await ev(() => nav().dialog && nav().dialog.title) === 'Discard changes?', 'Cancel with changes asks Discard changes?'); await ev(() => closeDialog(nav().dialog.actions[1][2])); await w(400);
   ok(await stack() === 'account>profile' && await ev(() => D().assist.cat === 'station'), 'Discard returns to Profile; saved assistance unchanged');
 

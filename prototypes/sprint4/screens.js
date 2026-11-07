@@ -814,15 +814,23 @@ function editorInline(r, ri, field) {
 }
 
 // Focused editor (V1, V2)
+// Profile editors (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513, 3430:140680): chevron
+// Back, the title, a plain close, and Save in the action footer. Save is always available: with nothing changed it
+// simply returns to Profile; otherwise the editor's checks run. Back with unsaved changes asks Discard changes?.
+const edShell = (r, title, body, saveA = 'edit-save') => ({ title, kind: 'push', backIcon: true, cls: 'pane--ed', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="${saveA}"`), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' });
 SCR.edit = (r, ri) => {
   const o = EDITORS[r.p.field](r, ri, false);
-  return { title: PFIELDS[r.p.field], kind: 'editor', save: { a: 'edit-save', label: o.saveLabel, disabled: o.saveDisabled, busy: !!r.u.busy }, body: o.body + (o.saveDisabled && o.noSaveWhy ? `<p class="ads-helper" id="nosave-${ri}">${o.noSaveWhy}</p>` : ''), offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
+  return edShell(r, PFIELDS[r.p.field], o.body);
 };
 // Which route an editor action targets: a pushed editor, or V3's inline editor inside Profile
 function edRoute(ri) { const r = routeAt(ri); return r && r.s === 'profile' ? r.u.edit : r; }
 A['edit-inline-cancel'] = (t, ri) => { const r = routeAt(ri), f = r.u.inline; r.u.inline = null; r.u.edit = null; pendingFocus = `[data-k="row-${f}"]`; render(); };
 A['cancel-busy-inline'] = (t, ri) => { const er = edRoute(ri); er.u.busy = null; er.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was saved. Your entries are kept.' }; render(); };
-A['edit-save'] = (t, ri) => { const er = edRoute(ri); SAVE[er.p.field](er, ri); };
+A['edit-save'] = (t, ri) => {
+  const er = edRoute(ri), o = EDITORS[er.p.field](er, ri, er !== routeAt(ri));
+  if (o.unchanged) { er.u.dirty = false; if (er === routeAt(ri)) { popTo(+ri - 1); pendingFocus = `[data-k="row-${er.p.field}"]`; render(); } else A['edit-inline-cancel'](t, ri); return; } // nothing to save
+  SAVE[er.p.field](er, ri);
+};
 function afterSave(ri, msg, field) {
   const r = routeAt(ri);
   if (r.s === 'profile') { r.u.inline = null; r.u.edit = null; pendingFocus = `[data-k="row-${field}"]`; }
@@ -837,10 +845,10 @@ const intro = t => v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}
 EDITORS.mi = (r, ri, inline) => {
   const p = D().profile; r.u.d = r.u.d || { mi: '' }; const e = r.u.err || {};
   ref('19');
-  if (p.mi) return { body: `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Middle initial: ${esc(p.mi)}</p><p class="ads-body-small ads-text-secondary">It was added once and is now locked. Call 1-800-307-5000 to change your name.</p></div>${lockChip}</div></div>`, saveDisabled: true, noSaveWhy: 'Your middle initial can’t be changed in the app.' };
+  if (p.mi) return { unchanged: true, body: `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Middle initial: ${esc(p.mi)}</p><p class="ads-body-small ads-text-secondary">It was added once and is now locked. Call 1-800-307-5000 to change your name.</p></div>${lockChip}</div></div>`, saveDisabled: true, noSaveWhy: 'Your middle initial can’t be changed in the app.' };
   const preview = v2() && r.u.d.mi ? `<p class="ads-body-small">Your name will show as <b>${esc(p.first)} ${esc(r.u.d.mi)}. ${esc(p.last)}</b></p>` : '';
-  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, opt: true, autocomplete: 'additional-name', help: v2() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2(), cls: 'field--narrow' })}${preview}`;
-  return { body, saveDisabled: !r.u.d.mi, noSaveWhy: 'Enter a letter to save.', saveLabel: 'Save' };
+  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, autocomplete: 'additional-name', help: v2() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2() })}${preview}`;
+  return { body, unchanged: !r.u.d.mi, saveDisabled: !r.u.d.mi, noSaveWhy: 'Enter a letter to save.', saveLabel: 'Save' }; // nothing typed: Save just returns
 };
 SAVE.mi = (r, ri) => {
   const x = r.u.d.mi || '';
@@ -854,18 +862,18 @@ EDITORS.phone = (r, ri, inline) => {
   const p = D().profile.phone; if (!r.u.d) r.u.d = clone(p); const x = r.u.d, e = r.u.err || {};
   ref('22');
   const changed = JSON.stringify(x) !== JSON.stringify(p);
-  const regionQ = `<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div></fieldset>`;
-  let fields;
-  if (x.region === 'us') {
-    const more = r.u.more || x.home || x.business;
-    fields = `${fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Mobile', type: 'tel', value: x.mobile, digits: 10, req: true, autocomplete: 'tel-national', help: '10 digits, numbers only.', err: e.mobile })}
-      ${more ? `${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: '10 digits.', err: e.home })}<div class="tworow">${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: '10 digits.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext, cls: 'field--narrow' })}</div>`
-        : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ph-more">${ic('plus', 'ads-icon--sm')}Add home or business number</button>`}`;
-  } else {
-    fields = `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc, req: true })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, req: true, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: '5 to 15 digits, numbers only.', err: e.intl })}`;
-  }
-  const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${regionQ}${fields}<p class="ss-note">${q(6)} Switching type keeps the number you entered for each type.</p>`;
-  return { body, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
+  // Figma 3427:120590: a card with the number first, then Number type (stacked radios) and its helper
+  const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
+  const num = x.region === 'us'
+    ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
+    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
+  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${num}${regionQ}</section>`;
+  // Add phone number: a second card for home and business numbers (US/Canada)
+  const more = x.region === 'us' && (r.u.more || x.home || x.business);
+  const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
+    : x.region === 'us' ? `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>` : '';
+  const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${card}${other}`;
+  return { body, unchanged: !changed, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
 };
 A['ph-more'] = (t, ri) => { const r = edRoute(ri); r.u.more = true; pendingFocus = '#ph-home'; render(); };
 SAVE.phone = (r, ri) => {
@@ -895,9 +903,9 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-street', f: 'street', label: 'Street address', value: x.street, req: true, max: 32, autocomplete: 'address-line1', help: '2 to 32 characters.', err: e.street })}
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
-    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>
-    ${a.street ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
-  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
+    ${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip })}
+    ${a.street ? `<button class="ads-btn ads-btn--destructive ads-btn--block addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
+  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
 };
 // NMA-23: delete, with confirmation; the row then offers Add
 A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
@@ -917,8 +925,9 @@ function validDob(s) { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) 
 EDITORS.dob = (r, ri, inline) => {
   const p = D().profile; if (!r.u.d) r.u.d = { dob: p.dob }; const e = r.u.err || {};
   ref('919');
-  const body = `${intro('Optional. Use month, day and year, for example 04/15/1988.')}${netAlert(r)}${fieldHtml({ id: 'ed-dob', f: 'dob', label: 'Date of birth', value: r.u.d.dob, opt: true, placeholder: 'MM/DD/YYYY', inputmode: 'numeric', autocomplete: 'bday', max: 10, help: 'MM/DD/YYYY', err: e.dob, cls: 'field--mid' })}${p.dob ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="dob-remove">Remove date of birth</button>` : ''}<p class="ss-note">${q(6)} Earliest and latest allowed dates aren’t defined. This prototype rejects future dates.</p>`;
-  return { body, saveDisabled: (r.u.d.dob || '') === (p.dob || ''), noSaveWhy: 'Make a change to save.' };
+  const body = `${intro('Optional. Use month, day and year, for example 04/15/1988.')}${netAlert(r)}${fieldHtml({ id: 'ed-dob', f: 'dob', label: 'Date of birth', value: r.u.d.dob, opt: true, placeholder: 'MM/DD/YYYY', inputmode: 'numeric', autocomplete: 'bday', max: 10, err: e.dob })}${p.dob ? `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dob-remove">Remove date of birth</button>` : ''}`;
+  snote('Earliest and latest allowed dates of birth aren’t defined (Q6). The prototype rejects future dates.');
+  return { body, unchanged: (r.u.d.dob || '') === (p.dob || ''), saveDisabled: (r.u.d.dob || '') === (p.dob || ''), noSaveWhy: 'Make a change to save.' };
 };
 A['dob-remove'] = (t, ri) => { const r = edRoute(ri); r.u.d.dob = ''; r.u.dirty = true; render(); };
 HOOKS.dobmask = () => {};
@@ -938,7 +947,7 @@ SCR.discounts = (r, ri) => {
   const hasDis = d.assist.cat === 'disability';
   const opt = k => {
     const extra = k === 'pwd' && !hasDis && x.type !== 'pwd' ? '' : '';
-    return choice('radio', 'disc', 'type', k, x.type === k, DISCOUNTS[k].label, k === 'pwd' && hasDis ? 'Saved because your assistance says you have a disability.' : DISCOUNTS[k].info, extra);
+    return choice('radio', 'disc', 'type', k, x.type === k, DISCOUNTS[k].label, k === 'pwd' && hasDis ? 'Saved because your assistance says you have a disability.' : DISCOUNTS[k].info.replace(/ Eligibility details: content pending\.?/, ''), extra);
   };
   let cond = '';
   if (x.type === 'rpa') cond = fieldHtml({ id: 'rpa-id', f: 'rpa', label: 'Membership ID', type: 'tel', value: x.rpa, digits: 10, req: true, help: '6 to 10 digits, no spaces.', err: e.rpa });
@@ -948,11 +957,12 @@ SCR.discounts = (r, ri) => {
     ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
-  return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
+  return Object.assign(edShell(r, 'Passenger discounts', body, 'disc-save'), { offlineText: 'You’re seeing your saved preference. Saving needs a connection.' });
 };
 A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('profile'), R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
+  if (x.type === d.discount.type && (x.type !== 'rpa' || x.rpa === d.discount.rpa)) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; render(); return; } // nothing to save
   if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
   if (x.type === 'pwd' && d.assist.cat !== 'disability') { r.u.alert = { kind: 'custom', tone: 'error', title: 'Passenger with disability can’t be saved yet', text: 'Save assistance with “I have a disability” first.' }; pendingFocus = '[data-a="go-assist"]'; render(); return; }
   r.u.err = {};
@@ -983,9 +993,9 @@ SCR['assist-profile'] = (r, ri) => {
   const summary = `${doneMsg}${assistSummaryCard(saved, { title: 'Your assistance', edit: 'assist-p-edit' })}${saved.cat ? `<p class="ads-body-small ads-text-secondary">Used for Traveler 1 when you book. You can change it there for one trip.</p>` : ''}${r.u.returnTo || r.p.returnTo ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="assist-return">Back to Passenger discounts</button>` : ''}`;
   if (!editing) return { title: 'Assistance', kind: 'push', body: summary, banner: false };
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(saved); r.u.mode = 'profile'; }
-  const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : '<p class="ads-body-small ads-text-secondary">With nothing selected, no assistance is saved.</p>'}${pwdPreview(fromDraft(r.u.d))}`;
+  const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : ''}${pwdPreview(fromDraft(r.u.d))}`;
   if (v3() && IPAD()) return { title: 'Assistance', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${assistSummaryCard(saved, { title: 'Saved now' })}</div><div class="split2__side"><div class="edpane">${form}</div></div></div>`, foot: `<div class="wizfoot"><button class="ads-btn ads-btn--secondary" type="button" data-a="assist-p-cancel">Cancel</button>${busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"')}</div>` };
-  if (v1()) return { title: 'Assistance requests', kind: 'editor', cancelA: 'assist-p-cancel', save: { a: 'assist-save', busy: !!r.u.busy }, body: form }; // the same Cancel / Save editor as every Profile edit
+  if (v1()) return edShell(r, 'Assistance requests', form, 'assist-save'); // the same editor as every Profile edit (Figma 3430:137973)
   return { title: 'Assistance', kind: saved.cat ? 'editor' : 'push', cancelA: 'assist-p-cancel', save: saved.cat ? { a: 'assist-save', busy: !!r.u.busy } : null, body: form, foot: busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"') };
 };
 A['assist-p-edit'] = (t, ri) => { const r = routeAt(ri); r.u.editing = true; r.u.d = undefined; r.u.step = null; r.u.savedMsg = null; pendingFocus = 'title'; render(); };
@@ -994,6 +1004,7 @@ A['assist-p-cancel'] = (t, ri) => { const r = routeAt(ri); if (!D().assist.cat |
 A['assist-return'] = (t, ri) => { const sh = sheet(); sh.stack = [sh.stack[0], R('profile'), R('discounts')]; pendingFocus = 'title'; render(); };
 A['assist-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'profile');
+  if (v1() && JSON.stringify(fromDraft(x)) === JSON.stringify(fromDraft(toDraft(D().assist)))) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-assist"]'; render(); return; } // nothing to save
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   const m = fromDraft(x), d = D();
   runSave(r, () => {

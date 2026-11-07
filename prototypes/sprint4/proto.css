@@ -991,3 +991,42 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .v1modes--select #ff-mode, .device .v1modes--select #ff-mode { color: var(--ads-content-text-primary); }
 .ds-next .v1modes--select #ff-mode.is-placeholder, .device .v1modes--select #ff-mode.is-placeholder { color: var(--ads-content-text-tertiary); }
 .v1modes--select #ff-mode option { color: var(--ads-content-text-primary); }
+
+/* ---------- Profile editors and My coupons (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513,
+   3430:133325, 3430:137973, 3430:140680, 3430:147004) ---------- */
+:is(.ds-next, .device) .pane--ed .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-12); }
+:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
+:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+.ds-next .device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
+:is(.ds-next, .device) .pane--ed .ads-field .ads-control, :is(.ds-next, .device) .pane--ed .ads-field .ads-control--select { max-width: none; width: 100%; }
+:is(.ds-next, .device) .pane--ed .ads-field { width: 100%; }
+/* A card that groups related fields (Phone) or the add-a-code form (My coupons) */
+.ed-card { display: flex; flex-direction: column; gap: var(--ads-space-20); padding: var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.ed-card__title { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.ed-card .ads-fieldset { margin: 0; }
+.ed-card .ads-fieldset > .ads-helper { margin-top: var(--ads-space-4); }
+.ed-add { gap: var(--ads-space-8); }
+/* My coupons */
+.cpn-intro { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); line-height: 1.5; }
+.cpn-addcard { gap: var(--ads-space-24); }
+.cpn-addcard .apc-label { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-4); }
+.cpn-avail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.cpn-h { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.cpl-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); overflow: hidden; }
+.cpl { display: flex; align-items: center; gap: var(--ads-space-8); padding: var(--ads-space-16); background: var(--ads-background-interactive-secondary); }
+.cpl + .cpl { border-top: 1px solid var(--ads-border-subtle); }
+.cpl__lines { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--ads-space-4); }
+.cpl__name, .cpl__code { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; overflow-wrap: anywhere; }
+.cpl__exp { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-size); line-height: 1.3; }
+.cpl__benefit { color: var(--ads-content-text-tertiary); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+.cpl__info { flex: none; color: var(--ads-content-icon-primary); }
+.cpn-acc { margin: 0 calc(-1 * var(--ads-space-20)); border-bottom: 1px solid var(--ads-border-subtle); }
+.cpn-acc__head { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-16); width: 100%; min-height: 60px; padding: 0 var(--ads-space-20); border: 0; background: none; color: var(--ads-content-text-secondary); font: inherit; font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); text-align: left; cursor: pointer; }
+.cpn-acc__head:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
+.cpn-acc__chev { flex: none; color: var(--ads-content-icon-primary); transition: transform 0.2s; }
+.cpn-acc.is-open .cpn-acc__chev { transform: rotate(180deg); }
+.cpn-acc__panel { padding: 0 var(--ads-space-20) var(--ads-space-20); }
+.cpn-acc .cpl { background: var(--ads-background-surface-default); }
+/* Group legends read like field labels; the footer keeps the 20px page margin */
+:is(.ds-next, .device) .pane--ed legend.ads-field-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); }
+:is(.ds-next, .device) .pane--ed .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }

@@ -2560,6 +2560,45 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .v1modes--select #ff-mode.is-placeholder, .device .v1modes--select #ff-mode.is-placeholder { color: var(--ads-content-text-tertiary); }
 .v1modes--select #ff-mode option { color: var(--ads-content-text-primary); }
 
+/* ---------- Profile editors and My coupons (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513,
+   3430:133325, 3430:137973, 3430:140680, 3430:147004) ---------- */
+:is(.ds-next, .device) .pane--ed .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-12); }
+:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
+:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+.ds-next .device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
+:is(.ds-next, .device) .pane--ed .ads-field .ads-control, :is(.ds-next, .device) .pane--ed .ads-field .ads-control--select { max-width: none; width: 100%; }
+:is(.ds-next, .device) .pane--ed .ads-field { width: 100%; }
+/* A card that groups related fields (Phone) or the add-a-code form (My coupons) */
+.ed-card { display: flex; flex-direction: column; gap: var(--ads-space-20); padding: var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.ed-card__title { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.ed-card .ads-fieldset { margin: 0; }
+.ed-card .ads-fieldset > .ads-helper { margin-top: var(--ads-space-4); }
+.ed-add { gap: var(--ads-space-8); }
+/* My coupons */
+.cpn-intro { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); line-height: 1.5; }
+.cpn-addcard { gap: var(--ads-space-24); }
+.cpn-addcard .apc-label { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-4); }
+.cpn-avail { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.cpn-h { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.cpl-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); overflow: hidden; }
+.cpl { display: flex; align-items: center; gap: var(--ads-space-8); padding: var(--ads-space-16); background: var(--ads-background-interactive-secondary); }
+.cpl + .cpl { border-top: 1px solid var(--ads-border-subtle); }
+.cpl__lines { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--ads-space-4); }
+.cpl__name, .cpl__code { color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; overflow-wrap: anywhere; }
+.cpl__exp { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-size); line-height: 1.3; }
+.cpl__benefit { color: var(--ads-content-text-tertiary); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+.cpl__info { flex: none; color: var(--ads-content-icon-primary); }
+.cpn-acc { margin: 0 calc(-1 * var(--ads-space-20)); border-bottom: 1px solid var(--ads-border-subtle); }
+.cpn-acc__head { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-16); width: 100%; min-height: 60px; padding: 0 var(--ads-space-20); border: 0; background: none; color: var(--ads-content-text-secondary); font: inherit; font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); text-align: left; cursor: pointer; }
+.cpn-acc__head:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: calc(-1 * var(--ads-focus-ring-width)); }
+.cpn-acc__chev { flex: none; color: var(--ads-content-icon-primary); transition: transform 0.2s; }
+.cpn-acc.is-open .cpn-acc__chev { transform: rotate(180deg); }
+.cpn-acc__panel { padding: 0 var(--ads-space-20) var(--ads-space-20); }
+.cpn-acc .cpl { background: var(--ads-background-surface-default); }
+/* Group legends read like field labels; the footer keeps the 20px page margin */
+:is(.ds-next, .device) .pane--ed legend.ads-field-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); }
+:is(.ds-next, .device) .pane--ed .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -3697,7 +3736,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || top.s === 'profile' ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -4648,15 +4687,23 @@ function editorInline(r, ri, field) {
 }
 
 // Focused editor (V1, V2)
+// Profile editors (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513, 3430:140680): chevron
+// Back, the title, a plain close, and Save in the action footer. Save is always available: with nothing changed it
+// simply returns to Profile; otherwise the editor's checks run. Back with unsaved changes asks Discard changes?.
+const edShell = (r, title, body, saveA = 'edit-save') => ({ title, kind: 'push', backIcon: true, cls: 'pane--ed', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="${saveA}"`), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' });
 SCR.edit = (r, ri) => {
   const o = EDITORS[r.p.field](r, ri, false);
-  return { title: PFIELDS[r.p.field], kind: 'editor', save: { a: 'edit-save', label: o.saveLabel, disabled: o.saveDisabled, busy: !!r.u.busy }, body: o.body + (o.saveDisabled && o.noSaveWhy ? `<p class="ads-helper" id="nosave-${ri}">${o.noSaveWhy}</p>` : ''), offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' };
+  return edShell(r, PFIELDS[r.p.field], o.body);
 };
 // Which route an editor action targets: a pushed editor, or V3's inline editor inside Profile
 function edRoute(ri) { const r = routeAt(ri); return r && r.s === 'profile' ? r.u.edit : r; }
 A['edit-inline-cancel'] = (t, ri) => { const r = routeAt(ri), f = r.u.inline; r.u.inline = null; r.u.edit = null; pendingFocus = `[data-k="row-${f}"]`; render(); };
 A['cancel-busy-inline'] = (t, ri) => { const er = edRoute(ri); er.u.busy = null; er.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was saved. Your entries are kept.' }; render(); };
-A['edit-save'] = (t, ri) => { const er = edRoute(ri); SAVE[er.p.field](er, ri); };
+A['edit-save'] = (t, ri) => {
+  const er = edRoute(ri), o = EDITORS[er.p.field](er, ri, er !== routeAt(ri));
+  if (o.unchanged) { er.u.dirty = false; if (er === routeAt(ri)) { popTo(+ri - 1); pendingFocus = `[data-k="row-${er.p.field}"]`; render(); } else A['edit-inline-cancel'](t, ri); return; } // nothing to save
+  SAVE[er.p.field](er, ri);
+};
 function afterSave(ri, msg, field) {
   const r = routeAt(ri);
   if (r.s === 'profile') { r.u.inline = null; r.u.edit = null; pendingFocus = `[data-k="row-${field}"]`; }
@@ -4671,10 +4718,10 @@ const intro = t => v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}
 EDITORS.mi = (r, ri, inline) => {
   const p = D().profile; r.u.d = r.u.d || { mi: '' }; const e = r.u.err || {};
   ref('19');
-  if (p.mi) return { body: `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Middle initial: ${esc(p.mi)}</p><p class="ads-body-small ads-text-secondary">It was added once and is now locked. Call 1-800-307-5000 to change your name.</p></div>${lockChip}</div></div>`, saveDisabled: true, noSaveWhy: 'Your middle initial can’t be changed in the app.' };
+  if (p.mi) return { unchanged: true, body: `<div class="ads-summary"><div class="ads-summary__head"><div><p class="ads-summary__title">Middle initial: ${esc(p.mi)}</p><p class="ads-body-small ads-text-secondary">It was added once and is now locked. Call 1-800-307-5000 to change your name.</p></div>${lockChip}</div></div>`, saveDisabled: true, noSaveWhy: 'Your middle initial can’t be changed in the app.' };
   const preview = v2() && r.u.d.mi ? `<p class="ads-body-small">Your name will show as <b>${esc(p.first)} ${esc(r.u.d.mi)}. ${esc(p.last)}</b></p>` : '';
-  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, opt: true, autocomplete: 'additional-name', help: v2() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2(), cls: 'field--narrow' })}${preview}`;
-  return { body, saveDisabled: !r.u.d.mi, noSaveWhy: 'Enter a letter to save.', saveLabel: 'Save' };
+  const body = `${intro('You can add your middle initial once. After you save it, it can’t be changed in the app.')}${netAlert(r)}${fieldHtml({ id: 'ed-mi', f: 'mi', label: 'Middle initial', value: r.u.d.mi, max: 1, alpha: true, autocomplete: 'additional-name', help: v2() ? 'One letter, A to Z.' : 'One letter. You can add this once; it can’t be changed later.', err: e.mi, live: v2() })}${preview}`;
+  return { body, unchanged: !r.u.d.mi, saveDisabled: !r.u.d.mi, noSaveWhy: 'Enter a letter to save.', saveLabel: 'Save' }; // nothing typed: Save just returns
 };
 SAVE.mi = (r, ri) => {
   const x = r.u.d.mi || '';
@@ -4688,18 +4735,18 @@ EDITORS.phone = (r, ri, inline) => {
   const p = D().profile.phone; if (!r.u.d) r.u.d = clone(p); const x = r.u.d, e = r.u.err || {};
   ref('22');
   const changed = JSON.stringify(x) !== JSON.stringify(p);
-  const regionQ = `<fieldset class="ads-fieldset ads-fieldset--inline"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div></fieldset>`;
-  let fields;
-  if (x.region === 'us') {
-    const more = r.u.more || x.home || x.business;
-    fields = `${fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Mobile', type: 'tel', value: x.mobile, digits: 10, req: true, autocomplete: 'tel-national', help: '10 digits, numbers only.', err: e.mobile })}
-      ${more ? `${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: '10 digits.', err: e.home })}<div class="tworow">${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: '10 digits.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext, cls: 'field--narrow' })}</div>`
-        : `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="ph-more">${ic('plus', 'ads-icon--sm')}Add home or business number</button>`}`;
-  } else {
-    fields = `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc, req: true })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, req: true, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: '5 to 15 digits, numbers only.', err: e.intl })}`;
-  }
-  const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${regionQ}${fields}<p class="ss-note">${q(6)} Switching type keeps the number you entered for each type.</p>`;
-  return { body, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
+  // Figma 3427:120590: a card with the number first, then Number type (stacked radios) and its helper
+  const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
+  const num = x.region === 'us'
+    ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
+    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
+  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${num}${regionQ}</section>`;
+  // Add phone number: a second card for home and business numbers (US/Canada)
+  const more = x.region === 'us' && (r.u.more || x.home || x.business);
+  const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
+    : x.region === 'us' ? `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>` : '';
+  const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${card}${other}`;
+  return { body, unchanged: !changed, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
 };
 A['ph-more'] = (t, ri) => { const r = edRoute(ri); r.u.more = true; pendingFocus = '#ph-home'; render(); };
 SAVE.phone = (r, ri) => {
@@ -4729,9 +4776,9 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-street', f: 'street', label: 'Street address', value: x.street, req: true, max: 32, autocomplete: 'address-line1', help: '2 to 32 characters.', err: e.street })}
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
-    <div class="tworow">${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'US' ? '5 digits, or ZIP+4.' : cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip, cls: 'field--narrow' })}</div>
-    ${a.street ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
-  return { body, saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
+    ${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip })}
+    ${a.street ? `<button class="ads-btn ads-btn--destructive ads-btn--block addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
+  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
 };
 // NMA-23: delete, with confirmation; the row then offers Add
 A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
@@ -4751,8 +4798,9 @@ function validDob(s) { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) 
 EDITORS.dob = (r, ri, inline) => {
   const p = D().profile; if (!r.u.d) r.u.d = { dob: p.dob }; const e = r.u.err || {};
   ref('919');
-  const body = `${intro('Optional. Use month, day and year, for example 04/15/1988.')}${netAlert(r)}${fieldHtml({ id: 'ed-dob', f: 'dob', label: 'Date of birth', value: r.u.d.dob, opt: true, placeholder: 'MM/DD/YYYY', inputmode: 'numeric', autocomplete: 'bday', max: 10, help: 'MM/DD/YYYY', err: e.dob, cls: 'field--mid' })}${p.dob ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="dob-remove">Remove date of birth</button>` : ''}<p class="ss-note">${q(6)} Earliest and latest allowed dates aren’t defined. This prototype rejects future dates.</p>`;
-  return { body, saveDisabled: (r.u.d.dob || '') === (p.dob || ''), noSaveWhy: 'Make a change to save.' };
+  const body = `${intro('Optional. Use month, day and year, for example 04/15/1988.')}${netAlert(r)}${fieldHtml({ id: 'ed-dob', f: 'dob', label: 'Date of birth', value: r.u.d.dob, opt: true, placeholder: 'MM/DD/YYYY', inputmode: 'numeric', autocomplete: 'bday', max: 10, err: e.dob })}${p.dob ? `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="dob-remove">Remove date of birth</button>` : ''}`;
+  snote('Earliest and latest allowed dates of birth aren’t defined (Q6). The prototype rejects future dates.');
+  return { body, unchanged: (r.u.d.dob || '') === (p.dob || ''), saveDisabled: (r.u.d.dob || '') === (p.dob || ''), noSaveWhy: 'Make a change to save.' };
 };
 A['dob-remove'] = (t, ri) => { const r = edRoute(ri); r.u.d.dob = ''; r.u.dirty = true; render(); };
 HOOKS.dobmask = () => {};
@@ -4772,7 +4820,7 @@ SCR.discounts = (r, ri) => {
   const hasDis = d.assist.cat === 'disability';
   const opt = k => {
     const extra = k === 'pwd' && !hasDis && x.type !== 'pwd' ? '' : '';
-    return choice('radio', 'disc', 'type', k, x.type === k, DISCOUNTS[k].label, k === 'pwd' && hasDis ? 'Saved because your assistance says you have a disability.' : DISCOUNTS[k].info, extra);
+    return choice('radio', 'disc', 'type', k, x.type === k, DISCOUNTS[k].label, k === 'pwd' && hasDis ? 'Saved because your assistance says you have a disability.' : DISCOUNTS[k].info.replace(/ Eligibility details: content pending\.?/, ''), extra);
   };
   let cond = '';
   if (x.type === 'rpa') cond = fieldHtml({ id: 'rpa-id', f: 'rpa', label: 'Membership ID', type: 'tel', value: x.rpa, digits: 10, req: true, help: '6 to 10 digits, no spaces.', err: e.rpa });
@@ -4782,11 +4830,12 @@ SCR.discounts = (r, ri) => {
     ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
-  return { title: 'Passenger discounts', kind: 'editor', save: { a: 'disc-save', disabled: !changed, busy: !!r.u.busy }, body: body + (!changed ? `<p class="ads-helper" id="nosave-${ri}">Make a change to save.</p>` : ''), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
+  return Object.assign(edShell(r, 'Passenger discounts', body, 'disc-save'), { offlineText: 'You’re seeing your saved preference. Saving needs a connection.' });
 };
 A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u.dirty = false; sh.stack = [sh.stack[0], R('profile'), R('assist-profile', { returnTo: 'discounts' })]; pendingFocus = 'title'; render(); };
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
+  if (x.type === d.discount.type && (x.type !== 'rpa' || x.rpa === d.discount.rpa)) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; render(); return; } // nothing to save
   if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
   if (x.type === 'pwd' && d.assist.cat !== 'disability') { r.u.alert = { kind: 'custom', tone: 'error', title: 'Passenger with disability can’t be saved yet', text: 'Save assistance with “I have a disability” first.' }; pendingFocus = '[data-a="go-assist"]'; render(); return; }
   r.u.err = {};
@@ -4817,9 +4866,9 @@ SCR['assist-profile'] = (r, ri) => {
   const summary = `${doneMsg}${assistSummaryCard(saved, { title: 'Your assistance', edit: 'assist-p-edit' })}${saved.cat ? `<p class="ads-body-small ads-text-secondary">Used for Traveler 1 when you book. You can change it there for one trip.</p>` : ''}${r.u.returnTo || r.p.returnTo ? `<button class="ads-btn ads-btn--secondary" type="button" data-a="assist-return">Back to Passenger discounts</button>` : ''}`;
   if (!editing) return { title: 'Assistance', kind: 'push', body: summary, banner: false };
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(saved); r.u.mode = 'profile'; }
-  const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : '<p class="ads-body-small ads-text-secondary">With nothing selected, no assistance is saved.</p>'}${pwdPreview(fromDraft(r.u.d))}`;
+  const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : ''}${pwdPreview(fromDraft(r.u.d))}`;
   if (v3() && IPAD()) return { title: 'Assistance', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${assistSummaryCard(saved, { title: 'Saved now' })}</div><div class="split2__side"><div class="edpane">${form}</div></div></div>`, foot: `<div class="wizfoot"><button class="ads-btn ads-btn--secondary" type="button" data-a="assist-p-cancel">Cancel</button>${busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"')}</div>` };
-  if (v1()) return { title: 'Assistance requests', kind: 'editor', cancelA: 'assist-p-cancel', save: { a: 'assist-save', busy: !!r.u.busy }, body: form }; // the same Cancel / Save editor as every Profile edit
+  if (v1()) return edShell(r, 'Assistance requests', form, 'assist-save'); // the same editor as every Profile edit (Figma 3430:137973)
   return { title: 'Assistance', kind: saved.cat ? 'editor' : 'push', cancelA: 'assist-p-cancel', save: saved.cat ? { a: 'assist-save', busy: !!r.u.busy } : null, body: form, foot: busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"') };
 };
 A['assist-p-edit'] = (t, ri) => { const r = routeAt(ri); r.u.editing = true; r.u.d = undefined; r.u.step = null; r.u.savedMsg = null; pendingFocus = 'title'; render(); };
@@ -4828,6 +4877,7 @@ A['assist-p-cancel'] = (t, ri) => { const r = routeAt(ri); if (!D().assist.cat |
 A['assist-return'] = (t, ri) => { const sh = sheet(); sh.stack = [sh.stack[0], R('profile'), R('discounts')]; pendingFocus = 'title'; render(); };
 A['assist-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'profile');
+  if (v1() && JSON.stringify(fromDraft(x)) === JSON.stringify(fromDraft(toDraft(D().assist)))) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-assist"]'; render(); return; } // nothing to save
   if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
   const m = fromDraft(x), d = D();
   runSave(r, () => {
@@ -6212,7 +6262,7 @@ A['mode-pick'] = t => {
      adding a coupon, and Apply, which starts a booking with the code. Lounge passes are a separate user story and aren't part of this wallet. */
 
 // ---------- Amtrak employee pass details (NMA-20) ----------
-PFIELDS.employee = 'Amtrak employee pass';
+PFIELDS.employee = 'Employee pass'; // Figma 3430:140680
 const EMP_REL = { employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
 const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
@@ -6234,13 +6284,13 @@ EDITORS.employee = (r, ri, inline) => {
   prov('NMA-623 identifies Pass Riders by SAP ID and Index number; NMA-20 by Pass number and Personal index number. The prototype uses NMA-20’s fields (Q16).');
   let body = `${intro('Employees, retirees, spouses and dependents can save pass details to book with Pass Rider benefits.')}${netAlert(r)}${empStatus(d)}`;
   body += fieldHtml({ id: `${idp}-rel`, f: 'rel', label: 'Relationship', value: x.rel, select: Object.entries(EMP_REL).map(([v, l]) => [v, l]), req: true });
-  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, help: primary ? 'The primary pass holder’s 9-digit number.' : '9 digits.', err: e.pass, cls: 'field--mid' });
-  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, help: '3 digits.', err: e.index, cls: 'field--short' });
+  body += fieldHtml({ id: `${idp}-pass`, f: 'pass', label: primary ? 'Employee’s Pass number' : 'Pass number', value: x.pass, req: true, inputmode: 'numeric', digits: 9, max: 9, placeholder: '123456789', help: primary ? 'The primary pass holder’s number. Must be 9 digits.' : 'Must be 9 digits.', err: e.pass });
+  body += fieldHtml({ id: `${idp}-index`, f: 'index', label: 'Personal index number', value: x.index, req: true, inputmode: 'numeric', digits: 3, max: 3, placeholder: '123', help: 'Must be 3 digits.', err: e.index });
   if (x.rel === 'dependent') body += `<p class="ads-helper">Dependents 16 or older can book Pass Rider travel on their own.</p>`;
   if (e.match) body += alertBox('error', 'We couldn’t match these pass details', e.match);
   const unchanged = cur ? (x.rel === cur.rel && x.pass === cur.pass && x.index === cur.index) : !x.pass && !x.index;
   tip('Employee pass: any 9-digit Pass number and 3-digit Index save. 999999999 shows the “doesn’t belong to you” error (NMA-20 BR4 AC3). Scenario › Pass Rider employee, pass removed shows details the backend removed (BR4 AC4).');
-  return { body, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
+  return { body, unchanged: !!cur && unchanged, saveDisabled: unchanged, noSaveWhy: cur ? 'Make a change to save.' : 'Enter your pass details to save.', saveLabel: cur ? 'Save' : 'Add' };
 };
 SAVE.employee = (r, ri) => {
   const x = r.u.d, d = D(), e = {};
@@ -6280,30 +6330,55 @@ function couponLoad(r) {
   return r.u.load;
 }
 A['coupon-retry'] = (t, ri) => { const r = routeAt(ri); r.u.load = null; pendingFocus = 'title'; render(); };
+// My coupons (Figma Sprint 4 node 3430:147004): chevron Back and title; the intro; a card to add a coupon or promotional
+// code (info beside the label, clear inside the field, helper, Add); Available as one bordered list (name, code,
+// expiry, benefit, info button for details); Used and expired in an accordion; Save in the action footer.
+const fmtNum = s => { const [y, m, d] = s.split('-'); return `${m}/${d}/${y}`; };
+function couponRow(c) {
+  const st = couponState(c), name = c.name || c.kind;
+  const exp = st === 'used' ? `Used · Expires: ${fmtNum(c.exp)}` : st === 'expired' ? `Expired: ${fmtNum(c.exp)}` : `Expires: ${fmtNum(c.exp)}`;
+  return `<li class="cpl"><div class="cpl__lines"><span class="cpl__name">${esc(name)}</span><span class="cpl__code">Code: ${c.code}</span><span class="cpl__exp">${exp}</span><span class="cpl__benefit">${esc(c.benefit)}.</span></div><button class="ads-icon-btn ads-icon-btn--sm cpl__info" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(name)}">${ic('info-circle')}</button></li>`;
+}
 SCR.coupons = (r, ri) => {
-  const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '';
+  const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Save', 'Saving', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
-  if (load === 'loading') return { title: 'My coupons', kind: 'push', banner: false, body: `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>` };
-  if (load === 'error') return { title: 'My coupons', kind: 'push', banner: false, body: alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>') };
+  if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
+  if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
   const avail = [...d.coupons].sort((x, y) => x.exp.localeCompare(y.exp));
   const past = [...(d.couponsPast || [])].sort((x, y) => y.exp.localeCompare(x.exp));
-  const add = `<section class="cpn-add" aria-labelledby="cpn-add-h"><h3 class="ads-h5" id="cpn-add-h">Add a coupon</h3><div class="ffc-codeentry"><div class="ads-control ads-control--pill${e ? ' ads-control--error' : ''}"><label class="ads-sr-only" for="cpn-in">Coupon code</label><input id="cpn-in" data-f="add" data-nodirty value="${esc(r.u.d.add)}" maxlength="14" autocomplete="off" placeholder="14-character coupon code" ${e ? 'aria-invalid="true" aria-describedby="cpn-err"' : ''}></div>${r.u.busy ? `<button class="ads-btn ads-btn--secondary" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary" type="button" data-a="coupon-add">Add</button>'}</div>${e ? `<p class="ads-helper ads-helper--error" id="cpn-err" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : '<p class="ads-helper">Coupons sent to you by email can be added here and used by anyone you share them with.</p>'}</section>`;
-  const availH = avail.length ? `<ul class="cpn-list" aria-label="Available coupons">${avail.map(couponCard).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you get, or add here, show up in this list.</p></div>`;
-  const pastH = past.length ? `<ul class="cpn-list" aria-label="Used and expired coupons">${past.map(couponCard).join('')}</ul><p class="ss-note">Used and expired coupons stay here for a limited time. ${q(17)}</p>` : '<p class="ss-note">No used or expired coupons.</p>';
-  tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other 14 characters (not found).');
-  const body = `${netAlert(r)}<section aria-labelledby="cpn-av"><h3 class="ads-h5" id="cpn-av">Available</h3>${availH}<p class="ss-note">Reminders before a coupon expires, and notices when one is added, depend on a notification channel that isn’t decided. ${q(17)}</p></section>${add}<section aria-labelledby="cpn-past"><h3 class="ads-h5" id="cpn-past">Used and expired</h3>${pastH}</section>`;
-  return { title: 'My coupons', kind: 'push', body, offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' };
+  const help = e ? `<p class="ads-helper ads-helper--error" id="cpn-in-h" role="alert">${ic('alert-diamond')}<span>${esc(e)}</span></p>` : `<p class="ads-helper" id="cpn-in-h">Codes should be 4 or 14 characters long.</p>`;
+  const add = `<section class="ed-card cpn-addcard" aria-label="Add a coupon"><div class="ads-field"><div class="apc-label"><label class="ads-field__label" for="cpn-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
+    <div class="ads-control${e ? ' ads-control--error' : ''}"><input id="cpn-in" type="text" data-f="add" data-nodirty value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cpn-in-h"${e ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="cpn-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>
+    ${r.u.busy ? `<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Adding</button>` : '<button class="ads-btn ads-btn--secondary ads-btn--sm ads-btn--block" type="button" data-a="coupon-add">Add</button>'}</section>`;
+  const availH = avail.length ? `<ul class="cpl-list" aria-label="Available coupons">${avail.map(couponRow).join('')}</ul>` : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">Coupons you add here show up in this list.</p></div>`;
+  const open = !!r.u.pastOpen;
+  const pastH = `<div class="cpn-acc${open ? ' is-open' : ''}"><button class="cpn-acc__head" type="button" data-a="cpn-past" aria-expanded="${open}" aria-controls="cpn-past-panel" id="cpn-past-h"><span>Used and expired</span>${ic('chevron-down', 'cpn-acc__chev')}</button><div class="cpn-acc__panel" id="cpn-past-panel" role="region" aria-labelledby="cpn-past-h"${open ? '' : ' hidden'}>${past.length ? `<ul class="cpl-list" aria-label="Used and expired coupons">${past.map(couponRow).join('')}</ul>` : '<p class="ads-body-small ads-text-secondary">No used or expired coupons.</p>'}</div></div>`;
+  tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other code (not found).');
+  snote('Coupon reminders and added-coupon notices depend on a notification channel that isn’t decided; used and expired coupons are kept for a time that isn’t defined (Q17). Save keeps a code you typed (it’s added) and returns to Profile.');
+  return shell(`${netAlert(r)}<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
 };
-A['coupon-add'] = (t, ri) => {
-  const r = routeAt(ri), d = D(), c = (r.u.d.add || '').trim().toUpperCase();
-  if (!/^[A-Z0-9]{14}$/.test(c)) { r.u.err = 'Enter the 14-character coupon code.'; pendingFocus = '#cpn-in'; render(); return; }
+A['cpn-past'] = (t, ri) => { const r = routeAt(ri); r.u.pastOpen = !r.u.pastOpen; pendingFocus = '#cpn-past-h'; render(); };
+A['cpn-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = ''; r.u.err = ''; pendingFocus = '#cpn-in'; render(); };
+// Save: a typed code is added first; then back to Profile
+A['coupons-save'] = (t, ri) => {
+  const r = routeAt(ri), inp = document.querySelector('#cpn-in'); if (inp) r.u.d.add = inp.value;
+  const back = () => { popTo(+ri - 1); pendingFocus = '[data-k="row-coupons"]'; render(); };
+  if (!(r.u.d.add || '').trim()) return back();
+  A['coupon-add'](t, ri, back);
+};
+A['coupon-add'] = (t, ri, then) => {
+  const r = routeAt(ri), inp = document.querySelector('#cpn-in'); if (inp) r.u.d.add = inp.value;
+  const d = D(), c = (r.u.d.add || '').trim().toUpperCase();
+  if (!CODE_FORMAT.test(c)) { r.u.err = 'This code isn’t valid. Codes should be 4 or 14 characters long.'; pendingFocus = '#cpn-in'; render(); return; }
   if (d.coupons.some(x => x.code === c)) { r.u.err = 'This coupon is already in your account.'; pendingFocus = '#cpn-in'; render(); return; }
   r.u.err = '';
   runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
     if (res.err) { r.u.err = res.err; pendingFocus = '#cpn-in'; render(); return; } // NMA-697 BR8 AC3
     d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
-    r.u.d.add = ''; pendingFocus = `[data-a="coupon-apply"][data-code="${c}"]`; toast('Coupon added to your account'); // BR8 AC4
+    r.u.d.add = ''; pendingFocus = `[data-a="info"][data-topic="coupon:${c}"]`; toast('Coupon added to your account'); // BR8 AC4
+    if (then) then();
   }, { what: 'add a coupon' });
 };
 // Apply: start a booking with this code (standard booking, paying cash)

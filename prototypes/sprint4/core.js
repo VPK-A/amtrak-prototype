@@ -405,7 +405,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || top.s === 'profile' ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {

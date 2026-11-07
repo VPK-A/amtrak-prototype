@@ -62,7 +62,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await ev(() => { goLoc('coupons'); }); await w(400);
     const t = await txt();
     ok(!/lounge/i.test(t) && await ev(() => !D().coupons.some(c => /lounge/i.test(c.kind + c.name)) && !(D().couponsPast || []).some(c => /lounge/i.test(c.kind + c.name))), `${T} no lounge passes in My coupons (available, used or expired)`);
-    ok(await p.locator(D_ + '.cpn [data-a="coupon-apply"]').count() === await ev(() => D().coupons.length), `${T} every available coupon has Apply`);
+    ok(await p.locator(D_ + '.cpl-list[aria-label="Available coupons"] .cpl__info').count() === await ev(() => D().coupons.length), `${T} every available coupon is listed with a details button`);
     await ev(() => { goLoc('profile'); }); await w(300); ok(/My coupons/.test(await txt()) && new RegExp(`${await ev(() => D().coupons.length)} available`).test(await txt()), `${T} coupon count matches the wallet`);
     await ev(() => { goLoc('ff'); }); await w(300); await openCode(); ok(await ev(() => document.querySelectorAll('#device .apc-row').length) === 3, `${T} Apply coupon lists the 3 saved codes`);
     ok(!/lounge/i.test(await txt()), `${T} Apply coupon lists no lounge passes`);
