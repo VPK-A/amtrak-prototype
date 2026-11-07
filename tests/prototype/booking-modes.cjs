@@ -28,13 +28,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await pick('corporate'); ok((await bk()).intent === 'corporate', 'TripLink corporate again');
   // ---- Pass Rider (Business Pass holder) ----
   await go('passrider');
-  ok(await opts() === 'pr:Pass Rider,personal:Regular' && (await bk()).intent === 'pr' && (await bk()).prType === null, 'Pass Rider: dropdown with Pass Rider and Regular; Pass Rider by default; Business / Leisure not preselected');
+  ok(await opts() === 'pr:Pass Rider,personal:Regular' && (await bk()).intent === 'pr' && (await bk()).prType === 'business', 'Pass Rider: dropdown with Pass Rider and Regular; Pass Rider by default; Business preselected');
   ok(await p.locator(D_ + '[data-a="pr-type"]').count() === 0 && await p.locator(D_ + '[data-a="mode-open"]').count() === 0, 'no Booking type entry or Business / Leisure on the Fare Finder');
-  ok(/Choose Business or Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && await p.locator(D_ + '[data-a="find-trains"]').isDisabled() && /in Travelers/.test(await ev(() => document.querySelector('#device #ff-find-why').textContent)), 'Find trains disabled until Business or Leisure is chosen in Travelers');
+  ok(/You only · Business travel/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && !(await p.locator(D_ + '[data-a="find-trains"]').isDisabled()), 'Travelers shows Business travel by default; Find trains enabled');
   await p.click(D_ + '#ff-trav'); await w(700);
-  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.textContent + ':' + t.getAttribute('aria-selected')).join()) === 'Business:false,Leisure:false' && await p.locator(D_ + '.pr-choose').count() === 1 && await p.locator(D_ + '[data-a="pick-travelers-done"]').isDisabled(), 'Traveler selection: Business / Leisure tabs, neither selected, Done waits');
-  ok(await ev(() => document.querySelector('#device #prt-business').tabIndex === 0), 'tabs reachable by keyboard before a choice');
-  await axe('tabs, nothing chosen');
+  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.textContent + ':' + t.getAttribute('aria-selected')).join()) === 'Business:true,Leisure:false' && await p.locator(D_ + '.pr-choose').count() === 0 && !(await p.locator(D_ + '[data-a="pick-travelers-done"]').isDisabled()), 'Traveler selection: Business / Leisure tabs, Business selected by default');
+  ok(await ev(() => document.querySelector('#device #prt-business').tabIndex === 0 && document.querySelector('#device #prt-leisure').tabIndex === -1), 'selected tab is the keyboard stop');
+  await axe('tabs, Business');
   await p.click(D_ + '#prt-leisure'); await w(300);
   ok((await bk()).prType === 'leisure' && await p.locator(D_ + '.ffc-riders input[type="checkbox"]').count() === 4 && await p.locator(D_ + '[data-a="pax"][data-k="comp"]').count() === 2, 'Leisure: named riders as checkboxes, Companions counter');
   await p.click(`${D_}label[for="prr-maya"]`); await w(250);
@@ -46,9 +46,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // Back undoes the choice
   await p.click(D_ + '.pane .ads-navbar [data-a="back"]'); await w(500);
   if (await ev(() => !!nav().dialog)) { await ev(() => closeDialog(nav().dialog.actions[1][2])); await w(400); }
-  ok(await ev(() => sheet().stack.at(-1).s === 'ff') && (await bk()).prType === null, 'Back undoes Business / Leisure with the other traveler changes');
+  ok(await ev(() => sheet().stack.at(-1).s === 'ff') && (await bk()).prType === 'business', 'Back undoes Business / Leisure with the other traveler changes');
   // Business clears Auto Train; Done returns
-  await ev(() => { const b = D().booking; b.from = 'LOR'; b.to = 'SFA'; render(); }); await w(200);
+  await ev(() => { const b = D().booking; b.prType = 'leisure'; b.from = 'LOR'; b.to = 'SFA'; render(); }); await w(200);
   await p.click(D_ + '#ff-trav'); await w(700); await p.click(D_ + '#prt-business'); await w(300);
   ok(await ev(() => !D().booking.from && !D().booking.to), 'Business clears Auto Train stations (NMA-1016 AC4)');
   await p.click(D_ + '[data-a="pick-travelers-done"]'); await w(500);
@@ -66,6 +66,24 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => [...document.querySelectorAll('#tbScenario option')].every(o => o.value !== 'triplink-passrider')), 'no dual TripLink and Pass Rider scenario');
   await go('passrider');
   await axe('Fare Finder dropdown');
+  // ---- Prototype controls › Pass Rider travel type: Business / Leisure in the Booking type dropdown ----
+  const setPrType = v => ev(v => { const s = document.getElementById('tbCmpPrType'); s.value = v; s.dispatchEvent(new Event('change')); }, v).then(() => w(300));
+  ok(await ev(() => [...document.querySelectorAll('#tbCmpPrType option')].map(o => o.value).join()) === 'tabs,dropdown' && await ev(() => document.getElementById('tbCmpPrType').value) === 'tabs', 'Prototype controls: Pass Rider travel type, tabs (current) by default');
+  await setPrType('dropdown'); await go('passrider');
+  ok(await opts() === 'pr:business:Pass Rider — Business,pr:leisure:Pass Rider — Leisure,personal:Regular' && await ev(() => document.querySelector('#device #ff-mode').value) === 'pr:business' && (await bk()).prType === 'business', 'dropdown version: Pass Rider — Business, Pass Rider — Leisure, Regular; Business by default');
+  await pick('pr:leisure');
+  ok((await bk()).prType === 'leisure' && /Alex Rivera/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)), 'choosing Pass Rider — Leisure sets Leisure');
+  await p.click(D_ + '#ff-trav'); await w(700);
+  ok(await p.locator(D_ + '.pr-tabs').count() === 0 && /Leisure travel\..*use Booking type on New booking/.test(await ev(() => document.querySelector('#device #prt-h').textContent)) && await p.locator(D_ + '.ffc-riders input').count() === 4, 'dropdown version: no tabs in Traveler selection; Leisure checkboxes and where to change it');
+  await axe('dropdown version, Traveler selection');
+  await ev(() => { while (sheet().stack.length > 1) sheet().stack.pop(); const b = D().booking; b.from = 'LOR'; b.to = 'SFA'; render(); }); await w(300);
+  await pick('pr:business'); ok((await bk()).prType === 'business' && await ev(() => !D().booking.from && !D().booking.to), 'Pass Rider — Business clears Auto Train stations');
+  await pick('personal'); ok((await bk()).intent === 'personal' && await p.locator(D_ + '#ff-coderow').count() === 1, 'Regular from the dropdown');
+  await go('passrider-nopass');
+  ok(await opts() === 'pr:leisure:Pass Rider — Leisure,personal:Regular' && /Business travel needs an active Business Pass/.test(await ev(() => document.querySelector('#device .v1modes').innerText)), 'no Business Pass: Pass Rider — Leisure and Regular, with the reason');
+  await go('passrider'); await axe('dropdown version, Fare Finder');
+  await setPrType('tabs');
+
   await go('passrider', 'dark'); await p.click(D_ + '#ff-trav'); await w(700); await p.click(D_ + '#prt-leisure'); await w(300); await axe('dark tabs');
   ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();

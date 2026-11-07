@@ -71,7 +71,8 @@ function freshBooking(d) {
     // The special booking type is selected by default for its eligible members (NMA-622 AC2, NMA-623 AC2). A member
     // is never both a TripLink traveler and a Pass Rider.
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    prType: d.passrider && !d.passrider.business ? 'leisure' : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
+    // Business by default for Business Pass holders (team decision; NMA-1016 AC2 said neither); Leisure otherwise
+    prType: d.passrider ? (d.passrider.business ? 'business' : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }

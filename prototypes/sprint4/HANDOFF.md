@@ -803,9 +803,9 @@ The comparison options in Prototype controls were removed, and the prototype kee
 
 - **Fare Finder:** a compact *Booking type* dropdown above the trip tabs offers *TripLink corporate* and *Regular* for TripLink members, or *Pass Rider* and *Regular* for Pass Rider members. The special type is selected by default (NMA-622 AC2, NMA-623 AC2). Choosing Regular brings back points, passenger discounts and codes. If Pass Rider can't be started (a dependent 15 or younger, or a removed pass), the dropdown shows Regular, lists Pass Rider as unavailable, and gives the reason beneath.
 - **No dual accounts:** a member is never both a TripLink traveler and a Pass Rider, so the dual scenario was removed and Q26 is resolved.
-- **Business or Leisure** moves to Traveler selection, as tabs at the top for employees with a Business Pass. Neither is preselected (NMA-1016 AC2): until one is chosen, the panel asks for it, Done waits, the Fare Finder's Travelers row reads *Choose Business or Leisure*, and Find trains stays disabled.
-  - *Leisure:* named riders as checkboxes, with the Companions counter. Selections are kept when switching tabs.
-  - *Business:* you alone; Auto Train stations are cleared as before.
-  - Back undoes the choice along with the other traveler changes.
-- **Members without a Business Pass** (retirees, spouses, dependents, employees without one) have no tabs. They see Leisure, with the reason Business isn't available.
+- **Business or Leisure** is chosen in one of two places, set by **Prototype controls › Pass Rider travel type**:
+  - *Business / Leisure tabs in Traveler selection* (current, the default): tabs at the top of Traveler selection for employees with a Business Pass. In Leisure, named riders are checkboxes, with the Companions counter; selections are kept when switching tabs. In Business, you travel alone and Auto Train stations are cleared as before. Back undoes the choice along with the other traveler changes.
+  - *Business / Leisure in the Booking type dropdown*: the dropdown offers *Pass Rider — Business*, *Pass Rider — Leisure* and *Regular*. Choosing Business clears Auto Train stations the same way. Traveler selection has no tabs; it says which travel type is set and to change it in Booking type on New booking.
+- **Default: Business** for employees with a Business Pass, in both versions (team decision). This conflicts with NMA-1016 AC2, which says neither is preselected; the conflict is flagged in the screen notes. The rules for an unchosen travel type are kept in case it's needed: Done and Find trains wait until one is chosen.
+- **Members without a Business Pass** (retirees, spouses, dependents, employees without one) get Leisure: no tabs, and in the dropdown version only *Pass Rider — Leisure* and *Regular*, with the reason Business isn't available.
 - **Checks:** `tests/prototype/booking-modes.cjs`.

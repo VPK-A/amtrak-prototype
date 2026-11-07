@@ -153,19 +153,31 @@ function modesV1(r, b) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
   const tl = !!d.triplink, sp = tl ? 'corporate' : 'pr', can = tl ? { ok: true } : prCanStart(d);
   if (tl) ref('622'); else ref('623', '1016');
-  const cur = b.intent === sp ? sp : 'personal';
-  const opts = [[sp, tl ? 'TripLink corporate' : 'Pass Rider', !can.ok], ['personal', 'Regular', false]];
+  // Pass Rider with Business / Leisure in this dropdown (Prototype controls › Pass Rider travel type)
+  const inDd = !tl && prTypeInDropdown(), biz = !tl && d.passrider.role === 'employee' && d.passrider.business;
+  let opts, cur;
+  if (inDd) {
+    opts = [...(biz ? [['pr:business', 'Pass Rider — Business', !can.ok]] : []), ['pr:leisure', 'Pass Rider — Leisure', !can.ok], ['personal', 'Regular', false]];
+    cur = b.intent === 'pr' ? (b.prType ? `pr:${b.prType}` : '') : 'personal';
+  } else {
+    opts = [[sp, tl ? 'TripLink corporate' : 'Pass Rider', !can.ok], ['personal', 'Regular', false]];
+    cur = b.intent === sp ? sp : 'personal';
+  }
   const help = cur === 'corporate' ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.'
-    : cur === 'pr' ? 'Employee pass travel. Choose Business or Leisure in Travelers. Points, passenger discounts and codes aren’t used.'
+    : cur === '' || cur.startsWith('pr') ? (inDd ? `${prTypeHelp(b)} Points, passenger discounts and codes aren’t used.` : 'Employee pass travel. Business or Leisure is chosen in Travelers. Points, passenger discounts and codes aren’t used.')
     : 'Regular fares, with points, passenger discounts and codes.';
-  const why = can.ok ? '' : `Pass Rider isn’t available: ${can.text}`;
+  const why = !can.ok ? `Pass Rider isn’t available: ${can.text}` : inDd && !biz ? prLeisureWhy(d) : '';
   if (cur === 'corporate') q(12);
-  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode" data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
+  if (biz) snote('Business is selected by default for Business Pass holders (team decision). Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
+  return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode" data-f="ffmode" data-nodirty data-hook="ffmode" aria-describedby="ff-mode-h${why ? ' ff-mode-why' : ''}">${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="ff-mode-h">${help}</p>${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
+// Booking type, then (in the dropdown version) Business or Leisure, with the existing rules (Auto Train cleared for Business)
 HOOKS.ffmode = (r, t) => {
-  const d = D(), b = d.booking; b.modeNote = null;
-  if (t.value === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = '#ff-mode'; return; }
-  setIntent(b, t.value); pendingFocus = '#ff-mode';
+  const d = D(), b = d.booking, [mode, type] = t.value.split(':'); b.modeNote = null; if (!mode) return;
+  if (mode === 'pr' && !prCanStart(d).ok) { b.modeNote = prCanStart(d).text; pendingFocus = '#ff-mode'; return; }
+  setIntent(b, mode);
+  if (mode === 'pr' && type) { b.prType = type; b.notice = null; clearAutoTrainIfBlocked(b); }
+  pendingFocus = '#ff-mode';
 };
 function assistBlock(r, ri, host, o = {}) {
   const v = V(), b = v.data.booking; if (v.entry !== host) return '';
@@ -188,7 +200,7 @@ function findBtn(r) {
   const b = D().booking, needType = intentOf(b) === 'pr' && !b.prType;
   if (r.u.busy) return busyBtn(r, '', 'Finding trains');
   const off = needType;
-  return `${needType ? '<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure in Travelers to find trains.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
+  return `${needType ? `<p class="ads-helper findwhy" id="ff-find-why">Choose Business or Leisure in ${prTypeInDropdown() ? 'Booking type' : 'Travelers'} to find trains.</p>` : ''}<button class="ads-btn ads-btn--block" type="button" data-a="find-trains" ${off ? `disabled${needType ? ' aria-describedby="ff-find-why"' : ''}` : ''}>Find trains</button>`;
 }
 
 SCR.ff = (r, ri) => {

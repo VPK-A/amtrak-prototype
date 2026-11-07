@@ -252,12 +252,13 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
     // Neither is preselected (AC2): until one is chosen, the panel asks for it and Find trains stays disabled.
-    const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType;
+    const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
     const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'business') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
-    const tabs = elig ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
-    const help = elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
+    const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
+    const help = elig && inDd ? `<p class="ads-helper pr-tabs__help" id="prt-h">${t0 ? `${t0 === 'business' ? 'Business' : 'Leisure'} travel. ` : ''}${prTypeHelp(b)} To change it, use Booking type on New booking.</p>`
+      : elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
     let panel;
-    if (!t0) { ok = false; why = 'Choose Business or Leisure travel.'; panel = `<p class="pr-choose">Choose Business or Leisure travel to see who can travel.</p>`; }
+    if (!t0) { ok = false; why = 'Choose Business or Leisure travel.'; panel = `<p class="pr-choose">${inDd ? 'Choose Business or Leisure in Booking type on New booking to see who can travel.' : 'Choose Business or Leisure travel to see who can travel.'}</p>`; }
     else if (t0 === 'business') panel = `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', true, false, 'prt-h')}</fieldset>`; // Business: you alone
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
@@ -268,7 +269,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}`;
     }
-    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
+    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
