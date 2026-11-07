@@ -123,7 +123,6 @@ const ASSIST_COPY = {
   largeAnimal: 'Large service animal', largeAnimalHelp: 'A trained service animal that needs more space. You’ll add small or medium service animals in Traveler information after you choose a fare.',
   animalLaterKept: size => `Your ${size} service animal is kept. You’ll confirm it in Traveler information after you choose a fare.`,
   animalLaterSummary: size => `Service animal (${size}): add details in Traveler information`,
-  noneSelected: 'With nothing selected, no assistance is requested for this traveler.',
   noneSummary: 'No assistance requested', stationSummary: 'Station assistance included',
   removed: {
     disability: 'Disabilities and the wheelchair answer were removed: they only apply to “I have a disability”.',

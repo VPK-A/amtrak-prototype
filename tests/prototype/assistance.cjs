@@ -26,7 +26,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await ask('adult-1'); ok(await top() === 'assist' && /For Traveler 1 · Adult/.test(await txt()), 'checking opens Traveler 1’s questionnaire, traveler named');
   ok(await ev(() => [...document.querySelectorAll('#device input[name$="-cat"]')].map(i => i.value).join()) === 'disability,station,companion' && !/I do not need assistance/.test(await txt()), 'three types, no “I do not need assistance”');
   ok(await p.locator(D_ + 'input[name$="-cat"][value="companion"]:disabled').count() === 1 && /another traveler on this booking needs to choose “I have a disability” first/.test(await txt()), 'personal companion unavailable, with reason');
-  ok(/With nothing selected, no assistance is requested/.test(await txt()) && /Optional/.test(await ev(() => document.querySelector('#device .assistform legend').innerText)), 'type of help is optional; empty selection explained');
+  ok(!/With nothing selected/.test(await txt()) && /Optional/.test(await ev(() => document.querySelector('#device .assistform legend').innerText)), 'type of help is optional; no extra text when nothing is selected');
   await axe('questionnaire with error');
   await confirm(); ok(await top() === 'travelers' && !(await rec('adult-1')).done && /Add assistance/.test(await card('adult-1')), 'continuing with nothing selected: no assistance requested');
   await ask('adult-1'); await pick('cat', 'station'); await confirm(); ok(await top() === 'travelers' && /Station assistance included/.test(await card('adult-1')) && /Edit assistance/.test(await card('adult-1')), 'station saved, Edit on the card');
