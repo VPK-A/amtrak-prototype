@@ -6,7 +6,7 @@ const rich = () => TB.v >= 3;
 // ---------- Small renderers ----------
 function fieldHtml(o) {
   const id = o.id, err = o.err;
-  const marker = o.req ? '<span class="ads-field__marker ads-field__marker--required">Required</span>' : o.opt ? '<span class="ads-field__marker ads-field__marker--optional">Optional</span>' : '';
+  const marker = o.req ? '<span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span>' : o.opt ? '<span class="ads-field__marker ads-field__marker--optional">Optional</span>' : '';
   const attrs = [o.type === 'tel' || o.inputmode ? `inputmode="${o.inputmode || 'numeric'}"` : '', o.autocomplete ? `autocomplete="${o.autocomplete}"` : '', o.max ? `maxlength="${o.max}"` : '', o.placeholder ? `placeholder="${esc(o.placeholder)}"` : '', o.digits != null ? `data-digits="${o.digits}"` : '', o.alpha ? 'data-alpha' : '', o.live ? 'data-live' : '', o.readonly ? 'readonly' : '', err ? 'aria-invalid="true"' : '', o.req ? 'aria-required="true"' : ''].filter(Boolean).join(' ');
   const control = o.select
     ? `<div class="ads-control ads-control--select${err ? ' ads-control--error' : ''}"><select id="${id}" data-f="${o.f}" ${o.hook ? `data-hook="${o.hook}"` : ''} ${err || o.help ? `aria-describedby="${id}-h"` : ''} ${err ? 'aria-invalid="true"' : ''} ${o.req ? 'aria-required="true"' : ''}>${o.select.map(([v, l]) => `<option value="${esc(v)}" ${String(o.value) === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>${ic('chevron-down')}</div>`
@@ -416,12 +416,12 @@ function calendarBody(r, ri, field) {
 // Design-review revision. Edits a draft (r.u.cal): Done saves to the booking and returns to Fare Finder; Back returns
 // without saving and without asking. Departure and return are edited one at a time; switching keeps the other.
 // A new departure after the chosen return keeps that return marked as needing a new choice (never changed silently).
-function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
+function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && (r.p.field === 'ret' || !b.ret) ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
 function calScroll(r, ri) {
   const b = D().booking, c = calDraft(r), rt = b.trip === 'rt', edit = rt ? c.edit : 'dep';
   ref('1060'); q(4); // the 335-day window isn't confirmed (Q4): dates beyond it are disabled, no policy text
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = c.dep ? addDays(c.dep, WINDOW_DAYS) : maxDep;
-  const isOff = s => s < TODAY_S || (edit === 'dep' && s > maxDep) || (edit === 'ret' && (s < c.dep || s > maxRet));
+  const isOff = s => s < TODAY_S || (edit === 'ret' && c.dep && s >= c.dep ? s > maxRet : s > maxDep); // choosing a return: an earlier date moves the departure instead
   const retOk = rt && c.ret && !c.retBad;
   const first = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), lastS = edit === 'ret' ? maxRet : maxDep, last = parse(lastS);
   const months = []; for (let d = new Date(first); d <= last; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
@@ -437,21 +437,20 @@ function calScroll(r, ri) {
     let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span aria-hidden="true"></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd);
     return `<section class="ads-calendar__month calx-month" data-month="${key}" aria-labelledby="${id}"><h3 id="${id}">${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-labelledby="${id}">${g}</div></section>`;
   };
-  // Which date is being edited: two ADS tabs that show both choices (round trip); one-way shows the departure only
-  const val = (k, v) => v ? fmtShort(v) : k === 'ret' ? 'Choose a date' : 'Not set';
-  const pick = rt ? `<div class="ads-tabs ads-tabs--fill cal-pick" role="tablist" aria-label="Date to edit">${tabBtn(edit === 'dep', 'data-a="calx-edit" data-v="dep"', `<span class="cal-pick__k">Departure</span><span>${val('dep', c.dep)}</span>`)}${tabBtn(edit === 'ret', `data-a="calx-edit" data-v="ret"${c.retBad ? ' aria-describedby="calx-why"' : ''}`, `<span class="cal-pick__k">Return</span><span class="${c.retBad ? 'calx-bad' : ''}">${c.retBad ? 'Choose again' : val('ret', c.ret)}</span>`)}</div>`
-    : `<p class="calx-one"><span class="cal-pick__k">Departure</span> <b>${val('dep', c.dep)}</b></p>`;
+  // Figma 3554:123276: weekday letters pinned above the months, with a rule; no tabs or legend. For a round trip the
+  // first tap sets departure and the next sets return; after that a tap changes departure again. Which date is
+  // next is announced, and the footer says what's still needed.
   const why = c.retBad ? `<div class="ads-alert ads-alert--warning calx-why" id="calx-why" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">Your return date, ${fmtShort(c.ret)}, is before your new departure. Choose a new return date.</p></div></div>` : '';
   const live = `<p class="ads-sr-only" role="status">${edit === 'dep' ? 'Choose a departure date' : 'Choose a return date'}</p>`;
-  const legend = `<ul class="calx-legend" aria-hidden="true"><li><span class="calx-key calx-key--today">${new Date(TODAY).getDate()}</span>Today</li><li><span class="calx-key calx-key--sel"></span>${rt ? 'Your dates' : 'Departure'}</li>${rt ? '<li><span class="calx-key calx-key--range"></span>Between</li>' : ''}<li><span class="calx-key calx-key--off">1</span>Unavailable</li></ul>`;
-  return `<div class="calx-head">${pick}${why}${live}${legend}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
+  return `<div class="calx-head">${why}${live}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
   if (v1()) {
-    const c = calDraft(r), need = b.trip === 'rt' && (!c.ret || c.retBad);
-    const foot = `${need ? '<p class="ads-helper" id="calx-done-why">Choose a return date to save your dates.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Done</button>`;
-    return { title: 'Dates', kind: 'push', noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, banner: false };
+    const c = calDraft(r), rt = b.trip === 'rt', needDep = !c.dep, needRet = rt && !needDep && (!c.ret || c.retBad), need = needDep || needRet;
+    const msg = needDep ? (rt ? 'Choose your departure and return dates.' : 'Choose a departure date.') : 'Choose a return date.';
+    const foot = `${need ? `<p class="ads-helper" id="calx-done-why">${msg}</p>` : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Save selection</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="calx-clear">Clear</button>`;
+    return { title: rt ? 'Select dates' : 'Select date', kind: 'push', backIcon: true, noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, footCls: 'ads-actionfooter', banner: false };
   }
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
@@ -462,13 +461,16 @@ A['calx-day'] = (t, ri) => {
   if (!rt || c.edit === 'dep') {
     c.dep = s;
     if (rt && c.ret && c.ret < s) { c.retBad = true; c.edit = 'ret'; c.jump = true; pendingFocus = '#calx-why'; render(); return; } // guide to a new return; never change it silently
-    if (rt && !c.ret) { c.edit = 'ret'; c.jump = true; }
-  } else { c.ret = s; c.retBad = false; }
+    if (rt) c.edit = 'ret'; // next tap: return
+  } else if (c.dep && s < c.dep) { c.dep = s; if (c.ret && c.ret < s) c.ret = null; } // before the departure: it becomes the new departure; still choosing a return
+  else { c.ret = s; c.retBad = false; c.edit = 'dep'; } // next tap changes departure
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
+// Clear: no dates chosen; Save selection waits for them
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = null; c.ret = null; c.retBad = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
-  if (b.trip === 'rt' && (!c.ret || c.retBad)) return;
+  if (!c.dep || (b.trip === 'rt' && (!c.ret || c.retBad))) return;
   b.dep = c.dep; if (b.trip === 'rt') b.ret = c.ret;
   popTo(+ri - 1); pendingFocus = '#ff-dep';
 };
@@ -581,7 +583,7 @@ function needsBlock(r, x, idp, explain, e = {}) {
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
   const opts = AC.animalSizes.map(([v, l]) => choice('radio', `${idp}-asize`, 'animal', v, x.animal === v, l, v === 'large' && largeOff ? AC.largeBlocked : '', `data-hook="assist" ${v === 'large' && largeOff ? 'disabled' : ''}`)).join('');
-  return `<fieldset class="ads-fieldset ads-fieldset--inline assist-size" ${e.animal ? `aria-describedby="${idp}-asize-err"` : ''}><legend class="ads-field-label">${AC.animalSizeLegend} <span class="ads-field__marker ads-field__marker--required">Required</span></legend><div class="ads-fieldset__options">${opts}</div>${e.animal ? `<p class="ads-helper ads-helper--error" id="${idp}-asize-err">${ic('alert-diamond')}<span>${e.animal}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline assist-size" ${e.animal ? `aria-describedby="${idp}-asize-err"` : ''}><legend class="ads-field-label">${AC.animalSizeLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${opts}</div>${e.animal ? `<p class="ads-helper ads-helper--error" id="${idp}-asize-err">${ic('alert-diamond')}<span>${e.animal}</span></p>` : ''}</fieldset>`;
 }
 // Why Personal companion can't be chosen for this traveler right now
 function companionWhy(b, key) {
@@ -603,10 +605,10 @@ function catBlock(r, x, idp, mode, e, branch) {
   return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required assist-ast" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required">Required</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {

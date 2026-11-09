@@ -66,6 +66,14 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => [...document.querySelectorAll('#tbScenario option')].every(o => o.value !== 'triplink-passrider')), 'no dual TripLink and Pass Rider scenario');
   await go('passrider');
   await axe('Fare Finder dropdown');
+  // Prototype controls › Pass Rider default travel type: None (default) or Leisure
+  ok(await ev(() => [...document.querySelectorAll('#tbCmpPrDef option')].map(o => o.value).join()) === 'none,leisure' && await ev(() => document.getElementById('tbCmpPrDef').value) === 'none', 'Prototype controls: Pass Rider default travel type, None by default');
+  await ev(() => { const s = document.getElementById('tbCmpPrDef'); s.value = 'leisure'; s.dispatchEvent(new Event('change')); }); await go('passrider');
+  ok((await bk()).prType === 'leisure' && /Pass Rider · Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && !(await p.locator(D_ + '[data-a="find-trains"]').isDisabled()), 'Leisure default: Leisure set for a Business Pass holder; Find trains ready');
+  await p.click(D_ + '#ff-trav'); await w(700);
+  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.getAttribute('aria-selected')).join()) === 'false,true' && /NMA-1016 AC2/.test(await ev(() => document.querySelector('#notes').innerText)), 'Leisure tab selected; the AC2 conflict is noted');
+  await ev(() => { const s = document.getElementById('tbCmpPrDef'); s.value = 'none'; s.dispatchEvent(new Event('change')); }); await go('passrider');
+  ok((await bk()).prType === null, 'back to None: neither preselected');
   ok(await ev(() => !document.getElementById('tbCmpPrType')), 'Prototype controls: no Pass Rider travel type option (tabs in Traveler selection only)');
   // Description line under Booking type: TripLink only; Pass Rider shows a line only for an unavailable option
   for (const [sc, m, want] of [['triplink', 'tabs', 'ff-mode-h'], ['passrider', 'tabs', ''], ['passrider-retiree', 'tabs', ''], ['passrider-nopass', 'tabs', ''], ['passrider-minor', 'tabs', '']]) {

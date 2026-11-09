@@ -39,6 +39,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open('row-address');
   const req = await ev(() => ['ad-country', 'ad-street', 'ad-city', 'ad-state', 'ad-zip'].every(id => document.querySelector(`#device label[for="${id}"] .ads-field__marker--required`)) && !!document.querySelector('#device label[for="ad-apt"] .ads-field__marker--optional'));
   ok(req, 'Billing address: required markers kept; Apt optional');
+  ok(await ev(() => [...document.querySelectorAll('#device .pane--ed .ads-field__marker--required')].every(m => m.textContent === '*' && m.getAttribute('aria-hidden') === 'true') && ['ad-country', 'ad-street', 'ad-city', 'ad-state', 'ad-zip'].every(id => document.querySelector('#device #' + id).getAttribute('aria-required') === 'true')) && !/Required/.test(await pane()), 'required fields: the ADS asterisk (hidden from screen readers, aria-required on the control); no Required text');
   ok(await ev(() => { const s = document.querySelector('#device #ad-state').getBoundingClientRect(), z = document.querySelector('#device #ad-zip').getBoundingClientRect(); return z.top > s.bottom && Math.abs(s.width - z.width) < 2; }) && await p.locator(D_ + '.tworow').count() === 0, 'Billing address: State, then ZIP code, one column');
   ok(await p.locator(D_ + '.ads-btn--destructive[data-a="addr-remove"]').count() === 1, 'Billing address: Remove billing address is a destructive button');
   await axe('Billing address');

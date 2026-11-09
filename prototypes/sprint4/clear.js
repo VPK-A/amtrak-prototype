@@ -253,6 +253,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
     // Neither is preselected (AC2): until one is chosen, the panel asks for it and Find trains stays disabled.
     const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
+    if (elig && PRDEF.v === 'leisure') snote('Prototype controls › Pass Rider default travel type is Leisure: Leisure starts selected for Business Pass holders. Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
     const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'business') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
     const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
     const help = elig && inDd ? `<p class="ads-helper pr-tabs__help" id="prt-h">${t0 ? `${t0 === 'business' ? 'Business' : 'Leisure'} travel. ` : ''}${prTypeHelp(b)} To change it, use Booking type on New booking.</p>`

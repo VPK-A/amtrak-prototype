@@ -2613,6 +2613,26 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__label { color: var(--ads-content-text-disabled); }
 .assistform .ads-fieldset.is-locked .ads-choice__supporting { color: var(--ads-content-text-disabled); }
 
+/* ---------- Select dates (Figma Sprint 4 node 3554:123276) ---------- */
+.pane--calx .pane__body { padding: 0 var(--ads-space-20) var(--ads-space-12); }
+.pane--calx .calx-head { margin: 0 calc(-1 * var(--ads-space-20)); padding: var(--ads-space-12) var(--ads-space-20) 0; gap: var(--ads-space-12); }
+.pane--calx .calx-head .ads-calendar__weekdays { margin: 0; padding: 0 0 var(--ads-space-12); border-bottom: 1px solid var(--ads-border-subtle); }
+.pane--calx .ads-calendar__weekdays span { color: var(--ads-content-text-tertiary); font-size: var(--ads-type-caption-size); line-height: 20px; }
+.pane--calx .calx { gap: var(--ads-space-20); padding-top: var(--ads-space-12); }
+.pane--calx .calx .ads-calendar__month h3 { margin: 0 0 var(--ads-space-8); text-align: center; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); line-height: 24px; }
+.pane--calx .calx .ads-calendar__grid .ads-day { height: var(--ads-size-interactive-md); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-primary); }
+.pane--calx .calx .ads-calendar__grid .ads-day::before { width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); }
+.pane--calx .calx .ads-day:disabled { color: var(--ads-content-text-disabled); text-decoration: none; }
+/* Today: a 4px dot under the number (no outline, no underline) */
+.pane--calx .calx .ads-day--today { font-weight: var(--ads-font-weight-regular); text-decoration: none; }
+.pane--calx .calx .ads-day--today:not([aria-pressed="true"])::before { box-shadow: none; }
+.pane--calx .calx .ads-day--today::after { content: ""; position: absolute; left: 50%; top: calc(50% + 10px); width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ads-background-interactive-primary); }
+.pane--calx .calx .ads-day--today[aria-pressed="true"]::after { background: var(--ads-content-text-on-brand, #fff); }
+/* Chosen date: a filled brand disc with white numerals */
+.pane--calx .calx .ads-day[aria-pressed="true"] { color: var(--ads-content-text-on-brand, var(--ads-content-text-on-inverse)); }
+.pane--calx .calx .ads-day[aria-pressed="true"]::before { background: var(--ads-background-interactive-primary); }
+:is(.ds-next, .device) .pane--calx .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -3005,6 +3025,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpPrDef">Pass Rider default travel type</label><div class="ads-control ads-control--select"><select id="tbCmpPrDef"><option value="none">None: choose Business or Leisure</option><option value="leisure">Leisure</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -3353,6 +3374,8 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const MT = { tap: 100, control: 200, panel: 280, shared: 360, close: 260, stagger: 35, fade: 120 };
 const EASE = { standard: 'cubic-bezier(0.2, 0, 0, 1)', settle: 'cubic-bezier(0.22, 1, 0.36, 1)', exit: 'cubic-bezier(0.4, 0, 1, 1)' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+// Prototype controls › Pass Rider default travel type (Business Pass holders): none (choose, NMA-1016 AC2) or Leisure
+const PRDEF = { v: store.get('s4-cmp-prdef') === 'leisure' ? 'leisure' : 'none' };
 
 // ---------- Dates (stored as YYYY-MM-DD) ----------
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -3417,7 +3440,7 @@ function freshBooking(d) {
     // is never both a TripLink traveler and a Pass Rider.
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     // Business Pass holders choose Business or Leisure; neither is preselected (NMA-1016 AC2). Leisure otherwise.
-    prType: d.passrider ? (d.passrider.business ? null : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
+    prType: d.passrider ? (d.passrider.business ? (PRDEF.v === 'leisure' ? 'leisure' : null) : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
@@ -3750,7 +3773,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons', 'assist'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons', 'assist', 'calendar'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -3893,7 +3916,7 @@ const rich = () => TB.v >= 3;
 // ---------- Small renderers ----------
 function fieldHtml(o) {
   const id = o.id, err = o.err;
-  const marker = o.req ? '<span class="ads-field__marker ads-field__marker--required">Required</span>' : o.opt ? '<span class="ads-field__marker ads-field__marker--optional">Optional</span>' : '';
+  const marker = o.req ? '<span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span>' : o.opt ? '<span class="ads-field__marker ads-field__marker--optional">Optional</span>' : '';
   const attrs = [o.type === 'tel' || o.inputmode ? `inputmode="${o.inputmode || 'numeric'}"` : '', o.autocomplete ? `autocomplete="${o.autocomplete}"` : '', o.max ? `maxlength="${o.max}"` : '', o.placeholder ? `placeholder="${esc(o.placeholder)}"` : '', o.digits != null ? `data-digits="${o.digits}"` : '', o.alpha ? 'data-alpha' : '', o.live ? 'data-live' : '', o.readonly ? 'readonly' : '', err ? 'aria-invalid="true"' : '', o.req ? 'aria-required="true"' : ''].filter(Boolean).join(' ');
   const control = o.select
     ? `<div class="ads-control ads-control--select${err ? ' ads-control--error' : ''}"><select id="${id}" data-f="${o.f}" ${o.hook ? `data-hook="${o.hook}"` : ''} ${err || o.help ? `aria-describedby="${id}-h"` : ''} ${err ? 'aria-invalid="true"' : ''} ${o.req ? 'aria-required="true"' : ''}>${o.select.map(([v, l]) => `<option value="${esc(v)}" ${String(o.value) === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>${ic('chevron-down')}</div>`
@@ -4303,12 +4326,12 @@ function calendarBody(r, ri, field) {
 // Design-review revision. Edits a draft (r.u.cal): Done saves to the booking and returns to Fare Finder; Back returns
 // without saving and without asking. Departure and return are edited one at a time; switching keeps the other.
 // A new departure after the chosen return keeps that return marked as needing a new choice (never changed silently).
-function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
+function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && (r.p.field === 'ret' || !b.ret) ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
 function calScroll(r, ri) {
   const b = D().booking, c = calDraft(r), rt = b.trip === 'rt', edit = rt ? c.edit : 'dep';
   ref('1060'); q(4); // the 335-day window isn't confirmed (Q4): dates beyond it are disabled, no policy text
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = c.dep ? addDays(c.dep, WINDOW_DAYS) : maxDep;
-  const isOff = s => s < TODAY_S || (edit === 'dep' && s > maxDep) || (edit === 'ret' && (s < c.dep || s > maxRet));
+  const isOff = s => s < TODAY_S || (edit === 'ret' && c.dep && s >= c.dep ? s > maxRet : s > maxDep); // choosing a return: an earlier date moves the departure instead
   const retOk = rt && c.ret && !c.retBad;
   const first = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), lastS = edit === 'ret' ? maxRet : maxDep, last = parse(lastS);
   const months = []; for (let d = new Date(first); d <= last; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
@@ -4324,21 +4347,20 @@ function calScroll(r, ri) {
     let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span aria-hidden="true"></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd);
     return `<section class="ads-calendar__month calx-month" data-month="${key}" aria-labelledby="${id}"><h3 id="${id}">${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-labelledby="${id}">${g}</div></section>`;
   };
-  // Which date is being edited: two ADS tabs that show both choices (round trip); one-way shows the departure only
-  const val = (k, v) => v ? fmtShort(v) : k === 'ret' ? 'Choose a date' : 'Not set';
-  const pick = rt ? `<div class="ads-tabs ads-tabs--fill cal-pick" role="tablist" aria-label="Date to edit">${tabBtn(edit === 'dep', 'data-a="calx-edit" data-v="dep"', `<span class="cal-pick__k">Departure</span><span>${val('dep', c.dep)}</span>`)}${tabBtn(edit === 'ret', `data-a="calx-edit" data-v="ret"${c.retBad ? ' aria-describedby="calx-why"' : ''}`, `<span class="cal-pick__k">Return</span><span class="${c.retBad ? 'calx-bad' : ''}">${c.retBad ? 'Choose again' : val('ret', c.ret)}</span>`)}</div>`
-    : `<p class="calx-one"><span class="cal-pick__k">Departure</span> <b>${val('dep', c.dep)}</b></p>`;
+  // Figma 3554:123276: weekday letters pinned above the months, with a rule; no tabs or legend. For a round trip the
+  // first tap sets departure and the next sets return; after that a tap changes departure again. Which date is
+  // next is announced, and the footer says what's still needed.
   const why = c.retBad ? `<div class="ads-alert ads-alert--warning calx-why" id="calx-why" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">Your return date, ${fmtShort(c.ret)}, is before your new departure. Choose a new return date.</p></div></div>` : '';
   const live = `<p class="ads-sr-only" role="status">${edit === 'dep' ? 'Choose a departure date' : 'Choose a return date'}</p>`;
-  const legend = `<ul class="calx-legend" aria-hidden="true"><li><span class="calx-key calx-key--today">${new Date(TODAY).getDate()}</span>Today</li><li><span class="calx-key calx-key--sel"></span>${rt ? 'Your dates' : 'Departure'}</li>${rt ? '<li><span class="calx-key calx-key--range"></span>Between</li>' : ''}<li><span class="calx-key calx-key--off">1</span>Unavailable</li></ul>`;
-  return `<div class="calx-head">${pick}${why}${live}${legend}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
+  return `<div class="calx-head">${why}${live}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
   if (v1()) {
-    const c = calDraft(r), need = b.trip === 'rt' && (!c.ret || c.retBad);
-    const foot = `${need ? '<p class="ads-helper" id="calx-done-why">Choose a return date to save your dates.</p>' : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Done</button>`;
-    return { title: 'Dates', kind: 'push', noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, banner: false };
+    const c = calDraft(r), rt = b.trip === 'rt', needDep = !c.dep, needRet = rt && !needDep && (!c.ret || c.retBad), need = needDep || needRet;
+    const msg = needDep ? (rt ? 'Choose your departure and return dates.' : 'Choose a departure date.') : 'Choose a return date.';
+    const foot = `${need ? `<p class="ads-helper" id="calx-done-why">${msg}</p>` : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Save selection</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="calx-clear">Clear</button>`;
+    return { title: rt ? 'Select dates' : 'Select date', kind: 'push', backIcon: true, noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, footCls: 'ads-actionfooter', banner: false };
   }
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
@@ -4349,13 +4371,16 @@ A['calx-day'] = (t, ri) => {
   if (!rt || c.edit === 'dep') {
     c.dep = s;
     if (rt && c.ret && c.ret < s) { c.retBad = true; c.edit = 'ret'; c.jump = true; pendingFocus = '#calx-why'; render(); return; } // guide to a new return; never change it silently
-    if (rt && !c.ret) { c.edit = 'ret'; c.jump = true; }
-  } else { c.ret = s; c.retBad = false; }
+    if (rt) c.edit = 'ret'; // next tap: return
+  } else if (c.dep && s < c.dep) { c.dep = s; if (c.ret && c.ret < s) c.ret = null; } // before the departure: it becomes the new departure; still choosing a return
+  else { c.ret = s; c.retBad = false; c.edit = 'dep'; } // next tap changes departure
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
+// Clear: no dates chosen; Save selection waits for them
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = null; c.ret = null; c.retBad = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
-  if (b.trip === 'rt' && (!c.ret || c.retBad)) return;
+  if (!c.dep || (b.trip === 'rt' && (!c.ret || c.retBad))) return;
   b.dep = c.dep; if (b.trip === 'rt') b.ret = c.ret;
   popTo(+ri - 1); pendingFocus = '#ff-dep';
 };
@@ -4468,7 +4493,7 @@ function needsBlock(r, x, idp, explain, e = {}) {
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
   const opts = AC.animalSizes.map(([v, l]) => choice('radio', `${idp}-asize`, 'animal', v, x.animal === v, l, v === 'large' && largeOff ? AC.largeBlocked : '', `data-hook="assist" ${v === 'large' && largeOff ? 'disabled' : ''}`)).join('');
-  return `<fieldset class="ads-fieldset ads-fieldset--inline assist-size" ${e.animal ? `aria-describedby="${idp}-asize-err"` : ''}><legend class="ads-field-label">${AC.animalSizeLegend} <span class="ads-field__marker ads-field__marker--required">Required</span></legend><div class="ads-fieldset__options">${opts}</div>${e.animal ? `<p class="ads-helper ads-helper--error" id="${idp}-asize-err">${ic('alert-diamond')}<span>${e.animal}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline assist-size" ${e.animal ? `aria-describedby="${idp}-asize-err"` : ''}><legend class="ads-field-label">${AC.animalSizeLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${opts}</div>${e.animal ? `<p class="ads-helper ads-helper--error" id="${idp}-asize-err">${ic('alert-diamond')}<span>${e.animal}</span></p>` : ''}</fieldset>`;
 }
 // Why Personal companion can't be chosen for this traveler right now
 function companionWhy(b, key) {
@@ -4490,10 +4515,10 @@ function catBlock(r, x, idp, mode, e, branch) {
   return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required assist-ast" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required">Required</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
@@ -5229,6 +5254,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
     // Neither is preselected (AC2): until one is chosen, the panel asks for it and Find trains stays disabled.
     const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
+    if (elig && PRDEF.v === 'leisure') snote('Prototype controls › Pass Rider default travel type is Leisure: Leisure starts selected for Business Pass holders. Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
     const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'business') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
     const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
     const help = elig && inDd ? `<p class="ads-helper pr-tabs__help" id="prt-h">${t0 ? `${t0 === 'business' ? 'Business' : 'Leisure'} travel. ` : ''}${prTypeHelp(b)} To change it, use Booking type on New booking.</p>`
@@ -5552,7 +5578,7 @@ function ffGuided(r, ri) {
       let h = '';
       if (pr) {
         const elig = d.passrider.role === 'employee' && d.passrider.business, miss = r.u.showErr && !b.prType;
-        h += elig ? `<div class="gs-field"><span class="gs-field__label" id="gs-prt">Travel type <span class="ads-field__marker ads-field__marker--required">Required</span></span><div class="ads-segmented" role="group" aria-labelledby="gs-prt" ${miss ? 'aria-describedby="gs-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="gs-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone. Family and companions travel as Leisure.</p>'}</div>`
+        h += elig ? `<div class="gs-field"><span class="gs-field__label" id="gs-prt">Travel type <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></span><div class="ads-segmented" role="group" aria-labelledby="gs-prt" ${miss ? 'aria-describedby="gs-prt-err"' : ''}>${[['business', 'Business'], ['leisure', 'Leisure']].map(([k, l]) => `<button type="button" data-a="pr-type" data-v="${k}" aria-pressed="${b.prType === k}">${l}</button>`).join('')}</div>${miss ? `<p class="ads-helper ads-helper--error" id="gs-prt-err">${ic('alert-diamond')}<span>Choose Business or Leisure travel.</span></p>` : '<p class="ads-helper">Business travel is for you alone. Family and companions travel as Leisure.</p>'}</div>`
           : `<p class="gs-chosen"><span>Travel type</span><b>Leisure</b></p><p class="ads-helper">${d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Spouses and dependents travel as Leisure.'}</p>`;
       }
       return h + travelersClear(r, ri, 'parts', v.entry).body;
@@ -7322,6 +7348,16 @@ const bpCompact = () => false;
 
 // Pass Rider travel type: settled on Business / Leisure tabs in Traveler selection (the dropdown option was retired).
 const prTypeInDropdown = () => false;
+// Prototype controls › Pass Rider default travel type: switching it applies to the booking on screen too
+(function wirePrDefault() {
+  const s = document.getElementById('tbCmpPrDef'); if (!s) return;
+  s.value = PRDEF.v;
+  s.addEventListener('change', () => {
+    PRDEF.v = s.value; store.set('s4-cmp-prdef', s.value);
+    for (const k of Object.keys(VS)) { const d = VS[k].data, b = d.booking; if (d.passrider && d.passrider.business && b) { b.prType = PRDEF.v === 'leisure' ? 'leisure' : null; clearAutoTrainIfBlocked(b); } }
+    pendingFocus = null; render();
+  });
+})();
 
 /* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:
    - the travelers row carries one small tag per traveler with their discount, assistance and companion

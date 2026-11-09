@@ -8,6 +8,8 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const MT = { tap: 100, control: 200, panel: 280, shared: 360, close: 260, stagger: 35, fade: 120 };
 const EASE = { standard: 'cubic-bezier(0.2, 0, 0, 1)', settle: 'cubic-bezier(0.22, 1, 0.36, 1)', exit: 'cubic-bezier(0.4, 0, 1, 1)' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+// Prototype controls › Pass Rider default travel type (Business Pass holders): none (choose, NMA-1016 AC2) or Leisure
+const PRDEF = { v: store.get('s4-cmp-prdef') === 'leisure' ? 'leisure' : 'none' };
 
 // ---------- Dates (stored as YYYY-MM-DD) ----------
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -72,7 +74,7 @@ function freshBooking(d) {
     // is never both a TripLink traveler and a Pass Rider.
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
     // Business Pass holders choose Business or Leisure; neither is preselected (NMA-1016 AC2). Leisure otherwise.
-    prType: d.passrider ? (d.passrider.business ? null : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
+    prType: d.passrider ? (d.passrider.business ? (PRDEF.v === 'leisure' ? 'leisure' : null) : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
@@ -405,7 +407,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons', 'assist'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons', 'assist', 'calendar'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {

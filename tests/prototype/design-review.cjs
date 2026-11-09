@@ -1,4 +1,4 @@
-// Design-review revisions: (1) Dates: two months at a time, vertical scrolling, draft with Done / Back;
+// Design-review revisions: (1) Dates (Figma 3554:123276): Select dates, vertical months, Save selection / Clear / Back;
 // (2) "Replace your discount?" before Passenger with disability replaces another discount;
 // (3) Back / Close / abandon-booking rules (no X under Fare Finder, abandon only with a cart).
 const { chromium } = require('playwright');
@@ -29,7 +29,12 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // one-way
   await click('[data-k="day-2026-11-05"]', 300);
   ok((await bk()).dep === '2026-10-29' && await ev(() => sheet().stack[1].u.cal.dep) === '2026-11-05', 'one-way: choosing a date changes the draft only');
-  ok(/Departure Thu, Nov 5/.test(await txt()) && await ev(() => document.querySelector('#device [data-k="day-2026-11-05"]').getAttribute('aria-pressed')) === 'true', 'one-way: the departure is shown and marked');
+  ok(await ev(() => document.querySelector('#device [data-k="day-2026-11-05"]').getAttribute('aria-pressed')) === 'true' && await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Select date', 'one-way: Select date; the departure is marked');
+  ok(await ev(() => [...document.querySelectorAll('#device .pane--calx .pane__foot .ads-btn')].map(b => b.textContent + (b.classList.contains('ads-btn--secondary') ? ':secondary' : '')).join()) === 'Save selection,Clear:secondary' && await p.locator(D_ + '.calx-legend, ' + D_ + '.cal-pick').count() === 0, 'footer: Save selection and a secondary Clear; no legend or tabs');
+  ok(await ev(() => { const t = document.querySelector('#device [data-k="day-2026-10-28"]'); return getComputedStyle(t, '::after').width === '4px' && getComputedStyle(t).textDecorationLine === 'none'; }) && await ev(() => getComputedStyle(document.querySelector('#device [data-k="day-2026-10-27"]')).textDecorationLine) === 'none', 'today has a dot; past days greyed, not struck through');
+  await click('[data-a="calx-clear"]', 300);
+  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 1 && /Choose a departure date\./.test(await ev(() => document.querySelector('#device #calx-done-why').textContent)) && await p.locator(D_ + '.calx [aria-pressed="true"]').count() === 0, 'Clear empties the selection; Save selection waits, with the reason');
+  await click('[data-k="day-2026-11-05"]', 300);
   await click('[data-a="calx-done"]');
   ok(await top() === 'ff' && (await bk()).dep === '2026-11-05' && (await bk()).ret === null && /11\/05\/2026/.test(await txt()), 'Done saves the date and returns to Fare Finder');
   await click('#ff-dep', 700); await click('[data-k="day-2026-12-01"]', 300); await click('.pane--calx .ads-navbar [data-a="back"]');
@@ -45,17 +50,15 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // round trip across two months
   await open('returning', { from: 'NYP', to: 'WAS', trip: 'rt', dep: '2026-11-02', ret: '2026-11-04' });
   await click('#ff-dep', 700);
-  ok(await ev(() => document.querySelector('#device [data-a="calx-edit"][data-v="dep"]').getAttribute('aria-selected')) === 'true' && /Departure Mon, Nov 2/.test(await txt()) && /Return Wed, Nov 4/.test(await txt()), 'round trip: both dates shown; editing the departure');
+  ok(await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Select dates' && await ev(() => ['2026-11-02', '2026-11-04'].every(s => document.querySelector(`#device [data-k="day-${s}"]`).getAttribute('aria-pressed') === 'true')) && await ev(() => sheet().stack[1].u.cal.edit) === 'dep', 'round trip: Select dates; both dates marked; the next tap changes the departure');
   await click('[data-k="day-2026-10-30"]', 300);
-  ok(await ev(() => sheet().stack[1].u.cal.edit) === 'dep' && await ev(() => sheet().stack[1].u.cal.ret) === '2026-11-04', 'new departure before the return: return kept, still editing departure');
-  await click('[data-a="calx-edit"][data-v="ret"]', 400);
-  ok(await ev(() => sheet().stack[1].u.cal.dep) === '2026-10-30', 'switching to Return keeps the departure');
+  ok(await ev(() => sheet().stack[1].u.cal.edit) === 'ret' && await ev(() => sheet().stack[1].u.cal.ret) === '2026-11-04', 'new departure before the return: return kept; the next tap sets the return');
+  ok(await ev(() => sheet().stack[1].u.cal.dep) === '2026-10-30', 'the departure is kept');
   await click('[data-k="day-2026-11-03"]', 300);
   const range = await ev(() => ({ start: document.querySelector('#device [data-k="day-2026-10-30"]').className, mid: document.querySelector('#device [data-k="day-2026-11-01"]').className, end: document.querySelector('#device [data-k="day-2026-11-03"]').className, today: document.querySelector('#device [data-k="day-2026-10-28"]').className }));
   ok(/range-start/.test(range.start) && /in-range/.test(range.mid) && /range-end/.test(range.end) && /today/.test(range.today) && !/in-range/.test(range.today), 'departure, between, return and today are distinct across the month boundary');
   ok((await visibleMonths()).includes('2026-11') && (await visibleMonths()).length >= 2, 'both months stay on screen while editing');
-  await click('[data-a="calx-edit"][data-v="dep"]', 400);
-  ok(await ev(() => sheet().stack[1].u.cal.ret) === '2026-11-03', 'switching back to Departure keeps the return');
+  ok(await ev(() => sheet().stack[1].u.cal.ret) === '2026-11-03' && await ev(() => sheet().stack[1].u.cal.edit) === 'dep', 'after the return, the next tap changes the departure again');
   await click('[data-a="calx-done"]'); const r1 = await bk();
   ok(r1.dep === '2026-10-30' && r1.ret === '2026-11-03' && r1.trip === 'rt' && r1.from === 'NYP' && r1.to === 'WAS', 'Done saves a round trip spanning two months; other selections kept');
   // editing the return directly
@@ -67,11 +70,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('#ff-dep', 700); await click('[data-k="day-2026-11-20"]', 400);
   const c = await ev(() => sheet().stack[1].u.cal);
   ok(c.dep === '2026-11-20' && c.ret === '2026-11-10' && c.retBad && c.edit === 'ret', 'a departure after the return: the return isn’t changed silently; editing moves to Return');
-  ok(/Your return date, Tue, Nov 10, is before your new departure\. Choose a new return date\./.test(await txt()) && /Choose again/.test(await txt()), 'the return is flagged with guidance');
-  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 1 && /Choose a return date to save your dates/.test(await txt()), 'Done waits for a new return, with the reason');
-  ok(await ev(() => document.querySelector('#device [data-k="day-2026-11-19"]').disabled), 'returns before the new departure are unavailable');
+  ok(/Your return date, Tue, Nov 10, is before your new departure\. Choose a new return date\./.test(await txt()) && /is before your new departure/.test(await txt()), 'the return is flagged with guidance');
+  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 1 && /Choose a return date\./.test(await txt()), 'Save selection waits for a new return, with the reason');
+  ok(await ev(() => !document.querySelector('#device [data-k="day-2026-11-19"]').disabled), 'an earlier date is still available: it would move the departure (range picker)');
   await click('[data-k="day-2026-11-22"]', 300);
-  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 0 && !/Choose again/.test(await txt()), 'choosing a new return clears the warning');
+  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 0 && !/is before your new departure/.test(await txt()), 'choosing a new return clears the warning');
   await click('[data-a="calx-done"]'); ok((await bk()).dep === '2026-11-20' && (await bk()).ret === '2026-11-22', 'saved after the new return');
   await click('#ff-dep', 700); await click('[data-k="day-2026-12-01"]', 300); await click('.pane--calx .ads-navbar [data-a="back"]');
   ok((await bk()).dep === '2026-11-20' && (await bk()).ret === '2026-11-22' && !(await dlg()), 'Back after an invalid edit keeps the saved dates');

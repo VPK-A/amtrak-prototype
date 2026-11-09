@@ -1044,3 +1044,23 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assistform .ads-fieldset.is-locked legend, .assistform .ads-fieldset.is-locked .ads-field__marker, .assistform .ads-fieldset.is-locked .ads-choice__label, .assistform .ads-fieldset.is-locked .info-entry .ads-link { color: var(--ads-content-text-disabled); }
 .assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__label { color: var(--ads-content-text-disabled); }
 .assistform .ads-fieldset.is-locked .ads-choice__supporting { color: var(--ads-content-text-disabled); }
+
+/* ---------- Select dates (Figma Sprint 4 node 3554:123276) ---------- */
+.pane--calx .pane__body { padding: 0 var(--ads-space-20) var(--ads-space-12); }
+.pane--calx .calx-head { margin: 0 calc(-1 * var(--ads-space-20)); padding: var(--ads-space-12) var(--ads-space-20) 0; gap: var(--ads-space-12); }
+.pane--calx .calx-head .ads-calendar__weekdays { margin: 0; padding: 0 0 var(--ads-space-12); border-bottom: 1px solid var(--ads-border-subtle); }
+.pane--calx .ads-calendar__weekdays span { color: var(--ads-content-text-tertiary); font-size: var(--ads-type-caption-size); line-height: 20px; }
+.pane--calx .calx { gap: var(--ads-space-20); padding-top: var(--ads-space-12); }
+.pane--calx .calx .ads-calendar__month h3 { margin: 0 0 var(--ads-space-8); text-align: center; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); line-height: 24px; }
+.pane--calx .calx .ads-calendar__grid .ads-day { height: var(--ads-size-interactive-md); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-primary); }
+.pane--calx .calx .ads-calendar__grid .ads-day::before { width: var(--ads-size-interactive-md); height: var(--ads-size-interactive-md); }
+.pane--calx .calx .ads-day:disabled { color: var(--ads-content-text-disabled); text-decoration: none; }
+/* Today: a 4px dot under the number (no outline, no underline) */
+.pane--calx .calx .ads-day--today { font-weight: var(--ads-font-weight-regular); text-decoration: none; }
+.pane--calx .calx .ads-day--today:not([aria-pressed="true"])::before { box-shadow: none; }
+.pane--calx .calx .ads-day--today::after { content: ""; position: absolute; left: 50%; top: calc(50% + 10px); width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ads-background-interactive-primary); }
+.pane--calx .calx .ads-day--today[aria-pressed="true"]::after { background: var(--ads-content-text-on-brand, #fff); }
+/* Chosen date: a filled brand disc with white numerals */
+.pane--calx .calx .ads-day[aria-pressed="true"] { color: var(--ads-content-text-on-brand, var(--ads-content-text-on-inverse)); }
+.pane--calx .calx .ads-day[aria-pressed="true"]::before { background: var(--ads-background-interactive-primary); }
+:is(.ds-next, .device) .pane--calx .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }

@@ -12,3 +12,13 @@ const bpCompact = () => false;
 
 // Pass Rider travel type: settled on Business / Leisure tabs in Traveler selection (the dropdown option was retired).
 const prTypeInDropdown = () => false;
+// Prototype controls › Pass Rider default travel type: switching it applies to the booking on screen too
+(function wirePrDefault() {
+  const s = document.getElementById('tbCmpPrDef'); if (!s) return;
+  s.value = PRDEF.v;
+  s.addEventListener('change', () => {
+    PRDEF.v = s.value; store.set('s4-cmp-prdef', s.value);
+    for (const k of Object.keys(VS)) { const d = VS[k].data, b = d.booking; if (d.passrider && d.passrider.business && b) { b.prType = PRDEF.v === 'leisure' ? 'leisure' : null; clearAutoTrainIfBlocked(b); } }
+    pendingFocus = null; render();
+  });
+})();
