@@ -1,6 +1,6 @@
 // Apply coupon (New booking › Coupon or promotional code), matched to Figma Sprint 4 node 3346:47066:
 // icon-only Back and title, the code field with info and clear, the helper line, "Your coupons" list with an info
-// button per row, Save code; choosing another code replaces it without a confirmation; format, used and expired
+// button per row, Apply; choosing another code replaces it without a confirmation; format, used and expired
 // errors keep the value; upgrade coupons excluded; Details keeps scroll and the typed code; Back keeps the booking.
 const { chromium } = require('playwright');
 const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
@@ -33,7 +33,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/Your coupons/.test(await txt()) && await ev(() => document.querySelectorAll('#device .apc-list > li').length) === 3, 'Your coupons: one list of the three saved codes');
   const row = await ev(() => document.querySelector('#device .apc-row').innerText.replace(/\s+/g, ' '));
   ok(/Fall Northeast sale 20% off Northeast Regional Coach Expires 11\/30\/2026 Code: 60310045672211/.test(row) && await p.locator(D_ + '.apc-row [data-a="apc-details"]').count() === 3, `row: name, benefit, expiry, code and an info button (${row})`);
-  ok(await p.locator(D_ + '[data-a="apc-save"]').count() === 1 && /Save code/.test(await ev(() => document.querySelector('#device .pane__foot').innerText)), 'Save code in the footer');
+  ok(await p.locator(D_ + '[data-a="apc-save"]').count() === 1 && await ev(() => document.querySelector('#device .pane__foot [data-a="apc-save"]').textContent.trim()) === 'Apply', 'Apply in the footer');
   const t = await txt();
   ok(!/deal|Used and expired|upgrade|notification channel|Only one coupon/i.test(t) && await p.locator('#tbCmpCoupon').count() === 0, 'no deals, used/expired, upgrade coupons, internal notes or switcher');
   // ---- choose, switch without a popup, save ----
@@ -41,10 +41,10 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => document.querySelector('#device #apc-in').value) === '60310045672211' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="60310045672211"]').getAttribute('aria-pressed')) === 'true', 'choosing a coupon fills the field and marks the row');
   await click('[data-a="apc-pick"][data-code="60998877665544"]', 300);
   ok(!(await dlg()) && await ev(() => document.querySelector('#device #apc-in').value) === '60998877665544' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="60310045672211"]').getAttribute('aria-pressed')) === 'false', 'switching codes replaces it with no confirmation');
-  const before = await bk(); ok(before.codeText === '', 'choosing doesn’t change the booking until Save code');
+  const before = await bk(); ok(before.codeText === '', 'choosing doesn’t change the booking until Apply');
   await save();
   const b1 = await bk();
-  ok(await top() === 'ff' && b1.codeText === '60998877665544' && /60998877665544/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Save code applies it and returns to Fare Finder');
+  ok(await top() === 'ff' && b1.codeText === '60998877665544' && /60998877665544/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Apply applies it and returns to Fare Finder');
   ok(b1.from === 'NYP' && b1.to === 'WAS' && b1.trip === 'rt' && b1.ret === before.ret && b1.pax.adult === 2 && b1.tdisc['adult-2'] === 'military', 'other booking selections kept');
   // switching an applied code: no popup either
   await click('#ff-coderow', 700);

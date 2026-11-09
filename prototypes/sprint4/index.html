@@ -6497,7 +6497,7 @@ document.addEventListener('change', ev => { if (ev.target.id === 'tbMail') windo
      and "Codes should be 4 or 14 characters long."
    - "Your coupons": one bordered list of the account's active, unused codes (no upgrade coupons, which are used from
      Profile and Modify). Choosing a row puts its code in the field; the row's info button opens its details.
-   - "Save code" puts the field's code on the booking and returns to Fare Finder. Choosing another code simply
+   - "Apply" puts the field's code on the booking and returns to Fare Finder. Choosing another code simply
      replaces the one in the field: no confirmation. Rules reused: the format check (CODE_FORMAT, 4 or 14 characters);
      used and expired codes are refused; a typed code stays with this booking only (not saved to the account); every
      code is checked against the trip when you find trains. Loading and error follow the toolbar Network setting. */
@@ -6530,15 +6530,15 @@ SCR.dcode = (r, ri) => {
     list = codes.length ? `<ul class="apc-list" aria-label="Your coupons">${codes.map(c => apcRow(c, (val || '').toUpperCase())).join('')}</ul>`
       : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">${d.signedIn ? 'Coupons saved to your account show up here. You can still enter a code above.' : 'Sign in to see coupons saved to your account. You can still enter a code above.'}</p></div>`;
   }
-  tip('Choose a coupon or type a code, then Save code. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
+  tip('Choose a coupon or type a code, then Apply. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
   const body = `${netAlert(r)}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
-  return { title: 'Apply code', kind: 'push', backIcon: true, noGrabber: true, cls: 'pane--apc', body, foot: '<button class="ads-btn ads-btn--block" type="button" data-a="apc-save">Save code</button>', footCls: 'ads-actionfooter', offlineText: 'You can enter a code. Your saved coupons need a connection to refresh.' };
+  return { title: 'Apply code', kind: 'push', backIcon: true, noGrabber: true, cls: 'pane--apc', body, foot: '<button class="ads-btn ads-btn--block" type="button" data-a="apc-save">Apply</button>', footCls: 'ads-actionfooter', offlineText: 'You can enter a code. Your saved coupons need a connection to refresh.' };
 };
 HOOKS.apcin = (r, t) => { r.u.d.add = t.value; r.u.err = ''; };
 // Choosing a coupon puts its code in the field (replacing whatever was there, without asking)
 A['apc-pick'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = t.dataset.code; r.u.err = ''; pendingFocus = `[data-a="apc-pick"][data-code="${t.dataset.code}"]`; render(); };
 A['apc-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = ''; r.u.err = ''; pendingFocus = '#apc-in'; render(); };
-// Save code: the format check and the used/expired check, then the code goes on the booking (checked at Find trains)
+// Apply: the format check and the used/expired check, then the code goes on the booking (checked at Find trains)
 A['apc-save'] = (t, ri) => {
   const r = routeAt(ri), d = D(), b = d.booking, inp = document.querySelector('#apc-in');
   if (inp) r.u.d.add = inp.value;
