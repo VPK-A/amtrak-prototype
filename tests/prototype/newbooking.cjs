@@ -96,7 +96,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await go('returning'); await ev(() => { const b = D().booking; b.from = 'NYP'; render(); }); await click('.ads-sheet-header__close');
   ok(!/Exit booking|Abandon booking/.test(await txt()) && await ev(() => !nav().sheet && D().booking.from === 'NYP'), 'close before a cart: no question; the selection is kept');
   await go('passrider');
-  ok(await p.locator(D_ + '#ff-points').count() === 0 && await p.locator(D_ + '#ff-coderow').count() === 0 && await ev(() => { const t = document.querySelector('#device #ff-mode'), tabs = document.querySelector('#device .trip-tabs'); return t && t.value === 'pr' && (t.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'Pass Rider: Booking type dropdown on Pass Rider, above the tabs; no points or code');
+  ok(await p.locator(D_ + '#ff-points').count() === 0 && await p.locator(D_ + '#ff-coderow').count() === 0 && await ev(() => { const t = document.querySelector('#device #ff-mode-pr'), tabs = document.querySelector('#device .trip-tabs'); return t && t.checked && (t.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'Pass Rider: the Pass Rider switch, on, above the tabs; no points or code');
 
   // ---- Scrolling on small screens, iPad, landscape ----
   await go('returning', { fill: true, orient: 'landscape' });

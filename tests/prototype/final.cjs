@@ -13,7 +13,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   const stack = () => ev(() => nav().sheet ? nav().sheet.stack.map(r => r.s).join('>') : '');
   const dlg = () => ev(() => nav().dialog && nav().dialog.title);
   const dlgBtn = async i => { await p.locator(D + `[data-dlg="${i}"]`).click(); await w(350); };
-  const pickMode = async v => { if (await p.locator(D + '#ff-mode').count()) { await p.selectOption(D + '#ff-mode', v); await w(250); } };
+  const pickMode = async v => { const i = await ev(() => { const x = document.querySelector('#device [data-a="mode-toggle"]'); return x ? { id: x.id, on: x.checked } : null; }); if (i && i.on !== (v !== 'personal')) { await p.click(`${D}label.ads-switch:has(#${i.id})`); await w(250); } };
   for (const v of [1]) {
     const T = `C${v}`;
     // 1 avatar token
@@ -70,21 +70,21 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await dclick('[data-a="pick-travelers-done"]'); await w(300);
     ok(await stack() === 'ff' && !(await dlg()), `${T} 14 Done between levels doesn't ask`);
     await w(300); await ev(() => A.scrim(null, '0')); await w(400); ok(!(await dlg()) && !(await stack()) && await ev(() => D().booking.from === 'NYP' && D().booking.pax.adult === 2), `${T} 14 leaving before a cart: no question, trip kept`);
-    // 15 booking type dropdown, per eligibility group (special type selected by default; Regular is the other option)
+    // 15 booking type switch, per eligibility group (on by default; off is regular)
     const groups = { triplink: 'corporate', passrider: 'pr', 'passrider-nopass': 'pr', 'passrider-retiree': 'pr', 'passrider-spouse': 'pr', 'passrider-dependent': 'pr', 'passrider-minor': null, returning: null, guest: null };
     for (const [sc, want] of Object.entries(groups)) {
-      await go(v, sc); const got = await ev(() => { const s = document.querySelector('#device #ff-mode'); return s ? { v: s.value, o: [...s.options].map(o => o.value).join() } : null; });
-      if (!want) { ok(!got, `${T} 15 ${sc}: no booking type dropdown`); continue; }
-      ok(got.v === want && got.o === (sc === 'triplink' ? 'corporate,personal' : 'pr,personal'), `${T} 15 ${sc}: ${got.o}, selected ${got.v}`);
+      await go(v, sc); const got = await ev(() => { const i = document.querySelector('#device [data-a="mode-toggle"]'); return i ? { v: i.dataset.v, on: i.checked } : null; });
+      if (!want) { ok(!got, `${T} 15 ${sc}: no booking type switch`); continue; }
+      ok(got.v === want && got.on, `${T} 15 ${sc}: ${got.v} switch, on by default`);
     }
     ok(await p.locator(D + '[data-a="mode-open"]').count() === 0 && await p.locator(D + '[data-a="pr-type"]').count() === 0, `${T} 15 no Booking type sheet and no Business / Leisure on the Fare Finder`);
     // mode changes update points, coupons, discounts, travelers
     await go(v, 'passrider'); await pickMode('personal');
-    ok(await p.locator(D + '#ff-coderow').count() === 1 && await p.locator(D + '#ff-points').count() === 1 && await ev(() => document.querySelector('#device #ff-mode').value) === 'personal', `${T} Regular: code and points back`);
+    ok(await p.locator(D + '#ff-coderow').count() === 1 && await p.locator(D + '#ff-points').count() === 1 && await ev(() => !document.querySelector('#device [data-a="mode-toggle"]').checked), `${T} switch off: code and points back`);
     await pickMode('pr'); ok(await p.locator(D + '#ff-coderow').count() === 0 && await p.locator(D + '#ff-points').count() === 0 && /Choose Business or Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)), `${T} Pass Rider: code and points gone; Travelers asks for Business or Leisure`);
-    await go(v, 'triplink'); ok(await ev(() => document.querySelector('#device #ff-mode').value) === 'corporate' && !(await ev(() => [...document.querySelectorAll('#device #ff-mode option')].some(o => o.value === 'pr'))), `${T} TripLink separate from Pass Rider Business`);
+    await go(v, 'triplink'); ok(await ev(() => { const i = document.querySelector('#device [data-a="mode-toggle"]'); return i.dataset.v === 'corporate' && i.checked && !document.querySelector('#device #ff-mode-pr'); }), `${T} TripLink separate from Pass Rider Business`);
     await pickMode('personal'); await ev(() => { D().booking.pax.adult = 3; render(); }); await pickMode('corporate'); ok(await ev(() => paxAll(D().booking.pax)) === 1, `${T} corporate keeps 1 traveler`);
-    await go(v, 'passrider-minor'); ok(await ev(() => D().booking.intent) === 'standard' && await p.locator(D + '#ff-mode').count() === 0 && !/15 or younger/.test(await txt()), `${T} minor dependent can't start Pass Rider; no Booking type dropdown`);
+    await go(v, 'passrider-minor'); ok(await ev(() => D().booking.intent) === 'standard' && await p.locator(D + '[data-a="mode-toggle"]').count() === 0 && !/15 or younger/.test(await txt()), `${T} minor dependent can't start Pass Rider; no Pass Rider switch`);
     await ev(() => { nav().info = null; render(); });
     for (const [sc, comp] of [['passrider', true], ['passrider-nopass', true], ['passrider-retiree', false], ['passrider-spouse', false], ['passrider-dependent', false]]) {
       await go(v, sc, 'travelers'); await ev(() => { D().booking.prType = 'leisure'; render(); });

@@ -1064,3 +1064,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .pane--calx .calx .ads-day[aria-pressed="true"] { color: var(--ads-content-text-on-brand, var(--ads-content-text-on-inverse)); }
 .pane--calx .calx .ads-day[aria-pressed="true"]::before { background: var(--ads-background-interactive-primary); }
 :is(.ds-next, .device) .pane--calx .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+
+/* Booking type switch: the Pay with points row (pointsRow), above the trip tabs */
+.v1modes--switch { display: flex; flex-direction: column; gap: var(--ads-space-4); }
+.v1modes--switch > .ads-helper { margin: 0; }
