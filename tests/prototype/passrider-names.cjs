@@ -39,7 +39,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
     await tick('sam');
     const sel = v === 1 ? '#pk-pr-sam' : '#ovk-pr-sam';
     ok(await ev(s => document.querySelector('#device ' + s).value, sel) === 'adult' && JSON.stringify(await ev(s => [...document.querySelectorAll('#device ' + s + ' option')].map(o => o.textContent), sel)) === '["Adult","Child"]', `${T} added relative defaults to Adult; dropdown has only Adult and Child`);
-    if (v === 1) ok(/From your pass record · Date of birth 06\/02\/2012/.test(await pane()), `${T} saved date of birth carried into Traveler details`);
+    if (v === 1) ok(!/From your pass record/.test(await pane()), `${T} no “From your pass record” line in Traveler details`);
     await p.selectOption(D_ + sel, 'child'); await w();
     await ev(() => { closeSheet(true); }); await w(); await ev(() => goLoc('travelers')); await w();
     ok(await ev(s => document.querySelector('#device ' + s).value, sel) === 'child', `${T} Child kept after closing and reopening Traveler selection`);

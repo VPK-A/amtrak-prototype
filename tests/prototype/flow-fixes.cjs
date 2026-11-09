@@ -33,7 +33,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // map: incomplete (another station still needed) → back to the list
   await ff('new'); await click('#ff-from', 700); await toMap(); await pin('PHL'); await click('[data-k="map-select"]', 600);
   ok(await stack() === 'ff>stations:to' && await ev(() => sheet().stack.at(-1).u.view === 'list') && await p.locator(D_ + '#ss-q').count() === 1 && (await bk()).join() === 'PHL,', 'map, incomplete: Select returns to the station list for To');
-  ok(await ev(() => document.activeElement.id) === 'ss-q' && /set as your departure station\. Now choose your arrival station\./.test(await ev(() => document.querySelector('#device .ss-top [role="status"]').textContent)), 'map, incomplete: announced; focus in search');
+  ok(await ev(() => document.activeElement.id) === 'ss-f-to' && /set as your departure station\. Now choose your arrival station\./.test(await ev(() => document.querySelector('#device .ss-top [role="status"]').textContent)), 'map, incomplete: announced; focus on the To field, not search');
   // map: complete (both set) → Fare Finder
   await toMap(); await pin('TRE'); await click('[data-k="map-select"]', 600);
   ok(await stack() === 'ff' && (await bk()).join() === 'PHL,TRE', 'map, complete: Select returns to Fare Finder with both stations');

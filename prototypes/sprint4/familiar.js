@@ -20,8 +20,9 @@ function discountRow(b, t, fromProfile) {
     if (t.key === 'pr-you') return famRow('Fare', 'Pass Rider fare', '');
     const k = prKind(b, t.key), who = prPerson(D(), t.key);
     // Saved details from the pass record prefill Traveler information (the relationship itself is never shown)
-    const saved = who ? `<p class="ads-helper" id="pk-${t.key}-h">From your pass record · Date of birth ${esc(who.dob)}</p>` : '';
-    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"${who ? ` aria-describedby="pk-${t.key}-h"` : ''}><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div>${saved}</div>`;
+    // Saved details from the pass record still prefill Traveler information; no line is shown for them (no story asks for one)
+    const saved = '';
+    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div>${saved}</div>`;
   }
   if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);

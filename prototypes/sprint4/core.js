@@ -304,7 +304,7 @@ var render = function () {
   $$('[data-scroll]', dev).forEach(e => { const t = SCROLL_MEM[e.dataset.scroll]; if (t != null) e.scrollTop = t; });
   let target = null;
   if (!pendingFocus && keepTitle) pendingFocus = 'title'; // focus was on a screen title: keep it on the (new) title
-  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() || $$('.pane--focus #ss-q', dev).filter(e => !e.closest('[inert]')).pop(); // a focused view starts in its field
+  if (pendingFocus === 'title') target = $$('[data-title]', dev).filter(e => !e.closest('[inert]')).pop() ; // a screen starts on its title (station search isn't made active)
   else if (pendingFocus) target = $(pendingFocus, dev);
   else if (keep) target = $(keep, dev);
   if (target) { target.focus({ preventScroll: pendingFocus === null }); if (sel && target.id && '#' + CSS.escape(target.id) === keep && target.setSelectionRange) try { target.setSelectionRange(sel[0], sel[1]); } catch (e) {} }

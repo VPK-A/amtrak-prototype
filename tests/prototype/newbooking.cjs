@@ -54,7 +54,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // ---- Component states ----
   ok(await ev(() => document.querySelector('#device .trip-tabs [data-v="ow"]').getAttribute('aria-selected')) === 'true', 'tabs: One-way selected by default');
   await go('returning');
-  ok(await p.locator(D_ + '.ads-swap-btn:disabled').count() === 1 && /Where from\?/.test(await txt()) && /Where to\?/.test(await txt()), 'empty: placeholders, swap disabled');
+  ok(await p.locator(D_ + '.ads-swap-btn:disabled').count() === 1 && await ev(() => { const g = document.querySelector('#device .pane--nb .ads-stationgroup').innerText; return /Select departure station/.test(g) && /Select arrival station/.test(g) && !/Where from\?|Where to\?/.test(g); }), 'empty: placeholders read Select departure / arrival station, swap disabled');
   await click('[data-a="find-trains"]');
   ok(await p.locator(D_ + '.ads-stationgroup.ads-fieldgroup--error').count() === 1 && await p.locator(D_ + '#ff-from[aria-invalid="true"]').count() === 1 && await p.locator(D_ + '#ff-from-err').count() === 1 && await ev(() => document.activeElement.id) === 'ff-from', 'error: station group in error, From invalid with its message, focus on From');
   ok(await cs('.ads-stationgroup', 'borderTopColor') === await tok('--ads-border-status-error'), 'error border uses border/status-error');

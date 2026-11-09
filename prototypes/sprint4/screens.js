@@ -103,7 +103,7 @@ const fmtNumDate = s => parse(s).toLocaleDateString('en-US', { month: '2-digit',
 
 function routeField(r, ri, opts = {}) {
   const b = D().booking, e = r.u.showErr ? ffErrors(b) : {}, open = openPicker('stations');
-  const side = (f, label) => { const c = b[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', errId: `ff-${f}-err`, expanded: open === f, attrs: `data-a="pick-station" data-field="${f}" id="ff-${f}"` }; };
+  const side = (f, label) => { const c = b[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Select departure station' : 'Select arrival station', errId: `ff-${f}-err`, expanded: open === f, attrs: `data-a="pick-station" data-field="${f}" id="ff-${f}"` }; };
   return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), errors: { from: e.from, to: e.to }, swapAttrs: 'data-a="swap"', swapDisabled: !b.from && !b.to });
 }
 function dateFields(r, opts = {}) {
@@ -254,7 +254,7 @@ function stationRow(s, field, sec, near) {
   const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
   const blocked = ctx === 'ff' && s.tag && autoTrainBlocked();
   const b = tg, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
-  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'From' : 'To'}</span>` : ''; // the other end of the trip
+  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'Departure station' : 'Arrival station'}</span>` : ''; // the other end of the trip
   return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Save ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 function stationSearch(r, ri, field, inline) {
@@ -272,7 +272,7 @@ function stationSearch(r, ri, field, inline) {
   // Figma Sprint 4 node 3295:51259: chevron Back, centered "Select station" (the field being edited is named for
   // screen readers and shown in the From / To group below)
   const backBtn = root ? `<button class="ads-icon-btn ss-head__back" type="button" data-a="close" aria-label="Close station search">${ic('chevron-left')}</button>` : `<button class="ads-icon-btn ss-head__back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('chevron-left')}</button>`;
-  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1">${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
+  const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1" data-title>${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
   const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
@@ -320,10 +320,10 @@ SCR.stations = (r, ri) => {
 // From / To inside the selector: the field being edited is outlined; tapping the other one edits it instead; the swap
 // button swaps the two stations of the experience that opened the selector
 function selGroup(r, field) {
-  const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Where from?' : 'Where to?', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
+  const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Select departure station' : 'Select arrival station', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
   return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
 }
-A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = '#ss-q'; render(); return; } r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
+A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
 A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
@@ -365,7 +365,7 @@ A['choose-station'] = (t, ri) => {
     sr.u.mapSel = null; sr.u.mapJust = null;
     sr.u.selLive = `${ST[c].city} set as your ${f === 'from' ? 'departure' : 'arrival'} station. Now choose your ${next === 'from' ? 'departure' : 'arrival'} station.`;
     if (si < sheet().stack.length - 1) popTo(si); // from Details, back to the selector
-    pendingFocus = '#ss-q'; render(); return;
+    pendingFocus = `#ss-f-${next}`; render(); return; // the next field, outlined; search isn't made active
   }
   // Both stations chosen (or Train status): back to the experience that opened station search
   if (si <= 0) { closeSheet(true); pendingFocus = `#${ctx}-${f}`; render(); return; }
@@ -696,7 +696,7 @@ SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
   // Figma 3486:197156: chevron Back and title (no close); the traveler, Type of assistance, Save and Clear
-  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(who)}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--destructive ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
+  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(who)}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
 };
 
 // =====================================================================

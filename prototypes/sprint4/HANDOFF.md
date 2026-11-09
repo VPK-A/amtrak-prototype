@@ -836,3 +836,10 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - Every sample coupon saved to the account (available, used and expired) has a 14-character code, and its details screen shows *Type: Coupon code*. The *Fall Northeast sale* coupon's code is now 60310045672211 (it was the 4-character V123). A coupon added in My coupons is also a *Coupon code*.
 - 4-character promotion codes are still typed in New booking › Apply code (try HALF); they aren't saved to the account.
 - **Checks:** `tests/prototype/profile-editors.cjs` (details type and code length for every saved coupon).
+
+## Station fields, Pass Rider details and assistance Clear
+
+- **Station fields:** the empty From and To fields read *Select departure station* and *Select arrival station*, on New booking and in the selector. Station rows tag the other end of the trip as *Departure station* or *Arrival station*.
+- **Search isn't made active:** opening the selector puts focus on its title. After the first station is chosen, focus moves to the other field, which is outlined and announced, not to search. Tapping the field being edited keeps focus on it. Search gets focus only when someone taps it (or clears it).
+- **Pass Rider traveler details:** the *From your pass record · Date of birth …* line is gone, since no story asks for it. Saved details still prefill Traveler information.
+- **Assistance questionnaire:** *Clear* is a secondary button, not destructive.
