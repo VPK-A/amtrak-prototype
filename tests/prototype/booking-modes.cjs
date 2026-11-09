@@ -76,11 +76,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await ev(() => { const s = document.getElementById('tbCmpPrDef'); s.value = 'none'; s.dispatchEvent(new Event('change')); }); await go('passrider');
   ok((await bk()).prType === null, 'back to None: neither preselected');
   ok(await ev(() => !document.getElementById('tbCmpPrType')), 'Prototype controls: no Pass Rider travel type option (tabs in Traveler selection only)');
-  // Description line under Booking type: TripLink only; Pass Rider shows a line only for an unavailable option
-  for (const [sc, m, want] of [['triplink', 'tabs', 'ff-mode-corporate-h'], ['passrider', 'tabs', ''], ['passrider-retiree', 'tabs', ''], ['passrider-nopass', 'tabs', ''], ['passrider-minor', 'tabs', '']]) {
+  // Description line under the switch title: TripLink and Pass Rider, the same style
+  for (const [sc, m, want] of [['triplink', 'tabs', 'ff-mode-corporate-h'], ['passrider', 'tabs', 'ff-mode-pr-h'], ['passrider-retiree', 'tabs', 'ff-mode-pr-h'], ['passrider-nopass', 'tabs', 'ff-mode-pr-h'], ['passrider-minor', 'tabs', '']]) {
     await go(sc);
     const got = await ev(() => [...document.querySelectorAll('#device .v1modes .ads-helper, #device .v1modes .ads-pointsrow__sub')].map(x => x.id).join());
     ok(got === want, `${sc} (${m}): lines under Booking type: ${got || 'none'}`);
+    if (want) ok(await ev(() => { const s = document.querySelector('#device .v1modes .ads-pointsrow__sub'), t = document.querySelector('#device .v1modes .ads-pointsrow__title'), cs = getComputedStyle(s), ct = getComputedStyle(t); return [cs.color, cs.fontSize, ct.color, ct.fontSize].join(); }) === (await ev(() => window.__tlStyle || '')) || sc === 'triplink', `${sc}: title and description styled like TripLink`);
+    if (sc === 'triplink') await ev(() => { const s = document.querySelector('#device .v1modes .ads-pointsrow__sub'), t = document.querySelector('#device .v1modes .ads-pointsrow__title'), cs = getComputedStyle(s), ct = getComputedStyle(t); window.__tlStyle = [cs.color, cs.fontSize, ct.color, ct.fontSize].join(); });
   }
 
   await go('passrider', 'dark'); await p.click(D_ + '#ff-trav'); await w(700); await p.click(D_ + '#prt-leisure'); await w(300); await axe('dark tabs');

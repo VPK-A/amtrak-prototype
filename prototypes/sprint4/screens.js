@@ -148,8 +148,8 @@ function travelersRow(r, opts = {}) { return travField(r, D().booking, opts); }
 // Version 1: booking modes as plain labeled controls above the form (TripLink NMA-622, Pass Rider NMA-623, 1016)
 // Booking type: one switch, styled like Pay with points (pointsRow). TripLink members get "TripLink corporate booking",
 // Pass Rider members "Pass Rider booking"; it's on by default (NMA-622 AC2, NMA-623 AC2) and turning it off books
-// regular fares. A member is never both. Business or Leisure is chosen in Traveler selection. Only TripLink has a
-// description line; a Pass Rider who can't start Pass Rider travel (a dependent 15 or younger) sees no switch.
+// regular fares. A member is never both. Business or Leisure is chosen in Traveler selection. Both switches have a
+// description line in the same style; a Pass Rider who can't start Pass Rider travel (a dependent 15 or younger) sees no switch.
 function modesV1(r, b) {
   const d = D(); if (!d.signedIn || (!d.triplink && !d.passrider)) return '';
   const tl = !!d.triplink, sp = tl ? 'corporate' : 'pr', can = tl ? { ok: true } : prCanStart(d);
@@ -157,7 +157,7 @@ function modesV1(r, b) {
   if (!can.ok) { snote('A dependent 15 or younger can’t book Pass Rider travel on their own (NMA-1017), so New booking shows no Pass Rider switch and books regular fares.'); return ''; }
   const on = b.intent === sp;
   if (on && tl) q(12);
-  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: tl ? (on ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : 'Off: regular fares, with points, passenger discounts and codes.') : '', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
+  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : 'Employee pass travel for you and eligible family. Points, passenger discounts and codes aren’t used.') : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
   return `<div class="v1modes v1modes--switch">${row}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 A['mode-toggle'] = t => {
