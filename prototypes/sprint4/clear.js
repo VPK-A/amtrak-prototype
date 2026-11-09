@@ -106,7 +106,7 @@ function travErr(r, b) {
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
 function codeTips() {
-  tip('Apply code: type V123 (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
+  tip('Apply code: type HALF (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
 }
 // Switching booking mode (TripLink NMA-622, Pass Rider NMA-623). Codes and travelers set aside are restored on the way back.
 function setIntent(b, val) {

@@ -85,8 +85,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('#ff-trav'); ok(await ev(() => sheet().stack.at(-1).s === 'travelers'), 'Travelers row opens Traveler selection');
   await ev(() => popTo(0)); await w(300);
   await click('#ff-coderow'); ok(await ev(() => sheet().stack.at(-1).s === 'dcode') && await p.locator(D_ + '#apc-in').count() === 1, 'code row opens Apply coupon');
-  await click('[data-a="apc-pick"][data-code="V123"]'); await click('[data-a="apc-save"]');
-  ok(await ev(() => sheet().stack.length === 1 && D().booking.codeText === 'V123') && /V123/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Save code; the row shows the code');
+  await click('[data-a="apc-pick"][data-code="60310045672211"]'); await click('[data-a="apc-save"]');
+  ok(await ev(() => sheet().stack.length === 1 && D().booking.codeText === '60310045672211') && /60310045672211/.test(await ev(() => document.querySelector('#device #ff-coderow').innerText)), 'Save code; the row shows the code');
   await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);
   ok(await ev(() => D().booking.pay) === 'points' && await p.locator(D_ + '#ff-coderow').count() === 0 && await ev(() => document.querySelector('#device #ff-points').checked), 'Pay with points on: points search, code row hidden');
   await p.locator(D_ + '.ads-pointsrow .ads-switch').click(); await w(300);

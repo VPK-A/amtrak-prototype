@@ -3332,14 +3332,15 @@ const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rp
 const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with disability', companion: 'Companion' };
 // Codes saved to the signed-in member's profile (NMA-613 scenarios 5 and 6; NMA-697)
 const PROFILE_CODES = [
-  { code: 'V123', kind: 'Promotion code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
-  { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
-  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
+  { code: '60310045672211', kind: 'Coupon code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
+  { code: '60412233445566', kind: 'Coupon code', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
+  { code: '60998877665544', kind: 'Coupon code', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
 ];
+// Every saved coupon is a 14-character coupon code (type: Coupon code)
 // Used and expired coupons in My coupons (NMA-697 BR1, BR4 AC3: one line per use, newest first)
 const PAST_CODES = [
-  { code: '60123456789012', kind: 'Dollar-off coupon', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
-  { code: '60555544443333', kind: 'Percentage coupon', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
+  { code: '60123456789012', kind: 'Coupon code', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
+  { code: '60555544443333', kind: 'Coupon code', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
 ];
 
 /* Sprint 4 prototype: state, routing, rendering shell, network mock, toolbar. */
@@ -5081,7 +5082,7 @@ function travErr(r, b) {
   return `<p class="ads-helper ads-helper--error" id="trav-err" tabindex="-1">${ic('alert-diamond')}<span>${esc(msg)} Open travelers to fix it.</span></p>`;
 }
 function codeTips() {
-  tip('Apply code: type V123 (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
+  tip('Apply code: type HALF (promo) or any 14 letters and numbers (coupon). EXP1 isn’t eligible, DATE is outside its date range, the companion coupon needs 2 travelers, and Scenario › Network › Server error shows “couldn’t check”. A wrong length or a symbol shows the format error.');
 }
 // Switching booking mode (TripLink NMA-622, Pass Rider NMA-623). Codes and travelers set aside are restored on the way back.
 function setIntent(b, val) {
@@ -5459,7 +5460,7 @@ function ffFlighty(r, ri) {
   } else rows.push(flRow({ icon: 'discount', label: 'Discounts, codes and points', value: `Not used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}`, muted: true }));
   // Pay with sits low in the list: a compact row after codes
   if (member && std) rows.push(flRow({ icon: 'payment-points', label: 'Pay with', value: `<span class="fl-pill fl-pill--row"><span class="fl-pill__ctl"><select id="fl-pay" data-f="flmode" data-nodirty data-hook="flmode" data-key="pay" aria-label="Pay with">${[['cash', 'Cash'], ['points', 'Points · 12,450']].map(([v, l]) => `<option value="${v}" ${b.pay === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${ic('chevron-down', 'ads-icon--sm')}</span></span>` }));
-  if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
+  if (d.coupons.length && std) tip('Discount code: try HALF (promo), a saved 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   const offline = v.net === 'offline' ? `<div class="ads-banner fl-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const body = `${offline}${head}<section class="fl-search" aria-label="Route and dates">${route}${when}</section><section class="fl-rows" aria-label="Travelers, assistance, discounts and codes">${rows.join('')}</section>${netAlert(r)}`;
   return { title: 'New booking', srTitle: true, cls: 'pane--fl', kind: 'root', banner: false, body, foot: r.u.busy ? busyBtn(r, '', 'Finding trains') : `<button class="ads-btn ads-btn--block ads-btn--lg" type="button" data-a="find-trains">Find trains</button>` };
@@ -5569,7 +5570,7 @@ function ffGuided(r, ri) {
     : `<section class="gs gs--code" aria-label="Coupon or promo code"><div class="gs__sum gs__sum--split"><button class="gs__sumbtn" type="button" data-a="push" data-s="code"><span class="gs__label">Coupon or promo code</span><span class="gs__val">Add</span>${ic('chevron-right', 'gs__chev')}</button><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="code-info" aria-label="About discount codes">${ic('info-circle', 'ads-icon--sm')}</button></div></section>`;
   else if (std) code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Code</span><span class="gs__val">Not available when paying with points${b.code ? `<small>Your code ${esc(b.code.code)} is kept for a cash search.</small>` : ''}</span></div></section>`;
   else code = `<section class="gs gs--code gs--muted"><div class="gs__sum gs__sum--static"><span class="gs__label">Discounts</span><span class="gs__val">Discounts, codes and points aren’t used for ${corp ? 'Corporate bookings' : 'Pass Rider travel'}.</span></div></section>`;
-  if (d.coupons.length && std) tip('Discount code: try V123, a 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
+  if (d.coupons.length && std) tip('Discount code: try HALF (promo), a saved 14-character coupon, the companion coupon with 1 traveler, “EXP1” (rejected) or “DATE” (wrong date range).');
   tip('Open any section to change it; the others keep their answers. Find trains works at any point and opens the first section that needs attention.');
   const offline = v.net === 'offline' ? `<div class="ads-banner gs-banner" role="status">${ic('alert-triangle')}<span>You’re offline. You can fill in your trip. Finding trains needs a connection.</span></div>` : '';
   const nextK = r.u.open && GS[GS.indexOf(r.u.open) + 1];
@@ -6392,7 +6393,7 @@ A['coupon-add'] = (t, ri, then) => {
   r.u.err = '';
   runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
     if (res.err) { r.u.err = res.err; pendingFocus = '#cpn-in'; render(); return; } // NMA-697 BR8 AC3
-    d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
+    d.coupons.push({ code: c, kind: 'Coupon code', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
     r.u.d.add = ''; pendingFocus = `[data-a="info"][data-topic="coupon:${c}"]`; toast('Coupon added to your account'); // BR8 AC4
     if (then) then();
   }, { what: 'add a coupon' });

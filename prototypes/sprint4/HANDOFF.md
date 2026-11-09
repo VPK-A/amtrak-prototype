@@ -830,3 +830,9 @@ The comparison options in Prototype controls were removed, and the prototype kee
   - **Traveler label:** the design shows *Traveler 1*. The earlier decision carries the traveler type into every label, so the heading reads *Traveler 1 · Adult* (or *· Senior*, or the Pass Rider's name).
   - **Other needs locked:** the design greys them with no explanation. The reason (*Select at least one disability above to choose other needs.*) is kept for screen readers only, so the disabled state is still explained (WCAG 1.3.1, 3.3.2).
 - **Checks:** `tests/prototype/assistance.cjs`.
+
+## Saved coupons are 14-character coupon codes
+
+- Every sample coupon saved to the account (available, used and expired) has a 14-character code, and its details screen shows *Type: Coupon code*. The *Fall Northeast sale* coupon's code is now 60310045672211 (it was the 4-character V123). A coupon added in My coupons is also a *Coupon code*.
+- 4-character promotion codes are still typed in New booking › Apply code (try HALF); they aren't saved to the account.
+- **Checks:** `tests/prototype/profile-editors.cjs` (details type and code length for every saved coupon).

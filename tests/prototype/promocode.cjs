@@ -49,9 +49,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await enterCode('ABCD'); await openCode(); await click('[data-a="apc-clear"]'); await save();
     ok(await ev(() => D().booking.codeText === '') && await wallet() === before, `${T} removing a typed code leaves account coupons alone`);
     // a saved code chosen from Saved codes is an account coupon: kept on abandoning, wallet unchanged
-    await openCode(); await click('[data-a="apc-pick"][data-code="V123"]'); await save();
+    await openCode(); await click('[data-a="apc-pick"][data-code="60310045672211"]'); await save();
     await ev(() => { D().cart = [{ label: 'Sample train' }]; render(); }); await click('.psheet [data-a="close"]'); if (await p.locator(D_ + '[data-dlg="1"]').count()) await click('[data-dlg="1"]');
-    ok(await ev(() => D().booking.codeText === 'V123') && await wallet() === before, `${T} a chosen saved code stays selected after Abandon booking; wallet unchanged`);
+    ok(await ev(() => D().booking.codeText === '60310045672211') && await wallet() === before, `${T} a chosen saved code stays selected after Abandon booking; wallet unchanged`);
     await click('[data-a="open-booking"]'); await openCode(); await click('[data-a="apc-clear"]'); await save();
     ok(await wallet() === before && /still in My coupons/.test(await ev(() => (V().toast || {}).msg || '')), `${T} removing a saved code from the booking keeps it in My coupons`);
     // Escape at Fare Finder with a cart: Abandon booking clears a typed code

@@ -32,15 +32,15 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => { const f = document.querySelector('#device .apc-field'), y = document.querySelector('#device .apc-yours'); return [...document.querySelector('#device .pane--apc .pane__body').children].find(e => e.offsetHeight) === f && (f.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'the field is first, then Your coupons');
   ok(/Your coupons/.test(await txt()) && await ev(() => document.querySelectorAll('#device .apc-list > li').length) === 3, 'Your coupons: one list of the three saved codes');
   const row = await ev(() => document.querySelector('#device .apc-row').innerText.replace(/\s+/g, ' '));
-  ok(/Fall Northeast sale 20% off Northeast Regional Coach Expires 11\/30\/2026 Code: V123/.test(row) && await p.locator(D_ + '.apc-row [data-a="apc-details"]').count() === 3, `row: name, benefit, expiry, code and an info button (${row})`);
+  ok(/Fall Northeast sale 20% off Northeast Regional Coach Expires 11\/30\/2026 Code: 60310045672211/.test(row) && await p.locator(D_ + '.apc-row [data-a="apc-details"]').count() === 3, `row: name, benefit, expiry, code and an info button (${row})`);
   ok(await p.locator(D_ + '[data-a="apc-save"]').count() === 1 && /Save code/.test(await ev(() => document.querySelector('#device .pane__foot').innerText)), 'Save code in the footer');
   const t = await txt();
   ok(!/deal|Used and expired|upgrade|notification channel|Only one coupon/i.test(t) && await p.locator('#tbCmpCoupon').count() === 0, 'no deals, used/expired, upgrade coupons, internal notes or switcher');
   // ---- choose, switch without a popup, save ----
-  await click('[data-a="apc-pick"][data-code="V123"]', 300);
-  ok(await ev(() => document.querySelector('#device #apc-in').value) === 'V123' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="V123"]').getAttribute('aria-pressed')) === 'true', 'choosing a coupon fills the field and marks the row');
+  await click('[data-a="apc-pick"][data-code="60310045672211"]', 300);
+  ok(await ev(() => document.querySelector('#device #apc-in').value) === '60310045672211' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="60310045672211"]').getAttribute('aria-pressed')) === 'true', 'choosing a coupon fills the field and marks the row');
   await click('[data-a="apc-pick"][data-code="60998877665544"]', 300);
-  ok(!(await dlg()) && await ev(() => document.querySelector('#device #apc-in').value) === '60998877665544' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="V123"]').getAttribute('aria-pressed')) === 'false', 'switching codes replaces it with no confirmation');
+  ok(!(await dlg()) && await ev(() => document.querySelector('#device #apc-in').value) === '60998877665544' && await ev(() => document.querySelector('#device [data-a="apc-pick"][data-code="60310045672211"]').getAttribute('aria-pressed')) === 'false', 'switching codes replaces it with no confirmation');
   const before = await bk(); ok(before.codeText === '', 'choosing doesn’t change the booking until Save code');
   await save();
   const b1 = await bk();
@@ -49,8 +49,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // switching an applied code: no popup either
   await click('#ff-coderow', 700);
   ok(await ev(() => document.querySelector('#device #apc-in').value) === '60998877665544', 'reopening shows the applied code');
-  await click('[data-a="apc-pick"][data-code="V123"]', 300); await save();
-  ok(!(await dlg()) && (await bk()).codeText === 'V123', 'replacing an applied code needs no confirmation');
+  await click('[data-a="apc-pick"][data-code="60310045672211"]', 300); await save();
+  ok(!(await dlg()) && (await bk()).codeText === '60310045672211', 'replacing an applied code needs no confirmation');
   // ---- typing, clearing and errors (value kept) ----
   await click('#ff-coderow', 700);
   await click('[data-a="apc-clear"]', 300); ok(await ev(() => document.querySelector('#device #apc-in').value) === '' && await ev(() => document.activeElement.id) === 'apc-in', 'the clear button empties the field');
@@ -84,7 +84,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open({ sc: 'guest' }); ok(/Sign in to see coupons saved to your account/.test(await txt()), 'guest state');
   await open({ net: 'slow' }); ok(await p.locator(D_ + '.cpn-loading[role="status"]').count() === 1, 'loading state'); await w(1700); ok(await ev(() => document.querySelectorAll('#device .apc-row').length) === 3, 'loading finishes');
   await open({ net: 'error' }); ok(/We couldn’t load your coupons/.test(await txt()) && await p.locator(D_ + '[data-a="coupon-retry"]').count() === 1, 'error state'); await axe('error');
-  await open({ th: 'dark', code: 'V123' }); await axe('dark, selected');
+  await open({ th: 'dark', code: '60310045672211' }); await axe('dark, selected');
   ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();
 })();

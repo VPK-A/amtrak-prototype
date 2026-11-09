@@ -5,7 +5,7 @@ const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), '
   await p.goto(require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href); await p.addScriptTag({ content: AXE });
   let n = 0, runs = 0;
   const screens = [
-    ['book', 'returning', 'tab:book', ''], ['ff long names', 'returning', 'ff', "const b=D().booking; b.from='PHL'; b.to='BWI'; b.pax.adult=2; b.codeText='V123'; b.code=clone(D().coupons[0]);"],
+    ['book', 'returning', 'tab:book', ''], ['ff long names', 'returning', 'ff', "const b=D().booking; b.from='PHL'; b.to='BWI'; b.pax.adult=2; b.codeText='60310045672211'; b.code=clone(D().coupons[0]);"],
     ['ff points guest', 'guest', 'ff', "D().booking.pay='points'"], ['pass rider', 'passrider', 'ff', ''], ['booking type', 'triplink', 'ff', ''],
     ['apply coupon', 'returning', 'ff', "push('dcode', {}, 0)"], ['codes info', 'returning', 'ff', "push('dcode', {}, 0); openInfo('codes')"], ['stations selected', 'returning', 'stations:to', "D().booking.from='PHL'; D().booking.to='WAS';"],
     ['travelers', 'assist', 'travelers', "D().booking.pax.adult=2"], ['assistance', 'returning', 'assist-booking', ''], ['exit dialog', 'returning', 'ff', "A.close(null,'0')"],

@@ -82,8 +82,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await click('#ff-coderow', 700);
   ok(await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Apply code' && await ev(() => document.querySelector('#device #apc-in').placeholder) === 'Enter code', 'the code screen is titled "Apply code"');
   ok(!/discount code|Apply coupon/i.test(await txt()), 'no "Discount code" or "Apply coupon" wording on the code screen');
-  await click('[data-a="apc-pick"][data-code="V123"]', 300); await click('[data-a="apc-save"]', 500);
-  ok((await stack()) === 'ff' && await ev(() => D().booking.codeText) === 'V123', 'saved-code selection still works');
+  await click('[data-a="apc-pick"][data-code="60310045672211"]', 300); await click('[data-a="apc-save"]', 500);
+  ok((await stack()) === 'ff' && await ev(() => D().booking.codeText) === '60310045672211', 'saved-code selection still works');
   await click('#ff-coderow', 700); await p.fill(D_ + '#apc-in', 'zq7m'); await click('[data-a="apc-save"]', 500);
   ok(await ev(() => D().booking.codeText) === 'ZQ7M' && !/discount code/i.test(await txt()), 'manual entry still works; Fare Finder has no "Discount code" wording');
   await w(3500); const v = await ev(async () => (await axe.run('#device', { resultTypes: ['violations'] })).violations.filter(x => x.nodes.some(n => !n.target.join(' ').includes('dev-status'))).map(x => x.id + ':' + x.nodes.map(n => n.target.join(' ')).join('|'))); ok(!v.length, `axe Fare Finder (${v})`);

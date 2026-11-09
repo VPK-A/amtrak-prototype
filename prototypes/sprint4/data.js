@@ -251,12 +251,13 @@ const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rp
 const TDISC_LABEL = { none: 'No discount', military: 'Military', rpa: 'Rail Passenger Association', childfare: 'Child fare', senior: 'Senior', infant: 'Infant', infantchild: 'Infant · Child fare', pwd: 'Passenger with disability', companion: 'Companion' };
 // Codes saved to the signed-in member's profile (NMA-613 scenarios 5 and 6; NMA-697)
 const PROFILE_CODES = [
-  { code: 'V123', kind: 'Promotion code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
-  { code: '60412233445566', kind: 'Companion coupon', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
-  { code: '60998877665544', kind: 'Dollar-off coupon', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
+  { code: '60310045672211', kind: 'Coupon code', name: 'Fall Northeast sale', benefit: '20% off Northeast Regional Coach', issued: '2026-10-01', exp: '2026-11-30' },
+  { code: '60412233445566', kind: 'Coupon code', name: 'Select Plus companion', benefit: 'A companion travels free', issued: '2026-07-15', exp: '2027-01-15', companion: true },
+  { code: '60998877665544', kind: 'Coupon code', name: 'Service recovery credit', benefit: '$25 off one trip', issued: '2026-09-03', exp: '2027-03-31' }
 ];
+// Every saved coupon is a 14-character coupon code (type: Coupon code)
 // Used and expired coupons in My coupons (NMA-697 BR1, BR4 AC3: one line per use, newest first)
 const PAST_CODES = [
-  { code: '60123456789012', kind: 'Dollar-off coupon', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
-  { code: '60555544443333', kind: 'Percentage coupon', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
+  { code: '60123456789012', kind: 'Coupon code', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
+  { code: '60555544443333', kind: 'Coupon code', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
 ];

@@ -120,7 +120,7 @@ A['coupon-add'] = (t, ri, then) => {
   r.u.err = '';
   runNet(r, () => c === '60111122223333' ? { ok: true } : c.startsWith('EXP') ? { err: 'This coupon has expired, so it wasn’t added.' } : { err: 'We couldn’t find this coupon. Check the code and try again.' }, res => {
     if (res.err) { r.u.err = res.err; pendingFocus = '#cpn-in'; render(); return; } // NMA-697 BR8 AC3
-    d.coupons.push({ code: c, kind: 'Dollar-off coupon', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
+    d.coupons.push({ code: c, kind: 'Coupon code', name: 'Added coupon', benefit: '$15 off one trip', issued: TODAY_S, exp: addDays(TODAY_S, 120) });
     r.u.d.add = ''; pendingFocus = `[data-a="info"][data-topic="coupon:${c}"]`; toast('Coupon added to your account'); // BR8 AC4
     if (then) then();
   }, { what: 'add a coupon' });

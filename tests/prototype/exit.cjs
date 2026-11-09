@@ -18,7 +18,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   for (const v of [1]) {
     const T = `C${v}`;
     await open(v, 'returning'); await p.locator('#device [data-a="trip"][data-v="rt"]').click(); await w(200); ok(!(await close()).dlg && await ev(() => D().booking.trip) === 'rt', `${T} round trip, no cart: no question, kept`);
-    await open(v, 'returning'); await ev(() => { setCodeText(D().booking, 'V123'); render(); }); ok(!(await close()).dlg && await ev(() => D().booking.codeText) === 'V123', `${T} code typed, no cart: no question, code kept`);
+    await open(v, 'returning'); await ev(() => { setCodeText(D().booking, '60310045672211'); render(); }); ok(!(await close()).dlg && await ev(() => D().booking.codeText) === '60310045672211', `${T} code typed, no cart: no question, code kept`);
     await open(v, 'returning'); await ev(() => { D().booking.pax.adult = 2; render(); }); ok(!(await close()).dlg && await ev(() => D().booking.pax.adult) === 2, `${T} travelers changed, no cart: no question, kept`);
     await open(v, 'returning'); await ev(() => { D().booking.from = 'NYP'; render(); }); await p.keyboard.press('Escape'); await w(300); ok(await ev(() => !nav().dialog && !nav().sheet), `${T} Escape at Fare Finder, no cart: closes`);
     await open(v, 'returning', 'travelers'); await p.keyboard.press('Escape'); await w(300); ok(await ev(() => !nav().dialog && sheet() && sheet().stack.length === 1), `${T} Escape on Traveler selection goes Back one level`);
