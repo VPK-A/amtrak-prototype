@@ -3,7 +3,7 @@
    recommended design of each is the one the prototype uses:
    - Traveler assistance: the "Traveler with disability or need help?" copy stays in each traveler's card.
    - Booking type: a compact dropdown on the Fare Finder (TripLink corporate or Regular, Pass Rider or Regular), and
-     Business / Leisure as tabs in Traveler selection, with Business selected by default.
+     Business / Leisure as tabs in Traveler selection, with neither preselected (NMA-1016 AC2).
    - Pass Rider travelers: one checkbox per named rider; Companions keep the counter.
    - Station selector: From / To in the selector, and it stays open until both stations are chosen. */
 const assistAbove = () => false;

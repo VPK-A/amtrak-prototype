@@ -3415,8 +3415,8 @@ function freshBooking(d) {
     // The special booking type is selected by default for its eligible members (NMA-622 AC2, NMA-623 AC2). A member
     // is never both a TripLink traveler and a Pass Rider.
     intent: d.signedIn && d.triplink ? 'corporate' : d.signedIn && d.passrider && prCanStart(d).ok ? 'pr' : 'standard',
-    // Business by default for Business Pass holders (team decision; NMA-1016 AC2 said neither); Leisure otherwise
-    prType: d.passrider ? (d.passrider.business ? 'business' : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
+    // Business Pass holders choose Business or Leisure; neither is preselected (NMA-1016 AC2). Leisure otherwise.
+    prType: d.passrider ? (d.passrider.business ? null : 'leisure') : null, prPax: { me: true, people: {}, comp: 0 }, prKinds: {},
     code: null, codeText: '', codeState: '', codeSig: '', codeTries: 0, codeErr: '', modeNote: null
   };
 }
@@ -4057,7 +4057,6 @@ function modesV1(r, b) {
     : cur === '' || cur.startsWith('pr') ? (inDd ? `${prTypeHelp(b)} Points, passenger discounts and codes aren’t used.` : 'Employee pass travel. Business or Leisure is chosen in Travelers. Points, passenger discounts and codes aren’t used.')
     : 'Regular fares, with points, passenger discounts and codes.';
   const why = ''; // no reason lines under the dropdown (an unavailable Business option is simply not listed)
-  if (biz) snote('Business is selected by default for Business Pass holders (team decision). Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
   if (cur === 'corporate') q(12);
   return `<div class="v1modes v1modes--select"><div class="ads-field ff-mode"><label class="ads-field__label" for="ff-mode">Booking type</label><div class="ads-control ads-control--select"><select id="ff-mode"${cur ? '' : ' class="is-placeholder" aria-required="true"'} data-f="ffmode" data-nodirty data-hook="ffmode" ${tl || why ? ` aria-describedby="${[tl ? 'ff-mode-h' : '', why ? 'ff-mode-why' : ''].filter(Boolean).join(' ')}"` : ''}>${cur ? '' : '<option value="" selected hidden>Choose Business or Leisure</option>'}${opts.map(([v, l, off]) => `<option value="${v}" ${v === cur ? 'selected' : ''} ${off ? 'disabled' : ''}>${l}${off ? ' (unavailable)' : ''}</option>`).join('')}</select>${ic('chevron-down')}</div>${tl ? `<p class="ads-helper" id="ff-mode-h">${help}</p>` : ''}${why ? `<p class="ads-helper" id="ff-mode-why">${esc(why)}</p>` : ''}</div>${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
@@ -7312,7 +7311,7 @@ render = function () {
    recommended design of each is the one the prototype uses:
    - Traveler assistance: the "Traveler with disability or need help?" copy stays in each traveler's card.
    - Booking type: a compact dropdown on the Fare Finder (TripLink corporate or Regular, Pass Rider or Regular), and
-     Business / Leisure as tabs in Traveler selection, with Business selected by default.
+     Business / Leisure as tabs in Traveler selection, with neither preselected (NMA-1016 AC2).
    - Pass Rider travelers: one checkbox per named rider; Companions keep the counter.
    - Station selector: From / To in the selector, and it stays open until both stations are chosen. */
 const assistAbove = () => false;
