@@ -67,7 +67,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
     // assistance screen and summaries use names
     await go(v, 'passrider-assist');
     await p.click(`${D_}[data-a="assist-edit"][data-t="pr-jordan"]`); await w(500);
-    const at = await pane(); ok(/For Traveler 2 · Jordan Rivera/.test(at) && !REL.test(at), `${T} assistance screen names the traveler`);
+    const at = await pane(); ok(/Traveler 2 · Jordan Rivera/.test(await ev(() => document.querySelector("#device .assist-who").textContent)) && !REL.test(at), `${T} assistance screen names the traveler`);
     await ev(() => { sheet().stack.pop(); render(); }); await w();
     await ev(() => { while (sheet().stack.length > 1) sheet().stack.pop(); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; render(); }); await w();
     const ff = await ev(() => document.querySelector('#device #ff-trav').innerText);

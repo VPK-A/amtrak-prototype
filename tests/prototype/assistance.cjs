@@ -23,10 +23,17 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await scen('returning');
   ok(await p.locator(D_ + '#tc-adult-1 button[data-a="assist-answer"]').count() === 1 && /Traveler with disability or need help\?/.test(await card('adult-1')) && /Add assistance/.test(await card('adult-1')) && await p.locator(D_ + '#tc-adult-1 input[type="checkbox"]').count() === 0, 'entry point: Add assistance button (no checkbox) in Traveler 1’s details');
   await ask('adult-1'); await p.click(D_ + '[data-a="back"]'); await w(); ok(/Add assistance/.test(await card('adult-1')) && !(await ev(() => D().booking.ask['adult-1'])), 'leaving without confirming: nothing saved, Add stays');
-  await ask('adult-1'); ok(await top() === 'assist' && /For Traveler 1 · Adult/.test(await txt()), 'checking opens Traveler 1’s questionnaire, traveler named');
+  await ask('adult-1'); ok(await top() === 'assist' && /Traveler 1 · Adult/.test(await ev(() => document.querySelector("#device .assist-who").textContent)), 'checking opens Traveler 1’s questionnaire, traveler named');
   ok(await ev(() => [...document.querySelectorAll('#device input[name$="-cat"]')].map(i => i.value).join()) === 'disability,station,companion' && !/I do not need assistance/.test(await txt()), 'three types, no “I do not need assistance”');
   ok(await p.locator(D_ + 'input[name$="-cat"][value="companion"]:disabled').count() === 1 && /another traveler on this booking needs to choose “I have a disability” first/.test(await txt()), 'personal companion unavailable, with reason');
-  ok(!/With nothing selected/.test(await txt()) && /Optional/.test(await ev(() => document.querySelector('#device .assistform legend').innerText)), 'type of help is optional; no extra text when nothing is selected');
+  ok(!/With nothing selected/.test(await txt()) && await ev(() => document.querySelector('#device .assistform legend').innerText.trim().startsWith('Type of assistance')), 'Type of assistance legend; no extra text when nothing is selected');
+  // Figma 3486:197156: chevron Back, no close, Save and Clear in the footer; the chosen type sits in a card
+  ok(await ev(() => { const pn = [...document.querySelectorAll('#device .pane')].pop(); return pn.querySelector('.ads-navbar__iconback') && !pn.querySelector('.ads-navbar__trail [data-a="close"]') && [...pn.querySelectorAll('.pane__foot .ads-btn')].map(b => b.textContent).join() === 'Save,Clear' && pn.querySelector('.pane__foot .ads-btn--destructive[data-a="assist-clear-draft"]'); }), 'header and footer: Back, Save and a destructive Clear');
+  await pick('cat', 'disability');
+  ok(await ev(() => { const c = document.querySelector('#device .assist-opt.is-selected'); return c && c.querySelector('input[value="disability"]:checked') && c.querySelector('input[data-f="dis"]') && c.querySelector('input[data-f="needs"]'); }) && /\*/.test(await ev(() => document.querySelector('#device input[data-f="dis"]').closest('fieldset').querySelector('legend').innerText)) && /\(optional\)/.test(await ev(() => document.querySelector('#device input[data-f="needs"]').closest('fieldset').querySelector('legend').innerText)), 'chosen type in a card with its questions; disabilities marked *, other needs (optional)');
+  ok(await ev(() => { const h = document.querySelector('#device #ba-needs-why'); return h && h.classList.contains('ads-sr-only') && document.querySelector('#device input[data-f="needs"]').closest('fieldset').getAttribute('aria-describedby') === 'ba-needs-why'; }), 'locked other needs: reason kept for screen readers');
+  await p.click(D_ + '.pane__foot [data-a="assist-clear-draft"]'); await w(300);
+  ok(await p.locator(D_ + 'input[name$="-cat"]:checked').count() === 0, 'Clear empties the answers');
   await axe('questionnaire with error');
   await confirm(); ok(await top() === 'travelers' && !(await rec('adult-1')).done && /Add assistance/.test(await card('adult-1')), 'continuing with nothing selected: no assistance requested');
   await ask('adult-1'); await pick('cat', 'station'); await confirm(); ok(await top() === 'travelers' && /Station assistance included/.test(await card('adult-1')) && /Edit assistance/.test(await card('adult-1')), 'station saved, Edit on the card');
@@ -131,7 +138,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   // ---- A Senior stays Senior everywhere ----
   await ev(() => { TB.v = 1; VS[1] = makeVS('returning'); const b = D().booking; b.pax.adult = 1; b.pax.senior = 1; goLoc('travelers'); }); await w();
   ok(/Traveler 2 · Senior/.test(await card('senior-1')), 'Senior label on the traveler card');
-  await ask('senior-1'); ok(/For Traveler 2 · Senior/.test(await txt()) && await p.locator(D_ + 'select').count() === 0 && !/Adult or Senior|Traveler 2 · Adult/.test(await txt()), 'questionnaire keeps Senior and doesn’t ask the type again');
+  await ask('senior-1'); ok(/Traveler 2 · Senior/.test(await ev(() => document.querySelector("#device .assist-who").textContent)) && await p.locator(D_ + 'select').count() === 0 && !/Adult or Senior|Traveler 2 · Adult/.test(await txt()), 'questionnaire keeps Senior and doesn’t ask the type again');
   await pick('cat', 'station'); await confirm(); ok(/Traveler 2 · Senior/.test(await card('senior-1')) && /Station assistance/.test(await card('senior-1')), 'Senior kept after confirming');
   // ---- A small or medium service animal answered earlier is kept for Traveler information ----
   await ev(() => { const b = D().booking; setAssistRec(b, 'adult-1', { cat: 'disability', dis: ['vision'], wc: null, needs: ['animal'], animal: 'medium' }); render(); }); await w();

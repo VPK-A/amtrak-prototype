@@ -1030,3 +1030,17 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Group legends read like field labels; the footer keeps the 20px page margin */
 :is(.ds-next, .device) .pane--ed legend.ads-field-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); }
 :is(.ds-next, .device) .pane--ed .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+
+/* ---------- Assistance questionnaire (Figma Sprint 4 node 3486:197156) ---------- */
+.pane--assist .assist-who { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.5; }
+.pane--assist .assistform { gap: var(--ads-space-24); }
+.assistform .ads-fieldset__options:has(> .assist-opt) { gap: 0; }
+.assist-opt { padding-bottom: var(--ads-space-16); }
+.assist-opt.is-selected { border: 1px solid var(--ads-border-subtle); background: var(--ads-background-interactive-secondary); }
+.assist-opt.is-selected + .assist-opt { margin-top: var(--ads-space-8); }
+.assist-opt > .assist-branch { margin: var(--ads-space-12) 0 0; padding: 0 var(--ads-space-16) 0 var(--ads-space-20); border-left: 0; gap: var(--ads-space-20); }
+.assist-ast { color: var(--ads-content-text-warning); }
+.assist-opt-mark { text-transform: none; }
+.assistform .ads-fieldset.is-locked legend, .assistform .ads-fieldset.is-locked .ads-field__marker, .assistform .ads-fieldset.is-locked .ads-choice__label, .assistform .ads-fieldset.is-locked .info-entry .ads-link { color: var(--ads-content-text-disabled); }
+.assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__label { color: var(--ads-content-text-disabled); }
+.assistform .ads-fieldset.is-locked .ads-choice__supporting { color: var(--ads-content-text-disabled); }

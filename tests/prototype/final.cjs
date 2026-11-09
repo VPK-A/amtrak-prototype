@@ -56,7 +56,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await ev(() => { const r = sheet().stack[sheet().stack.length - 1]; r.u.d = { cat: 'disability', dis: ['vision'], wc: '', needs: [] }; render(); }); await w(150);
     ok(await p.locator(D + '[data-topic="service-animals"]').count() === 1 && /Large service animal/.test(await txt()), `${T} 11 service-animal guidance inside the disability branch`);
     // 12 title Assistance + traveler label
-    ok(await ev(() => [...document.querySelectorAll('#device .sheet-layer h2, #device .sheet-layer h3')].some(h => h.textContent.trim() === 'Assistance')) && /For Traveler 1 · Adult/.test(await txt()), `${T} 12 title "Assistance" with traveler label`);
+    ok(await ev(() => [...document.querySelectorAll('#device .sheet-layer h2, #device .sheet-layer h3')].some(h => h.textContent.trim() === 'Assistance')) && /Traveler 1 · Adult/.test(await ev(() => document.querySelector("#device .assist-who").textContent)), `${T} 12 title "Assistance" with traveler label`);
     // 13 DS stepper and limits
     await go(v, 'returning', 'travelers');
     const step = await ev(() => { const c = document.querySelector('#device .ffc-count .ads-counter'), s = c.querySelector('.ads-counter__step'), cs = getComputedStyle(c); return { radius: cs.borderTopLeftRadius, h: s.getBoundingClientRect().height, minusAdult: document.querySelector('#device [data-a="pax"][data-k="adult"][data-d="-1"]').getAttribute('aria-label') }; });

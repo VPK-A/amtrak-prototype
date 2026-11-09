@@ -104,7 +104,7 @@ const ASSIST_COPY = {
   animalSizeLegend: 'Size of your service animal',
   animalSizes: [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']],
   largeBlocked: 'Not available with an accessible seat when you bring a wheelchair. Clear Accessible seat to choose this.',
-  typeLegend: 'Type of help', profileTypeLegend: 'Assistance type',
+  typeLegend: 'Type of assistance', profileTypeLegend: 'Assistance type',
   catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
   companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
   companionFull: 'Not available: each traveler with a disability may bring one personal companion, and every traveler with a disability on this booking already has one.',

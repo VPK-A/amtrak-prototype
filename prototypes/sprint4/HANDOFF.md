@@ -820,3 +820,13 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Employee pass:** title *Employee pass*; Relationship, Pass number (*Must be 9 digits.*) and Personal index number (*Must be 3 digits.*); required markers kept, as requested.
 - **My coupons:** chevron Back and title (no close); the intro line; a card with *Coupon or promotional code* (info beside the label, clear inside the field, *Coupon codes should be 14 characters long.*) and *Add*; *Available* as one bordered list (name, code, expiry, benefit, info button for details); *Used and expired* as an accordion, collapsed; Save in the footer adds a typed code and returns to Profile. Only 14-character coupon codes can be added; 4-character promotion codes are entered in New booking › Apply code. The per-coupon Apply buttons are gone, as in the design; codes are still applied from New booking › Apply code.
 - **Checks:** `tests/prototype/profile-editors.cjs`.
+
+## Assistance questionnaire (Figma Sprint 4 node 3486:197156)
+
+- **Header:** chevron Back and *Assistance*, with no close and no grabber. **Footer:** *Save* (primary) and *Clear* (destructive), both full width. Clear empties the answers; Save keeps the existing rules (nothing selected means no assistance).
+- **Content:** the traveler as a heading, then *Type of assistance*. The chosen type sits in a bordered card with its follow-up questions indented inside: *Select applicable disabilities* \* (required), then *Do you have other needs?* (optional), with *About service animals* under Large service animal. The other types are plain radios below.
+- **Kept where the design conflicts with a rule or an earlier decision:**
+  - **Personal companion unavailable:** the design greys the option and shows its usual description. NMA-615 requires the reason to be shown, so the prototype keeps *Not available yet: another traveler on this booking needs to choose "I have a disability" first.*
+  - **Traveler label:** the design shows *Traveler 1*. The earlier decision carries the traveler type into every label, so the heading reads *Traveler 1 · Adult* (or *· Senior*, or the Pass Rider's name).
+  - **Other needs locked:** the design greys them with no explanation. The reason (*Select at least one disability above to choose other needs.*) is kept for screen readers only, so the disabled state is still explained (WCAG 1.3.1, 3.3.2).
+- **Checks:** `tests/prototype/assistance.cjs`.

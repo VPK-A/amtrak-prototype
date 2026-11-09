@@ -2599,6 +2599,20 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 :is(.ds-next, .device) .pane--ed legend.ads-field-label { color: var(--ads-content-text-secondary); font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); }
 :is(.ds-next, .device) .pane--ed .pane__foot.ads-actionfooter { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
 
+/* ---------- Assistance questionnaire (Figma Sprint 4 node 3486:197156) ---------- */
+.pane--assist .assist-who { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.5; }
+.pane--assist .assistform { gap: var(--ads-space-24); }
+.assistform .ads-fieldset__options:has(> .assist-opt) { gap: 0; }
+.assist-opt { padding-bottom: var(--ads-space-16); }
+.assist-opt.is-selected { border: 1px solid var(--ads-border-subtle); background: var(--ads-background-interactive-secondary); }
+.assist-opt.is-selected + .assist-opt { margin-top: var(--ads-space-8); }
+.assist-opt > .assist-branch { margin: var(--ads-space-12) 0 0; padding: 0 var(--ads-space-16) 0 var(--ads-space-20); border-left: 0; gap: var(--ads-space-20); }
+.assist-ast { color: var(--ads-content-text-warning); }
+.assist-opt-mark { text-transform: none; }
+.assistform .ads-fieldset.is-locked legend, .assistform .ads-fieldset.is-locked .ads-field__marker, .assistform .ads-fieldset.is-locked .ads-choice__label, .assistform .ads-fieldset.is-locked .info-entry .ads-link { color: var(--ads-content-text-disabled); }
+.assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__label { color: var(--ads-content-text-disabled); }
+.assistform .ads-fieldset.is-locked .ads-choice__supporting { color: var(--ads-content-text-disabled); }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -3171,7 +3185,7 @@ const ASSIST_COPY = {
   animalSizeLegend: 'Size of your service animal',
   animalSizes: [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']],
   largeBlocked: 'Not available with an accessible seat when you bring a wheelchair. Clear Accessible seat to choose this.',
-  typeLegend: 'Type of help', profileTypeLegend: 'Assistance type',
+  typeLegend: 'Type of assistance', profileTypeLegend: 'Assistance type',
   catHelp: { disability: '', station: 'Station assistance is included. The Passenger with disability discount doesn’t apply.', companion: 'Gets the Companion discount instead of other passenger discounts. Each traveler with a disability may bring one personal companion.', none: '' },
   companionNoDisability: 'Not available yet: another traveler on this booking needs to choose “I have a disability” first.',
   companionFull: 'Not available: each traveler with a disability may bring one personal companion, and every traveler with a disability on this booking already has one.',
@@ -3735,7 +3749,7 @@ function renderSheet(sh, covered) {
     } else panes = current;
   }
   const label = sh.id === 'booking' ? 'New booking' : sh.id === 'inbox' ? 'Notification inbox' : 'Account';
-  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
+  return `<div class="sheet-layer" ${covered ? 'inert' : ''}><div class="sheet-scrim" data-a="scrim" aria-hidden="true"></div><div class="${cls}" role="dialog" aria-modal="true" aria-label="${label}"${brand || (sh.id === 'booking' && top.s === 'dcode') || (top.s === 'stations' && !ipad) ? ' data-platform="ios"' : ''}>${ipad || brand || top.s === 'dcode' || top.s === 'stations' || ['profile', 'edit', 'discounts', 'assist-profile', 'coupons', 'assist'].includes(top.s) ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="psheet__panes">${panes}</div></div></div>`;
 }
 function titleOf(r, ri) { const save = NOTES; resetNotes(); const t = SCR[r.s](r, ri).title; NOTES = save; return t; }
 function renderCover(c, covered) {
@@ -4449,7 +4463,7 @@ function needsBlock(r, x, idp, explain, e = {}) {
   }).join('');
   const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
   const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
-  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional">Optional</span></legend>${help ? `<p class="ads-helper" id="${idp}-needs-why">${ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional assist-opt-mark">(optional)</span></legend>${help ? `<p class="${locked ? 'ads-sr-only' : 'ads-helper'}" id="${idp}-needs-why">${locked ? '' : ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}${st || comp ? '' : `<p class="info-entry">${infoLink('service-animals', 'About service animals')}</p>`}</fieldset>`;
 }
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
@@ -4468,13 +4482,15 @@ function catBlock(r, x, idp, mode, e, branch) {
   const opts = cats.map(k => {
     const sel = x.cat === k, off = k === 'companion' && !open && !sel;
     const sup = off ? companionWhy(b, who.key) : (AC.catHelp[k] || '');
-    return choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"') + (sel && branch ? `<div class="assist-branch">${branch}</div>` : '');
+    const opt = choice('radio', `${idp}-cat`, 'cat', k, sel, CATS[k], sup, off ? 'disabled' : 'data-hook="assist"');
+    // Figma 3486:197156: the chosen type sits in a card, with its follow-up questions indented inside it
+    return sel ? `<div class="assist-opt is-selected">${opt}${branch ? `<div class="assist-branch">${branch}</div>` : ''}</div>` : `<div class="assist-opt">${opt}</div>`;
   }).join('');
   const legend = mode === 'booking' ? (v1() ? `${AC.typeLegend}<span class="ads-sr-only"> for ${esc(who.label)}</span>` : `${esc(who.label)} needs`) : AC.profileTypeLegend;
-  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}${mode === 'booking' ? ' <span class="ads-field__marker ads-field__marker--optional">Optional</span>' : ''}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? (x.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : '') + q(9) : ''}`;
+  return `<fieldset class="ads-fieldset" ${e.cat ? `aria-describedby="${idp}-cat-err"` : ''}><legend class="ads-field-label">${legend}</legend><div class="ads-fieldset__options">${opts}</div>${e.cat ? `<p class="ads-helper ads-helper--error" id="${idp}-cat-err">${ic('alert-diamond')}<span>${e.cat}</span></p>` : ''}</fieldset>${mode === 'booking' ? q(9) : ''}`;
 }
 function disBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required">At least one</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required assist-ast" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required">Required</span>${r.u.mode === 'profile' ? ` ${q(18)}` : ''}</legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}${snote('Mobility device details (NMA-29) aren’t part of Sprint 4.')}</fieldset>`;
@@ -4566,7 +4582,8 @@ A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
-  return { title: 'Assistance', kind: 'push', body: `<p class="assist-who">For ${esc(who)}</p>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Confirm assistance for ${esc(who)}">Confirm</button>`, banner: false };
+  // Figma 3486:197156: chevron Back and title (no close); the traveler, Type of assistance, Save and Clear
+  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(who)}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--destructive ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
 };
 
 // =====================================================================
