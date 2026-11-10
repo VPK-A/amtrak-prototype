@@ -852,3 +852,5 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Prototype controls › Pass Rider default travel type:** *None: choose Business or Leisure* (default, NMA-1016 AC2) or *Leisure*. With Leisure, Business Pass holders start with Leisure selected (the Leisure tab in Traveler selection). The screen notes flag the AC2 conflict.
 - **Required fields:** the "Required" tag is replaced by the ADS required marker, an asterisk (\*) in the warning text colour. On fields it's hidden from screen readers because the control carries `aria-required`; on group legends screen readers hear "(required)".
 - **Checks:** `tests/prototype/design-review.cjs` (dates), `booking-modes.cjs` (Pass Rider default), `profile-editors.cjs` (asterisks).
+
+- **TripLink Traveler selection:** the fixed *1 adult · You — Corporate bookings are for the TripLink traveler only…* card is removed. The screen starts with the traveler's details (discount not used, assistance); the Fare Finder's Travelers row still says corporate bookings are for you only.

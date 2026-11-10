@@ -245,7 +245,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   const fam = v1() && std === true; // Version 1: traveler-by-traveler cards, Cancel and Done (familiar.js)
   if (!r.u.snap) r.u.snap = clone(Object.assign({ pax: b.pax, tdisc: b.tdisc, disc: b.disc, discReplaced: b.discReplaced || {}, prPax: b.prPax, prType: b.prType, prKinds: b.prKinds || {} }, fam ? { assist: b.assist, assistDone: b.assistDone, assistFromProfile: b.assistFromProfile, ta: b.ta || {}, assistOn: b.assistOn, ask: b.ask || {} } : {}));
   let body = '', ok = true, why = '';
-  if (corp) body = `<div class="ffc-fixedcard"><p class="ffc-count__label">1 adult · You</p><p class="ads-body-small ads-text-secondary">Corporate bookings are for the TripLink traveler only. You can still request assistance.</p></div>`;
+  if (corp) body = ''; // TripLink: no fixed "1 adult · You" card; the traveler's details and assistance follow
   else if (pr) {
     ref('1017', '1018', '1081', '1016');
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
