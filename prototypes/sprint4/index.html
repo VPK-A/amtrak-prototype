@@ -2939,7 +2939,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-upd .ss-views { margin-bottom: var(--ads-space-24); }
 .ss-top { display: flex; flex-direction: column; gap: var(--ads-space-16); margin: 0 calc(-1 * var(--ads-space-20)); padding: 0 var(--ads-space-20) var(--ads-space-20); border-bottom: 1px solid var(--ads-border-subtle); }
 .ss-top .ss-group { margin-bottom: var(--ads-space-8); }
-.ss-group .ads-fieldgroup__field[aria-current="true"] { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
+:is(.ss-group, .calx-group) .ads-fieldgroup__field[aria-current="true"] { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
 .ss-search--sq .ads-control { min-height: var(--ads-size-interactive-md); border-radius: var(--ads-radius-4); }
 .ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-primary); }
 .ss-upd .ss-near { margin: 0; gap: var(--ads-space-12); }
@@ -4311,15 +4311,22 @@ function calendarBody(r, ri, field) {
 }
 // ---------- Dates (New booking): two months at a time, scrolling vertically through the booking window ----------
 // Design-review revision. Edits a draft (r.u.cal): Done saves to the booking and returns to Fare Finder; Back returns
-// without saving and without asking. Departure and return are edited one at a time; switching keeps the other.
-// A new departure after the chosen return keeps that return marked as needing a new choice (never changed silently).
-function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, edit: b.trip === 'rt' && (r.p.field === 'ret' || !b.ret) ? 'ret' : 'dep', retBad: false, jump: true }; return r.u.cal; }
+// without saving and without asking. The Departure / Return card from New booking sits above the calendar; the field
+// being filled is outlined (as in station search). Round trip: each tap fills the active field and activates the other.
+// A new departure after the return moves the return to that day and keeps Return active.
+function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
+// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
+function calCard(c) {
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : '', placeholder: 'Choose date', icon: 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
+  return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
+}
 function calScroll(r, ri) {
-  const b = D().booking, c = calDraft(r), rt = b.trip === 'rt', edit = rt ? c.edit : 'dep';
+  const c = calDraft(r), rt = c.trip === 'rt', edit = rt ? c.edit : 'dep';
   ref('1060'); q(4); // the 335-day window isn't confirmed (Q4): dates beyond it are disabled, no policy text
   const maxDep = addDays(TODAY_S, WINDOW_DAYS), maxRet = c.dep ? addDays(c.dep, WINDOW_DAYS) : maxDep;
-  const isOff = s => s < TODAY_S || (edit === 'ret' && c.dep && s >= c.dep ? s > maxRet : s > maxDep); // choosing a return: an earlier date moves the departure instead
-  const retOk = rt && c.ret && !c.retBad;
+  const isOff = s => s < TODAY_S || (edit === 'ret' && c.dep ? s < c.dep || s > maxRet : s > maxDep); // choosing a return: nothing before the departure; same day allowed
+  const retOk = rt && c.dep && c.ret;
   const first = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), lastS = edit === 'ret' ? maxRet : maxDep, last = parse(lastS);
   const months = []; for (let d = new Date(first); d <= last; d.setMonth(d.getMonth() + 1)) months.push(new Date(d));
   const day = (y, mo, dd) => {
@@ -4334,17 +4341,14 @@ function calScroll(r, ri) {
     let g = ''; for (let i = 0; i < m.getDay(); i++) g += '<span aria-hidden="true"></span>'; for (let dd = 1; dd <= n; dd++) g += day(y, mo, dd);
     return `<section class="ads-calendar__month calx-month" data-month="${key}" aria-labelledby="${id}"><h3 id="${id}">${m.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3><div class="ads-calendar__grid" role="group" aria-labelledby="${id}">${g}</div></section>`;
   };
-  // Figma 3554:123276: weekday letters pinned above the months, with a rule; no tabs or legend. For a round trip the
-  // first tap sets departure and the next sets return; after that a tap changes departure again. Which date is
-  // next is announced, and the footer says what's still needed.
-  const why = c.retBad ? `<div class="ads-alert ads-alert--warning calx-why" id="calx-why" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">Your return date, ${fmtShort(c.ret)}, is before your new departure. Choose a new return date.</p></div></div>` : '';
+  // Figma 3554:123276: weekday letters pinned above the months, with a rule. The date card is pinned above them.
   const live = `<p class="ads-sr-only" role="status">${edit === 'dep' ? 'Choose a departure date' : 'Choose a return date'}</p>`;
-  return `<div class="calx-head">${why}${live}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
+  return `<div class="calx-head">${calCard(c)}${live}<div class="ads-calendar__weekdays" aria-hidden="true">${'SMTWTFS'.split('').map(x => `<span>${x}</span>`).join('')}</div></div><div class="ads-calendar calx">${months.map(monthHtml).join('')}</div>`;
 }
 SCR.calendar = (r, ri) => {
   const b = D().booking;
   if (v1()) {
-    const c = calDraft(r), rt = b.trip === 'rt', needDep = !c.dep, needRet = rt && !needDep && (!c.ret || c.retBad), need = needDep || needRet;
+    const c = calDraft(r), rt = c.trip === 'rt', needDep = !c.dep, needRet = rt && !needDep && !c.ret, need = needDep || needRet;
     const msg = needDep ? (rt ? 'Choose your departure and return dates.' : 'Choose a departure date.') : 'Choose a return date.';
     const foot = `${need ? `<p class="ads-helper" id="calx-done-why">${msg}</p>` : ''}<button class="ads-btn ads-btn--block" type="button" data-a="calx-done"${need ? ' disabled aria-describedby="calx-done-why"' : ''}>Save selection</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="calx-clear">Clear</button>`;
     return { title: rt ? 'Select dates' : 'Select date', kind: 'push', backIcon: true, noClose: true, cls: 'pane--calx', body: calScroll(r, ri), foot, footCls: 'ads-actionfooter', banner: false };
@@ -4352,23 +4356,23 @@ SCR.calendar = (r, ri) => {
   const foot = `<div class="calfoot"><span class="ads-body-small"><b>Depart</b> ${fmtShortY(b.dep)}${b.trip === 'rt' ? ` · <b>Return</b> ${b.ret ? fmtShortY(b.ret) : 'not set'}` : ''}</span><button class="ads-btn" type="button" data-a="cal-done">Done</button></div>`;
   return { title: v2() ? (b.trip === 'rt' ? 'Choose your dates' : 'Choose departure date') : 'Dates', kind: 'push', body: calendarBody(r, ri, r.p.field), foot, banner: false };
 };
-A['calx-edit'] = (t, ri) => { const r = routeAt(ri); calDraft(r).edit = t.dataset.v; calDraft(r).jump = true; pendingFocus = `[data-a="calx-edit"][data-v="${t.dataset.v}"]`; render(); };
+// Tapping a field in the date card makes it active (and brings its month into view)
+A['calx-edit'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r), v = t.dataset.v; if (c.edit !== v) { c.edit = v; c.jump = true; } pendingFocus = `#calx-f-${v}`; render(); };
+// One-way: "Add return" in the card adds a return to the draft (same day, as on New booking) and activates it
+A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
 A['calx-day'] = (t, ri) => {
-  const r = routeAt(ri), b = D().booking, c = calDraft(r), s = t.dataset.d, rt = b.trip === 'rt';
-  if (!rt || c.edit === 'dep') {
-    c.dep = s;
-    if (rt && c.ret && c.ret < s) { c.retBad = true; c.edit = 'ret'; c.jump = true; pendingFocus = '#calx-why'; render(); return; } // guide to a new return; never change it silently
-    if (rt) c.edit = 'ret'; // next tap: return
-  } else if (c.dep && s < c.dep) { c.dep = s; if (c.ret && c.ret < s) c.ret = null; } // before the departure: it becomes the new departure; still choosing a return
-  else { c.ret = s; c.retBad = false; c.edit = 'dep'; } // next tap changes departure
+  const r = routeAt(ri), c = calDraft(r), s = t.dataset.d;
+  if (c.trip !== 'rt') c.dep = s; // one-way: only the departure changes
+  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) c.ret = s; c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
+  else { c.ret = s; c.edit = 'dep'; }
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
 // Clear: no dates chosen; Save selection waits for them
-A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = null; c.ret = null; c.retBad = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = null; c.ret = null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
-  if (!c.dep || (b.trip === 'rt' && (!c.ret || c.retBad))) return;
-  b.dep = c.dep; if (b.trip === 'rt') b.ret = c.ret;
+  if (!c.dep || (c.trip === 'rt' && (!c.ret || c.ret < c.dep))) return;
+  b.dep = c.dep; if (c.trip === 'rt') { b.trip = 'rt'; b.ret = c.ret; }
   popTo(+ri - 1); pendingFocus = '#ff-dep';
 };
 // After a render, bring the month being edited to the top of the list (on opening, and when switching dates)

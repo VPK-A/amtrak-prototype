@@ -149,7 +149,7 @@
 .ss-upd .ss-views { margin-bottom: var(--ads-space-24); }
 .ss-top { display: flex; flex-direction: column; gap: var(--ads-space-16); margin: 0 calc(-1 * var(--ads-space-20)); padding: 0 var(--ads-space-20) var(--ads-space-20); border-bottom: 1px solid var(--ads-border-subtle); }
 .ss-top .ss-group { margin-bottom: var(--ads-space-8); }
-.ss-group .ads-fieldgroup__field[aria-current="true"] { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
+:is(.ss-group, .calx-group) .ads-fieldgroup__field[aria-current="true"] { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: -2px; z-index: 1; }
 .ss-search--sq .ads-control { min-height: var(--ads-size-interactive-md); border-radius: var(--ads-radius-4); }
 .ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-primary); }
 .ss-upd .ss-near { margin: 0; gap: var(--ads-space-12); }
