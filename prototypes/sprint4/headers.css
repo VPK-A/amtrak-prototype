@@ -1,0 +1,101 @@
+/* Header design exploration (Prototype controls › Header design). Variants 1–5 of the app shell header (.hx-ah--N)
+   and the New booking modal header (.hx-mh--N). ADS tokens only, so every variant follows light and dark. */
+
+/* ---------- Shared pieces ---------- */
+.hx-arrow { --s: 1; display: flex; flex-direction: column; gap: calc(5.672px * var(--s)); pointer-events: none; }
+.hx-arrow .ads-sheet-header__arrow svg { width: calc(53.186px * var(--s)); height: calc(35.7313px * var(--s)); }
+.hx-arrow .ads-sheet-header__arrow > i { height: calc(17.582px * var(--s)); }
+.hx-stripe { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
+.hx-stripe i { display: block; height: 2px; }
+.hx-stripe i:first-child { background: var(--ads-brand-signal-red); }
+.hx-stripe i:last-child { background: var(--ads-brand-cobalt-blue); }
+
+.device .hx-ah { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-12); padding-bottom: var(--ads-space-16); border-bottom: 0; background: var(--ads-background-surface-page); overflow: hidden; }
+.hx-row { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--ads-space-12); }
+.hx-ah .hx-acct { position: relative; z-index: 1; flex: 1 1 auto; align-items: center; }
+.hx-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; margin: 0; }
+.hx-eyebrow { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.3; }
+.hx-name { font-size: var(--ads-type-h4-headline-size); line-height: 1.25; font-weight: var(--ads-font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hx-loy { display: flex; align-items: center; gap: var(--ads-space-8); margin-top: var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.3; font-variant-numeric: tabular-nums; }
+.hx-pts { font-weight: var(--ads-font-weight-semibold); }
+.hx-ah .hx-avatar { width: 48px; height: 48px; font-size: var(--ads-type-body-size); }
+.hx-ah .hx-avatar--guest { background: var(--ads-background-surface-sunken); color: var(--ads-content-icon-primary); }
+.hx-ah .hx-inbox { flex: none; position: relative; z-index: 1; }
+.hx-chev { flex: none; }
+
+/* ---------- 1 · Hairline ---------- */
+.device .hx-ah--1 { padding-bottom: calc(var(--ads-space-16) + 6px); }
+
+/* ---------- 2 · Arrow band: the brand arrow lives in the global header ---------- */
+.device .hx-ah--2 { background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.hx-ah--2 .hx-eyebrow, .hx-ah--2 .hx-loy { color: var(--ads-content-text-on-brand); opacity: 0.8; }
+.hx-ah--2 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.hx-ah--2 .hx-inbox { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
+.hx-ah--2 .hx-inbox .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
+.hx-ah--2 .hx-acct:focus-visible, .hx-ah--2 .hx-inbox:focus-visible { outline-color: var(--ads-content-icon-on-brand); }
+.hx-ah--2 .hx-arrow { --s: 0.7; flex: none; width: 104px; }
+.hx-ah--2 .hx-row { margin-right: calc(-1 * var(--ads-grid-margin)); }
+.device .hx-ah--2 .hx-search { border-color: transparent; }
+
+/* ---------- 3 · Loyalty card as the profile entry ---------- */
+.hx-ah--3 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.device .hx-ah--3 .hx-card { position: relative; flex: none; display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 72px; padding: var(--ads-space-12) var(--ads-space-12) calc(var(--ads-space-12) + 6px) var(--ads-space-16); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); overflow: hidden; }
+.hx-card__l, .hx-card__r { display: flex; flex-direction: column; min-width: 0; }
+.hx-card__l { flex: 1 1 auto; }
+.hx-card__r { flex: none; align-items: flex-end; }
+.hx-card__k { font-size: var(--ads-type-caption-size); line-height: 1.3; opacity: 0.8; }
+.hx-card__tier, .hx-card__pts { font-size: var(--ads-type-h4-headline-size); line-height: 1.25; font-weight: var(--ads-font-weight-semibold); font-variant-numeric: tabular-nums; }
+
+/* ---------- 4 · Tone on tone ---------- */
+.device .hx-ah--4 { background: var(--ads-background-surface-sunken); padding-bottom: var(--ads-space-20); }
+.hx-ah--4 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.hx-ah--4 .hx-avatar { box-shadow: 0 0 0 3px var(--ads-background-surface-page); }
+.hx-ah--4 .hx-inbox { background: var(--ads-background-surface-page); }
+.hx-ah--4 .hx-tier { --_bg: var(--ads-background-surface-page); --_fg: var(--ads-content-text-primary); }
+.hx-arrow--tone { --s: 1.9; position: absolute; right: 0; bottom: -18px; width: 250px; opacity: 0.55; }
+.hx-arrow--tone .ads-sheet-header__arrow > i { background: var(--ads-background-surface-page); }
+.hx-arrow--tone .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-page); }
+
+/* ---------- 5 · Brand bar and arrow ribbon ---------- */
+.device .hx-ah--5 { gap: var(--ads-space-8); padding-bottom: calc(var(--ads-space-16) + 22px); }
+.hx-bar { justify-content: space-between; }
+.hx-logo { display: flex; width: 104px; color: var(--ads-brand-primary-blue); }
+.hx-logo svg { width: 100%; height: auto; }
+.hx-ah--5 .hx-name { font-size: 24px; line-height: 1.2; }
+.hx-arrow--ribbon { --s: 0.3; position: absolute; left: var(--ads-grid-margin); right: 0; bottom: var(--ads-space-12); }
+
+/* ---------- New booking modal header: same background as the modal, a stripe hairline between ---------- */
+.device .ads-sheet-header.hx-mh { min-height: 0; padding-top: var(--ads-space-12); padding-bottom: calc(var(--ads-space-12) + 6px); background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.device .hx-mh > .ads-icon-btn.ads-sheet-header__close { color: var(--ads-content-icon-primary); border-color: var(--ads-border-default); }
+.device .hx-mh .ads-sheet-header__close:hover { background: var(--ads-background-surface-hover); }
+.device .hx-mh .ads-sheet-header__close:active { background: var(--ads-background-surface-active); }
+.device .hx-mh .ads-sheet-header__close:focus-visible { outline-color: var(--ads-border-focus); }
+.device .hx-mh .ads-sheet-header__title { font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); }
+/* 2 · one line, red start then blue */
+.hx-mh--2 .hx-stripe { flex-direction: row; gap: var(--ads-space-4); }
+.hx-mh--2 .hx-stripe i { height: 3px; }
+.hx-mh--2 .hx-stripe i:first-child { flex: none; width: 72px; }
+.hx-mh--2 .hx-stripe i:last-child { flex: 1; }
+.device .ads-sheet-header.hx-mh--2 { padding-bottom: calc(var(--ads-space-12) + 3px); }
+/* 3 · centered title, fine hairlines */
+.device .ads-sheet-header.hx-mh--3 { justify-content: center; padding-bottom: calc(var(--ads-space-12) + 3px); }
+.device .hx-mh--3 > .ads-icon-btn.ads-sheet-header__close { position: absolute; left: var(--ads-grid-margin, var(--ads-space-20)); top: var(--ads-space-12); border-color: transparent; }
+.device .hx-mh--3 .ads-sheet-header__title { font-size: var(--ads-type-body-size); line-height: var(--ads-size-interactive-sm); }
+.hx-mh--3 .hx-stripe { gap: 1px; }
+.hx-mh--3 .hx-stripe i { height: 1px; }
+/* 4 · larger title, a short stripe accent and a neutral rule */
+.device .ads-sheet-header.hx-mh--4 { padding-top: var(--ads-space-16); padding-bottom: var(--ads-space-20); border-bottom: 1px solid var(--ads-border-subtle); }
+.device .hx-mh--4 .ads-sheet-header__title { font-size: var(--ads-type-h3-headline-size); line-height: var(--ads-type-h3-headline-line-height); }
+.hx-mh--4 .hx-stripe { left: calc(var(--ads-grid-margin, var(--ads-space-20)) + var(--ads-size-interactive-sm) + var(--ads-space-8)); right: auto; bottom: var(--ads-space-8); width: 56px; }
+/* 5 · inset stripe */
+.hx-mh--5 .hx-stripe { left: var(--ads-grid-margin, var(--ads-space-20)); right: var(--ads-grid-margin, var(--ads-space-20)); }
+.hx-mh--5 .hx-stripe i { border-radius: var(--ads-radius-full); }
+.hx-mh--5 .hx-stripe i:last-child { background: var(--ads-brand-primary-blue); }
+/* 2 · the status bar sits on the navy band (phone app shell only; iPad keeps its own navigation) */
+.device--iphone.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }
+
+/* ---------- Book: the New booking search is part of the header (one component); hidden on other tabs ---------- */
+.device .hx-ah .hx-search { position: relative; z-index: 1; flex: none; }
+.device .hx-ah--book ~ .app-main .tabpage.bk { padding-top: var(--ads-space-16); }
+/* The header variants share the page's 16px side margin, so the greeting, the search and the page content line up */
+.device .hx-ah { --ads-grid-margin: var(--ads-space-16); }

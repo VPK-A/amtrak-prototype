@@ -3019,6 +3019,108 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .map-listing__acts .ads-icon-btn { color: var(--ads-content-icon-primary); }
 .map-listing__save { color: var(--ads-content-icon-brand) !important; }
 
+/* Header design exploration (Prototype controls › Header design). Variants 1–5 of the app shell header (.hx-ah--N)
+   and the New booking modal header (.hx-mh--N). ADS tokens only, so every variant follows light and dark. */
+
+/* ---------- Shared pieces ---------- */
+.hx-arrow { --s: 1; display: flex; flex-direction: column; gap: calc(5.672px * var(--s)); pointer-events: none; }
+.hx-arrow .ads-sheet-header__arrow svg { width: calc(53.186px * var(--s)); height: calc(35.7313px * var(--s)); }
+.hx-arrow .ads-sheet-header__arrow > i { height: calc(17.582px * var(--s)); }
+.hx-stripe { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
+.hx-stripe i { display: block; height: 2px; }
+.hx-stripe i:first-child { background: var(--ads-brand-signal-red); }
+.hx-stripe i:last-child { background: var(--ads-brand-cobalt-blue); }
+
+.device .hx-ah { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-12); padding-bottom: var(--ads-space-16); border-bottom: 0; background: var(--ads-background-surface-page); overflow: hidden; }
+.hx-row { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--ads-space-12); }
+.hx-ah .hx-acct { position: relative; z-index: 1; flex: 1 1 auto; align-items: center; }
+.hx-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; margin: 0; }
+.hx-eyebrow { color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.3; }
+.hx-name { font-size: var(--ads-type-h4-headline-size); line-height: 1.25; font-weight: var(--ads-font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hx-loy { display: flex; align-items: center; gap: var(--ads-space-8); margin-top: var(--ads-space-4); color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.3; font-variant-numeric: tabular-nums; }
+.hx-pts { font-weight: var(--ads-font-weight-semibold); }
+.hx-ah .hx-avatar { width: 48px; height: 48px; font-size: var(--ads-type-body-size); }
+.hx-ah .hx-avatar--guest { background: var(--ads-background-surface-sunken); color: var(--ads-content-icon-primary); }
+.hx-ah .hx-inbox { flex: none; position: relative; z-index: 1; }
+.hx-chev { flex: none; }
+
+/* ---------- 1 · Hairline ---------- */
+.device .hx-ah--1 { padding-bottom: calc(var(--ads-space-16) + 6px); }
+
+/* ---------- 2 · Arrow band: the brand arrow lives in the global header ---------- */
+.device .hx-ah--2 { background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
+.hx-ah--2 .hx-eyebrow, .hx-ah--2 .hx-loy { color: var(--ads-content-text-on-brand); opacity: 0.8; }
+.hx-ah--2 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.hx-ah--2 .hx-inbox { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
+.hx-ah--2 .hx-inbox .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
+.hx-ah--2 .hx-acct:focus-visible, .hx-ah--2 .hx-inbox:focus-visible { outline-color: var(--ads-content-icon-on-brand); }
+.hx-ah--2 .hx-arrow { --s: 0.7; flex: none; width: 104px; }
+.hx-ah--2 .hx-row { margin-right: calc(-1 * var(--ads-grid-margin)); }
+.device .hx-ah--2 .hx-search { border-color: transparent; }
+
+/* ---------- 3 · Loyalty card as the profile entry ---------- */
+.hx-ah--3 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.device .hx-ah--3 .hx-card { position: relative; flex: none; display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 72px; padding: var(--ads-space-12) var(--ads-space-12) calc(var(--ads-space-12) + 6px) var(--ads-space-16); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-inverse); color: var(--ads-content-text-on-inverse); overflow: hidden; }
+.hx-card__l, .hx-card__r { display: flex; flex-direction: column; min-width: 0; }
+.hx-card__l { flex: 1 1 auto; }
+.hx-card__r { flex: none; align-items: flex-end; }
+.hx-card__k { font-size: var(--ads-type-caption-size); line-height: 1.3; opacity: 0.8; }
+.hx-card__tier, .hx-card__pts { font-size: var(--ads-type-h4-headline-size); line-height: 1.25; font-weight: var(--ads-font-weight-semibold); font-variant-numeric: tabular-nums; }
+
+/* ---------- 4 · Tone on tone ---------- */
+.device .hx-ah--4 { background: var(--ads-background-surface-sunken); padding-bottom: var(--ads-space-20); }
+.hx-ah--4 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
+.hx-ah--4 .hx-avatar { box-shadow: 0 0 0 3px var(--ads-background-surface-page); }
+.hx-ah--4 .hx-inbox { background: var(--ads-background-surface-page); }
+.hx-ah--4 .hx-tier { --_bg: var(--ads-background-surface-page); --_fg: var(--ads-content-text-primary); }
+.hx-arrow--tone { --s: 1.9; position: absolute; right: 0; bottom: -18px; width: 250px; opacity: 0.55; }
+.hx-arrow--tone .ads-sheet-header__arrow > i { background: var(--ads-background-surface-page); }
+.hx-arrow--tone .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-page); }
+
+/* ---------- 5 · Brand bar and arrow ribbon ---------- */
+.device .hx-ah--5 { gap: var(--ads-space-8); padding-bottom: calc(var(--ads-space-16) + 22px); }
+.hx-bar { justify-content: space-between; }
+.hx-logo { display: flex; width: 104px; color: var(--ads-brand-primary-blue); }
+.hx-logo svg { width: 100%; height: auto; }
+.hx-ah--5 .hx-name { font-size: 24px; line-height: 1.2; }
+.hx-arrow--ribbon { --s: 0.3; position: absolute; left: var(--ads-grid-margin); right: 0; bottom: var(--ads-space-12); }
+
+/* ---------- New booking modal header: same background as the modal, a stripe hairline between ---------- */
+.device .ads-sheet-header.hx-mh { min-height: 0; padding-top: var(--ads-space-12); padding-bottom: calc(var(--ads-space-12) + 6px); background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
+.device .hx-mh > .ads-icon-btn.ads-sheet-header__close { color: var(--ads-content-icon-primary); border-color: var(--ads-border-default); }
+.device .hx-mh .ads-sheet-header__close:hover { background: var(--ads-background-surface-hover); }
+.device .hx-mh .ads-sheet-header__close:active { background: var(--ads-background-surface-active); }
+.device .hx-mh .ads-sheet-header__close:focus-visible { outline-color: var(--ads-border-focus); }
+.device .hx-mh .ads-sheet-header__title { font-size: var(--ads-type-h4-headline-size); line-height: var(--ads-type-h4-headline-line-height); }
+/* 2 · one line, red start then blue */
+.hx-mh--2 .hx-stripe { flex-direction: row; gap: var(--ads-space-4); }
+.hx-mh--2 .hx-stripe i { height: 3px; }
+.hx-mh--2 .hx-stripe i:first-child { flex: none; width: 72px; }
+.hx-mh--2 .hx-stripe i:last-child { flex: 1; }
+.device .ads-sheet-header.hx-mh--2 { padding-bottom: calc(var(--ads-space-12) + 3px); }
+/* 3 · centered title, fine hairlines */
+.device .ads-sheet-header.hx-mh--3 { justify-content: center; padding-bottom: calc(var(--ads-space-12) + 3px); }
+.device .hx-mh--3 > .ads-icon-btn.ads-sheet-header__close { position: absolute; left: var(--ads-grid-margin, var(--ads-space-20)); top: var(--ads-space-12); border-color: transparent; }
+.device .hx-mh--3 .ads-sheet-header__title { font-size: var(--ads-type-body-size); line-height: var(--ads-size-interactive-sm); }
+.hx-mh--3 .hx-stripe { gap: 1px; }
+.hx-mh--3 .hx-stripe i { height: 1px; }
+/* 4 · larger title, a short stripe accent and a neutral rule */
+.device .ads-sheet-header.hx-mh--4 { padding-top: var(--ads-space-16); padding-bottom: var(--ads-space-20); border-bottom: 1px solid var(--ads-border-subtle); }
+.device .hx-mh--4 .ads-sheet-header__title { font-size: var(--ads-type-h3-headline-size); line-height: var(--ads-type-h3-headline-line-height); }
+.hx-mh--4 .hx-stripe { left: calc(var(--ads-grid-margin, var(--ads-space-20)) + var(--ads-size-interactive-sm) + var(--ads-space-8)); right: auto; bottom: var(--ads-space-8); width: 56px; }
+/* 5 · inset stripe */
+.hx-mh--5 .hx-stripe { left: var(--ads-grid-margin, var(--ads-space-20)); right: var(--ads-grid-margin, var(--ads-space-20)); }
+.hx-mh--5 .hx-stripe i { border-radius: var(--ads-radius-full); }
+.hx-mh--5 .hx-stripe i:last-child { background: var(--ads-brand-primary-blue); }
+/* 2 · the status bar sits on the navy band (phone app shell only; iPad keeps its own navigation) */
+.device--iphone.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }
+
+/* ---------- Book: the New booking search is part of the header (one component); hidden on other tabs ---------- */
+.device .hx-ah .hx-search { position: relative; z-index: 1; flex: none; }
+.device .hx-ah--book ~ .app-main .tabpage.bk { padding-top: var(--ads-space-16); }
+/* The header variants share the page's 16px side margin, so the greeting, the search and the page content line up */
+.device .hx-ah { --ads-grid-margin: var(--ads-space-16); }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -3029,7 +3131,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
-      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCmpPrDef">Pass Rider default travel type</label><div class="ads-control ads-control--select"><select id="tbCmpPrDef"><option value="none">None: choose Business or Leisure</option><option value="leisure">Leisure</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ctl__group"><span class="ads-field__label" id="lbHx">Header design</span><div class="ads-segmented" id="tbHx" role="group" aria-labelledby="lbHx"><button type="button" data-v="0" aria-pressed="true">Now</button><button type="button" data-v="1" aria-pressed="false">1</button><button type="button" data-v="2" aria-pressed="false">2</button><button type="button" data-v="3" aria-pressed="false">3</button><button type="button" data-v="4" aria-pressed="false">4</button><button type="button" data-v="5" aria-pressed="false">5</button></div><p class="ads-helper" id="tbHxName" aria-live="polite"></p></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -3379,7 +3481,8 @@ const MT = { tap: 100, control: 200, panel: 280, shared: 360, close: 260, stagge
 const EASE = { standard: 'cubic-bezier(0.2, 0, 0, 1)', settle: 'cubic-bezier(0.22, 1, 0.36, 1)', exit: 'cubic-bezier(0.4, 0, 1, 1)' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 // Prototype controls › Pass Rider default travel type (Business Pass holders): none (choose, NMA-1016 AC2) or Leisure
-const PRDEF = { v: store.get('s4-cmp-prdef') === 'leisure' ? 'leisure' : 'none' };
+// Pass Rider default travel type: Leisure starts selected for Business Pass holders (decided; the Prototype control was retired)
+const PRDEF = { v: 'leisure' };
 
 // ---------- Dates (stored as YYYY-MM-DD) ----------
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -3665,7 +3768,7 @@ var render = function () {
   const keepTitle = !!(ae && dev.contains(ae) && ae.matches('[data-title], .ads-navbar__title, .info-title'));
   const sel = ae && ae.id && 'selectionStart' in ae ? [ae.selectionStart, ae.selectionEnd] : null;
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
-  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} ds-next notes-off`; // ADS Next is this branch's only design system
+  dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} ds-next notes-off hx-${TB.hx || 0}`; // ADS Next is this branch's only design system
   dev.dataset.theme = TB.theme;
   // Booking is a modal flow: the app's bottom navigation is hidden while it's open
   if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
@@ -5243,11 +5346,11 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
     const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
-    // Neither is preselected (AC2): until one is chosen, the panel asks for it and Find trains stays disabled.
+    // Leisure starts selected (decision; NMA-1016 AC2 says neither is preselected). Leisure is the left tab, Business the right.
     const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
-    if (elig && PRDEF.v === 'leisure') snote('Prototype controls › Pass Rider default travel type is Leisure: Leisure starts selected for Business Pass holders. Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
-    const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'business') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
-    const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('business', 'Business')}${tab('leisure', 'Leisure')}</div>` : '';
+    if (elig && PRDEF.v === 'leisure') snote('Leisure starts selected for Business Pass holders. Conflict: NMA-1016 AC2 says neither Business nor Leisure is preselected.');
+    const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'leisure') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
+    const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('leisure', 'Leisure')}${tab('business', 'Business')}</div>` : '';
     const help = elig && inDd ? `<p class="ads-helper pr-tabs__help" id="prt-h">${t0 ? `${t0 === 'business' ? 'Business' : 'Leisure'} travel. ` : ''}${prTypeHelp(b)} To change it, use Booking type on New booking.</p>`
       : elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
     let panel;
@@ -7339,16 +7442,6 @@ const bpCompact = () => false;
 
 // Pass Rider travel type: settled on Business / Leisure tabs in Traveler selection (the dropdown option was retired).
 const prTypeInDropdown = () => false;
-// Prototype controls › Pass Rider default travel type: switching it applies to the booking on screen too
-(function wirePrDefault() {
-  const s = document.getElementById('tbCmpPrDef'); if (!s) return;
-  s.value = PRDEF.v;
-  s.addEventListener('change', () => {
-    PRDEF.v = s.value; store.set('s4-cmp-prdef', s.value);
-    for (const k of Object.keys(VS)) { const d = VS[k].data, b = d.booking; if (d.passrider && d.passrider.business && b) { b.prType = PRDEF.v === 'leisure' ? 'leisure' : null; clearAutoTrainIfBlocked(b); } }
-    pendingFocus = null; render();
-  });
-})();
 
 /* Sprint 4 prototype: Version 4 (Compact). Dense, but nothing required is hidden:
    - the travelers row carries one small tag per traveler with their discount, assistance and companion
@@ -7396,6 +7489,73 @@ INFO.assistance = {
   title: 'Assistance',
   body: () => `<p>Tell us your travel needs, like a mobility device, a service animal, hearing loss or station assistance. Answer for each traveler who needs help; the others can stay without answers.</p><p>One traveler with a disability may bring one personal companion, who gets the Companion discount.</p><p>Answering the questions for the first time needs a connection. After that you can finish or review them offline. Finding trains needs a connection.</p><p class="info-draft">Final explanation text comes from AEM.</p>`
 };
+
+// Header design exploration (branch explore/header-variants): five visual variants of the app shell header and the
+// New booking modal header, switched from Prototype controls › Header design. 0 is the current design.
+// Only markup and styling change: the actions (open-account, open-inbox, close) and every business rule are the same.
+// Feedback being explored: modal headers more subtle (same background, stripe hairline between; the arrow saved for
+// the global header) and a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
+const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Tone on tone', 'Brand bar and ribbon'];
+const HX_LINES = [
+  'Small avatar and greeting; navy modal header with the brand arrow.',
+  'Welcome with full name and tier on the page color; a red and blue hairline under both headers.',
+  'Navy global header carries the brand arrow; the modal header is quiet with one split hairline.',
+  'Greeting plus a Guest Rewards card as the profile entry; centered modal title with fine hairlines.',
+  'Warm band with a tone-on-tone arrow behind the welcome; modal title with a short stripe accent.',
+  'Amtrak mark, large welcome and an arrow ribbon; modal header with an inset stripe.'
+];
+TB.hx = Math.min(5, Math.max(0, +store.get('s4-hx') || 0));
+
+// The brand arrow (two bars ending in the arrow tips), sized with --s. Decorative.
+const hxArrow = cls => `<span class="hx-arrow ${cls || ''}" aria-hidden="true"><span class="ads-sheet-header__arrow ads-sheet-header__arrow--top"><svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#EF3824"/>
+</svg><i></i></span><span class="ads-sheet-header__arrow ads-sheet-header__arrow--bottom"><svg preserveAspectRatio="none" overflow="visible" aria-hidden="true" focusable="false" width="53.186" height="35.7313" viewBox="0 0 53.186 35.7313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z" fill="#064CB0"/>
+</svg><i></i></span></span>`;
+const hxStripe = cls => `<span class="hx-stripe ${cls || ''}" aria-hidden="true"><i></i><i></i></span>`;
+
+const appHeaderCurrent = appHeader;
+appHeader = function () {
+  const v = TB.hx; if (!v) return appHeaderCurrent();
+  const d = D(), on = d.signedIn, first = on ? esc(d.profile.first) : '', full = on ? `${first} ${esc(d.profile.last)}` : '';
+  const TIER = 'Select Plus', PTS = '12,450'; // the same sample membership the current header and Account show
+  const acct = `type="button" data-a="open-account" aria-label="Account${on ? `: ${full}, ${TIER}, ${PTS} points` : ', signed out. Sign in or join Guest Rewards'}"`;
+  const avatar = on ? `<span class="ads-avatar hx-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span>` : `<span class="ads-avatar hx-avatar hx-avatar--guest">${ic('person')}</span>`;
+  const inbox = `<button class="ads-icon-btn ads-icon-btn--round hx-inbox" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button>`;
+  const loy = on ? `<span class="hx-loy"><span class="ads-badge hx-tier">${TIER}</span><span class="hx-pts">${PTS} pts</span></span>` : `<span class="hx-loy"><span class="hx-pts">Join Guest Rewards to earn points</span></span>`;
+  const chev = ic('chevron-right', 'hx-chev');
+  // On Book the New booking search is part of the header (one component); other tabs show the header without it
+  const search = nav().tab === 'book' ? `<button class="bk-new hx-search" type="button" data-a="open-booking">${ic('search', 'bk-new__icon')}<span class="bk-new__text"><span class="bk-new__title">New booking</span><span class="bk-new__sub">Where to?</span></span></button>` : '';
+  let h = '';
+  if (v === 1) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}${hxStripe()}`;
+  else if (v === 2) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span><span class="hx-loy"><span class="hx-pts">${on ? `${TIER} · ${PTS} pts` : 'Join Guest Rewards'}</span></span></span></button>${inbox}${hxArrow()}</div>${search}`;
+  else if (v === 3) h = `<div class="hx-row"><p class="hx-text"><span class="hx-eyebrow">Good morning</span><span class="hx-name">${on ? first : 'Welcome to Amtrak'}</span></p>${inbox}</div><button class="ads-appheader__account hx-card" ${acct}><span class="hx-card__l"><span class="hx-card__k">Amtrak Guest Rewards</span><span class="hx-card__tier">${on ? TIER : 'Sign in or join'}</span></span>${on ? `<span class="hx-card__r"><span class="hx-card__pts">${PTS}</span><span class="hx-card__k">points</span></span>` : ''}${chev}${hxStripe()}</button>${search}`;
+  else if (v === 4) h = `${hxArrow('hx-arrow--tone')}<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
+  else h = `<div class="hx-row hx-bar"><span class="hx-logo" role="img" aria-label="Amtrak"><svg aria-hidden="true" focusable="false" viewBox="0 0 151 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amtrak"><path d="M47.4 0.2C36.9 4.8 31.2 9.7 28.1 16C25.8 15.3 23.2 14.4 20.5 13.3L19.4 12.9C25.5 6.3 34 3.7 47.4 0V0.2ZM56 14H51.8L51 12.6H45.1L44.3 14H40.5L46.1 5.7H50.4L56 14ZM68.5 11.4L71.8 5.7H76L78.5 14H74.7L73.4 8.7L70.4 14H66.7L63.6 8.7L62.4 14H58.5L61.1 5.7H65.3L68.5 11.4ZM93.8 7.6H89.2V14H85.3V7.6H80.2L80.7 5.7H94.2L93.8 7.6ZM103.6 5.7C105.3 5.7 107.1 5.7 108.4 6.1C109.7 6.5 110.6 7.2 110.6 8.4C110.6 9.5 109.9 10.5 108.3 10.9L111.2 14H106.8L104.8 11.5H101.5V14H97.7V5.7H103.6ZM129.4 14H125.3L124.4 12.6H118.5L117.7 14H113.9L119.5 5.7H123.8L129.4 14ZM136.6 9.4L141.1 5.7H145.8L140.6 9.7L146.2 14H141.1L136.6 10.1V14H132.7V5.7H136.6V9.4ZM40.1 1.7C31.3 3.5 22.7 5.9 16.2 11.5C13.8 10.4 11.5 9.3 9.2 8.2C15.4 4.3 26.3 2.6 32.4 1.9C34.5 2 37.9 1.8 40.1 1.5V1.7ZM46.1 11H50L48.1 7.6L46.1 11ZM119.5 11H123.5L121.5 7.6L119.5 11ZM101.5 10H103.8C104.6 10 105 9.9 105.5 9.8C106.2 9.7 106.7 9.3 106.7 8.6C106.7 7.8 105.9 7.4 104 7.4H101.5V10ZM148.9 5.7C149.4 5.7 149.9 5.9 150.3 6.3C150.7 6.7 150.9 7.2 150.9 7.8C150.9 8.4 150.7 8.8 150.3 9.2C149.9 9.6 149.4 9.8 148.9 9.8C148.3 9.8 147.8 9.6 147.4 9.2C147 8.8 146.8 8.4 146.8 7.8C146.8 7.2 147 6.7 147.4 6.3C147.8 5.9 148.3 5.7 148.9 5.7ZM148.8 6C148.3 6 147.9 6.2 147.6 6.5C147.2 6.9 147.1 7.3 147.1 7.8C147.1 8.3 147.2 8.7 147.6 9.1C147.9 9.4 148.3 9.6 148.8 9.6C149.3 9.6 149.8 9.4 150.1 9.1C150.5 8.7 150.6 8.3 150.6 7.8C150.6 7.3 150.5 6.9 150.1 6.5C149.8 6.2 149.3 6 148.8 6ZM148 6.7H148.8C149.1 6.7 149.3 6.7 149.4 6.7C149.7 6.8 149.8 7 149.8 7.3C149.8 7.5 149.7 7.7 149.6 7.8C149.5 7.8 149.4 7.8 149.2 7.9C149.4 7.9 149.5 8 149.6 8.1C149.7 8.2 149.8 8.3 149.8 8.4V8.8C149.8 8.8 149.8 8.9 149.8 8.9V8.9H149.4V8.9C149.4 8.9 149.4 8.9 149.4 8.9V8.6C149.4 8.4 149.3 8.2 149.2 8.1C149.1 8 148.9 8 148.7 8H148.4V8.9H148V6.7ZM148.4 6.9V7.7H148.8C148.9 7.7 149.1 7.7 149.2 7.7C149.3 7.6 149.4 7.5 149.4 7.4L149.4 7.3C149.4 7.2 149.3 7.1 149.2 7C149.1 7 149 6.9 148.7 6.9H148.4ZM0 3.1C6.9 0.2 22.5 0.5 25.4 0.7C26.8 1.1 28.6 1.4 30.2 1.6V1.8C22 2.3 13.1 3.4 6.2 6.6C3.9 5.4 1.9 4.3 0 3.1Z" fill="currentColor"/></svg></span>${inbox}</div><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loy : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span>${avatar}</button>${search}${hxArrow('hx-arrow--ribbon')}`;
+  return `<header class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}">${h}</header>`;
+};
+
+// Book landing: with a header variant on a phone, the search lives in the header, so the page omits its own copy
+const bookLandingCurrent = bookLanding;
+bookLanding = function () {
+  const h = bookLandingCurrent();
+  return TB.hx && !IPAD() ? h.replace(/<div class="bk-headx">[\s\S]*?<\/button><\/div>/, '') : h;
+};
+
+// New booking modal header: the same close button and title (same ids and actions), without the navy band and arrow
+const sheetHeaderCurrent = sheetHeader;
+sheetHeader = function (o) {
+  const v = TB.hx; if (!v || o.plain) return sheetHeaderCurrent(o);
+  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${hxStripe()}</header>`);
+};
+
+// Prototype controls › Header design
+(function wireHx() {
+  const seg = document.getElementById('tbHx'), name = document.getElementById('tbHxName'); if (!seg) return;
+  const sync = () => { setSeg('#tbHx', String(TB.hx)); if (name) name.textContent = `${HX_NAMES[TB.hx]}: ${HX_LINES[TB.hx]}`; };
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; TB.hx = +b.dataset.v; store.set('s4-hx', String(TB.hx)); sync(); pendingFocus = null; render(); });
+  sync();
+})();
 
 /* Sprint 4 prototype shell (not part of the app): a compact controller beside the device, collapsed by default
    and opened from a floating button. Opening or closing it never touches the demo state. */

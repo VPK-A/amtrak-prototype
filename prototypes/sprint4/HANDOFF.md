@@ -854,3 +854,13 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Checks:** `tests/prototype/design-review.cjs` (dates), `booking-modes.cjs` (Pass Rider default), `profile-editors.cjs` (asterisks).
 
 - **TripLink Traveler selection:** the fixed *1 adult · You — Corporate bookings are for the TripLink traveler only…* card is removed. The screen starts with the traveler's details (discount not used, assistance); the Fare Finder's Travelers row still says corporate bookings are for you only.
+
+## Header design exploration (branch `explore/header-variants`)
+
+**Prototype controls › Header design** switches between the current design (Now) and five visual variants of the phone app shell header and the New booking modal header. Business rules, actions and content are unchanged; `headers.js` and `headers.css` hold everything.
+
+- **Feedback explored:** modal headers more subtle (same background as the modal, a stripe hairline between, the arrow saved for the global header); a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
+- **Variants:** 1 Hairline · 2 Arrow band · 3 Loyalty card · 4 Tone on tone · 5 Brand bar and ribbon.
+- **Book:** in variants 1–5 the New booking search is part of the header (one component). Other tabs show the header without it.
+- **Limits:** iPad keeps its current top navigation (the modal header variants still apply). Tier and points are the same sample values as the current header.
+- **Check:** `tests/prototype/header-variants.cjs`.
