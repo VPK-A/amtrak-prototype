@@ -28,7 +28,9 @@
 
 /* ---------- 2 · Arrow band: the brand arrow lives in the global header ---------- */
 .device .hx-ah--2 { background: var(--ads-brand-midnight-blue); color: var(--ads-content-text-on-brand); }
-.hx-ah--2 .hx-eyebrow, .hx-ah--2 .hx-loy { color: var(--ads-content-text-on-brand); opacity: 0.8; }
+.hx-ah--2 .hx-eyebrow, .hx-ah--2 .hx-loy .hx-pts { color: var(--ads-content-text-on-brand); opacity: 0.8; }
+.hx-ah--2 .hx-tier { --_bg: rgb(255 255 255 / 0.16); --_fg: var(--ads-content-text-on-brand); }
+.hx-tier { font-variant-numeric: tabular-nums; }
 .hx-ah--2 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
 .hx-ah--2 .hx-inbox { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
 .hx-ah--2 .hx-inbox .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
