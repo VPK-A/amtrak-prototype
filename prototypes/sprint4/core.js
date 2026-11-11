@@ -9,7 +9,8 @@ const MT = { tap: 100, control: 200, panel: 280, shared: 360, close: 260, stagge
 const EASE = { standard: 'cubic-bezier(0.2, 0, 0, 1)', settle: 'cubic-bezier(0.22, 1, 0.36, 1)', exit: 'cubic-bezier(0.4, 0, 1, 1)' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 // Prototype controls › Pass Rider default travel type (Business Pass holders): none (choose, NMA-1016 AC2) or Leisure
-const PRDEF = { v: store.get('s4-cmp-prdef') === 'leisure' ? 'leisure' : 'none' };
+// Pass Rider default travel type: Leisure starts selected for Business Pass holders (decided; the Prototype control was retired)
+const PRDEF = { v: 'leisure' };
 
 // ---------- Dates (stored as YYYY-MM-DD) ----------
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
