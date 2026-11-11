@@ -28,6 +28,7 @@ let n = 0, f = 0; const ok = (c, m) => { n++; if (!c) { f++; console.log('FAIL '
     await p.click('#device [data-a="open-booking"]'); await w(600);
     ax = await p.evaluate(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes[0].html.slice(0, 80)));
     ok(!ax.length, `axe modal ${th} ${v} ${ax}`);
+    ok(await p.evaluate(() => document.querySelector('#device .ads-sheet-header').getBoundingClientRect().height) === 76, `modal header is 76px, as the current design ${v}`);
     ok(await p.evaluate(() => document.activeElement && /New booking/.test(document.querySelector('#device .ads-sheet-header__title').textContent)), `title ${v}`);
     // exit rule unchanged: with a cart item, close asks to abandon; without, it closes
     await p.click('#device .ads-sheet-header__close'); await w(500);
