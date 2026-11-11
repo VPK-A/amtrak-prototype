@@ -3,15 +3,15 @@
 // Only markup and styling change: the actions (open-account, open-inbox, close) and every business rule are the same.
 // Feedback being explored: modal headers more subtle (same background, stripe hairline between; the arrow saved for
 // the global header) and a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
-const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Tone on tone', 'Welcome and ribbon', 'Arrow pattern'];
+const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Quiet ribbon', 'Welcome and ribbon', 'Minimal'];
 const HX_LINES = [
   'Small avatar and greeting; navy modal header with the brand arrow.',
   'Welcome with full name and tier on the page color; a red and blue hairline under both headers.',
   'Navy global header carries the brand arrow; the modal header is quiet with one split hairline.',
   'Greeting plus a Guest Rewards card as the profile entry; centered modal title with fine hairlines.',
-  'Warm band with a tone-on-tone arrow behind the welcome; modal title under a short stripe eyebrow.',
+  'Variant 5 with the arrow ribbon and the modal hairline in the neutral sunken color.',
   'Large welcome, then an arrow ribbon above the search; modal header with a full-width hairline.',
-  'Warm band with one large tone-on-tone arrow repeating; the modal header repeats large chevrons, with no stripe.'
+  'Variant 1 without the stripes: brand blue icons, and one subtle hairline under the modal header.'
 ];
 TB.hx = Math.min(6, Math.max(0, +store.get('s4-hx') || 0));
 
@@ -37,9 +37,9 @@ appHeader = function () {
   if (v === 1) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}${hxStripe()}`;
   else if (v === 2) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Join Guest Rewards</span></span>`}</span></button>${inbox}${hxArrow()}</div>${search}`;
   else if (v === 3) h = `<div class="hx-row"><p class="hx-text"><span class="hx-eyebrow">Good morning</span><span class="hx-name">${on ? first : 'Welcome to Amtrak'}</span></p>${inbox}</div><button class="ads-appheader__account hx-card" ${acct}><span class="hx-card__l"><span class="hx-card__k">Amtrak Guest Rewards</span><span class="hx-card__tier">${on ? TIER : 'Sign in or join'}</span></span>${on ? `<span class="hx-card__r"><span class="hx-card__pts">${PTS}</span><span class="hx-card__k">points</span></span>` : ''}${chev}${hxStripe()}</button>${search}`;
-  else if (v === 4) h = `${hxArrow('hx-arrow--tone')}<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loyOne}</span></button>${inbox}</div>${search}`;
-  else if (v === 5) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
-  else h = `<span class="hx-pattern hx-pattern--bars" aria-hidden="true"></span><div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
+  else if (v === 4 || v === 5) h = // 4 is 5 with the ribbon in the sunken color (CSS)
+    `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
+  else h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
   return `<header class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}">${h}</header>`;
 };
 
@@ -54,7 +54,7 @@ bookLanding = function () {
 const sheetHeaderCurrent = sheetHeader;
 sheetHeader = function (o) {
   const v = TB.hx; if (!v || o.plain) return sheetHeaderCurrent(o);
-  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${v === 6 ? '<span class="hx-pattern hx-pattern--chev" aria-hidden="true"></span>' : hxStripe()}</header>`);
+  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${v === 6 ? '' : hxStripe()}</header>`);
 };
 
 // Prototype controls › Header design

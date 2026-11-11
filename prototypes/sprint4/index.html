@@ -3069,31 +3069,16 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .hx-card__k { font-size: var(--ads-type-caption-size); line-height: 1.3; opacity: 0.8; }
 .hx-card__tier, .hx-card__pts { font-size: var(--ads-type-h4-headline-size); line-height: 1.25; font-weight: var(--ads-font-weight-semibold); font-variant-numeric: tabular-nums; }
 
-/* ---------- 4 · Tone on tone ---------- */
-.device .hx-ah--4 { background: var(--ads-background-surface-sunken); padding-bottom: var(--ads-space-20); }
-.hx-ah--4 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
-.hx-ah--4 .hx-avatar { box-shadow: 0 0 0 3px var(--ads-background-surface-page); }
-.hx-ah--4 .hx-inbox { background: var(--ads-background-surface-page); }
-.hx-ah--4 .hx-tier { --_bg: var(--ads-background-surface-page); --_fg: var(--ads-content-text-primary); }
-.hx-arrow--tone { --s: 1.9; position: absolute; right: 0; bottom: -18px; width: 250px; opacity: 0.55; }
-.hx-arrow--tone .ads-sheet-header__arrow > i { background: var(--ads-background-surface-page); }
-.hx-arrow--tone .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-page); }
-
 /* ---------- 5 · Welcome and arrow ribbon (the ribbon sits between the loyalty line and the search) ---------- */
-.hx-ah--5 .hx-name { font-size: 24px; line-height: 1.2; }
-.hx-arrow--ribbon { --s: 0.3; position: relative; z-index: 1; flex: none; margin-right: calc(-1 * var(--ads-grid-margin)); }
+:is(.hx-ah--4, .hx-ah--5) .hx-name { font-size: 24px; line-height: 1.2; }
+/* 4 · Quiet ribbon: variant 5 with the arrow form in the sunken surface color */
+.hx-ah--4 .hx-arrow .ads-sheet-header__arrow > i { background: var(--ads-background-surface-sunken); }
+.hx-ah--4 .hx-arrow .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-sunken); }
 
-/* ---------- 6 · Arrow pattern: tone-on-tone arrows repeat across the surface (app header and modal header) ---------- */
-.hx-pattern { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: var(--ads-background-surface-page); opacity: 0.55; }
-/* App header: the arrow with bars at the large scale of variant 4, repeating in offset rows */
-.hx-pattern--bars { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 184'%3E%3Cg%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate%2870 92%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate%28-70 92%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 100% 100% / 216px 284px repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 184'%3E%3Cg%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate%2870 92%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate%28-70 92%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3Cg transform='translate%280 77.11%29 scale%281 -1%29'%3E%3Cpath d='M40.6906 15.6946C41.4201 16.423 42.734 18.0143 43.6831 18.0717C45.8513 18.2031 48.2121 18.1497 50.3923 18.1493H53.186V35.7235L42.3038 35.7241C41.2268 35.7241 36.3223 35.8115 35.782 35.3785C31.91 32.2744 26.946 26.9468 23.4286 23.4205L0 0.00459326L24.9711 0L40.6906 15.6946Z'/%3E%3Crect x='53' y='18.15' width='75' height='17.57'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 100% 100% / 216px 284px repeat; }
-/* Modal header: one row of large chevrons, cropped by the header */
-.hx-pattern--chev { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 91'%3E%3Cpath d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3Cpath transform='translate%28-42 0%29' d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3Cpath transform='translate%2842 0%29' d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3C/svg%3E") 0 50% / 60px 130px repeat-x; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 91'%3E%3Cpath d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3Cpath transform='translate%28-42 0%29' d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3Cpath transform='translate%2842 0%29' d='M0 0h25l38 38.5L25 77H0l38-38.5z'/%3E%3C/svg%3E") 0 50% / 60px 130px repeat-x; }
-.device .hx-ah--6 { background: var(--ads-background-surface-sunken); padding-bottom: var(--ads-space-20); }
-.hx-ah--6 .hx-name { font-size: var(--ads-type-h3-headline-size); line-height: 1.2; }
-.hx-ah--6 .hx-avatar { box-shadow: 0 0 0 3px var(--ads-background-surface-page); }
-.hx-ah--6 .hx-inbox { background: var(--ads-background-surface-page); }
-.hx-ah--6 .hx-tier { --_bg: var(--ads-background-surface-page); --_fg: var(--ads-content-text-primary); }
+/* ---------- 6 · Minimal: variant 1 without the stripes; brand blue icons ---------- */
+.hx-ah--6 .hx-inbox .ads-icon, .hx-ah--6 .hx-avatar--guest .ads-icon { color: var(--ads-content-icon-brand); }
+.hx-ah--6 .hx-avatar:not(.hx-avatar--guest) { color: var(--ads-content-icon-brand); }
+.hx-arrow--ribbon { --s: 0.3; position: relative; z-index: 1; flex: none; margin-right: calc(-1 * var(--ads-grid-margin)); }
 
 /* ---------- New booking modal header: same background as the modal, a stripe hairline between ---------- */
 .device .ads-sheet-header.hx-mh { height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); min-height: 0; padding-top: 0; padding-bottom: 6px; /* the current header's 76px */ background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
@@ -3116,16 +3101,13 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .device .hx-mh--3 .ads-sheet-header__title { font-size: var(--ads-type-body-size); line-height: var(--ads-size-interactive-sm); }
 .hx-mh--3 .hx-stripe { gap: 1px; }
 .hx-mh--3 .hx-stripe i { height: 1px; }
-/* 4 · larger title under a short stripe eyebrow, and a neutral rule */
-.device .ads-sheet-header.hx-mh--4 { align-items: flex-end; padding-bottom: var(--ads-space-12); border-bottom: 1px solid var(--ads-border-subtle); }
-.device .hx-mh--4 .ads-sheet-header__title { font-size: var(--ads-type-h3-headline-size); line-height: var(--ads-type-h3-headline-line-height); }
-.hx-mh--4 .hx-stripe { left: var(--ads-grid-margin, var(--ads-space-20)); right: auto; top: var(--ads-space-16); bottom: auto; width: 56px; }
+/* 4 · the same full-width hairline in the sunken color */
+.hx-mh--4 .hx-stripe i { background: var(--ads-background-surface-sunken); }
+/* 6 · one subtle hairline, no stripe; brand blue close icon */
+.device .ads-sheet-header.hx-mh--6 { padding-bottom: 0; border-bottom: 1px solid var(--ads-border-subtle); }
+.device .hx-mh--6 > .ads-icon-btn.ads-sheet-header__close { color: var(--ads-content-icon-brand); }
 /* 5 · full-width hairline, edge to edge (red over navy) */
 .hx-mh--5 .hx-stripe i:last-child { background: var(--ads-brand-primary-blue); }
-/* 6 · a second arrow form repeats on the modal header; no stripe */
-.device .ads-sheet-header.hx-mh--6 { background: var(--ads-background-surface-sunken); padding-bottom: 0; }
-.hx-mh--6 > :not(.hx-pattern):not(.hx-stripe) { position: relative; z-index: 1; }
-.device .hx-mh--6 > .ads-icon-btn.ads-sheet-header__close { background: var(--ads-background-surface-page); border-color: transparent; }
 /* 2 · the status bar sits on the navy band (phone app shell only; iPad keeps its own navigation) */
 .device--iphone.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }
 
@@ -7509,15 +7491,15 @@ INFO.assistance = {
 // Only markup and styling change: the actions (open-account, open-inbox, close) and every business rule are the same.
 // Feedback being explored: modal headers more subtle (same background, stripe hairline between; the arrow saved for
 // the global header) and a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
-const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Tone on tone', 'Welcome and ribbon', 'Arrow pattern'];
+const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Quiet ribbon', 'Welcome and ribbon', 'Minimal'];
 const HX_LINES = [
   'Small avatar and greeting; navy modal header with the brand arrow.',
   'Welcome with full name and tier on the page color; a red and blue hairline under both headers.',
   'Navy global header carries the brand arrow; the modal header is quiet with one split hairline.',
   'Greeting plus a Guest Rewards card as the profile entry; centered modal title with fine hairlines.',
-  'Warm band with a tone-on-tone arrow behind the welcome; modal title under a short stripe eyebrow.',
+  'Variant 5 with the arrow ribbon and the modal hairline in the neutral sunken color.',
   'Large welcome, then an arrow ribbon above the search; modal header with a full-width hairline.',
-  'Warm band with one large tone-on-tone arrow repeating; the modal header repeats large chevrons, with no stripe.'
+  'Variant 1 without the stripes: brand blue icons, and one subtle hairline under the modal header.'
 ];
 TB.hx = Math.min(6, Math.max(0, +store.get('s4-hx') || 0));
 
@@ -7547,9 +7529,9 @@ appHeader = function () {
   if (v === 1) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}${hxStripe()}`;
   else if (v === 2) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Join Guest Rewards</span></span>`}</span></button>${inbox}${hxArrow()}</div>${search}`;
   else if (v === 3) h = `<div class="hx-row"><p class="hx-text"><span class="hx-eyebrow">Good morning</span><span class="hx-name">${on ? first : 'Welcome to Amtrak'}</span></p>${inbox}</div><button class="ads-appheader__account hx-card" ${acct}><span class="hx-card__l"><span class="hx-card__k">Amtrak Guest Rewards</span><span class="hx-card__tier">${on ? TIER : 'Sign in or join'}</span></span>${on ? `<span class="hx-card__r"><span class="hx-card__pts">${PTS}</span><span class="hx-card__k">points</span></span>` : ''}${chev}${hxStripe()}</button>${search}`;
-  else if (v === 4) h = `${hxArrow('hx-arrow--tone')}<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loyOne}</span></button>${inbox}</div>${search}`;
-  else if (v === 5) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
-  else h = `<span class="hx-pattern hx-pattern--bars" aria-hidden="true"></span><div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
+  else if (v === 4 || v === 5) h = // 4 is 5 with the ribbon in the sunken color (CSS)
+    `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
+  else h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
   return `<header class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}">${h}</header>`;
 };
 
@@ -7564,7 +7546,7 @@ bookLanding = function () {
 const sheetHeaderCurrent = sheetHeader;
 sheetHeader = function (o) {
   const v = TB.hx; if (!v || o.plain) return sheetHeaderCurrent(o);
-  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${v === 6 ? '<span class="hx-pattern hx-pattern--chev" aria-hidden="true"></span>' : hxStripe()}</header>`);
+  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${v === 6 ? '' : hxStripe()}</header>`);
 };
 
 // Prototype controls › Header design
