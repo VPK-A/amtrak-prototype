@@ -860,8 +860,9 @@ The comparison options in Prototype controls were removed, and the prototype kee
 **Prototype controls › Header design** switches between the current design (Now) and six visual variants of the phone app shell header and the New booking modal header. Business rules, actions and content are unchanged; `headers.js` and `headers.css` hold everything.
 
 - **Feedback explored:** modal headers more subtle (same background as the modal, a stripe hairline between, the arrow saved for the global header); a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
-- **Variants:** 1 Hairline · 2 Arrow band · 3 Loyalty card · 4 Quiet ribbon (variant 5 with the arrow ribbon and modal hairline in the sunken color) · 5 Welcome and ribbon · 6 Minimal (variant 1 without the stripes, brand blue icons, one subtle hairline under the modal header).
+- **Variants:** 1 Hairline · 2 Arrow band · 3 Loyalty card · 4 Quiet ribbon (variant 5 on a sunken band, the arrow ribbon in the surface color, a fine stroke around the avatar; modal hairline in the sunken color) · 5 Welcome and ribbon · 6 Minimal (variant 1 without the stripes, brand blue icons, one subtle hairline under the modal header).
 - **Modal header:** every variant is the same height as the current header (76px). Close is on the right in every variant; the title starts at the left margin.
 - **Book:** in variants 1–6 the New booking search is part of the header (one component). Other tabs show the header without it.
-- **Limits:** iPad keeps its current top navigation (the modal header variants still apply). Tier and points are the same sample values as the current header.
+- **iPad:** the navigation row (logo, tabs, inbox) and the variant block (welcome, loyalty, search on Book) form one header. The account entry moves from the small avatar in the row to the welcome. The block lines up with the page's 760px column; stripes and arrows reach the screen edge.
+- **Sample data:** tier and points are the same sample values as the current header.
 - **Check:** `tests/prototype/header-variants.cjs`.

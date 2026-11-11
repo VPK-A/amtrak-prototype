@@ -3057,7 +3057,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .hx-ah--2 .hx-inbox .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
 .hx-ah--2 .hx-acct:focus-visible, .hx-ah--2 .hx-inbox:focus-visible { outline-color: var(--ads-content-icon-on-brand); }
 .hx-ah--2 .hx-arrow { --s: 0.7; flex: none; width: 104px; }
-.hx-ah--2 .hx-row { margin-right: calc(-1 * var(--ads-grid-margin)); }
+.hx-ah--2 .hx-row { margin-right: calc(-1 * var(--hx-bleed, var(--ads-grid-margin))); }
 .device .hx-ah--2 .hx-search { border-color: transparent; }
 
 /* ---------- 3 · Loyalty card as the profile entry ---------- */
@@ -3071,14 +3071,18 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* ---------- 5 · Welcome and arrow ribbon (the ribbon sits between the loyalty line and the search) ---------- */
 :is(.hx-ah--4, .hx-ah--5) .hx-name { font-size: 24px; line-height: 1.2; }
-/* 4 · Quiet ribbon: variant 5 with the arrow form in the sunken surface color */
-.hx-ah--4 .hx-arrow .ads-sheet-header__arrow > i { background: var(--ads-background-surface-sunken); }
-.hx-ah--4 .hx-arrow .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-sunken); }
+/* 4 · Quiet ribbon: variant 5 on the sunken surface, the arrow form in the surface color, a fine stroke on the avatar */
+.device .hx-ah--4 { background: var(--ads-background-surface-sunken); }
+.hx-ah--4 .hx-arrow .ads-sheet-header__arrow > i { background: var(--ads-background-surface-default); }
+.hx-ah--4 .hx-arrow .ads-sheet-header__arrow svg path { fill: var(--ads-background-surface-default); }
+.hx-ah--4 .hx-avatar { box-shadow: 0 0 0 1px var(--ads-border-default); }
+.hx-ah--4 .hx-inbox { background: var(--ads-background-surface-default); }
+.hx-ah--4 .hx-tier { --_bg: var(--ads-background-surface-default); --_fg: var(--ads-content-text-primary); }
 
 /* ---------- 6 · Minimal: variant 1 without the stripes; brand blue icons ---------- */
 .hx-ah--6 .hx-inbox .ads-icon, .hx-ah--6 .hx-avatar--guest .ads-icon { color: var(--ads-content-icon-brand); }
 .hx-ah--6 .hx-avatar:not(.hx-avatar--guest) { color: var(--ads-content-icon-brand); }
-.hx-arrow--ribbon { --s: 0.3; position: relative; z-index: 1; flex: none; margin-right: calc(-1 * var(--ads-grid-margin)); }
+.hx-arrow--ribbon { --s: 0.3; position: relative; z-index: 1; flex: none; margin-right: calc(-1 * var(--hx-bleed, var(--ads-grid-margin))); }
 
 /* ---------- New booking modal header: same background as the modal, a stripe hairline between ---------- */
 .device .ads-sheet-header.hx-mh { height: calc(var(--ads-size-interactive-sm) + 2 * var(--ads-space-20)); min-height: 0; padding-top: 0; padding-bottom: 6px; /* the current header's 76px */ background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); }
@@ -3116,6 +3120,28 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .device .hx-ah--book ~ .app-main .tabpage.bk { padding-top: var(--ads-space-16); }
 /* The header variants share the page's 16px side margin, so the greeting, the search and the page content line up */
 .device .hx-ah { --ads-grid-margin: var(--ads-space-16); }
+
+/* ---------- iPad: the navigation row and the variant block are one header ---------- */
+/* The header also covers the status bar strip above the app (26px on iPad) */
+.hx-ipad { position: relative; flex: none; margin-top: -26px; padding-top: 26px; background: var(--ads-background-surface-page); container-type: inline-size; overflow: hidden; }
+.hx-ipad .app-ipadnav { background: transparent; border-bottom: 0; }
+/* The block lines up with the page content (760px column, 16px padding); stripes and arrows still reach the screen edge */
+.device .hx-ipad .hx-ah--ipad { --ads-grid-margin: var(--ads-space-16); --hx-bleed: calc((100cqw - 760px) / 2 + var(--ads-space-16)); position: static; width: 100%; max-width: 760px; margin: 0 auto; padding-top: var(--ads-space-8); background: transparent; overflow: visible; }
+.hx-ipad ~ .app-main .tabpage.bk { padding-top: var(--ads-space-16); }
+.hx-ipad .hx-ah--ipad .hx-card { max-width: 420px; }
+/* 2 · navy runs behind the navigation row too */
+.hx-ipad--2 { background: var(--ads-brand-midnight-blue); }
+.hx-ipad--2 .ipad-logo { color: var(--ads-content-text-on-brand); }
+.hx-ipad--2 .app-ipadnav .ads-icon-btn--round { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
+.hx-ipad--2 .app-ipadnav .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
+.device--ipad.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }
+/* 4 · sunken band behind the navigation row too */
+.hx-ipad--4 { background: var(--ads-background-surface-sunken); }
+.hx-ipad--4 .app-ipadnav .ads-icon-btn--round { background: var(--ads-background-surface-default); }
+/* 6 · brand blue icons */
+.hx-ipad--6 .app-ipadnav .ads-icon-btn--round .ads-icon { color: var(--ads-content-icon-brand); }
+/* 2 on iPad: the tab pill is opaque on the navy band so its labels keep their contrast */
+.device .hx-ipad--2 .ads-tabbar-ipad { background: var(--ads-background-surface-default); -webkit-backdrop-filter: none; backdrop-filter: none; }
 
 </style>
 </head>
@@ -7497,7 +7523,7 @@ const HX_LINES = [
   'Welcome with full name and tier on the page color; a red and blue hairline under both headers.',
   'Navy global header carries the brand arrow; the modal header is quiet with one split hairline.',
   'Greeting plus a Guest Rewards card as the profile entry; centered modal title with fine hairlines.',
-  'Variant 5 with the arrow ribbon and the modal hairline in the neutral sunken color.',
+  'Variant 5 on a sunken band: the arrow ribbon in the surface color, a fine stroke around the avatar.',
   'Large welcome, then an arrow ribbon above the search; modal header with a full-width hairline.',
   'Variant 1 without the stripes: brand blue icons, and one subtle hairline under the modal header.'
 ];
@@ -7512,13 +7538,14 @@ const hxArrow = cls => `<span class="hx-arrow ${cls || ''}" aria-hidden="true"><
 const hxStripe = cls => `<span class="hx-stripe ${cls || ''}" aria-hidden="true"><i></i><i></i></span>`;
 
 const appHeaderCurrent = appHeader;
-appHeader = function () {
-  const v = TB.hx; if (!v) return appHeaderCurrent();
+// The variant block: welcome, loyalty and (on Book) the search. On iPad it sits under the navigation row, which keeps the inbox.
+const hxHeader = function (ipad) {
+  const v = TB.hx;
   const d = D(), on = d.signedIn, first = on ? esc(d.profile.first) : '', full = on ? `${first} ${esc(d.profile.last)}` : '';
   const TIER = 'Select Plus', PTS = '12,450'; // the same sample membership the current header and Account show
   const acct = `type="button" data-a="open-account" aria-label="Account${on ? `: ${full}, ${TIER}, ${PTS} points` : ', signed out. Sign in or join Guest Rewards'}"`;
   const avatar = on ? `<span class="ads-avatar hx-avatar">${esc(d.profile.first[0] + d.profile.last[0])}</span>` : `<span class="ads-avatar hx-avatar hx-avatar--guest">${ic('person')}</span>`;
-  const inbox = `<button class="ads-icon-btn ads-icon-btn--round hx-inbox" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button>`;
+  const inbox = ipad ? '' : `<button class="ads-icon-btn ads-icon-btn--round hx-inbox" type="button" data-a="open-inbox" aria-label="Notification inbox, 2 unread">${ic('email')}<span class="ads-icon-btn__dot"></span></button>`;
   const loy = on ? `<span class="hx-loy"><span class="ads-badge hx-tier">${TIER}</span><span class="hx-pts">${PTS} pts</span></span>` : `<span class="hx-loy"><span class="hx-pts">Join Guest Rewards to earn points</span></span>`;
   // Tier and points together in one badge (variants 2, 4 and 5)
   const loyOne = on ? `<span class="hx-loy"><span class="ads-badge hx-tier">${TIER} · ${PTS} pts</span></span>` : `<span class="hx-loy"><span class="hx-pts">Join Guest Rewards to earn points</span></span>`;
@@ -7532,14 +7559,24 @@ appHeader = function () {
   else if (v === 4 || v === 5) h = // 4 is 5 with the ribbon in the sunken color (CSS)
     `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loyOne : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
   else h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? full : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
-  return `<header class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}">${h}</header>`;
+  const tag = ipad ? 'div' : 'header';
+  return `<${tag} class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}${ipad ? ' hx-ah--ipad' : ''}">${h}</${tag}>`;
+};
+appHeader = function () { return TB.hx ? hxHeader(false) : appHeaderCurrent(); };
+// iPad: the current navigation row (logo, tabs, inbox) with the variant block beneath it, as one header. The account
+// entry moves from the small avatar in the row to the welcome in the block.
+const ipadNavCurrent = ipadNav;
+ipadNav = function () {
+  if (!TB.hx) return ipadNavCurrent();
+  const row = ipadNavCurrent().replace('<header class="', '<div class="').replace(/<\/header>\s*$/, '</div>').replace(/<button class="ads-appheader__account"[\s\S]*?<\/button>/, '');
+  return `<header class="hx-ipad hx-ipad--${TB.hx}">${row}${hxHeader(true)}</header>`;
 };
 
-// Book landing: with a header variant on a phone, the search lives in the header, so the page omits its own copy
+// Book landing: with a header variant, the search lives in the header, so the page omits its own copy
 const bookLandingCurrent = bookLanding;
 bookLanding = function () {
   const h = bookLandingCurrent();
-  return TB.hx && !IPAD() ? h.replace(/<div class="bk-headx">[\s\S]*?<\/button><\/div>/, '') : h;
+  return TB.hx ? h.replace(/<div class="bk-headx">[\s\S]*?<\/button><\/div>/, '') : h;
 };
 
 // New booking modal header: the same close button and title (same ids and actions), without the navy band and arrow

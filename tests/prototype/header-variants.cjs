@@ -34,6 +34,17 @@ let n = 0, f = 0; const ok = (c, m) => { n++; if (!c) { f++; console.log('FAIL '
     await p.click('#device .ads-sheet-header__close'); await w(500);
     ok(await p.evaluate(() => !sheet() && !nav().dialog), `close without cart closes ${v}`);
   }
+  // iPad: the navigation row and the variant block are one header; the search is in it on Book only
+  for (const o of ['portrait', 'landscape']) for (let v = 0; v <= 6; v++) {
+    await p.evaluate(([v, o]) => { TB.hx = v; TB.dev = 'ipad'; TB.orient = o; TB.theme = 'light'; VS[1] = makeVS('returning'); goLoc('tab:book'); render(); }, [v, o]); await w(250);
+    const r = await p.evaluate(() => { const q = s => document.querySelectorAll('#device ' + s).length; const r = { wrap: q('.hx-ipad'), tabs: q('.hx-ipad .ads-tabbar-ipad__tab, .app-ipadnav .ads-tabbar-ipad__tab'), inbox: q('[data-a="open-inbox"]'), acct: q('[data-a="open-account"]'), inHeader: q('.hx-ipad [data-a="open-booking"]'), inPage: q('.app-main [data-a="open-booking"]'), over: document.querySelector('#device .app').scrollWidth > document.querySelector('#device .app').clientWidth }; goLoc('tab:trips'); render(); r.trips = q('[data-a="open-booking"]'); goLoc('tab:book'); render(); return r; });
+    ok(r.tabs === 4 && r.inbox === 1 && r.acct === 1 && !r.over && (v ? r.wrap === 1 && r.inHeader === 1 && r.inPage === 0 && r.trips === 0 : r.wrap === 0 && r.inPage === 1), `iPad ${o} ${v} ${JSON.stringify(r)}`);
+    const ax = await p.evaluate(async () => (await axe.run('#device .app', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes[0].html.slice(0, 80)));
+    ok(!ax.length, `axe iPad ${o} ${v} ${ax}`);
+    await p.click('#device [data-a="open-account"]'); await w(500);
+    ok(await p.evaluate(() => !!sheet() && sheet().stack[0].s === 'account'), `iPad account opens ${v}`);
+  }
+  await p.evaluate(() => { TB.dev = 'iphone'; TB.orient = 'portrait'; TB.hx = 6; store.set('s4-hx', '6'); render(); });
   await p.reload(); await p.waitForFunction(() => typeof TB !== 'undefined');
   ok(await p.evaluate(() => TB.hx) === 6, 'choice persists across reload');
   ok(!errs.length, 'errors ' + errs);
