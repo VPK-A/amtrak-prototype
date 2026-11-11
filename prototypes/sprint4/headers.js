@@ -1,18 +1,19 @@
-// Header design exploration (branch explore/header-variants): five visual variants of the app shell header and the
+// Header design exploration (branch explore/header-variants): six visual variants of the app shell header and the
 // New booking modal header, switched from Prototype controls › Header design. 0 is the current design.
 // Only markup and styling change: the actions (open-account, open-inbox, close) and every business rule are the same.
 // Feedback being explored: modal headers more subtle (same background, stripe hairline between; the arrow saved for
 // the global header) and a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
-const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Tone on tone', 'Brand bar and ribbon'];
+const HX_NAMES = ['Current', 'Hairline', 'Arrow band', 'Loyalty card', 'Tone on tone', 'Welcome and ribbon', 'Arrow pattern'];
 const HX_LINES = [
   'Small avatar and greeting; navy modal header with the brand arrow.',
   'Welcome with full name and tier on the page color; a red and blue hairline under both headers.',
   'Navy global header carries the brand arrow; the modal header is quiet with one split hairline.',
   'Greeting plus a Guest Rewards card as the profile entry; centered modal title with fine hairlines.',
-  'Warm band with a tone-on-tone arrow behind the welcome; modal title with a short stripe accent.',
-  'Amtrak mark, large welcome and an arrow ribbon; modal header with an inset stripe.'
+  'Warm band with a tone-on-tone arrow behind the welcome; modal title under a short stripe eyebrow.',
+  'Large welcome, then an arrow ribbon above the search; modal header with a full-width hairline.',
+  'Warm band with a repeating tone-on-tone arrow pattern, in the app header and the modal header.'
 ];
-TB.hx = Math.min(5, Math.max(0, +store.get('s4-hx') || 0));
+TB.hx = Math.min(6, Math.max(0, +store.get('s4-hx') || 0));
 
 // The brand arrow (two bars ending in the arrow tips), sized with --s. Decorative.
 const hxArrow = cls => `<span class="hx-arrow ${cls || ''}" aria-hidden="true"><span class="ads-sheet-header__arrow ads-sheet-header__arrow--top">__ARROW_RED__<i></i></span><span class="ads-sheet-header__arrow ads-sheet-header__arrow--bottom">__ARROW_BLUE__<i></i></span></span>`;
@@ -35,7 +36,8 @@ appHeader = function () {
   else if (v === 2) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span><span class="hx-loy"><span class="hx-pts">${on ? `${TIER} · ${PTS} pts` : 'Join Guest Rewards'}</span></span></span></button>${inbox}${hxArrow()}</div>${search}`;
   else if (v === 3) h = `<div class="hx-row"><p class="hx-text"><span class="hx-eyebrow">Good morning</span><span class="hx-name">${on ? first : 'Welcome to Amtrak'}</span></p>${inbox}</div><button class="ads-appheader__account hx-card" ${acct}><span class="hx-card__l"><span class="hx-card__k">Amtrak Guest Rewards</span><span class="hx-card__tier">${on ? TIER : 'Sign in or join'}</span></span>${on ? `<span class="hx-card__r"><span class="hx-card__pts">${PTS}</span><span class="hx-card__k">points</span></span>` : ''}${chev}${hxStripe()}</button>${search}`;
   else if (v === 4) h = `${hxArrow('hx-arrow--tone')}<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
-  else h = `<div class="hx-row hx-bar"><span class="hx-logo" role="img" aria-label="Amtrak">__LOGO_H__</span>${inbox}</div><button class="ads-appheader__account hx-acct" ${acct}><span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loy : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span>${avatar}</button>${search}${hxArrow('hx-arrow--ribbon')}`;
+  else if (v === 5) h = `<div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-name">${on ? `Good morning, ${first}` : 'Welcome to Amtrak'}</span>${on ? loy : `<span class="hx-loy"><span class="hx-pts">Sign in or join Guest Rewards</span></span>`}</span></button>${inbox}</div>${hxArrow('hx-arrow--ribbon')}${search}`;
+  else h = `<span class="hx-pattern" aria-hidden="true"></span><div class="hx-row"><button class="ads-appheader__account hx-acct" ${acct}>${avatar}<span class="hx-text"><span class="hx-eyebrow">${on ? 'Welcome back' : 'Welcome to Amtrak'}</span><span class="hx-name">${on ? first : 'Sign in'}</span>${loy}</span></button>${inbox}</div>${search}`;
   return `<header class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}">${h}</header>`;
 };
 
@@ -50,7 +52,7 @@ bookLanding = function () {
 const sheetHeaderCurrent = sheetHeader;
 sheetHeader = function (o) {
   const v = TB.hx; if (!v || o.plain) return sheetHeaderCurrent(o);
-  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${hxStripe()}</header>`);
+  return sheetHeaderCurrent(Object.assign({}, o, { plain: true })).replace('ads-sheet-header--plain', `ads-sheet-header--plain hx-mh hx-mh--${v}`).replace('</header>', `${v === 6 ? '<span class="hx-pattern" aria-hidden="true"></span>' : ''}${hxStripe()}</header>`);
 };
 
 // Prototype controls › Header design

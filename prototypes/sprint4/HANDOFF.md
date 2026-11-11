@@ -857,10 +857,11 @@ The comparison options in Prototype controls were removed, and the prototype kee
 
 ## Header design exploration (branch `explore/header-variants`)
 
-**Prototype controls › Header design** switches between the current design (Now) and five visual variants of the phone app shell header and the New booking modal header. Business rules, actions and content are unchanged; `headers.js` and `headers.css` hold everything.
+**Prototype controls › Header design** switches between the current design (Now) and six visual variants of the phone app shell header and the New booking modal header. Business rules, actions and content are unchanged; `headers.js` and `headers.css` hold everything.
 
 - **Feedback explored:** modal headers more subtle (same background as the modal, a stripe hairline between, the arrow saved for the global header); a more prominent profile entry (welcome with name, loyalty branding, room for personalization).
-- **Variants:** 1 Hairline · 2 Arrow band · 3 Loyalty card · 4 Tone on tone · 5 Brand bar and ribbon.
-- **Book:** in variants 1–5 the New booking search is part of the header (one component). Other tabs show the header without it.
+- **Variants:** 1 Hairline · 2 Arrow band · 3 Loyalty card · 4 Tone on tone · 5 Welcome and ribbon · 6 Arrow pattern (a repeating tone-on-tone arrow surface in the app header and the modal header).
+- **Modal header:** Close is on the right in every variant; the title starts at the left margin.
+- **Book:** in variants 1–6 the New booking search is part of the header (one component). Other tabs show the header without it.
 - **Limits:** iPad keeps its current top navigation (the modal header variants still apply). Tier and points are the same sample values as the current header.
 - **Check:** `tests/prototype/header-variants.cjs`.

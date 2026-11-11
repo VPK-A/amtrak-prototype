@@ -10,7 +10,7 @@ let n = 0, f = 0; const ok = (c, m) => { n++; if (!c) { f++; console.log('FAIL '
   await p.addScriptTag({ content: AXE });
   await p.evaluate(() => { document.body.classList.remove('chrome-hidden'); document.getElementById('protoCtl').hidden = false; });
   const w = ms => p.waitForTimeout(ms);
-  for (const th of ['light', 'dark']) for (let v = 0; v <= 5; v++) {
+  for (const th of ['light', 'dark']) for (let v = 0; v <= 6; v++) {
     await p.evaluate(th => { TB.theme = th; VS[1] = makeVS('returning'); goLoc('tab:book'); render(); }, th);
     await p.click(`#tbHx button[data-v="${v}"]`); await w(200);
     ok(await p.evaluate(v => TB.hx === v && document.querySelector('#device').classList.contains('hx-' + v) && document.querySelector(`#tbHx [data-v="${v}"]`).getAttribute('aria-pressed') === 'true', v), `toggle ${v}`);
@@ -34,7 +34,7 @@ let n = 0, f = 0; const ok = (c, m) => { n++; if (!c) { f++; console.log('FAIL '
     ok(await p.evaluate(() => !sheet() && !nav().dialog), `close without cart closes ${v}`);
   }
   await p.reload(); await p.waitForFunction(() => typeof TB !== 'undefined');
-  ok(await p.evaluate(() => TB.hx) === 5, 'choice persists across reload');
+  ok(await p.evaluate(() => TB.hx) === 6, 'choice persists across reload');
   ok(!errs.length, 'errors ' + errs);
   console.log(`${n - f}/${n} passed`); await br.close();
 })();
