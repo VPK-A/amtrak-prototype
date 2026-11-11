@@ -29,14 +29,14 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await pick('corporate'); ok((await bk()).intent === 'corporate', 'switch on: TripLink corporate again');
   // ---- Pass Rider (Business Pass holder) ----
   await go('passrider');
-  ok(JSON.stringify(await sw()) === JSON.stringify({ id: 'ff-mode-pr', on: true, title: 'Pass Rider booking' }) && (await bk()).intent === 'pr' && (await bk()).prType === null, 'Pass Rider: switch on by default; Business / Leisure not preselected');
+  ok(JSON.stringify(await sw()) === JSON.stringify({ id: 'ff-mode-pr', on: true, title: 'Pass Rider booking' }) && (await bk()).intent === 'pr' && (await bk()).prType === 'leisure', 'Pass Rider: switch on by default; Leisure preselected');
   ok(await p.locator(D_ + '[data-a="pr-type"]').count() === 0 && await p.locator(D_ + '[data-a="mode-open"]').count() === 0, 'no Booking type entry or Business / Leisure on the Fare Finder');
-  ok(/Choose Business or Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && await p.locator(D_ + '[data-a="find-trains"]').isDisabled() && /in Travelers/.test(await ev(() => document.querySelector('#device #ff-find-why').textContent)), 'Find trains disabled until Business or Leisure is chosen in Travelers');
+  ok(/Pass Rider · Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && !(await p.locator(D_ + '[data-a="find-trains"]').isDisabled()), 'Leisure default: Find trains ready');
   await p.click(D_ + '#ff-trav'); await w(700);
-  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.textContent + ':' + t.getAttribute('aria-selected')).join()) === 'Business:false,Leisure:false' && await p.locator(D_ + '.pr-choose').count() === 1 && await p.locator(D_ + '[data-a="pick-travelers-done"]').isDisabled(), 'Traveler selection: Business / Leisure tabs, neither selected, Done waits');
-  ok(await ev(() => document.querySelector('#device #prt-business').tabIndex === 0), 'tabs reachable by keyboard before a choice');
-  await axe('tabs, nothing chosen');
-  await p.click(D_ + '#prt-leisure'); await w(300);
+  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.textContent + ':' + t.getAttribute('aria-selected')).join()) === 'Leisure:true,Business:false' && await p.locator(D_ + '.pr-choose').count() === 0, 'Traveler selection: Leisure tab on the left (selected), Business on the right');
+  ok(await ev(() => document.querySelector('#device #prt-leisure').tabIndex === 0 && document.querySelector('#device #prt-business').tabIndex === -1), 'the selected tab is the keyboard stop');
+  ok(/NMA-1016 AC2/.test(await ev(() => document.querySelector('#notes').innerText)) && await ev(() => !document.getElementById('tbCmpPrDef')), 'the AC2 conflict is noted; no Prototype control for the default');
+  await axe('tabs, Leisure default');
   ok((await bk()).prType === 'leisure' && await p.locator(D_ + '.ffc-riders input[type="checkbox"]').count() === 4 && await p.locator(D_ + '[data-a="pax"][data-k="comp"]').count() === 2, 'Leisure: named riders as checkboxes, Companions counter');
   await p.click(`${D_}label[for="prr-maya"]`); await w(250);
   await p.click(D_ + '#prt-business'); await w(300);
@@ -47,7 +47,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // Back undoes the choice
   await p.click(D_ + '.pane .ads-navbar [data-a="back"]'); await w(500);
   if (await ev(() => !!nav().dialog)) { await ev(() => closeDialog(nav().dialog.actions[1][2])); await w(400); }
-  ok(await ev(() => sheet().stack.at(-1).s === 'ff') && (await bk()).prType === null, 'Back undoes Business / Leisure with the other traveler changes');
+  ok(await ev(() => sheet().stack.at(-1).s === 'ff') && (await bk()).prType === 'leisure', 'Back undoes Business / Leisure with the other traveler changes');
   // Business clears Auto Train; Done returns
   await ev(() => { const b = D().booking; b.prType = 'leisure'; b.from = 'LOR'; b.to = 'SFA'; render(); }); await w(200);
   await p.click(D_ + '#ff-trav'); await w(700); await p.click(D_ + '#prt-business'); await w(300);
@@ -67,14 +67,6 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => [...document.querySelectorAll('#tbScenario option')].every(o => o.value !== 'triplink-passrider')), 'no dual TripLink and Pass Rider scenario');
   await go('passrider');
   await axe('Fare Finder dropdown');
-  // Prototype controls › Pass Rider default travel type: None (default) or Leisure
-  ok(await ev(() => [...document.querySelectorAll('#tbCmpPrDef option')].map(o => o.value).join()) === 'none,leisure' && await ev(() => document.getElementById('tbCmpPrDef').value) === 'none', 'Prototype controls: Pass Rider default travel type, None by default');
-  await ev(() => { const s = document.getElementById('tbCmpPrDef'); s.value = 'leisure'; s.dispatchEvent(new Event('change')); }); await go('passrider');
-  ok((await bk()).prType === 'leisure' && /Pass Rider · Leisure/.test(await ev(() => document.querySelector('#device #ff-trav').innerText)) && !(await p.locator(D_ + '[data-a="find-trains"]').isDisabled()), 'Leisure default: Leisure set for a Business Pass holder; Find trains ready');
-  await p.click(D_ + '#ff-trav'); await w(700);
-  ok(await ev(() => [...document.querySelectorAll('#device .pr-tabs [role="tab"]')].map(t => t.getAttribute('aria-selected')).join()) === 'false,true' && /NMA-1016 AC2/.test(await ev(() => document.querySelector('#notes').innerText)), 'Leisure tab selected; the AC2 conflict is noted');
-  await ev(() => { const s = document.getElementById('tbCmpPrDef'); s.value = 'none'; s.dispatchEvent(new Event('change')); }); await go('passrider');
-  ok((await bk()).prType === null, 'back to None: neither preselected');
   ok(await ev(() => !document.getElementById('tbCmpPrType')), 'Prototype controls: no Pass Rider travel type option (tabs in Traveler selection only)');
   // Description line under the switch title: TripLink and Pass Rider, the same style
   for (const [sc, m, want] of [['triplink', 'tabs', 'ff-mode-corporate-h'], ['passrider', 'tabs', 'ff-mode-pr-h'], ['passrider-retiree', 'tabs', 'ff-mode-pr-h'], ['passrider-nopass', 'tabs', 'ff-mode-pr-h'], ['passrider-minor', 'tabs', '']]) {
