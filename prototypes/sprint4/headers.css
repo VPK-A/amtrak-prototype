@@ -110,7 +110,6 @@
 .hx-ipad .hx-ah--ipad .hx-card { max-width: 420px; }
 /* 2 · navy runs behind the navigation row too */
 .hx-ipad--2 { background: var(--ads-brand-midnight-blue); }
-.hx-ipad--2 .ipad-logo { color: var(--ads-content-text-on-brand); }
 .hx-ipad--2 .app-ipadnav .ads-icon-btn--round { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
 .hx-ipad--2 .app-ipadnav .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
 .device--ipad.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }

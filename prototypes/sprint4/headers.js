@@ -45,12 +45,13 @@ const hxHeader = function (ipad) {
   return `<${tag} class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}${ipad ? ' hx-ah--ipad' : ''}">${h}</${tag}>`;
 };
 appHeader = function () { return TB.hx ? hxHeader(false) : appHeaderCurrent(); };
-// iPad: the current navigation row (logo, tabs, inbox) with the variant block beneath it, as one header. The account
+// iPad: the current navigation row (tabs and inbox, without the Amtrak mark) with the variant block beneath it, as one header. The account
 // entry moves from the small avatar in the row to the welcome in the block.
 const ipadNavCurrent = ipadNav;
 ipadNav = function () {
   if (!TB.hx) return ipadNavCurrent();
-  const row = ipadNavCurrent().replace('<header class="', '<div class="').replace(/<\/header>\s*$/, '</div>').replace(/<button class="ads-appheader__account"[\s\S]*?<\/button>/, '');
+  const row = ipadNavCurrent().replace('<header class="', '<div class="').replace(/<\/header>\s*$/, '</div>').replace(/<button class="ads-appheader__account"[\s\S]*?<\/button>/, '')
+    .replace(/<span class="ipad-logo"[\s\S]*?<\/svg><\/span>/, '<span aria-hidden="true"></span>'); // no Amtrak mark in the variants; the empty cell keeps the tabs centered
   return `<header class="hx-ipad hx-ipad--${TB.hx}">${row}${hxHeader(true)}</header>`;
 };
 

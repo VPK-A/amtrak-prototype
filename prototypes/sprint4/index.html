@@ -3131,7 +3131,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .hx-ipad .hx-ah--ipad .hx-card { max-width: 420px; }
 /* 2 · navy runs behind the navigation row too */
 .hx-ipad--2 { background: var(--ads-brand-midnight-blue); }
-.hx-ipad--2 .ipad-logo { color: var(--ads-content-text-on-brand); }
 .hx-ipad--2 .app-ipadnav .ads-icon-btn--round { background: rgb(255 255 255 / 0.12); color: var(--ads-content-icon-on-brand); }
 .hx-ipad--2 .app-ipadnav .ads-icon-btn__dot { box-shadow: 0 0 0 2px var(--ads-brand-midnight-blue); }
 .device--ipad.hx-2 .dev-status { color: var(--ads-content-text-on-brand); }
@@ -7563,12 +7562,13 @@ const hxHeader = function (ipad) {
   return `<${tag} class="ads-appheader hx-ah hx-ah--${v}${search ? ' hx-ah--book' : ''}${ipad ? ' hx-ah--ipad' : ''}">${h}</${tag}>`;
 };
 appHeader = function () { return TB.hx ? hxHeader(false) : appHeaderCurrent(); };
-// iPad: the current navigation row (logo, tabs, inbox) with the variant block beneath it, as one header. The account
+// iPad: the current navigation row (tabs and inbox, without the Amtrak mark) with the variant block beneath it, as one header. The account
 // entry moves from the small avatar in the row to the welcome in the block.
 const ipadNavCurrent = ipadNav;
 ipadNav = function () {
   if (!TB.hx) return ipadNavCurrent();
-  const row = ipadNavCurrent().replace('<header class="', '<div class="').replace(/<\/header>\s*$/, '</div>').replace(/<button class="ads-appheader__account"[\s\S]*?<\/button>/, '');
+  const row = ipadNavCurrent().replace('<header class="', '<div class="').replace(/<\/header>\s*$/, '</div>').replace(/<button class="ads-appheader__account"[\s\S]*?<\/button>/, '')
+    .replace(/<span class="ipad-logo"[\s\S]*?<\/svg><\/span>/, '<span aria-hidden="true"></span>'); // no Amtrak mark in the variants; the empty cell keeps the tabs centered
   return `<header class="hx-ipad hx-ipad--${TB.hx}">${row}${hxHeader(true)}</header>`;
 };
 
