@@ -234,7 +234,7 @@ function searchStations(qs) {
 function stationRow(s, field, sec, near) {
   const d = D(), ctx = curCtx(), tg = selTarget(ctx), fav = d.fav.includes(s.code), cur = tg[field] === s.code;
   const rec = d.rec.find(x => x.c === s.code);
-  const when = sec === 'rec' && rec ? ` · ${rec.d === 0 ? 'today' : rec.d === 1 ? 'yesterday' : rec.d + ' days ago'}` : '';
+  const when = ''; // recents show the station only, as in the designs (Figma 3295:51259); NMA-984 doesn't ask for when it was used
   const blocked = ctx === 'ff' && s.tag && autoTrainBlocked();
   const b = tg, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
   const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'Departure station' : 'Arrival station'}</span>` : ''; // the other end of the trip
@@ -274,7 +274,6 @@ function stationSearch(r, ri, field, inline) {
   const [nearTop, nearList] = nearSection(r, ri).split('<!--near-split-->');
   h += nearTop + '</div>' + PANEL + nearList; // top block: group, search, Nearby stations; then the lists
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Saved</span></div><ul class="stlist" aria-label="Saved stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
-  if (!recs.length && favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span></div></div>`; // cleared: the heading stays, with nothing under it (Figma 3837:126616)
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
   const showAll = (!favs.length && !recs.length) || r.u.full;

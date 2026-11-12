@@ -26,7 +26,7 @@ One New booking design is in review: the modal from Figma Sprint 4 (node 3295:51
 
 **Select station** (station selector from New booking, Train status and Multi-Ride), matched to Figma Sprint 4 node 3295:51259
 - Header: chevron Back and centered "Select station" (the field being edited is named for screen readers). List / Map tabs (text only). iOS type layer, no grabber.
-- List view: the From / To group with the field being edited outlined (tap the other field to edit it instead; the swap button swaps both stations), "Search station", then Near you (when location is allowed), Saved and Recents (with Clear recents) as full-width sections with 60px rows: code, city, station name, info and bookmark. View full list is pinned in the footer. After Clear recents, the Recents heading stays with nothing under it.
+- List view: the From / To group with the field being edited outlined (tap the other field to edit it instead; the swap button swaps both stations), "Search station", then Near you (when location is allowed), Saved and Recents (with Clear recents) as full-width sections with 60px rows: code, city, station name, info and bookmark. Recents don't show when a station was used. View full list is pinned in the footer. With no recents (for example after Clear recents), the Recents section is hidden (NMA-984); this differs from Figma 3837:126616, which keeps the heading.
 - Nearby stations (Gabby's feedback; Figma 3849:154376, 3849:164332, 3896:173633): there is no "Nearby stations" link; the location permission decides what shows.
   1. Allowed at launch: nearby stations show by default (found once per session, then shown straight away).
   2. Denied: the default view with a dismissible "Location isn't allowed" warning alert and an "Open settings" link.
