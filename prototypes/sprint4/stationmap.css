@@ -228,3 +228,27 @@
 .map-listing__acts { flex: none; display: flex; align-items: center; gap: var(--ads-space-4); margin-right: calc(-1 * var(--ads-space-8)); }
 .map-listing__acts .ads-icon-btn { color: var(--ads-content-icon-primary); }
 .map-listing__save { color: var(--ads-content-icon-brand) !important; }
+
+/* Location isn't allowed (Figma 3849:164332): warning alert with a top rule, a text link to the app's settings, dismissible */
+.ds-next .ads-alert.ss-localert { position: relative; padding: 0 var(--ads-space-8) 0 var(--ads-space-12); border: 0; border-top: 4px solid var(--ads-border-status-warning-subtle); border-radius: 0; }
+.ss-localert .ads-alert__content { gap: var(--ads-space-4); padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-16); }
+.ss-localert .ads-alert__icon { margin-top: var(--ads-space-12); }
+.ss-localert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ss-localert__link { align-self: flex-start; margin-top: var(--ads-space-4); }
+.ss-localert__close { flex: none; margin-top: var(--ads-space-4); color: var(--ads-content-icon-primary); }
+
+/* Amtrak Location Preferences (Figma 3896:173633): the app's location setting, simulated */
+.native--prefs .native__sheet { display: flex; flex-direction: column; width: 100%; max-width: 300px; overflow: hidden; border-radius: 28px; background: rgb(250 250 252 / 0.97); color: #000; text-align: center; box-shadow: 0 12px 40px rgb(0 0 0 / 0.18); }
+.native--prefs .native__title { margin: 0; padding: 22px 16px 14px; font-size: 17px; font-weight: 600; line-height: 1.3; }
+.native--prefs button { min-height: 48px; border: 0; border-top: 0.5px solid rgb(60 60 67 / 0.36); background: none; color: #0058c8; font: inherit; font-size: 17px; cursor: pointer; }
+.native--prefs button:focus-visible { outline: 2px solid #007aff; outline-offset: -2px; }
+[data-theme="dark"] .native--prefs .native__sheet { background: rgb(44 44 46 / 0.97); color: #fff; }
+[data-theme="dark"] .native--prefs button { border-top-color: rgb(84 84 88 / 0.65); color: #5eaaff; }
+
+/* Select station (Figma 3295:51259): smaller prompts in the From / To group, brand search icon */
+.ss-group .ads-fieldgroup__placeholder { font-size: var(--ads-type-body-small-size); }
+.ss-search--sq .ads-control > .ads-icon--search { color: var(--ads-content-icon-brand); }
+/* Station details sheet (Figma 3849:179226): values right-aligned; a plain pending line */
+.stinfo-dl dt { color: var(--ads-content-text-primary); }
+.stinfo-dl dd { text-align: right; font-size: var(--ads-type-body-small-size); }
+.stinfo-pending { margin: var(--ads-space-12) 0 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }

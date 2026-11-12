@@ -198,16 +198,30 @@ A['ss-view'] = (t, ri) => {
 };
 const selProps = r => ({ experience: SEL_NAMES[r.p.ctx || 'ff'], field: r.p.field === 'from' ? 'departure' : 'arrival' });
 
-// ---------- My Location and nearby results (List view) ----------
+// ---------- Nearby results (List view) ----------
+const nearKey = () => [loc().place, loc().perm, loc().data].join('|');
 function nearSection(r, ri) {
   const n = r.u.near || { st: 'idle' }, P = loc().platform;
   ref('1085');
-  // "Nearby stations" link (Figma Sprint 4 node 3295:51259) replaces the My Location row; it starts the same nearby search
-  const myloc = `<button class="ads-link ss-nearlink" type="button" data-a="near-start" data-k="near-start" aria-describedby="ss-near-h">Nearby stations${ic('map-pin', 'ads-icon--sm')}</button><span class="ads-sr-only" id="ss-near-h">${n.st === 'results' ? 'Update the stations near you' : 'Find stations near you'}</span>`;
+  // Permission drives the list (Figma 3849:154376, 3849:164332): no "Nearby stations" link. Allowed: nearby stations
+  // load on their own. Denied: a dismissible "Location isn't allowed" alert. Not asked yet, or the alert dismissed:
+  // the default view. The OS asks for permission at app launch (not simulated here).
+  const L = loc();
+  if (n.st === 'idle') {
+    if (V().net === 'offline' && locGranted()) n.st = 'offline';
+    else if (locGranted() && L.device === 'off') n.st = 'services-off';
+    else if (locGranted()) {
+      const c = V().nearCache, key = nearKey();
+      if (c && c.key === key) Object.assign(n, { st: 'results', results: c.results, radius: c.radius, approx: c.approx }); // already found this session
+      else { n.st = 'locating'; setTimeout(() => { if (r.u.near === n && n.st === 'locating') nearLocate(r); }, 0); }
+    } else if (L.perm === 'denied' && !V().locAlertOff) n.st = 'denied-alert';
+  }
+  r.u.near = n;
   let body = '';
   const recovery = (k, msg, acts) => `<div class="ads-alert ads-alert--${k === 'none' ? 'info' : 'warning'} ss-near__msg" role="status" id="near-msg" data-k="${k}">${ic(k === 'none' ? 'info-circle' : 'alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(msg.title)}</p><p class="ads-alert__description ads-body-small">${esc(msg.body)}</p>${acts ? `<div class="ss-near__acts">${acts}</div>` : ''}</div></div>`;
   const btn = (a, label, kind = 'secondary', extra = '') => `<button class="ads-btn ads-btn--${kind}" type="button" data-a="${a}" ${extra}>${label}</button>`;
-  if (n.st === 'locating' || n.st === 'loading') body = `<p class="ss-near__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>${n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading}</span></p>`;
+  if (n.st === 'denied-alert') body = `<div class="ads-alert ads-alert--warning ss-localert" role="status" id="near-msg" data-k="denied">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(NEAR_MSG.deniedFirst.title)}</p><p class="ads-alert__description">${esc(NEAR_MSG.deniedFirst.body)}</p><button class="ads-link ads-link--sm linkbtn ss-localert__link" type="button" data-a="open-settings" data-what="app">Open settings</button></div><button class="ads-icon-btn ads-icon-btn--sm ss-localert__close" type="button" data-a="loc-alert-dismiss" aria-label="Dismiss: location isn’t allowed">${ic('close')}</button></div>`;
+  else if (n.st === 'locating' || n.st === 'loading') body = `<p class="ss-near__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>${n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading}</span></p>`;
   else if (n.st === 'denied-first') body = recovery('denied-first', NEAR_MSG.deniedFirst, P === 'android' && !n.askedTwice ? btn('near-start', 'Try again', 'secondary', 'data-again="1"') : btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'denied') body = recovery('denied', NEAR_MSG.denied, btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'services-off') body = recovery('services-off', { title: NEAR_MSG.servicesOff.title, body: NEAR_MSG.servicesOff[P] }, btn('open-settings', 'Open Settings', 'secondary', 'data-what="device"'));
@@ -220,12 +234,13 @@ function nearSection(r, ri) {
     body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection ss-nearlist"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
   }
   if (n.st === 'none') snote('Conflict (NMA-1085): the no-nearby-results scenario asks to zoom out to find a station, but the nearby rule caps the search at 150 miles. The prototype stops at 150 miles and offers Explore map instead of searching further. Needs a decision.');
-  if (n.st === 'denied-first' || n.st === 'denied') snote('Follows native OS behavior: iOS can’t ask again after Don’t Allow (Settings only); Android can ask once more, then only Settings. Jira’s re-prompt notes are TBD and conflict with “don’t prompt again”. Needs a product decision.');
+  if (n.st === 'denied-alert') snote('Location denied: the alert can be dismissed (for this session) or Open settings goes to the app’s location settings. If access is still not allowed, the default view shows without the alert.');
+  snote('Pattern (Gabby’s feedback): no “Nearby stations” link. If location was allowed at launch, nearby stations show by default; if denied, a dismissible alert; otherwise the default view. Try each with Prototype controls › Location permission.');
   if (n.approx) snote('Approximate location: distances are labelled as estimates. Jira’s approximate-location handling is TBD; this is a proposal.');
   snote('Nearby results: 20 miles, widened by 20 miles only while nothing is found, to a maximum of 150 miles; no result-count limit. Station ineligibility filtering (“Hide Ineligible Stations”) is not applied: Jennifer’s Nov 3 comment moved it to a separate improvement story.');
   snote('Error and status messages for location and nearby search are configurable (NEAR_MSG in stationmap.js).');
   const list = n.st === 'results' ? body : '', msg = n.st === 'results' ? '' : body;
-  return `<section class="ss-near" aria-label="Stations near you">${myloc}${msg}</section><!--near-split-->${list}`; // the link and messages end the selector's top block; nearby results start the list
+  return `${msg ? `<section class="ss-near" aria-label="Stations near you">${msg}</section>` : ''}<!--near-split-->${list}`; // messages end the selector's top block; nearby results start the list
 }
 // My Location: ask the OS only if permission hasn't been requested; otherwise use what's allowed
 A['near-start'] = (t, ri) => {
@@ -240,7 +255,9 @@ A['near-start'] = (t, ri) => {
   nearLocate(r);
 };
 function nearLocate(r) {
-  const n = r.u.near; n.st = 'locating'; render();
+  const n = r.u.near; n.auto = n.st === 'locating';
+  if (V().net === 'offline') { n.st = 'offline'; render(); return; } // no connection: say so straight away
+  n.st = 'locating'; render();
   const token = n.token = Math.random();
   setTimeout(() => {
     if (n.token !== token) return;
@@ -253,11 +270,13 @@ function nearLocate(r) {
       const p = devicePos(), res = nearbySearch(p);
       if (!res.results.length) { n.st = 'none'; track('nearby_no_results', { max_radius_mi: 150 }); pendingFocus = '#near-msg'; render(); return; }
       Object.assign(n, { st: 'results', results: res.results, radius: res.radius, approx: p.approx });
+      V().nearCache = { key: nearKey(), results: res.results, radius: res.radius, approx: p.approx };
       track('nearby_results_loaded', { radius_mi: res.radius, count: res.results.length, precision: p.approx ? 'approximate' : 'precise' });
-      pendingFocus = '.ss-nearlist .ads-stationrow__select'; render();
+      if (!n.auto) pendingFocus = '.ss-nearlist .ads-stationrow__select'; render(); // loaded on its own: focus stays put
     }, 700);
   }, 800);
 }
+A['loc-alert-dismiss'] = () => { V().locAlertOff = true; const r = selRoute(); if (r && r.u.near) r.u.near.st = 'idle'; track('location_alert_dismissed', {}); pendingFocus = '#ss-q'; render(); };
 A['near-explore'] = (t, ri) => {
   const r = routeAt(selIndex()), p = locKnown() ? devicePos() : null;
   r.u.view = 'map'; r.u.mapUsed = true; r.u.map = p ? { lat: p.lat, lon: p.lon, z: 6, why: 'explore' } : initialView();
@@ -285,6 +304,10 @@ A['native-settings'] = t => {
   if (what === 'device' && v === 'on') L.device = 'on';
   if (what === 'app' && v !== 'keep') L.perm = v;
   const r = selRoute();
+  if (what === 'app' && r && r.u.near) { // back in the app: allowed shows nearby stations; still denied shows the default view
+    if (v === 'keep') V().locAlertOff = true;
+    r.u.near = { st: 'idle' }; if (locGranted()) track('location_enabled_in_settings', { what }); pendingFocus = '#ss-q'; render(); return;
+  }
   if (r && r.u.near && (what === 'device' ? L.device === 'on' : locGranted())) { track('location_enabled_in_settings', { what }); A['near-start'](null); return; } // back in the app with access: carry on
   pendingFocus = '#near-msg, [data-a="near-start"]'; render();
 };
@@ -294,6 +317,7 @@ function renderNative(o) {
     if (and) return `<div class="native native--android" role="alertdialog" aria-modal="true" aria-labelledby="nat-t"><div class="native__card">${ic('map-pin')}<p class="native__title" id="nat-t">Allow <b>Amtrak</b> to access this device’s location?</p><div class="native__acc" role="radiogroup" aria-label="Location accuracy"><button type="button" role="radio" aria-checked="${o.precise}" data-a="native-precise" class="native__acc-opt${o.precise ? ' is-on' : ''}">Precise</button><button type="button" role="radio" aria-checked="${!o.precise}" data-a="native-precise" class="native__acc-opt${!o.precise ? ' is-on' : ''}">Approximate</button></div><button type="button" data-a="native-perm" data-native data-v="while">While using the app</button><button type="button" data-a="native-perm" data-native data-v="once">Only this time</button><button type="button" data-a="native-perm" data-native data-v="deny">Don’t allow</button></div></div>`;
     return `<div class="native native--ios" role="alertdialog" aria-modal="true" aria-labelledby="nat-t" aria-describedby="nat-b"><div class="native__card"><p class="native__title" id="nat-t">Allow “Amtrak” to use your location?</p><p class="native__body" id="nat-b">Amtrak uses your location to show stations near you.</p><div class="native__map" aria-hidden="true">${ic('map-pin')}</div><button type="button" class="native__toggle" data-a="native-precise" role="switch" aria-checked="${o.precise}">Precise: ${o.precise ? 'On' : 'Off'}</button><button type="button" data-a="native-perm" data-native data-v="once">Allow Once</button><button type="button" data-a="native-perm" data-native data-v="while">Allow While Using App</button><button type="button" data-a="native-perm" data-native data-v="deny">Don’t Allow</button></div></div>`;
   }
+  if (o.what === 'app' && !and) return `<div class="native native--prefs" role="alertdialog" aria-modal="true" aria-labelledby="nat-t"><div class="native__sheet"><p class="native__title" id="nat-t">Amtrak Location Preferences</p>${[['precise', 'Always'], ['precise', 'Only While Using the App'], ['keep', 'Never']].map(([v, l], i) => `<button type="button" data-a="native-settings" data-v="${v}" ${i === 0 ? 'data-native' : ''}>${l}</button>`).join('')}</div></div>`; // Figma 3896:173633 (simulated)
   const rows = o.what === 'device'
     ? [['on', and ? 'Use location: On' : 'Location Services: On'], ['keep', 'Leave off']]
     : and ? [['precise', 'Allow only while using the app (precise)'], ['approx', 'Allow only while using the app (approximate)'], ['ask', 'Ask every time'], ['keep', 'Don’t allow']]
@@ -493,6 +517,6 @@ function syncLocCtl() {
   const place = document.getElementById('tbPlace'); if (place) place.innerHTML = Object.entries(PLACES).map(([k, p]) => `<option value="${k}">${p.label}</option>`).join('');
   [['tbPlatform', 'platform'], ['tbPerm', 'perm'], ['tbLocDev', 'device'], ['tbPlace', 'place'], ['tbNearData', 'data'], ['tbMapTiles', 'map']].forEach(([id, k]) => {
     const el = document.getElementById(id); if (!el) return;
-    el.addEventListener('change', () => { loc()[k] = el.value; render(); });
+    el.addEventListener('change', () => { loc()[k] = el.value; V().locAlertOff = false; V().nearCache = null; const r = typeof selRoute === 'function' && sheet() && selRoute(); if (r) r.u.near = { st: 'idle' }; render(); });
   });
 })();

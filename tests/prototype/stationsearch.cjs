@@ -18,7 +18,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     // ---- Shared selector: Departure via the list returns to New booking and sets only From ----
     await go(v, 'returning', 'ff', {}, 'iphone', "D().booking.to = 'WAS';");
     await click('#ff-from'); ok((await stack()).endsWith('stations'), `${T} From opens station search`);
-    ok(await p.locator(D_ + '[data-a="ss-view"]').count() === 2 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} List and Map views; My Location offered before any permission`);
+    ok(await p.locator(D_ + '[data-a="ss-view"]').count() === 2 && await p.locator(D_ + '[data-a="near-start"]').count() === 0, `${T} List and Map views; no Nearby stations link`);
     await p.fill(D_ + '#ss-q', 'PHL'); await w(150); await click('[data-a="choose-station"][data-code="PHL"]');
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.from === 'PHL' && D().booking.to === 'WAS'), `${T} Departure changed; Arrival kept; back on New booking at once`);
     // ---- Arrival via the map (no permission request just for opening it) ----
@@ -56,57 +56,65 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} map, both set: Select commits Arrival only and returns to New booking`);
     ok((await evs()).includes('map_station_selected'), `${T} analytics: map selection`);
     // switch back to List
-    await click('#ff-to'); await mapView(); await click('[data-a="ss-view"][data-v="list"]'); ok(await p.locator(D_ + '.ss-map').count() === 0 && await p.locator(D_ + '[data-a="near-start"]').count() === 1, `${T} switch back to List view`);
+    await click('#ff-to'); await mapView(); await click('[data-a="ss-view"][data-v="list"]'); ok(await p.locator(D_ + '.ss-map').count() === 0 && await p.locator(D_ + '[data-a="near-start"]').count() === 0 && await p.locator(D_ + '#ss-q').count() === 1, `${T} switch back to List view`);
     // close without choosing keeps the fields
     await p.locator(D_ + '.ss-head__back, ' + D_ + '.psheet [data-a="back"]').first().click(); await w(300);
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY'), `${T} backing out keeps the field`);
     ok((await evs()).some(e => /abandoned/.test(e)), `${T} analytics: abandonment recorded`);
 
-    // ---- My Location: native prompts (iOS, Android), results by distance ----
+    // ---- Nearby stations: permission drives the list (no "Nearby stations" link) ----
+    await go(v, 'returning', 'stations:from'); await w(300);
+    ok(await p.locator(D_ + '[data-a="near-start"]').count() === 0 && await p.locator(D_ + '.ss-nearlist, ' + D_ + '#near-msg').count() === 0 && await ev(() => !nav().native), `${T} not asked yet: the default view, no link, no prompt, no alert`);
     for (const P of ['ios', 'android']) {
-      await go(v, 'returning', 'stations:from', { platform: P }); await click('[data-a="near-start"]');
-      ok(await p.locator(D_ + `.native--${P}[role="alertdialog"]`).count() === 1, `${T} ${P}: native permission prompt the first time`);
-      await click(`.native [data-v="while"]`); await w(1700);
+      await go(v, 'returning', 'stations:from', { platform: P, perm: 'precise' }); await w(1700);
       const rows = await ev(() => [...document.querySelectorAll('#device .ss-nearlist .ads-stationrow__select')].map(b => +b.dataset.mi));
-      ok(rows.length >= 3 && rows.every((x, i) => i === 0 || rows[i - 1] <= x) && rows[0] < 20, `${T} ${P}: nearby results closest first, within 20 miles (${rows.join(', ')})`);
+      ok(await ev(() => !nav().native) && rows.length >= 3 && rows.every((x, i) => i === 0 || rows[i - 1] <= x) && rows[0] < 20, `${T} ${P}: allowed: nearby stations show by default, closest first, within 20 miles (${rows.join(', ')})`);
       ok(/within 20 mi/.test(await txt()) && /0\.7 mi/.test(await txt()), `${T} ${P}: distance shown with the radius`);
-      await click('[data-a="near-start"]'); ok(await ev(() => !nav().native), `${T} ${P}: allowed already: no second prompt`);
+      ok(await ev(() => document.querySelector('#device .ss-nearlist').compareDocumentPosition(document.querySelector('#device .stsection:not(.ss-nearlist)')) & 4), `${T} ${P}: Near you comes before Saved`);
     }
-    await w(1700);
-    const lbl = await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().innerText(); ok(/miles away/.test(await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().evaluate(e => e.textContent)), `${T} distance has a spoken label`);
+    ok(await p.locator(D_ + '.ss-nearlist .ads-stationrow__select').first().evaluate(e => /miles away/.test(e.textContent)), `${T} distance has a spoken label`);
     await click('.ss-nearlist .ads-stationrow__select'); ok(await ev(() => D().booking.from === 'NYP' && sheet().stack.at(-1).p.field === 'to'), `${T} a nearby result fills Departure; the selector moves on to To`);
+    ok(await p.locator(D_ + '.ss-nearlist').count() === 1 && await ev(() => sheet().stack.at(-1).u.near.st) === 'results', `${T} found once per session: shown straight away for To`);
     await click('.ss-head__back');
     ok((await evs()).includes('nearby_station_selected'), `${T} analytics: nearby selection with distance`);
     // approximate, allow once
-    await go(v, 'returning', 'stations:from', { perm: 'approx' }); await click('[data-a="near-start"]'); await w(1700);
-    ok(await ev(() => !nav().native) && /approximate/.test(await txt()) && /About/.test(await txt()), `${T} approximate permission: no prompt, estimates labelled`);
-    await go(v, 'returning', 'stations:from', { perm: 'once' }); await click('[data-a="near-start"]'); await w(1700); ok(/Near you/.test(await txt()), `${T} allowed once: uses location without asking`);
+    await go(v, 'returning', 'stations:from', { perm: 'approx' }); await w(1700);
+    ok(await ev(() => !nav().native) && /approximate/.test(await txt()) && /About/.test(await txt()), `${T} approximate permission: estimates labelled`);
+    await go(v, 'returning', 'stations:from', { perm: 'once' }); await w(1700); ok(/Near you/.test(await txt()), `${T} allowed once: nearby stations show`);
     // expansion rule
-    await go(v, 'returning', 'stations:from', { perm: 'precise', place: 'statecollege' }); await click('[data-a="near-start"]'); await w(1700);
+    await go(v, 'returning', 'stations:from', { perm: 'precise', place: 'statecollege' }); await w(1700);
     ok(/within 80 mi/.test(await txt()) && await ev(() => sheet().stack.at(-1).u.near.radius) === 80, `${T} widens by 20 miles until a station is found (80 mi)`);
-    // recovery states
-    const rec = async (L, key, act) => { await go(v, 'returning', 'stations:from', L); await click('[data-a="near-start"]'); await w(1700); return ev(k => !!document.querySelector(`#device #near-msg[data-k="${k}"]`), key); };
-    await go(v, 'returning', 'stations:from', { platform: 'ios' }); await click('[data-a="near-start"]'); await click('.native [data-v="deny"]');
-    ok(await ev(() => !!document.querySelector('#device #near-msg[data-k="denied-first"] [data-a="open-settings"]')), `${T} iOS: denied on the first request, with Open Settings`);
-    await go(v, 'returning', 'stations:from', { platform: 'android' }); await click('[data-a="near-start"]'); await click('.native [data-v="deny"]');
-    ok(await ev(() => !!document.querySelector('#device #near-msg[data-k="denied-first"] [data-again]')), `${T} Android: denied once, can ask again`);
-    ok(await rec({ perm: 'denied' }, 'denied') && await ev(() => !nav().native), `${T} previously denied: no prompt, Settings guidance`);
-    await click('#near-msg [data-a="open-settings"]'); ok(await p.locator(D_ + '.native--settings').count() === 1, `${T} Open Settings shows the device settings (simulated)`);
-    await click('.native [data-v="precise"]'); await w(1700); ok(/Near you/.test(await txt()), `${T} allowing in Settings resumes the nearby search`);
-    ok(await rec({ device: 'off' }, 'services-off'), `${T} Location Services off: guidance and Settings`);
+    // denied: a dismissible alert with Open settings
+    const rec = async (L, key) => { await go(v, 'returning', 'stations:from', L); await w(1700); return ev(k => !!document.querySelector(`#device #near-msg[data-k="${k}"]`), key); };
+    ok(await rec({ perm: 'denied' }, 'denied') && await ev(() => !nav().native) && /Location isn’t allowed/.test(await txt()) && /You can still search by name or browse the map/.test(await txt()), `${T} denied: “Location isn’t allowed” alert on opening, no prompt`);
+    ok(await p.locator(D_ + '#near-msg [data-a="open-settings"]').innerText() === 'Open settings' && await p.locator(D_ + '#near-msg [data-a="loc-alert-dismiss"]').count() === 1 && await ev(() => document.querySelector('#device #near-msg').closest('.ss-top') !== null), `${T} denied: Open settings link and a dismiss button, under the search field`);
+    await click('#near-msg [data-a="loc-alert-dismiss"]');
+    ok(await p.locator(D_ + '#near-msg').count() === 0 && await ev(() => document.activeElement.id) === 'ss-q' && await p.locator(D_ + '.stsection').count() >= 1, `${T} dismissed: the default view; focus moves to the search field`);
+    await click('.ss-head__back'); await click('#ff-from'); await w(300);
+    ok(await p.locator(D_ + '#near-msg').count() === 0, `${T} dismissed: stays dismissed for the session`);
+    await rec({ perm: 'denied', platform: 'ios' }, 'denied'); await click('#near-msg [data-a="open-settings"]');
+    ok(await ev(() => [...document.querySelectorAll('#device .native--prefs button')].map(b => b.textContent).join('|')) === 'Always|Only While Using the App|Never' && /Amtrak Location Preferences/.test(await txt()), `${T} Open settings: the app’s location preferences (simulated)`);
+    await click('.native [data-v="keep"]');
+    ok(await p.locator(D_ + '.native').count() === 0 && await p.locator(D_ + '#near-msg').count() === 0 && await p.locator(D_ + '.ss-nearlist').count() === 0, `${T} still denied (Never): the default view, without the alert`);
+    await rec({ perm: 'denied', platform: 'ios' }, 'denied'); await click('#near-msg [data-a="open-settings"]'); await click('.native button:nth-of-type(2)'); await w(1700);
+    ok(/Near you/.test(await txt()) && await p.locator(D_ + '#near-msg').count() === 0, `${T} allowed in settings: nearby stations show`);
+    await rec({ perm: 'denied', platform: 'android' }, 'denied'); await click('#near-msg [data-a="open-settings"]');
+    ok(await p.locator(D_ + '.native--settings.native--android').count() === 1, `${T} Android: Open settings shows the app’s location settings (simulated)`);
+    await click('.native [data-v="precise"]'); await w(1700); ok(/Near you/.test(await txt()), `${T} Android: allowing in settings shows nearby stations`);
+    // other states when location is allowed
+    ok(await rec({ perm: 'precise', device: 'off' }, 'services-off'), `${T} Location Services off: guidance and Settings`);
     ok(await rec({ perm: 'precise', device: 'fail' }, 'unavailable') && await p.locator(D_ + '#near-msg [data-a="near-start"]').count() === 1, `${T} location unavailable: Retry`);
     ok(await rec({ perm: 'precise', data: 'fail' }, 'data') && await p.locator(D_ + '#near-msg [data-a="near-start"]').count() === 1, `${T} nearby data fails: Retry`);
     ok(await rec({ perm: 'precise', place: 'yellowstone' }, 'none'), `${T} no stations within 150 miles`);
-    ok(await ev(() => sheet().stack.at(-1).u.near.radius) === undefined || true, `${T} search stops at 150 miles`);
     await click('#near-msg [data-a="near-explore"]'); ok(await p.locator(D_ + '.ss-map').count() === 1, `${T} Explore map from no results`);
-    for (const k of [['denied', { perm: 'denied' }], ['services-off', { device: 'off' }], ['data', { perm: 'precise', data: 'fail' }]]) {
+    for (const k of [['denied', { perm: 'denied' }], ['services-off', { perm: 'precise', device: 'off' }], ['data', { perm: 'precise', data: 'fail' }]]) {
       await rec(k[1], k[0]); ok(await p.locator(D_ + '#ss-q').count() === 1 && await p.locator(D_ + '.stlist').count() >= 1, `${T} ${k[0]}: typed search and the list stay available`);
     }
-    // offline: displayed station still selectable; new nearby search needs a connection
-    await go(v, 'returning', 'stations:from', { perm: 'precise' }); await click('[data-a="near-start"]'); await w(1700);
+    // offline: displayed station still selectable; a new nearby search needs a connection
+    await go(v, 'returning', 'stations:from', { perm: 'precise' }); await w(1700);
     await ev(() => { V().net = 'offline'; render(); });
     await click('.ss-nearlist .ads-stationrow__select'); ok(await ev(() => D().booking.from === 'NYP'), `${T} offline: a station already shown can still be chosen`);
-    await go(v, 'returning', 'stations:from', { perm: 'precise' }); await ev(() => { V().net = 'offline'; render(); }); await click('[data-a="near-start"]');
+    await go(v, 'returning', 'stations:from', { perm: 'precise' }, 'iphone', "V().net = 'offline';"); await w(300);
     ok(await ev(() => !!document.querySelector('#device #near-msg[data-k="offline"]')), `${T} offline: nearby search says it needs a connection`);
     await mapView(); ok(/can’t load new areas/.test(await txt()), `${T} offline: the map says it can't load new areas`);
     // map with location known: centered on it, widened to include the nearest station

@@ -26,7 +26,13 @@ One New booking design is in review: the modal from Figma Sprint 4 (node 3295:51
 
 **Select station** (station selector from New booking, Train status and Multi-Ride), matched to Figma Sprint 4 node 3295:51259
 - Header: chevron Back and centered "Select station" (the field being edited is named for screen readers). List / Map tabs (text only). iOS type layer, no grabber.
-- List view: the From / To group with the field being edited outlined (tap the other field to edit it instead; the swap button swaps both stations), "Search station", then the "Nearby stations" link, which replaces the My Location row and starts the same location and nearby search (permissions, errors and results unchanged). Nearby results, Favorites and Recents (with Clear recents) follow as full-width sections with 60px rows: code, city, station name, info and bookmark.
+- List view: the From / To group with the field being edited outlined (tap the other field to edit it instead; the swap button swaps both stations), "Search station", then Near you (when location is allowed), Saved and Recents (with Clear recents) as full-width sections with 60px rows: code, city, station name, info and bookmark. View full list is pinned in the footer. After Clear recents, the Recents heading stays with nothing under it.
+- Nearby stations (Gabby's feedback; Figma 3849:154376, 3849:164332, 3896:173633): there is no "Nearby stations" link; the location permission decides what shows.
+  1. Allowed at launch: nearby stations show by default (found once per session, then shown straight away).
+  2. Denied: the default view with a dismissible "Location isn't allowed" warning alert and an "Open settings" link.
+  3. Open settings: the app's location settings (simulated "Amtrak Location Preferences": Always, Only While Using the App, Never). Allowing shows nearby stations.
+  4. Alert dismissed, or still denied after Settings: the default view, without the alert, for the rest of the session.
+  Not asked yet: the default view (the OS prompt happens at app launch and isn't simulated). Errors when allowed (Location Services off, location not found, nearby data, offline, nothing within 150 miles) still show their messages. Try each state with Prototype controls › Location permission.
 - Map view: the station listing from Figma 3336:40155 (code, city, station, info and save), with Select in the sheet footer. See *Station selection map view* below.
 - Choosing a station fills the field being edited; the selector moves to the other field only while that field is empty (announced, focus in Search station), otherwise it returns to the screen that opened it. Back leaves at any point and keeps what's been chosen. Train status searches one station, so it has no From / To group and returns after one choice.
 
