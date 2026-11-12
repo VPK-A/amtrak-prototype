@@ -201,7 +201,8 @@ A['assist-confirm'] = (t, ri) => {
   // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
   // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).
   const trav = travelerList(b).find(z => z.key === key) || { key, type: 'adult', n: 1 };
-  const before = tdiscOf(b, trav), saved = fromDraft(x), willPwd = x.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b));
+  const willPwd = x.cat === 'disability' && ['standard', 'personal'].includes(intentOf(b)), saved = fromDraft(x);
+  const before = willPwd ? tdiscOf(b, trav) : null; // discounts apply only to a regular booking (Pass Rider and TripLink travelers have none)
   const replacing = willPwd && before && !['none', 'pwd'].includes(before);
   if (replacing && !r.u.replaceOk) {
     return dialog({ title: 'Replace your discount?', returnFocus: '[data-a="assist-confirm"]',
