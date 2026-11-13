@@ -2842,6 +2842,23 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); } /* text-secondary: tertiary falls under 4.5:1 on the selected row in dark */
 .ds-next .apc-code { color: var(--ads-content-text-primary); }
 
+/* Layout measured against the Master Screens outlines (591:23658), iPhone 390 × 844 */
+.ds-next.device--iphone .psheet:not(.psheet--brand) { top: 58px; }  /* every sheet starts 58px down, like New booking */
+.ds-next.device--iphone.device--portrait .psheet .pane__foot { padding-bottom: var(--ads-space-20); } /* Button Group: space/20 all round (85px with one button) */
+.ds-next .travsel { gap: var(--ads-space-24); padding-top: var(--ads-space-12); } /* content starts space/20 under the header; sections 24 apart */
+.ds-next :is(.pane--profile) .pane__body { padding-top: var(--ads-space-20); }
+.ds-next .ss-upd .ss-head { padding-top: var(--ads-space-8); } /* .sheetHeader is 60px: space/16 above a 44px row */
+/* Pass Rider Leisure (Figma TR.1): "Travelers on your pass" over one List card holding each rider (checkbox,
+   name in Body) and the Companions counter row; rows divided by border/subtle */
+.ds-next .pr-onpass { margin: var(--ads-space-12) 0; }
+.ds-next .pr-card { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); overflow: hidden; }
+.ds-next .pr-card .ffc-rider { padding: var(--ads-space-4) var(--ads-space-12); }
+.ds-next .pr-card .ffc-rider .ads-choice__control { margin-left: calc(-1 * var(--ads-space-12)); }
+.ds-next .pr-card .ffc-rider .ads-choice__label > span:first-child { font-weight: var(--ads-font-weight-regular); }
+.ds-next .pr-card .ffc-count { padding: var(--ads-space-16) var(--ads-space-12); border-bottom: 0; }
+/* Profile rows: label Caption, value Body Small, tighter leading (Figma PF.1 rows ~57px) */
+.ds-next .pane--profile .ads-group__label, .ds-next .pane--profile .ads-group__value { line-height: 1.3; }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
@@ -4192,7 +4209,7 @@ SCR.ff = (r, ri) => {
   // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
   // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `<div class="ads-bookingsheet__form">${modesV1(r, b)}${tripSeg()}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
   return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -5335,17 +5352,17 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       : elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
     let panel;
     if (!t0) { ok = false; why = 'Choose Business or Leisure travel.'; panel = `<p class="pr-choose">${inDd ? 'Choose Business or Leisure in Booking type on New booking to see who can travel.' : 'Choose Business or Leisure travel to see who can travel.'}</p>`; }
-    else if (t0 === 'business') panel = `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', true, false, 'prt-h')}</fieldset>`; // Business: you alone
+    else if (t0 === 'business') panel = `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', true, false, 'prt-h')}</fieldset>`; // Business: you alone
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      panel = `<div class="ffc-counts ffc-counts--riders"><fieldset class="ffc-riders"><legend class="ffc-riders__legend">People on your pass</legend>${riderCheck('me', prMeName(d), 'You', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
+      panel = `<h4 class="ffc-h pr-onpass" aria-hidden="true">Travelers on your pass</h4><div class="ffc-counts ffc-counts--riders pr-card"><fieldset class="ffc-riders"><legend class="ads-sr-only">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
         ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
         ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}`;
     }
-    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
+    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h${elig && !inDd ? ' ads-sr-only' : ''}" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
@@ -6675,6 +6692,8 @@ function companionCandidates(b, forKey) {
     return !c || c === 'none';
   });
 }
+// Card title as in Figma TR.1 / TR.11: "Traveler 1: adult", "Traveler 1: Alex Rivera"
+const famTitle = t => `Traveler ${t.n}: ${t.type && t.type !== 'pr' && t.short === PAX_LABEL[t.type] ? t.short.toLowerCase() : t.short}`;
 function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
@@ -6719,9 +6738,9 @@ function travelerCards(b, r) {
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(famTitle(t))}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
-  return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Travelers details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
+  return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
 // Choosing a companion on the traveler with a disability's card
 HOOKS.famcomp = (r, t) => {

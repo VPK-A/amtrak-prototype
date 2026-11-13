@@ -22,7 +22,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
       const me = await ev(() => { const i = document.querySelector('#device #prr-me'), l = i.closest('.ffc-rider'); return { name: l.querySelector('.ads-choice__label > span').textContent, sub: (l.querySelector('.ads-choice__supporting') || {}).textContent, on: i.checked, off: i.disabled, first: l === document.querySelector('#device .ffc-rider') }; });
       const selfName = { 'passrider-spouse': 'Jordan Rivera', 'passrider-dependent': 'Maya Rivera' }[sc] || 'Alex Rivera';
       ok(!roster.includes(selfName.split(' ')[0].toLowerCase()) && await ev(n => document.querySelector('#device .ads-appheader__name').textContent === `Hi, ${n.split(' ')[0]}`, selfName), `${T} ${sc}: signed in as ${selfName}, not listed twice`);
-      ok(me.name === selfName && me.on && !me.off && me.first && me.sub === 'You', `${T} ${sc}: signed-in traveler is a checked checkbox, first, marked You`);
+      ok(me.name === `${selfName} (You)` && me.on && !me.off && me.first, `${T} ${sc}: signed-in traveler is a checked checkbox, first, marked "(You)" (Figma TR.1)`);
       const rows = await ev(() => [...document.querySelectorAll('#device .ffc-riders input[data-a="pr-pick"]')].map(x => x.dataset.k).filter(k => k !== 'me'));
       ok(JSON.stringify([...new Set(rows)]) === JSON.stringify(roster), `${T} ${sc}: one row per person on the pass (${roster.join(', ')})`);
       ok(!REL.test(await pane()), `${T} ${sc}: no relationship labels`);

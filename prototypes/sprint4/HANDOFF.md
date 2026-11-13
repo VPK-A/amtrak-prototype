@@ -883,4 +883,11 @@ Copy now matches the design:
 
 - iPad: no split screen. Each pushed screen replaces the one before it inside one centred modal, in portrait and landscape (Figma iOS Tablet frames). The split rules are still there for the other versions.
 
+Layout check against the board outlines (56 states, iPhone 390 × 844):
+- New booking: the Pass Rider / TripLink switch row sits under the One-way / Round-trip tabs, as in FF.24 and FF.29.
+- Every sheet starts 58px down. Footers are 85px with one button. Pushed screens have 20px above the content and 24px between sections (Select travelers, Profile).
+- Pass Rider Leisure (TR.1): the tabs lead the screen (the "Travelers" heading is for screen readers only), then "Travelers on your pass" over one list card holding the riders ("Alex Rivera (You)") and the Companions counter.
+- Traveler details: the heading is "Traveler details" and cards are titled "Traveler 1: adult" or "Traveler 1: Alex Rivera".
+- Profile rows are tightened to about 57px.
+
 Still to review: the Counter Small steps (36px) pass WCAG 2.5.8 AA (24px) but are under Apple's 44pt guideline and the WCAG 2.5.5 AAA 44px target.

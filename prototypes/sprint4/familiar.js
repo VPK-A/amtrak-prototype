@@ -14,6 +14,8 @@ function companionCandidates(b, forKey) {
     return !c || c === 'none';
   });
 }
+// Card title as in Figma TR.1 / TR.11: "Traveler 1: adult", "Traveler 1: Alex Rivera"
+const famTitle = t => `Traveler ${t.n}: ${t.type && t.type !== 'pr' && t.short === PAX_LABEL[t.type] ? t.short.toLowerCase() : t.short}`;
 function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
@@ -58,9 +60,9 @@ function travelerCards(b, r) {
   if (!list.length) return '';
   const cards = list.map(t => {
     const err = travelerError(b, t), id = `tc-${t.key}`;
-    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(t.label)}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
+    return `<li class="fam-card${err ? ' has-error' : ''}" id="${id}" aria-labelledby="${id}-h"${err ? ` aria-describedby="${id}-err"` : ''}><h4 class="fam-card__title" id="${id}-h">${esc(famTitle(t))}</h4>${discountRow(b, t, fromProfile)}${assistanceRow(b, t, r)}${err ? `<p class="ads-helper ads-helper--error" id="${id}-err">${ic('alert-diamond')}<span>${esc(err)}</span></p>` : ''}</li>`;
   }).join('');
-  return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Travelers details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
+  return `${assistIntro()}<section class="fam-travelers" aria-labelledby="fam-h"><h3 class="ffc-h" id="fam-h">Traveler details</h3>${assistNetAlert(r)}<ul class="fam-cards">${cards}</ul>${q(7)}</section>`;
 }
 // Choosing a companion on the traveler with a disability's card
 HOOKS.famcomp = (r, t) => {

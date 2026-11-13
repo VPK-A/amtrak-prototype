@@ -202,3 +202,20 @@
 /* Coupon card (Apply code): name and code emphasised, expiry in Body, benefit as Caption text-tertiary */
 .ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); } /* text-secondary: tertiary falls under 4.5:1 on the selected row in dark */
 .ds-next .apc-code { color: var(--ads-content-text-primary); }
+
+/* Layout measured against the Master Screens outlines (591:23658), iPhone 390 × 844 */
+.ds-next.device--iphone .psheet:not(.psheet--brand) { top: 58px; }  /* every sheet starts 58px down, like New booking */
+.ds-next.device--iphone.device--portrait .psheet .pane__foot { padding-bottom: var(--ads-space-20); } /* Button Group: space/20 all round (85px with one button) */
+.ds-next .travsel { gap: var(--ads-space-24); padding-top: var(--ads-space-12); } /* content starts space/20 under the header; sections 24 apart */
+.ds-next :is(.pane--profile) .pane__body { padding-top: var(--ads-space-20); }
+.ds-next .ss-upd .ss-head { padding-top: var(--ads-space-8); } /* .sheetHeader is 60px: space/16 above a 44px row */
+/* Pass Rider Leisure (Figma TR.1): "Travelers on your pass" over one List card holding each rider (checkbox,
+   name in Body) and the Companions counter row; rows divided by border/subtle */
+.ds-next .pr-onpass { margin: var(--ads-space-12) 0; }
+.ds-next .pr-card { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); overflow: hidden; }
+.ds-next .pr-card .ffc-rider { padding: var(--ads-space-4) var(--ads-space-12); }
+.ds-next .pr-card .ffc-rider .ads-choice__control { margin-left: calc(-1 * var(--ads-space-12)); }
+.ds-next .pr-card .ffc-rider .ads-choice__label > span:first-child { font-weight: var(--ads-font-weight-regular); }
+.ds-next .pr-card .ffc-count { padding: var(--ads-space-16) var(--ads-space-12); border-bottom: 0; }
+/* Profile rows: label Caption, value Body Small, tighter leading (Figma PF.1 rows ~57px) */
+.ds-next .pane--profile .ads-group__label, .ds-next .pane--profile .ads-group__value { line-height: 1.3; }

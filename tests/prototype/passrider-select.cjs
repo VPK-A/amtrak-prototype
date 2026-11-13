@@ -17,9 +17,9 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   await open();
   const names = await ev(() => [...document.querySelectorAll('#device .ffc-rider .ads-choice__label > span:first-child')].map(e => e.textContent));
-  ok(names.join() === 'Alex Rivera,Jordan Rivera,Maya Rivera,Sam Rivera', `each eligible rider by name (${names})`);
+  ok(names.join() === 'Alex Rivera (You),Jordan Rivera,Maya Rivera,Sam Rivera', `each eligible rider by name (${names})`);
   ok(await p.locator(D_ + '.ffc-riders input[type="checkbox"]').count() === 4 && await p.locator(D_ + '[data-a="pax"][data-g="prp"], ' + D_ + '[data-a="pax"][data-g="prme"]').count() === 0, 'named riders are checkboxes, no 0–1 counters');
-  ok(await p.locator(D_ + '.ffc-riders legend').innerText() === 'People on your pass', 'grouped under “People on your pass”');
+  ok(await p.locator(D_ + '.ffc-riders legend').innerText() === 'Travelers on your pass', 'grouped under “Travelers on your pass” (Figma TR.1)');
   ok(await p.locator(D_ + '[data-a="pax"][data-g="pr"][data-k="comp"]').count() === 2, 'Companions keep the counter');
   // select and deselect once; no duplicates
   await tick('jordan'); await tick('maya');
