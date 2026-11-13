@@ -21,7 +21,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   for (const [k, title, sc, close] of [['row-mi', 'Middle initial'], ['row-phone', 'Phone'], ['row-address', 'Billing address'], ['row-dob', 'Date of birth'], ['row-disc', 'Passenger discounts'], ['row-assist', 'Assistance requests'], ['row-employee', 'Employee pass', 'passrider'], ['row-coupons', 'My coupons', 'returning', false]]) {
     await open(k, sc);
     const s = await shell();
-    ok(s.title === title && s.iconBack && s.close === (close !== false) && s.save === 'Save' && !s.cancel && !s.grabber, `${title}: chevron Back, title, ${close === false ? 'no close' : 'close'}, Save in the footer, no grabber (${JSON.stringify(s)})`);
+    ok(s.title === title && s.iconBack && s.close === (close !== false) && s.save === (title === 'My coupons' ? 'Apply' : 'Save') && !s.cancel && !s.grabber, `${title}: chevron Back, title, ${close === false ? 'no close' : 'close'}, ${title === 'My coupons' ? 'Apply' : 'Save'} in the footer (Figma CP.1), no grabber (${JSON.stringify(s)})`);
     if (k !== 'row-coupons') { await p.click(D_ + '.pane__foot [data-a]'); await w(500); ok(await top() === 'profile', `${title}: Save with nothing changed returns to Profile`); }
   }
   // Middle initial: no marker, helper

@@ -86,7 +86,7 @@ function couponRow(c) {
 SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
-  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Save', 'Saving', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
   if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
   if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));

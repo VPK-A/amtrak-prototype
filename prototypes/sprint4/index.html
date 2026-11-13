@@ -2839,7 +2839,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Radio Group (Assistance): resting circles in content/icon-secondary; only the chosen one is brand */
 .ds-next .assist-opt .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
 /* Coupon card (Apply code): name and code emphasised, expiry in Body, benefit as Caption text-tertiary */
-.ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+.ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); } /* text-secondary: tertiary falls under 4.5:1 on the selected row in dark */
 .ds-next .apc-code { color: var(--ads-content-text-primary); }
 
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
@@ -4070,12 +4070,13 @@ A.rebook = t => {
 
 // ---------- Split rules (iPad) ----------
 const SPLIT_PARENT = (parent, child) => {
+  if (TB.v === 1) return false; // Master Screens (iOS Tablet): one centred modal; pushed screens replace the parent, never sit beside it
   if (v3()) return parent.s === 'ff' && child.s === 'traveler'; // Overview on iPad: the booking overview stays beside the traveler being edited
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
   const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code', 'traveler'], travelers: ['assist'], traveler: ['assist'], account: ['profile', 'assist-profile', 'stub'], discounts: ['rules'] }; // Profile edits are third-level screens of their own, never beside the list
   return (pairs[parent.s] || []).includes(child.s);
 };
-const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
+const SPLIT_SELF = r => TB.v !== 1 && ((v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s)));
 
 // =====================================================================
 // A. Fare Finder
@@ -4674,11 +4675,14 @@ A['wiz-next'] = (t, ri) => {
 A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
 
 // ---- Booking assistance screen ----
+// Figma AS.10 heads the screen "Traveler 1": the passenger type is dropped, but a named traveler (Pass Rider,
+// corporate "You") keeps the name so the screen still says who it is for.
+const assistHeading = w => w.type && w.type !== 'pr' && w.short === PAX_LABEL[w.type] ? `Traveler ${w.n}` : w.label;
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
   // Figma 3486:197156: chevron Back and title (no close); the traveler, Type of assistance, Save and Clear
-  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(who)}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
+  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(assistHeading(assistWho(r)))}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
 };
 
 // =====================================================================
@@ -5368,11 +5372,11 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
   if (corp || (pr && b.prType)) body += fam ? travelerCards(b, r) : assistBlock(r, ri, aHost); // Pass Rider: traveler details once Business or Leisure is chosen
-  const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Done</button>`;
+  const foot = `${ok ? '' : `<p class="ads-helper" id="trav-why">${esc(why)}</p>`}<button class="ads-btn ads-btn--block" type="button" data-a="pick-travelers-done" ${ok ? '' : 'disabled aria-describedby="trav-why"'}>Save</button>`;
   if (std === 'parts') return { body, ok, why };
   // Version 1 (and a pushed Version 2 screen): Traveler selection with the same content
-  if (fam) return { title: 'Traveler selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot }; // Back undoes unsaved changes; Done saves
-  if (std) return { title: 'Traveler selection', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
+  if (fam) return { title: 'Select travelers', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot }; // Back undoes unsaved changes; Save saves
+  if (std) return { title: 'Select travelers', kind: 'push', banner: false, body: `<div class="travsel">${body}</div>`, foot };
   body = `<div class="ffc-sheethead"><h3 class="ffc-sheettitle" tabindex="-1" data-title>Travelers</h3><p class="ffc-sheetsub">${corp ? 'Corporate booking' : pr ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'} travel` : 'Choose who’s traveling, then each traveler’s discount and assistance.'}</p></div>` + body;
   return { title: 'Travelers', srTitle: true, cls: 'pane--sheet', kind: 'push', banner: false, body, foot };
 }
@@ -6456,7 +6460,7 @@ function couponRow(c) {
 SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
-  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Save', 'Saving', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
   if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
   if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
@@ -6617,7 +6621,7 @@ SCR.dcode = (r, ri) => {
     : bad ? `<p class="ads-helper ads-helper--error" id="apc-in-h">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`
     : `<p class="ads-helper" id="apc-in-h">Codes should be 4 or 14 characters long.</p>`;
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
-    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Enter code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>`;
+    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>`;
   const load = couponLoad(r);
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;

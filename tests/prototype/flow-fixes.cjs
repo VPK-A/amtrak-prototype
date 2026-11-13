@@ -80,7 +80,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await ff('returning', { from: 'NYP', to: 'WAS' });
   ok(await ev(() => document.querySelector('#device #ff-coderow .ads-selectrow__value').textContent) === 'Apply code', 'entry point reads "Apply code"');
   await click('#ff-coderow', 700);
-  ok(await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Apply code' && await ev(() => document.querySelector('#device #apc-in').placeholder) === 'Enter code', 'the code screen is titled "Apply code"');
+  ok(await ev(() => document.querySelector('#device .pane .ads-navbar__title').textContent) === 'Apply code' && await ev(() => document.querySelector('#device #apc-in').placeholder) === 'Apply code', 'the code screen is titled "Apply code"');
   ok(!/discount code|Apply coupon/i.test(await txt()), 'no "Discount code" or "Apply coupon" wording on the code screen');
   await click('[data-a="apc-pick"][data-code="60310045672211"]', 300); await click('[data-a="apc-save"]', 500);
   ok((await stack()) === 'ff' && await ev(() => D().booking.codeText) === '60310045672211', 'saved-code selection still works');

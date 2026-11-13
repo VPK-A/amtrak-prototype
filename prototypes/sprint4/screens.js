@@ -79,12 +79,13 @@ A.rebook = t => {
 
 // ---------- Split rules (iPad) ----------
 const SPLIT_PARENT = (parent, child) => {
+  if (TB.v === 1) return false; // Master Screens (iOS Tablet): one centred modal; pushed screens replace the parent, never sit beside it
   if (v3()) return parent.s === 'ff' && child.s === 'traveler'; // Overview on iPad: the booking overview stays beside the traveler being edited
   if (v2() && (child.s === 'assist' || child.s === 'assist-profile')) return false;
   const pairs = { ff: ['stations', 'calendar', 'travelers', 'assist', 'code', 'traveler'], travelers: ['assist'], traveler: ['assist'], account: ['profile', 'assist-profile', 'stub'], discounts: ['rules'] }; // Profile edits are third-level screens of their own, never beside the list
   return (pairs[parent.s] || []).includes(child.s);
 };
-const SPLIT_SELF = r => (v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s));
+const SPLIT_SELF = r => TB.v !== 1 && ((v3() && ['profile', 'assist-profile'].includes(r.s)) || (v2() && ['assist', 'assist-profile'].includes(r.s)));
 
 // =====================================================================
 // A. Fare Finder
@@ -683,11 +684,14 @@ A['wiz-next'] = (t, ri) => {
 A['assist-clear-draft'] = (t, ri) => { const r = routeAt(ri), later = r.u.d && r.u.d.animalLater; r.u.d = { cat: '', dis: [], wc: '', needs: [], animal: '', animalLater: later || '' }; r.u.err = null; r.u.dirty = true; pendingFocus = '[data-f="cat"]'; render(); };
 
 // ---- Booking assistance screen ----
+// Figma AS.10 heads the screen "Traveler 1": the passenger type is dropped, but a named traveler (Pass Rider,
+// corporate "You") keeps the name so the screen still says who it is for.
+const assistHeading = w => w.type && w.type !== 'pr' && w.short === PAX_LABEL[w.type] ? `Traveler ${w.n}` : w.label;
 SCR.assist = (r, ri) => {
   const who = assistWho(r).label;
   if (v2()) return wizard(r, ri, 'booking', `Assistance · ${who}`);
   // Figma 3486:197156: chevron Back and title (no close); the traveler, Type of assistance, Save and Clear
-  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(who)}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
+  return { title: 'Assistance', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--assist', body: `<h3 class="assist-who">${esc(assistHeading(assistWho(r)))}</h3>${assistForm(r, ri, { mode: 'booking', idp: 'ba' })}`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="assist-confirm" aria-label="Save assistance for ${esc(who)}">Save</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft" aria-label="Clear assistance answers for ${esc(who)}">Clear</button>`, footCls: 'ads-actionfooter', banner: false };
 };
 
 // =====================================================================

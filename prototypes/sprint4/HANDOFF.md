@@ -875,9 +875,12 @@ Styling only, in `ads-next.css` › "Master Screens alignment". No screen behavi
 - iPad: a fixed 572 × 760 modal, centred, the same size on every pushed screen.
 - Pass Rider: Leisure is the default and its tab is on the left (brought over from explore/header-variants).
 
-Differences from the design left for review (content or rules, not styling):
-- Travelers primary button: the design says "Save", the prototype says "Done". The title is "Select travelers" vs "Traveler selection".
-- My coupons primary button: the design says "Save", the prototype says "Apply".
-- Apply code placeholder: the design says "Apply code", the prototype says "Enter code".
-- Assistance heading: the design says "Traveler 1", the prototype says "Traveler 1 · Adult".
-- Counter Small steps are 36px, below the 44px minimum touch target.
+Copy now matches the design:
+- Travelers: the title is "Select travelers" and the button is "Save".
+- My coupons: the button is "Apply" (it still saves the coupons list).
+- Apply code: the field prompt is "Apply code".
+- Assistance: the heading is "Traveler 1". The passenger type is dropped, but a named traveler (Pass Rider, corporate "You") keeps the name.
+
+- iPad: no split screen. Each pushed screen replaces the one before it inside one centred modal, in portrait and landscape (Figma iOS Tablet frames). The split rules are still there for the other versions.
+
+Still to review: the Counter Small steps (36px) pass WCAG 2.5.8 AA (24px) but are under Apple's 44pt guideline and the WCAG 2.5.5 AAA 44px target.

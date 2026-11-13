@@ -200,5 +200,5 @@
 /* Radio Group (Assistance): resting circles in content/icon-secondary; only the chosen one is brand */
 .ds-next .assist-opt .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
 /* Coupon card (Apply code): name and code emphasised, expiry in Body, benefit as Caption text-tertiary */
-.ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+.ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); } /* text-secondary: tertiary falls under 4.5:1 on the selected row in dark */
 .ds-next .apc-code { color: var(--ads-content-text-primary); }
