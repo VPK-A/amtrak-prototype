@@ -17,7 +17,7 @@ function companionCandidates(b, forKey) {
 function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
-    if (t.key === 'pr-you') return famRow('Fare', 'Pass Rider fare', '');
+    if (t.key === 'pr-you') return ''; // the pass holder always travels on the Pass Rider fare: no fare row (Figma TR.1, Traveler 1)
     const k = prKind(b, t.key), who = prPerson(D(), t.key);
     // Saved details from the pass record prefill Traveler information (the relationship itself is never shown)
     // Saved details from the pass record still prefill Traveler information; no line is shown for them (no story asks for one)
