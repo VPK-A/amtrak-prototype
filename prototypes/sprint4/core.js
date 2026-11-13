@@ -360,8 +360,7 @@ function navbar(o, ri, ctx) {
     if (o.close && !o.save && ctx.showClose && !noX) trail = close; // an editor step inside a flow: Cancel undoes it, X still closes the flow
     else if (o.save) trail = o.save.busy ? `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" aria-busy="true" disabled>${ic('spinner-static', 'ads-icon--sm')}Saving</button>` : `<button class="ads-navbar__btn ads-navbar__btn--strong" type="button" data-a="${o.save.a}" ${o.save.disabled ? 'disabled aria-describedby="nosave-' + ri + '"' : ''}>${o.save.label || 'Save'}</button>`;
   } else {
-    if (ri > 0 && !ctx.hideBack) lead = o.backIcon ? `<button class="ads-icon-btn ads-navbar__iconback" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}</button>` // icon-only Back (Figma Icon Button, 44px)
-      : `<button class="ads-navbar__btn" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}<span>Back</span></button>`;
+    if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-icon-btn ads-navbar__iconback" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}</button>`; // icon-only Back everywhere (Figma .sheetHeader: Icon Button, chevron-left, 44px)
     if (ctx.showClose && !noX) trail = close;
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;

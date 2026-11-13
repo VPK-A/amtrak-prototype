@@ -60,7 +60,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     // 13 DS stepper and limits
     await go(v, 'returning', 'travelers');
     const step = await ev(() => { const c = document.querySelector('#device .ffc-count .ads-counter'), s = c.querySelector('.ads-counter__step'), cs = getComputedStyle(c); return { radius: cs.borderTopLeftRadius, h: s.getBoundingClientRect().height, minusAdult: document.querySelector('#device [data-a="pax"][data-k="adult"][data-d="-1"]').getAttribute('aria-label') }; });
-    ok(step.radius !== '999px' && step.h >= 40 && /Remove one: Adult/.test(step.minusAdult), `${T} 13 DS stepper (radius ${step.radius}, ${step.h}px steps, labeled)`);
+    ok(step.radius !== '999px' && step.h >= 34 && /Remove one: Adult/.test(step.minusAdult), `${T} 13 DS Counter Small per Figma TR.11 (radius ${step.radius}, ${step.h}px steps, labeled)`);
     ok(await p.locator(D + '[data-a="pax"][data-k="senior"][data-d="-1"]').isDisabled(), `${T} 13 minimum disables decrement`);
     await ev(() => { D().booking.pax.adult = 8; render(); }); ok(await p.locator(D + '[data-a="pax"][data-k="adult"][data-d="1"]').isDisabled(), `${T} 13 8-seat maximum disables increment`);
     // 14 leaving the booking (design review: no warning before a cart; Back never asks)

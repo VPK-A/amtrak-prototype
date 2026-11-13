@@ -148,3 +148,57 @@
 .ds-next .text-large .ss-route__item, .ds-next.text-large .ss-route__item { flex-wrap: nowrap; }
 .ds-next .ads-group__lead { color: var(--ads-content-icon-secondary); }
 .ds-next :is(.ads-group__row, .ads-fieldbtn, .bk-link) > .ads-icon--chevron-right { color: var(--ads-content-icon-secondary); }
+
+/* =====================================================================================================
+   Master Screens alignment (Figma 591:23658 and the Master Screen Gallery 3948:275810)
+   Values taken from the design's own components (.sheetHeader, Station Input, Date Input, List, Counter,
+   Button Group). Styling only; no screen behaviour changes here.
+   ===================================================================================================== */
+
+/* .sheetHeader (root of a sheet): page surface, H3 title on the left, Close on the right as a raised
+   circular Icon Button (interactive-secondary + elevation-sm), border/subtle under it, space/20 padding. */
+.ds-next .ads-sheet-header { min-height: 76px; padding: var(--ads-space-20); background: var(--ads-background-surface-page); color: var(--ads-content-text-primary); box-shadow: inset 0 -1px 0 var(--ads-border-subtle); } /* inside stroke, as in Figma: 76px total */
+.ds-next .ads-sheet-header__brand { display: none; }
+.ds-next .ads-sheet-header__title { flex: 1 1 auto; order: 1; color: var(--ads-content-text-primary); }
+.ds-next .ads-sheet-header > .ads-icon-btn.ads-sheet-header__close { order: 2; border: 0; background: var(--ads-background-interactive-secondary); color: var(--ads-content-icon-primary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .ads-sheet-header__close:hover { background: var(--ads-background-surface-hover); }
+.ds-next .ads-sheet-header__close:active { background: var(--ads-background-surface-active); }
+.ds-next .ads-sheet-header__close:focus-visible { outline-color: var(--ads-border-focus); }
+
+/* Pushed screen header: icon-only Back (chevron-left, 44px target) and an H4 title centred; no grabber */
+.ds-next .ads-navbar { min-height: 60px; padding: var(--ads-space-16) var(--ads-space-20) 0; }
+.ds-next .ads-navbar__iconback { margin-left: calc(-1 * var(--ads-space-12)); color: var(--ads-content-icon-primary); background: none; }
+.ds-next .ads-navbar__title { font-size: var(--ads-type-body-emphasis-size); line-height: 1.2; font-weight: var(--ads-font-weight-semibold); } /* H4 on iOS is the Body size (17) */
+.ds-next .psheet .ads-sheet__grabber { display: none; }
+
+/* Station Input and Date Input: Field Label above, the prompt in Body Small text-tertiary, weekday in Caption */
+.ds-next .ads-fieldgroup__placeholder { font-size: var(--ads-type-body-small-size); line-height: var(--ads-type-body-small-line-height); }
+.ds-next .ads-dategroup__sub { font-size: var(--ads-type-caption-size); }
+
+/* Button Group (sheet footer): surface-raised, border/subtle on top, space/20 all round */
+.ds-next .pane__foot { padding: var(--ads-space-20); background: var(--ads-background-surface-raised); }
+
+/* Traveler counts: a List (surface-default, border/subtle, radius/4) of option rows at space/16 × space/12,
+   divided by border/subtle; the Counter is Small (36px) with the value in Body Small emphasis. The section
+   heading is Body emphasis in text-secondary, not an overline. */
+.ds-next .ffc-counts:not(.ffc-counts--riders) { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); overflow: hidden; }
+.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count { padding: var(--ads-space-16) var(--ads-space-12); }
+.ds-next .ffc-counts:not(.ffc-counts--riders) > :last-child, .ds-next .ffc-counts:not(.ffc-counts--riders) > :last-child .ffc-count:last-child { border-bottom: 0; }
+.ds-next .ffc-count__label { font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+.ds-next .ffc-count__sub { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+.ds-next .ffc-count .ads-counter { height: var(--ads-size-interactive-sm); }
+.ds-next .ffc-count .ads-counter__step, .ds-next .ffc-count .ads-counter__value { width: var(--ads-size-interactive-sm); }
+.ds-next .ffc-count .ads-counter__value { font-size: var(--ads-type-body-small-size); }
+.ds-next .ffc-count .ads-counter .ads-icon { width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); }
+.ds-next .ffc-h { margin: 0 0 var(--ads-space-12); font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); letter-spacing: 0; font-weight: var(--ads-type-body-emphasis-weight); text-transform: none; }
+
+/* iPad modal (Template/iOS/Tablet): a fixed 572 × 760 sheet centred on the scrim, the same size on every pushed
+   screen so the frame never jumps; landscape keeps the 90% height cap. */
+.ds-next.device--ipad .psheet:not(.psheet--split):not(.psheet--fl) { width: min(572px, 92%); height: min(760px, 86%); }
+.ds-next.device--ipad.device--landscape .psheet:not(.psheet--split):not(.psheet--fl) { height: min(760px, 90%); }
+
+/* Radio Group (Assistance): resting circles in content/icon-secondary; only the chosen one is brand */
+.ds-next .assist-opt .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
+/* Coupon card (Apply code): name and code emphasised, expiry in Body, benefit as Caption text-tertiary */
+.ds-next .apc-benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+.ds-next .apc-code { color: var(--ads-content-text-primary); }

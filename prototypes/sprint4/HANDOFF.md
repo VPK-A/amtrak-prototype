@@ -860,3 +860,24 @@ The comparison options in Prototype controls were removed, and the prototype kee
 - **Checks:** `tests/prototype/design-review.cjs` (dates), `booking-modes.cjs` (Pass Rider default), `profile-editors.cjs` (asterisks).
 
 - **TripLink Traveler selection:** the fixed *1 adult · You — Corporate bookings are for the TripLink traveler only…* card is removed. The screen starts with the traveler's details (discount not used, assistance); the Fare Finder's Travelers row still says corporate bookings are for you only.
+
+## Master Screens alignment (Figma 591:23658, gallery 3948:275810)
+
+Styling only, in `ads-next.css` › "Master Screens alignment". No screen behaviour changed.
+
+- New booking `.sheetHeader`: plain page surface, H3 title on the left, Close on the right as a raised circle (interactive-secondary with elevation-sm), border/subtle rule. The navy band and brand arrows are gone.
+- Pushed screens: the Back button is a chevron-only Icon Button (it keeps its "Back to …" accessible name), the title is 17px semibold and centred, and there's no grabber on the sheet.
+- Station and Date inputs: prompts are Body Small text-tertiary and the weekday is Caption.
+- Button Group footer: surface-raised background, border/subtle on top, 20px padding.
+- Traveler counts: a List card (surface-default, border/subtle, radius/4) with 16 × 12 rows and a Small Counter (36px). The section heading is Body emphasis.
+- Assistance radios: resting circles use icon-secondary.
+- Coupon card order: name, code, expiry, then the benefit as Caption.
+- iPad: a fixed 572 × 760 modal, centred, the same size on every pushed screen.
+- Pass Rider: Leisure is the default and its tab is on the left (brought over from explore/header-variants).
+
+Differences from the design left for review (content or rules, not styling):
+- Travelers primary button: the design says "Save", the prototype says "Done". The title is "Select travelers" vs "Traveler selection".
+- My coupons primary button: the design says "Save", the prototype says "Apply".
+- Apply code placeholder: the design says "Apply code", the prototype says "Enter code".
+- Assistance heading: the design says "Traveler 1", the prototype says "Traveler 1 · Adult".
+- Counter Small steps are 36px, below the 44px minimum touch target.

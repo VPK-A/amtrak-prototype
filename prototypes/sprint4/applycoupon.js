@@ -15,7 +15,7 @@ const bookingCodes = () => savedCodes().filter(c => couponState(c) === 'availabl
 const codeLabel = c => c.name || c.kind;
 function apcRow(c, cur) {
   const sel = cur === c.code;
-  return `<li class="apc-row${sel ? ' is-selected' : ''}"><button class="apc-pick" type="button" data-a="apc-pick" data-code="${c.code}" aria-pressed="${sel}"><span class="apc-name">${esc(codeLabel(c))}</span><span class="apc-benefit">${esc(c.benefit)}</span><span class="apc-line">Expires ${fmtNumDate(c.exp)}</span><span class="apc-code">Code: ${c.code}</span></button>
+  return `<li class="apc-row${sel ? ' is-selected' : ''}"><button class="apc-pick" type="button" data-a="apc-pick" data-code="${c.code}" aria-pressed="${sel}"><span class="apc-name">${esc(codeLabel(c))}</span><span class="apc-code">Code: ${c.code}</span><span class="apc-line">Expires: ${fmtNumDate(c.exp)}</span><span class="apc-benefit">${esc(c.benefit)}</span></button>
     <button class="ads-icon-btn ads-icon-btn--sm apc-info" type="button" data-a="apc-details" data-code="${c.code}" aria-label="Details for ${esc(codeLabel(c))}">${ic('info-circle')}</button></li>`;
 }
 SCR.dcode = (r, ri) => {
