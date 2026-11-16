@@ -215,7 +215,7 @@ SCR.s5fare = (r, ri) => {
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
-  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${tot ? 'Trip total' : b.trip === 'rt' ? 'Departure' : 'Price'}</span><b class="s5-ffoot__amt">${tot ? s5Money(b, total == null ? null : (s5LegCost(b, 'dep') || 0) + total) : amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? ', before discounts' : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
+  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? ', before discounts' : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
     body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
@@ -251,7 +251,9 @@ function s5Drawer(b, leg, pending) {
   if (rt && leg === 'ret') {
     const dep = s5LegCost(b, 'dep'), ret = pending ? pending.cost : null, pr = intentOf(b) === 'pr';
     const row = (l, v, cls = '') => `<div class="s5-tot__row${cls}"><dt>${l}</dt><dd>${v}</dd></div>`;
-    totals = `<dl class="s5-tot" aria-label="Trip total">${row('Departure', s5Money(b, dep))}${row('Return', pending ? s5Money(b, ret) : 'Choose a fare')}${pending ? '' : row('Trip total so far', pr ? 'Pass Rider fare' : s5Money(b, dep || 0), ' s5-tot__row--total')}</dl>`;
+    const sum = pr ? 'Pass Rider fare' : s5Money(b, (dep || 0) + (ret || 0));
+    // Collapsed by default: the summary shows the total; opening it shows each leg. Open or closed is kept while you browse.
+    totals = `<details class="ads-accordion ads-accordion--sm s5-totacc"${s5().totOpen ? ' open' : ''}><summary><span class="s5-totacc__sum"><span>${pending ? 'Trip total' : 'Trip total so far'}</span><b>${sum}</b></span>${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="s5-tot" aria-label="Cost of each leg">${row('Departure', s5Money(b, dep))}${row('Return', pending ? s5Money(b, ret) : 'Choose a fare')}</dl></div></details>`;
   }
   return toggle || totals ? `<div class="s5-drawer">${totals}${toggle}</div>` : '';
 }
@@ -262,3 +264,4 @@ A['s5-points'] = t => {
   if (on && b.code) { t.checked = false; dialog({ title: 'Use points and remove your code?', body: `Codes can’t be used when you pay with points. Your code ${esc(b.code.code || b.codeText)} will be removed from this search.`, returnFocus: '#s5-points', actions: [['Use points', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); done(); }], ['Keep my code', 'secondary', null]] }); return; }
   done();
 };
+document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('s5-totacc')) s5().totOpen = e.target.open; }, true);

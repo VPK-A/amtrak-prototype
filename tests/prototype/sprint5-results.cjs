@@ -140,11 +140,16 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const depAmt = await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
   await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
   let f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
-  ok(f.includes('Departure ' + depAmt) && /Return Choose a fare/.test(f) && f.includes('Trip total so far ' + depAmt) && /Pay with points/.test(f), 'Return drawer: departure cost, return to choose, trip total so far, Pay with points');
+  ok(f.includes('Trip total so far ' + depAmt) && !/Choose a fare/.test(f) && /Pay with points/.test(f) && await ev(() => !document.querySelector('#device .pane:last-child .s5-totacc').open), 'Return drawer: trip total so far, collapsed by default, with Pay with points');
+  await p.locator(D_ + '.pane:last-child .s5-totacc > summary').click(); await w(300);
+  f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
+  ok(f.includes('Departure ' + depAmt) && /Return Choose a fare/.test(f), 'opening it shows the departure cost and the return still to choose');
+  await p.locator(D_ + '#s5-points').check({ force: true }); await w(300);
+  ok(await ev(() => document.querySelector('#device .pane:last-child .s5-totacc').open), 'it stays open after switching to points'); await p.locator(D_ + '#s5-points').uncheck({ force: true }); await w(300);
   await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500);
   f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
-  const num = x => +x.replace(/[^0-9.]/g, ''), m = f.match(/Departure (\$[\d.,]+) Return (\$[\d.,]+) Trip total (\$[\d.,]+)/);
-  ok(m && Math.abs(num(m[1]) + num(m[2]) - num(m[3])) < 0.01, `return fare: each leg and the trip total (${f})`); await axe('return fare with total');
+  const num = x => +x.replace(/[^0-9.]/g, ''), m = f.match(/Trip total (\$[\d.,]+) Departure (\$[\d.,]+) Return (\$[\d.,]+)/);
+  ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();

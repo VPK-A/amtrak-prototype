@@ -90,3 +90,8 @@
 .s5-tot__row { display: flex; justify-content: space-between; gap: var(--ads-space-12); color: var(--ads-content-text-secondary); }
 .s5-tot__row dt, .s5-tot__row dd { margin: 0; }
 .s5-tot__row--total { padding-top: var(--ads-space-4); border-top: 1px solid var(--ads-border-default); color: var(--ads-content-text-primary); font-weight: var(--ads-font-weight-semibold); font-size: var(--ads-type-body-size); }
+/* Trip total: an accordion in the drawer, collapsed by default */
+.s5-totacc { border-bottom: 1px solid var(--ads-border-subtle); }
+.s5-totacc > summary { padding: 0; }
+.s5-totacc .ads-accordion__panel { padding: 0 0 var(--ads-space-12); }
+.s5-totacc__sum { flex: 1; display: flex; justify-content: space-between; gap: var(--ads-space-12); font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); }
