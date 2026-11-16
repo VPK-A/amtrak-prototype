@@ -891,3 +891,47 @@ Layout check against the board outlines (56 states, iPhone 390 × 844):
 - Profile rows are tightened to about 57px.
 
 Still to review: the Counter Small steps (36px) pass WCAG 2.5.8 AA (24px) but are under Apple's 44pt guideline and the WCAG 2.5.5 AAA 44px target.
+
+## Sprint 5 · Fare search results
+
+Branch `figma-make/sprint5-search-results`. Find trains now opens real results instead of the Sprint 4 placeholder. Code is in `results.js` and `results.css`; the route name is still `handoff` so Sprint 4 navigation and tests keep working. Trips, fares and content are mock data standing in for the back end and AEM.
+
+To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**.
+
+**Approved and built (stories assigned VK, approved in Jira)**
+
+| Story | What's in the prototype |
+|---|---|
+| NMA-748 One-way results | Compact header (route, date, travelers, number of trains). Every trip returned is listed, including delayed, canceled and sold out. Default order: most direct, earliest departure, shortest, lowest fare. Discounts never filter trips. Offline: results stay, choosing a fare is blocked. |
+| NMA-1094 Trip card | Service icon, train name and number, departure and arrival, "+1 day", duration, Direct or number of segments with layover, Overnight (direct and multi-segment), Delayed with scheduled and updated times, Canceled, self-transfer. |
+| NMA-1096 Classes of service | Coach, Business, First or Private rooms in that order, lowest fare each, sold-out classes shown and disabled, unoffered classes hidden. First only on Acela. |
+| NMA-759 Unsuccessful searches | Dialogs for no trains on the date (names the next date and offers it), route not served, and assistance not available (continue without it, acknowledgment recorded). Technical failure uses the existing retry alert. Fare Finder values are always kept. |
+| NMA-1098 Pricing | A one-line note on the results screen and an info sheet for seat and room prices. |
+| NMA-1097 Fare types | "Compare fare types" opens an info sheet without leaving results. |
+| NMA-1095 Border crossing | An alert and a card flag on cross-border trips only, with a "What to expect" sheet. |
+
+**Proposed designs (story not approved yet; each carries a "Proposed · NMA-…" tag on screen)**
+
+- NMA-1109 Round-trip: choosing a departure fare goes on to a Return step ("Step 2 of 2").
+- NMA-755 Lowest fare and Fastest badges (hidden when there's one result).
+- NMA-758 Sort only (Most direct, Departure time, Shortest trip, Lowest fare). Filters aren't designed.
+- NMA-761 Prices in points when Pay with points is on. Switching between points and dollars on results isn't designed.
+- NMA-764 "applies" indicator on a card when a code or traveler discount is in the search.
+- NMA-1092/1093 Tapping a card opens a simple trip details sheet.
+- NMA-1138 Multi-segment trips show "from" prices.
+
+**Flagged, not designed (open questions)**
+
+- NMA-760 Service and station alerts: origin only, or origin and destination? Where else do alerts show?
+- NMA-762 Urgency signal: the story has no requirements yet.
+- NMA-1140 Pass Rider fares: rules aren't approved, so each class shows "Pass Rider fare" and no price.
+- NMA-1141 TripLink fares: the story is empty; standard prices are shown.
+- NMA-748 AC#4: canceled trains are returned today only for the agent channel, so showing them needs a back-end change request.
+- NMA-759 BR#1.2: for round trips the prototype handles "departure date has no trains" and "return date has no trains" separately; the case where both have none isn't designed.
+
+**Sprint 4 rules kept**
+
+- All Fare Finder validation, code checks and the Pass Rider and assistance checks still run before any Sprint 5 outcome.
+- "Add to cart" is still simulated, with the same cart label, so the abandon-booking confirmation behaves as before.
+- Continuing without assistance doesn't delete the traveler's saved answers; it only leaves them out of that search.
+- No new components: the screen uses Card, Badge, Alert, Button, Link, Accordion, Radio, the info sheet and the dialog.

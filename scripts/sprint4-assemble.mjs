@@ -10,8 +10,8 @@ import { marked } from 'marked';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROTO = join(ROOT, 'prototypes/sprint4');
-export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'), join(PROTO, 'ads-next.css'), join(PROTO, 'stationmap.css'));
-export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'applycoupon', 'familiar', 'overview', 'stationmap', 'gmap', 'compare', 'compact', 'chrome', 'boot'];
+export const CSS_FILES = ['tokens', 'icons', 'components'].map(n => join(ROOT, `css/${n}.css`)).concat(join(PROTO, 'proto.css'), join(PROTO, 'ads-next.css'), join(PROTO, 'stationmap.css'), join(PROTO, 'results.css'));
+export const JS_ORDER = ['data', 'core', 'screens', 'clear', 'flighty', 'guided', 'travelers', 'motion', 'interact', 'fields', 'profile', 'emails', 'applycoupon', 'familiar', 'overview', 'stationmap', 'gmap', 'compare', 'compact', 'results', 'chrome', 'boot'];
 // js/ads-booking.js (shared booking components) runs first; the DS catalog inlines the same file
 export const JS_FILES = [join(ROOT, 'js/ads-booking.js')].concat(JS_ORDER.map(n => join(PROTO, `${n}.js`)));
 export const SHELL = join(PROTO, 'src.html');

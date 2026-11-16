@@ -175,11 +175,11 @@ function searchWithCode(r, ri) {
     if (res && res.range) {
       b.codeState = 'ineligible'; b.codeErr = 'This code can’t be used for the dates you chose.';
       dialog({ title: 'Invalid coupon date range', body: 'This code can’t be used for the dates you chose.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) push('dcode', {}, +ri); else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); push('handoff', {}, +ri); }], ['Close', 'tertiary', null]] });
+        actions: [['Enter new code', 'secondary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); if (inline) push('dcode', {}, +ri); else push('code', {}, +ri); }], ['Continue without discount', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '' }); s5Go(ri); }], ['Close', 'tertiary', null]] });
       return;
     }
     if (inline && useCode) { b.codeState = 'applied'; b.codeSig = codeSig(b); }
-    push('handoff', {}, +ri);
+    s5Go(ri);
   }, { what: 'find trains', onError: () => {
     if (!(inline && useCode)) return false;
     b.codeState = 'error'; b.codeErr = 'We couldn’t check your code right now. Try again, or remove the code to search without it.'; pendingFocus = '#ff-code-h'; return true;
