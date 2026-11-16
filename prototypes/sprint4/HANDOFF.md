@@ -930,6 +930,12 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 - NMA-748 AC#4: canceled trains are returned today only for the agent channel, so showing them needs a back-end change request.
 - NMA-759 BR#1.2: for round trips the prototype handles "departure date has no trains" and "return date has no trains" separately; the case where both have none isn't designed.
 
+**Cross-border trips and the results drawer**
+
+- New stations: Toronto (TWO, Union Station), Montreal (MTR, Central Station) and Vancouver (VAC, Pacific Central Station), with map pins. Searches that cross the border return the real corridors: Adirondack (New York, Albany ↔ Montreal), Maple Leaf (New York, Albany ↔ Toronto), Amtrak Cascades and Thruway buses (Seattle, Portland ↔ Vancouver). Other U.S. stations connect through New York or Seattle. The border alert and card flags now come from the stations, not only from the test control. Montreal ↔ Toronto returns "route not served" because Amtrak doesn't sell travel between two Canadian stations.
+- Proposed (NMA-761, NMA-1109): Departure and Return results have a drawer with **Pay with points** (regular and personal bookings only). On the Return step it also shows the departure cost, "Return: Choose a fare" and the trip total so far. On the return fare screen it shows both legs, and the footer shows the trip total.
+- Points searches don't take codes (NMA-613). Turning on points with a code asks "Use points and remove your code?" (Use points / Keep my code). **Flag:** confirm this is the wanted behavior, since Sprint 4 only hides the code field on Fare Finder.
+
 **Questions for the fare selection design**
 
 - Fare names, rules and price differences are sample content. Which fare types does each class offer, and does the back end send their rules?

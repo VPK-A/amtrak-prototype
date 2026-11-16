@@ -29,6 +29,7 @@ const STATIONS = [
   ['LAX', 'Los Angeles', 'California', 'CA', 'Los Angeles Union Station', 'Hollywood', '90012'],
   ['LOR', 'Lorton', 'Virginia', 'VA', 'Lorton Auto Train Station', '', '22079', 'Auto Train'],
   ['MIA', 'Miami', 'Florida', 'FL', 'Miami Station', '', '33142'],
+  ['MTR', 'Montreal', 'Quebec', 'QC', 'Central Station', 'Gare Centrale, Montréal', 'H3B 4C9'],
   ['MKE', 'Milwaukee', 'Wisconsin', 'WI', 'Milwaukee Intermodal Station', '', '53203'],
   ['NFK', 'Norfolk', 'Virginia', 'VA', 'Norfolk Station', '', '23510'],
   ['NHV', 'New Haven', 'Connecticut', 'CT', 'New Haven Union Station', 'Yale', '06511'],
@@ -51,11 +52,15 @@ const STATIONS = [
   ['SLC', 'Salt Lake City', 'Utah', 'UT', 'Salt Lake City Station', '', '84101'],
   ['STL', 'St. Louis', 'Missouri', 'MO', 'Gateway Station', 'Gateway Arch', '63103'],
   ['STM', 'Stamford', 'Connecticut', 'CT', 'Stamford Transportation Center', '', '06902'],
+  ['TWO', 'Toronto', 'Ontario', 'ON', 'Union Station', 'Niagara Falls', 'M5J 1E6'],
   ['TPA', 'Tampa', 'Florida', 'FL', 'Tampa Union Station', '', '33602'],
   ['TRE', 'Trenton', 'New Jersey', 'NJ', 'Trenton Transit Center', '', '08609'],
+  ['VAC', 'Vancouver', 'British Columbia', 'BC', 'Pacific Central Station', 'Vancouver BC', 'V6A 4C7'],
   ['WAS', 'Washington', 'District of Columbia', 'DC', 'Washington Union Station', 'Capitol', '20002'],
   ['WIL', 'Wilmington', 'Delaware', 'DE', 'Joseph R. Biden, Jr. Railroad Station', '', '19801']
-].map(([code, city, state, st, name, aliases, zip, tag]) => ({ code, city, state, st, name, aliases: aliases ? aliases.split(', ') : [], zip, tag: tag || '' }));
+].map(([code, city, state, st, name, aliases, zip, tag]) => ({ code, city, state, st, name, aliases: aliases ? aliases.split(', ') : [], zip, tag: tag || '', country: ['ON', 'QC', 'BC'].includes(st) ? 'CA' : 'US' }));
+// Sprint 5: Amtrak's Canadian stations (Toronto, Montreal, Vancouver) so trips can cross the U.S.–Canada border.
+// Amtrak doesn't sell travel between two Canadian stations (that's VIA Rail), so those searches return "route not served".
 const ST = Object.fromEntries(STATIONS.map(s => [s.code, s]));
 const AUTO_TRAIN = { LOR: 'SFA', SFA: 'LOR' };
 

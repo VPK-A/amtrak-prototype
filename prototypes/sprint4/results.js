@@ -40,11 +40,31 @@ function s5Trips(b, leg) {
     T({ id: 't10', svc: 'mixed', segs: 2, num: '8012 + 181', name: 'Thruway Bus and Northeast Regional', dep: 12 * 60 + 20, dur: base + 140, layover: 70, via, self: true, cls: { Coach: fare + 2 } }),
     T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, cls: { Coach: fare + 72, Rooms: fare + 540 } })
   ];
+  const xb = s5Border(from, to); if (xb) list = s5BorderTrips(from, to, h, fare);
   if (date === TODAY_S) list = list.filter(t => t.status === 'canceled' || t.dep + t.delay > S5_NOW); // NMA-748 AC#4: delayed trains stay until they actually leave; canceled stay by schedule
   if (out === 'soldout') list.forEach(t => Object.keys(t.cls).forEach(k => t.cls[k] = null));
   if (out === 'single') list = list.filter(t => t.id === 't4').map(t => Object.assign(t, { cls: { Coach: fare + 8, Business: fare + 52 } }));
-  list.forEach(t => { t.arr = t.dep + t.dur; t.days = Math.floor(t.arr / 1440); t.low = Math.min(...Object.values(t.cls).filter(x => x != null).concat(Infinity)); t.border = out === 'border'; });
-  return { from, to, date, list };
+  list.forEach(t => { t.arr = t.dep + t.dur; t.days = Math.floor(t.arr / 1440); t.low = Math.min(...Object.values(t.cls).filter(x => x != null).concat(Infinity)); t.border = out === 'border' || xb; });
+  return { from, to, date, list, border: out === 'border' || xb };
+}
+// Cross-border trips (Sprint 5): real Amtrak corridors into Canada. Montreal: Adirondack from New York via Albany.
+// Toronto: Maple Leaf from New York via Albany and Niagara Falls. Vancouver: Cascades from Seattle and Portland, plus Thruway buses.
+const s5Border = (a, b) => ST[a] && ST[b] && ST[a].country !== ST[b].country;
+function s5BorderTrips(from, to, h, fare) {
+  const T = o => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0 }, o), ca = ST[from].country === 'CA' ? from : to, us = ca === from ? to : from, out = ca === to;
+  const near = { MTR: ['NYP', 'ALB'], TWO: ['NYP', 'ALB'], VAC: ['SEA', 'PDX'] }[ca], hub = near[0], direct = near.includes(us);
+  const viaHub = ST[us === hub ? near[1] : hub];
+  const base = { MTR: { NYP: 660, ALB: 520 }, TWO: { NYP: 750, ALB: 600 }, VAC: { SEA: 245, PDX: 470 } }[ca], d = direct ? base[us] : base[hub] + 150 + h % 300;
+  const legName = { MTR: ['Adirondack', out ? '69' : '68'], TWO: ['Maple Leaf', out ? '63' : '64'], VAC: ['Amtrak Cascades', out ? '517' : '516'] }[ca];
+  if (ca === 'VAC') return [
+    T({ id: 't1', num: out ? '517' : '516', name: 'Amtrak Cascades', dep: 7 * 60 + 40, dur: direct ? d : d, segs: direct ? 1 : 2, svc: direct ? 'train' : 'trains', layover: direct ? 0 : 50, via: direct ? null : viaHub, cls: { Coach: fare + 12, Business: fare + 41 } }),
+    T({ id: 't2', num: out ? '8501' : '8502', name: 'Thruway Bus', svc: direct ? 'bus' : 'mixed', segs: direct ? 1 : 2, layover: direct ? 0 : 65, via: direct ? null : viaHub, dep: 11 * 60 + 5, dur: d + 25, cls: { Coach: fare - 4 } }),
+    T({ id: 't3', num: out ? '519' : '518', name: 'Amtrak Cascades', dep: 17 * 60 + 50, dur: d + 10, segs: direct ? 1 : 2, svc: direct ? 'train' : 'trains', layover: direct ? 0 : 55, via: direct ? null : viaHub, cls: { Coach: fare + 6, Business: null } })
+  ];
+  return [
+    T({ id: 't1', num: legName[1], name: legName[0], dep: (direct ? (us === 'ALB' ? 10 * 60 + 40 : 7 * 60 + 15) : 6 * 60 + 5) + (out ? 0 : 200), dur: d, segs: direct ? 1 : 2, svc: direct ? 'train' : 'trains', layover: direct ? 0 : 60, via: direct ? null : viaHub, cls: { Coach: fare + 48, Business: fare + 96 } }),
+    T({ id: 't2', num: `${legName[1]} + 8721`, name: `${legName[0]} and Thruway Bus`, svc: 'mixed', segs: 2, layover: 40, via: viaHub, self: false, dep: 9 * 60 + 50, dur: d + 140, cls: { Coach: fare + 30 } })
+  ];
 }
 // NMA-748 AC#6: most direct, then earliest scheduled departure, then shortest, then lowest fare. Status and inventory never move a trip.
 const S5_SORTS = { direct: ['Most direct', (a, b) => a.segs - b.segs || a.dep - b.dep || a.dur - b.dur || a.low - b.low], dep: ['Departure time', (a, b) => a.dep - b.dep || a.segs - b.segs], dur: ['Shortest trip', (a, b) => a.dur - b.dur || a.dep - b.dep], fare: ['Lowest fare', (a, b) => a.low - b.low || a.dep - b.dep] };
@@ -121,12 +141,13 @@ SCR.handoff = (r, ri) => {
   const tools = `<div class="s5-tools"><p class="s5-tools__note">${b.pay === 'points' && ['standard', 'personal'].includes(it) ? `Prices in points ${s5tag('NMA-761')}` : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
     <div class="s5-tools__links">${infoLink('s5-fares', 'Compare fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
     <p class="s5-proposed">${[tagsOn ? ['NMA-755', 'badges'] : null, list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.segs > 1) ? ['NMA-1138', '“from” prices'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
-  const border = s5().outcome === 'border' ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
+  const border = res.border ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
   const noAssist = b.s5NoAssist ? alertBox('warning', 'Searching without your assistance request', `The assistance you asked for isn’t available at ${esc(ST[b.from].name)}. You chose to continue without it.`) : '';
   const allSold = list.length && !list.some(t => t.low !== Infinity && t.status !== 'canceled') ? alertBox('info', 'Every train is sold out', 'You can still see the full schedule. Go back to try another date.') : '';
   const added = inCart ? `<p class="ads-helper ads-helper--success cartdemo" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : '';
   const details = `<details class="ads-accordion ads-accordion--sm s5-search" open><summary>Search details${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${rt ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${rt ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.s5NoAssist ? 'Not included in this search' : b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl></div></details>`;
-  return { title: leg === 'ret' ? 'Return' : 'Departure', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.',
+  const foot = s5Drawer(b, leg, null);
+  return { title: leg === 'ret' ? 'Return' : 'Departure', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
     body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${noAssist}${border}${allSold}${tools}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>${details}` };
 };
 // Trip details open in the info sheet: route the "s5-trip:<id>" topic
@@ -148,8 +169,9 @@ SCR.handoff = (r, ri) => {
 function s5Go(ri) {
   const b = D().booking, o = s5().outcome, back = '[data-a="find-trains"]', rt = b.trip === 'rt';
   b.s5NoAssist = false; s5().sort = 'direct';
-  const go = () => push('handoff', {}, +ri);
-  if (o === 'noroute') { ref('759'); dialog({ title: 'No trains between these stations', body: `We don’t have service from ${esc(ST[b.from].city)} to ${esc(ST[b.to].city)}. Try a different station nearby.`, returnFocus: back, actions: [['Change stations', 'primary', null]] }); return; }
+  const go = () => { D().s5sel = {}; push('handoff', {}, +ri); };
+  const caOnly = ST[b.from] && ST[b.to] && ST[b.from].country === 'CA' && ST[b.to].country === 'CA';
+  if (o === 'noroute' || caOnly) { ref('759'); dialog({ title: 'No trains between these stations', body: `We don’t have service from ${esc(ST[b.from].city)} to ${esc(ST[b.to].city)}.${caOnly ? ' Amtrak trains to Canada start or end in the U.S.' : ''} Try a different station nearby.`, returnFocus: back, actions: [['Change stations', 'primary', null]] }); return; }
   if (o === 'nodate' || (o === 'nodate-ret' && rt)) {
     ref('759'); const ret = o === 'nodate-ret', cur = ret ? b.ret : b.dep, next = addDays(cur, 2);
     dialog({ title: `No trains on ${fmtShort(cur)}`, body: `This route doesn’t run on your ${ret ? 'return' : 'departure'} date. The next trains are on ${fmtShort(next)}.${!ret && rt && next > b.ret ? ' Your return date will move to match.' : ''}`, returnFocus: back,
@@ -192,7 +214,8 @@ SCR.s5fare = (r, ri) => {
   const opts = fares.map(([n, p]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${s5Price(b, p)} <span class="s5-fopt__unit">${room ? 'a room' : 'per traveler'}</span></span>`}</span>${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
-  const foot = `<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">Price</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? ', before discounts' : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
+  const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
+  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${tot ? 'Trip total' : b.trip === 'rt' ? 'Departure' : 'Price'}</span><b class="s5-ffoot__amt">${tot ? s5Money(b, total == null ? null : (s5LegCost(b, 'dep') || 0) + total) : amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? ', before discounts' : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
     body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
@@ -206,4 +229,36 @@ SCR.s5sum = (r, ri) => {
   snote('Trip summary after Continue: the trip is in the (simulated) cart. Add-ons, seats, traveler details and checkout aren’t part of Sprint 5.');
   return { title: 'Trip summary', kind: 'push', backIcon: true, cls: 'pane--s5',
     body: `${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
+};
+
+// =====================================================================
+// Results drawer (proposed, NMA-761 and NMA-1109): Pay with points on Departure and Return, and on a round trip the
+// cost of each leg and the trip total as it builds. Built from the existing Pay with points row and Summary list.
+// =====================================================================
+const s5PtsOk = b => ['standard', 'personal'].includes(intentOf(b));
+function s5LegCost(b, leg, s) {
+  s = s || (D().s5sel || {})[leg]; if (!s) return null;
+  const tr = s5Trips(b, leg).list.find(x => x.id === s.trip); if (!tr || tr.cls[s.cls] == null) return null;
+  const p = (s5Fares(s.cls, tr.cls[s.cls]).find(f => f[0] === s.fare) || [, tr.cls[s.cls]])[1];
+  return s.cls === 'Rooms' ? p : p * travelerCount(b);
+}
+const s5Money = (b, v) => intentOf(b) === 'pr' ? 'Pass Rider fare' : v == null ? '—' : b.pay === 'points' && s5PtsOk(b) ? s5Price(b, v) : `$${v.toFixed(2)}`;
+// pending: the fare being chosen on the Choose a fare screen (its leg and cost), so the total shows before Continue
+function s5Drawer(b, leg, pending) {
+  const rt = b.trip === 'rt', pts = s5PtsOk(b), member = D().signedIn;
+  const toggle = pts && !pending ? pointsRow({ id: 's5-points', title: 'Pay with points', sub: b.code && b.pay !== 'points' ? 'Codes can’t be used with points.' : member ? '12,450 points available' : 'You’ll sign in to use your points after you choose a fare.', checked: b.pay === 'points', attrs: 'data-a="s5-points"' }) : '';
+  let totals = '';
+  if (rt && leg === 'ret') {
+    const dep = s5LegCost(b, 'dep'), ret = pending ? pending.cost : null, pr = intentOf(b) === 'pr';
+    const row = (l, v, cls = '') => `<div class="s5-tot__row${cls}"><dt>${l}</dt><dd>${v}</dd></div>`;
+    totals = `<dl class="s5-tot" aria-label="Trip total">${row('Departure', s5Money(b, dep))}${row('Return', pending ? s5Money(b, ret) : 'Choose a fare')}${pending ? '' : row('Trip total so far', pr ? 'Pass Rider fare' : s5Money(b, dep || 0), ' s5-tot__row--total')}</dl>`;
+  }
+  return toggle || totals ? `<div class="s5-drawer">${totals}${toggle}</div>` : '';
+}
+A['s5-points'] = t => {
+  const b = D().booking, on = t.checked;
+  const done = () => { b.pay = on ? 'points' : 'cash'; pendingFocus = '#s5-points'; render(); };
+  // NMA-613 scenario 1: points searches don't take codes. Turning points on with a code asks before removing it.
+  if (on && b.code) { t.checked = false; dialog({ title: 'Use points and remove your code?', body: `Codes can’t be used when you pay with points. Your code ${esc(b.code.code || b.codeText)} will be removed from this search.`, returnFocus: '#s5-points', actions: [['Use points', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); done(); }], ['Keep my code', 'secondary', null]] }); return; }
+  done();
 };

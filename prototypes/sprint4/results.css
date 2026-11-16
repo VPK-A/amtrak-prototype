@@ -82,3 +82,11 @@
 .s5-ffoot__amt { font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
 .s5-ffoot__sub { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
 .s5-ffoot .ads-btn { flex: none; min-width: 140px; }
+
+/* Results drawer: Pay with points and, on the return leg, each leg's cost and the trip total */
+.s5-drawer { display: flex; flex-direction: column; gap: var(--ads-space-8); width: 100%; }
+.s5-drawer + .s5-ffoot { margin-top: var(--ads-space-8); }
+.s5-tot { margin: 0; display: flex; flex-direction: column; gap: 2px; font-size: var(--ads-type-body-small-size); }
+.s5-tot__row { display: flex; justify-content: space-between; gap: var(--ads-space-12); color: var(--ads-content-text-secondary); }
+.s5-tot__row dt, .s5-tot__row dd { margin: 0; }
+.s5-tot__row--total { padding-top: var(--ads-space-4); border-top: 1px solid var(--ads-border-default); color: var(--ads-content-text-primary); font-weight: var(--ads-font-weight-semibold); font-size: var(--ads-type-body-size); }

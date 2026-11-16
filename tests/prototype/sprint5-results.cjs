@@ -110,6 +110,42 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
   ok(/Departure · Thu, Nov 5/.test(await txt()) && /Return · Sun, Nov 8/.test(await txt()), 'the trip summary shows both legs');
 
+  // ---- Canadian stations and real border crossings ----
+  ok(await ev(() => ['TWO', 'MTR', 'VAC'].every(c => ST[c] && ST[c].country === 'CA') && ST.NYP.country === 'US'), 'Toronto, Montreal and Vancouver are stations');
+  await open('returning', "D().booking.to = 'MTR'"); await find(); t = await txt();
+  ok(/MTR Montreal/.test(t) && /Adirondack/.test(t) && /This trip crosses the U.S.–Canada border/.test(t) && (await cards()).every(x => /Crosses the border/.test(x.text)), 'New York to Montreal: Adirondack trips, border alert and card flags without the test control');
+  await open('returning', "const b = D().booking; b.from = 'SEA'; b.to = 'VAC'"); await find();
+  ok(/Amtrak Cascades/.test(await txt()) && /crosses the U.S.–Canada border/.test(await txt()), 'Seattle to Vancouver: Cascades, crosses the border');
+  await open('returning', "const b = D().booking; b.from = 'WAS'; b.to = 'TWO'"); await find();
+  ok(/Maple Leaf/.test(await txt()) && /2 segments/.test(await txt()), 'Washington to Toronto connects to the Maple Leaf');
+  await open('returning', "const b = D().booking; b.from = 'TWO'; b.to = 'MTR'"); await find();
+  ok(/No trains between these stations/.test(await txt()) && await stack() === 'ff', 'Toronto to Montreal is not an Amtrak route');
+  await open(); await find();
+  ok(!/crosses the U.S.–Canada border/.test(await txt()), 'domestic trips still show no border information');
+
+  // ---- Results drawer: Pay with points, and the trip total on a round trip (proposed) ----
+  ok(await p.locator(D_ + '.pane:last-child .pane__foot #s5-points').count() === 1, 'Departure has a drawer with Pay with points');
+  await p.locator(D_ + '#s5-points').check({ force: true }); await w(300);
+  ok(await ev(() => D().booking.pay === 'points') && /pts/.test(await ev(() => document.querySelector('#device .s5-class__price').textContent)), 'turning on points switches the prices to points');
+  await open('returning', "const b = D().booking; b.code = { code: 'FALL', benefit: '10% off' }; b.codeText = 'FALL'; b.codeState = 'applied'"); await find();
+  await p.locator(D_ + '#s5-points').click({ force: true }); await w(300);
+  ok(/Use points and remove your code\?/.test(await txt()) && await ev(() => D().booking.pay !== 'points'), 'with a code, turning on points asks first (points searches don’t take codes)');
+  await p.locator('.pdialog button', { hasText: 'Keep my code' }).click(); await w(300);
+  ok(await ev(() => D().booking.code && D().booking.pay !== 'points'), 'Keep my code leaves cash and the code');
+  await p.locator(D_ + '#s5-points').click({ force: true }); await w(300); await p.locator('.pdialog button', { hasText: 'Use points' }).click(); await w(300);
+  ok(await ev(() => !D().booking.code && D().booking.pay === 'points'), 'Use points removes the code');
+  await open('returning', "const b = D().booking; b.trip = 'rt'; b.ret = '2026-11-08'"); await find();
+  ok(!/Trip total/.test(await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText)), 'Departure drawer has no total yet');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  const depAmt = await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
+  let f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
+  ok(f.includes('Departure ' + depAmt) && /Return Choose a fare/.test(f) && f.includes('Trip total so far ' + depAmt) && /Pay with points/.test(f), 'Return drawer: departure cost, return to choose, trip total so far, Pay with points');
+  await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500);
+  f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
+  const num = x => +x.replace(/[^0-9.]/g, ''), m = f.match(/Departure (\$[\d.,]+) Return (\$[\d.,]+) Trip total (\$[\d.,]+)/);
+  ok(m && Math.abs(num(m[1]) + num(m[2]) - num(m[3])) < 0.01, `return fare: each leg and the trip total (${f})`); await axe('return fare with total');
+
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();
   ok(['NMA-755', 'NMA-758', 'NMA-1092/1093', 'NMA-1138'].every(k => t.includes('Proposed · ' + k)), 'proposed designs carry a Proposed tag with the story number');
