@@ -917,7 +917,8 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 - NMA-758 Sort only (Most direct, Departure time, Shortest trip, Lowest fare). Filters aren't designed.
 - NMA-761 Prices in points when Pay with points is on. Switching between points and dollars on results isn't designed.
 - NMA-764 "applies" indicator on a card when a code or traveler discount is in the search.
-- NMA-1092/1093 Tapping a card opens a simple trip details sheet.
+- NMA-1092/1093 A "Details" link on each card opens a trip details sheet with Services (amenities and add-ons) and Route tabs, as in the current app.
+- Fare selection (no story yet): choosing a class opens **Choose a fare**, following the current app's pattern. It shows the trip summary, class tabs with prices (sold-out classes disabled), what the class includes, fare options as radio cards with their price and rules (Value and Flex; First has Flex only; Pass Rider shows "Pass Rider fare" with no price), and a footer with the total for all travelers (rooms: per room) and **Continue**. Continue adds to the simulated cart; on a round trip it goes to the Return step first. A **Trip summary** follows with each leg and a handoff note: add-ons, seats, traveler details and checkout aren't part of Sprint 5.
 - NMA-1138 Multi-segment trips show "from" prices.
 
 **Flagged, not designed (open questions)**
@@ -928,6 +929,12 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 - NMA-1141 TripLink fares: the story is empty; standard prices are shown.
 - NMA-748 AC#4: canceled trains are returned today only for the agent channel, so showing them needs a back-end change request.
 - NMA-759 BR#1.2: for round trips the prototype handles "departure date has no trains" and "return date has no trains" separately; the case where both have none isn't designed.
+
+**Questions for the fare selection design**
+
+- Fare names, rules and price differences are sample content. Which fare types does each class offer, and does the back end send their rules?
+- Should the footer total include discounts, or say "before discounts" as it does now?
+- Should points show here when Pay with points is on? The footer shows points; the radio cards show the same unit as results.
 
 **Sprint 4 rules kept**
 

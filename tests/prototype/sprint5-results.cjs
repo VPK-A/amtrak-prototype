@@ -63,6 +63,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-topic="s5-border"]').click(); await w(400);
   ok(/passport/.test(await txt()), 'border sheet shows what to expect');
 
+  await open(); await find(); await p.locator(D_ + '[data-trip="t1"] .s5-details').click(); await w(400);
+  ok(/Trip details/.test(await txt()) && /Amenities and add-ons/.test(await txt()) && await stack() === 'ff>handoff', 'Details opens trip details (Services) without leaving results');
+  await p.locator(D_ + '#s5d-route').click(); await w(300);
+  ok(/Washington/.test(await ev(() => document.querySelector('#device #s5d-panel').innerText)) && !/Amenities/.test(await txt()), 'the Route tab shows the stops'); await axe('trip details');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
   // ---- NMA-759 unsuccessful searches ----
   await open('returning', "s5().outcome = 'nodate'"); await find();
   ok(/No trains on Thu, Nov 5/.test(await txt()) && /next trains are on Sat, Nov 7/.test(await txt()) && await stack() === 'ff', 'no trains on the date: says so and names the next date');
@@ -81,14 +86,29 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   // ---- Offline on results, cart (Sprint 4 rule), round trip (proposed) ----
   await open(); await find(); await ev(() => { V().net = 'offline'; render(); }); await w(200);
-  await p.locator(D_ + '[data-a="cart-add"]:not([disabled])').first().click(); await w(300);
-  ok(/You’re offline/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'offline: results stay visible, choosing a fare is blocked');
+  await p.locator(D_ + '[data-a="s5-fare"]:not([disabled])').first().click(); await w(300);
+  ok(/You’re offline/.test(await txt()) && await stack() === 'ff>handoff' && !(await ev(() => (D().cart || []).length)), 'offline: results stay visible, choosing a fare is blocked');
   await ev(() => { V().net = 'online'; V().toast = null; render(); });
-  await p.locator(D_ + '[data-a="cart-add"]:not([disabled])').first().click(); await w(400);
-  ok(await ev(() => (D().cart || []).length === 1) && /In your cart/.test(await txt()), 'choosing a class adds to the simulated cart (Sprint 4 abandon rule still has something to act on)');
+  // ---- Choose a fare (proposed; follows the current app: class, fare options, price, Continue) ----
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  t = await txt();
+  ok(await stack() === 'ff>handoff>s5faredep' && /Choose a fare/.test(t) && /Proposed · Fare selection/.test(t) && !(await ev(() => (D().cart || []).length)), 'choosing a class opens Choose a fare, tagged Proposed; nothing in the cart yet');
+  ok(/Northeast Regional 171/.test(t) && /6:10 AM → to 8:44 AM|6:10 AM → 8:44 AM/.test(t) && await ev(() => document.querySelector('#device .pane:last-child .s5-ctab[aria-selected="true"]').dataset.v === 'Coach'), 'the trip summary and the chosen class tab are shown');
+  ok(/Value/.test(t) && /Flex/.test(t) && /30% cancellation fee/.test(t) && /Full refund/.test(t) && /per traveler/.test(t), 'fare options show their price and rules');
+  const amt = () => ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
+  const a1 = await amt(); await p.locator(D_ + '.pane:last-child #s5f-Flex').check({ force: true }); await w(300);
+  ok(a1 !== await amt() && await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.fare) === 'Flex' && /for 1 traveler/.test(await txt()), 'choosing a fare updates the price and what Continue adds');
+  await p.locator(D_ + '.pane:last-child #s5c-Business').click(); await w(300);
+  ok(/Extra legroom/.test(await txt()) && await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.cls) === 'Business', 'class tabs switch class without going back to results'); await axe('choose a fare');
+  await open(); await find(); await p.locator(D_ + '[data-trip="t4"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await ev(() => document.querySelector('#device .pane:last-child #s5c-Business').disabled) && /Sold out/.test(await txt()), 'a sold-out class is shown and disabled on the class tabs');
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(await ev(() => (D().cart || []).length === 1) && await stack() === 'ff>handoff>s5faredep>s5sum' && /In your cart/.test(await txt()) && /1 Coach seat · Value/.test(await txt()), 'Continue adds to the simulated cart and shows the trip summary (Sprint 4 abandon rule still has something to act on)');
   await open('returning', "D().booking.trip = 'rt'; D().booking.ret = '2026-11-08'"); await find();
-  await p.locator(D_ + '[data-a="cart-add"]:not([disabled])').first().click(); await w(700);
-  ok(await stack() === 'ff>handoff>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Proposed · NMA-1109/.test(await txt()), 'round-trip: the return step follows, tagged Proposed');
+  await p.locator(D_ + '[data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
+  ok(await stack() === 'ff>handoff>s5faredep>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Proposed · NMA-1109/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'round-trip: the return step follows the departure fare, tagged Proposed');
+  await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
+  ok(/Departure · Thu, Nov 5/.test(await txt()) && /Return · Sun, Nov 8/.test(await txt()), 'the trip summary shows both legs');
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();

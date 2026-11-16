@@ -60,12 +60,19 @@ INFO['s5-border'] = { title: 'Crossing the U.S.–Canada border', body: () => `<
 INFO['s5-sort'] = { title: 'Sort', body: () => `<fieldset class="ads-fieldset s5-sortset"><legend class="ads-sr-only">Sort trains by</legend>${Object.entries(S5_SORTS).map(([k, [l]]) => `<label class="ads-choice ads-radio" for="s5s-${k}"><input type="radio" name="s5sort" id="s5s-${k}" data-a="s5-sort" data-v="${k}" ${s5().sort === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${l}</span></span></label>`).join('')}</fieldset><p class="info-draft">${s5tag('NMA-758')} Sort only. Filters (time of day, route, class, add-ons) are still being groomed and aren’t designed yet.</p>` };
 A['s5-sort'] = t => { s5().sort = t.dataset.v; nav().info = null; pendingFocus = '[data-topic="s5-sort"]'; render(); };
 
-// Trip details (proposed: NMA-1092 and NMA-1093 are still in grooming)
+// Trip details (proposed: NMA-1092 and NMA-1093 are still in grooming): Services and Route tabs, as in the current app
+const S5_AMENITIES = [['luggage', 'Checked baggage', 'Check up to 2 bags at staffed stations on this train. Carry-on bags are always free.'], ['cafe', 'Café car', 'Snacks, light meals and drinks for purchase.'], ['lounge', 'Lounge access', 'Station lounges for private room travelers before you board.', true], ['wifi', 'Free Wi-Fi', 'Basic Wi-Fi for browsing and email.'], ['pet', 'Pet', 'Small dogs and cats up to 20 lb in a carrier. A fee applies.']];
+A['s5-dtab'] = t => { s5().dtab = t.dataset.v; pendingFocus = `#s5d-${t.dataset.v}`; render(); };
 function s5Details(id) {
   const b = D().booking, sh = sheet(), top = sh && sh.stack[sh.stack.length - 1], leg = top && top.p && top.p.leg === 'ret' ? 'ret' : 'dep';
   const r = s5Trips(b, leg), t = r.list.find(x => x.id === id); if (!t) return { title: 'Trip details', body: () => '' };
   const stops = t.segs === 1 ? [[t.dep, ST[r.from]], [t.arr, ST[r.to]]] : [[t.dep, ST[r.from]], [t.dep + Math.round((t.dur - t.layover) / 2), t.via, `${s5dur(t.layover)} layover${t.self ? ' · self-transfer to another station' : ''}`], [t.arr, ST[r.to]]];
-  return { title: `${t.name} ${t.num}`, body: () => `<p>${s5tag('NMA-1092/1093')}</p><dl class="cpn-dl">${stops.map(([m, s, note]) => `<dt>${s5time(m)}</dt><dd>${esc(s.city)}, ${s.st} · ${esc(s.name)}${note ? `<br><span class="ads-text-secondary">${note}</span>` : ''}</dd>`).join('')}<dt>Duration</dt><dd>${s5dur(t.dur)}</dd><dt>On board</dt><dd>Wi-Fi, café car, quiet car</dd></dl><p class="info-draft">Sample route and amenities. Stop-by-stop detail and add-ons aren’t designed yet.</p>` };
+  const tab = s5().dtab || 'services', tb = (k, l) => `<button class="ads-tab" type="button" role="tab" id="s5d-${k}" aria-selected="${tab === k}" aria-controls="s5d-panel" tabindex="${tab === k ? 0 : -1}" data-a="s5-dtab" data-v="${k}">${l}</button>`;
+  const am = S5_AMENITIES.filter(([, , , rooms]) => !rooms || 'Rooms' in t.cls);
+  const services = `<div class="ads-summary s5-dsum"><p class="ads-summary__title s5-dsum__name">${ic(S5_SVC[t.svc][0])}${esc(t.name)} ${t.num}</p><p class="s5-dsum__icons" aria-hidden="true">${am.map(([i]) => ic(i)).join('')}</p><p class="s5-dsum__cls">${S5_CLASS_ORDER.filter(k => k in t.cls).map(k => k === 'Rooms' ? 'Private rooms' : k).join(', ')}</p></div>
+    <h3 class="ads-group__title s5-dsec">Amenities and add-ons</h3><div class="s5-amen">${am.map(([i, n, d]) => `<details class="ads-accordion ads-accordion--sm"><summary><span class="s5-amen__label">${ic(i)}${n}</span>${ic('chevron-down')}</summary><div class="ads-accordion__panel"><p>${d}</p></div></details>`).join('')}</div>`;
+  const route = `<dl class="cpn-dl">${stops.map(([m, s, note]) => `<dt>${s5time(m)}</dt><dd>${esc(s.city)}, ${s.st} · ${esc(s.name)}${note ? `<br><span class="ads-text-secondary">${note}</span>` : ''}</dd>`).join('')}<dt>Duration</dt><dd>${s5dur(t.dur)}</dd></dl>`;
+  return { title: 'Trip details', body: () => `<p>${s5tag('NMA-1092/1093')}</p><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trip details">${tb('services', 'Services')}${tb('route', 'Route')}</div><div id="s5d-panel" role="tabpanel" aria-labelledby="s5d-${tab}" class="s5-dpanel">${tab === 'route' ? route : services}</div><p class="info-draft">Sample services, amenities and stops. Content comes from the back end.</p>` };
 }
 
 // ---------- Trip card (NMA-1094 trip info, NMA-1096 classes of service) ----------
@@ -82,14 +89,15 @@ function s5Card(t, r, b, ctx) {
   const cls = S5_CLASS_ORDER.filter(k => k in t.cls).map(k => {
     const p = t.cls[k], name = k === 'Rooms' ? 'Private rooms' : k, off = p == null || canceled;
     const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${t.segs > 1 || k === 'Rooms' ? 'from ' : ''}${s5Price(b, p)}`;
-    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price}${off ? '' : `. Choose ${name} on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span></button>`;
+    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span></button>`;
   }).join('');
   return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
-    <button class="s5-trip__main" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="${esc(t.name)} ${t.num}, ${svc[1]}. ${canceled ? 'Canceled. ' : delayed ? `Delayed ${t.delay} minutes. ` : ''}Departs ${s5time(t.dep + t.delay)}, arrives ${s5time(t.arr + t.delay)}${t.days ? ` plus ${t.days} day` : ''}. ${meta.replace(/ · /g, ', ')}. View trip details">
-      <span class="s5-trip__top"><span class="s5-trip__svc">${ic(svc[0])}<span><b>${esc(t.name)}</b> ${t.num}</span></span><span class="s5-trip__badges">${tags}${badge}</span></span>
-      <span class="s5-trip__times">${tm(t.dep)}<span class="s5-arrow" aria-hidden="true">→</span>${tm(t.arr)}${day}</span>
+    <div class="s5-trip__main">
+      <div class="s5-trip__top"><span class="s5-trip__svc">${ic(svc[0])}<span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span><button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button></div>
+      ${tags || badge ? `<span class="s5-trip__badges">${tags}${badge}</span>` : ''}
+      <span class="s5-trip__times">${tm(t.dep)}<span class="s5-arrow" aria-hidden="true">→</span><span class="ads-sr-only">to</span>${tm(t.arr)}${day}</span>
       <span class="s5-trip__meta">${meta}</span>${flags ? `<span class="s5-trip__flags">${flags}</span>` : ''}
-    </button>${disc}
+    </div>${disc}
     <div class="s5-classes" role="group" aria-label="Classes of service on ${esc(t.name)} ${t.num}">${cls}</div></li>`;
 }
 
@@ -130,8 +138,10 @@ SCR.handoff = (r, ri) => {
     if (!t.dataset.trip) return add(t, ri);
     if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
     const b = D().booking, sh = sheet(), top = sh.stack[sh.stack.length - 1];
-    if (b.trip === 'rt' && top.p.leg !== 'ret') { push('handoff', { leg: 'ret', out: t.dataset.trip }, sh.stack.length - 1); return; }
-    add(t, ri);
+    const leg = top.p.leg === 'ret' ? 'ret' : 'dep', sel = D().s5sel = D().s5sel || {};
+    sel[leg] = { trip: t.dataset.trip, cls: t.dataset.cls, fare: t.dataset.fare };
+    if (b.trip === 'rt' && leg !== 'ret') { push('handoff', { leg: 'ret', out: t.dataset.trip }, sh.stack.length - 1); return; }
+    add(t, ri); push('s5sum', {}, sh.stack.length - 1);
   }; }
 
 // ---------- Find trains: unsuccessful outcomes (NMA-759) ----------
@@ -154,3 +164,46 @@ function s5Go(ri) {
   }
   go();
 }
+
+// =====================================================================
+// Choose a fare (proposed pattern, follows the current app: class, fare options with their rules, price, Continue)
+// Fare types and their rules are sample content; they come from the back end (see NMA-1097).
+// =====================================================================
+const S5_CLASS_INFO = { Coach: ['No middle seat and plenty of legroom', 'At-seat power', 'Earn 2 Guest Rewards points per $1'], Business: ['Extra legroom and a reserved seat', 'Complimentary non-alcoholic drinks', 'Earn 3 Guest Rewards points per $1'], First: ['Wide leather seats in a 1-2 layout', 'At-seat meal service', 'Lounge access before you board'], Rooms: ['A private room for up to 2 travelers', 'Meals in the dining car included', 'Lounge access and a dedicated attendant'] };
+const S5_RULES = { Value: ['30% cancellation fee if canceled before departure', 'No changes permitted'], Flex: ['Full refund if canceled before departure', 'Changes permitted with no change fee'] };
+function s5Fares(cls, base) { if (cls === 'First') return [['Flex', base]]; return [['Value', base], ['Flex', base + (cls === 'Rooms' ? 60 : cls === 'Business' ? 18 : 10)]]; }
+const s5ClsName = k => k === 'Rooms' ? 'Private rooms' : k;
+A['s5-fare'] = (t, ri) => {
+  if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
+  const sh = sheet(), top = sh.stack[sh.stack.length - 1];
+  push('s5fare', { leg: top.p.leg === 'ret' ? 'ret' : 'dep', trip: t.dataset.trip, cls: t.dataset.cls }, sh.stack.length - 1);
+};
+A['s5-cls'] = (t, ri) => { const r = sheet().stack[+ri]; r.p.cls = t.dataset.v; r.u.fare = null; pendingFocus = `#s5c-${t.dataset.v}`; render(); };
+A['s5-pick'] = (t, ri) => { const r = sheet().stack[+ri]; r.u.fare = t.dataset.v; render(); };
+SCR.s5fare = (r, ri) => {
+  const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), it = intentOf(b), pr = it === 'pr';
+  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), cls = r.p.cls, base = tr.cls[cls];
+  const fares = pr ? [['Pass Rider', null]] : s5Fares(cls, base), pick = r.u.fare && fares.some(f => f[0] === r.u.fare) ? r.u.fare : fares[0][0], price = (fares.find(f => f[0] === pick) || fares[0])[1];
+  const seats = travelerCount(b), room = cls === 'Rooms', total = price == null ? null : room ? price : price * seats;
+  const label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`;
+  snote('Choose a fare follows the current app’s pattern (class, fare options with their rules, price and Continue). Proposed design: fare selection isn’t a Sprint 5 story yet. Fare names, rules and prices are sample content from the back end.');
+  if (pr) snote('NMA-1140 (grooming): Pass Rider fares aren’t approved, so only “Pass Rider fare” is shown, with no price.');
+  const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, p)}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
+  const opts = fares.map(([n, p]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${s5Price(b, p)} <span class="s5-fopt__unit">${room ? 'a room' : 'per traveler'}</span></span>`}</span>${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
+  const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
+  const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
+  const foot = `<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">Price</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? ', before discounts' : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
+  return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
+      <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
+};
+
+// Trip summary after Continue (the cart and add-ons are outside Sprint 5)
+SCR.s5sum = (r, ri) => {
+  const b = D().booking, sel = D().s5sel || {}, it = intentOf(b);
+  const legCard = leg => { const s = sel[leg]; if (!s) return ''; const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr) return ''; const room = s.cls === 'Rooms', p = it === 'pr' ? null : (s5Fares(s.cls, tr.cls[s.cls]).find(f => f[0] === s.fare) || [, tr.cls[s.cls]])[1], n = travelerCount(b);
+    return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${room ? '1 private room' : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${p == null ? '' : ` · ${s5Price(b, room ? p : p * n)}`}</p></div>`; };
+  snote('Trip summary after Continue: the trip is in the (simulated) cart. Add-ons, seats, traveler details and checkout aren’t part of Sprint 5.');
+  return { title: 'Trip summary', kind: 'push', backIcon: true, cls: 'pane--s5',
+    body: `${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
+};

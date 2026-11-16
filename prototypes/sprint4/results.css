@@ -43,3 +43,42 @@
 
 .s5-t { display: inline-flex; flex-direction: column; white-space: nowrap; }
 .s5-proposed { margin: 0; display: flex; flex-wrap: wrap; gap: var(--ads-space-4); }
+
+/* Trip card: content plus a Details link (the card itself is not a button) */
+.s5-trip__main { cursor: default; }
+.s5-details { flex: none; display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+/* Trip details sheet: Services and Route tabs */
+.s5-dpanel { display: flex; flex-direction: column; gap: var(--ads-space-12); padding-top: var(--ads-space-16); }
+.s5-dsum { gap: var(--ads-space-8); }
+.s5-dsum__name { display: flex; align-items: center; gap: var(--ads-space-8); }
+.s5-dsum__icons { margin: 0; display: flex; flex-wrap: wrap; gap: var(--ads-space-12); color: var(--ads-content-icon-secondary); }
+.s5-dsum__cls { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-dsec { margin: var(--ads-space-8) 0 0; }
+.s5-amen { display: flex; flex-direction: column; }
+.s5-amen__label { display: inline-flex; align-items: center; gap: var(--ads-space-12); }
+.s5-amen .ads-accordion__panel p { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+/* Choose a fare */
+.s5-fsum { padding: var(--ads-space-12); gap: var(--ads-space-8); }
+.s5-fsum p { margin: 0; }
+.s5-fsum__route { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-fsum__times { font-size: var(--ads-type-body-size); }
+.s5-ctab { flex-direction: column; gap: 0; height: auto; min-height: var(--ads-size-interactive-lg); padding-block: var(--ads-space-8); }
+.s5-ctab__name { font-size: var(--ads-type-body-small-size); }
+.s5-ctab__price { font-size: var(--ads-type-body-size); }
+.s5-ctab:disabled { color: var(--ads-content-text-disabled); cursor: not-allowed; }
+.s5-cpanel { display: flex; flex-direction: column; gap: var(--ads-space-16); }
+.s5-cinfo { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--ads-space-4); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-cinfo li { display: flex; align-items: center; gap: var(--ads-space-8); }
+.s5-cinfo .ads-icon { color: var(--ads-content-icon-success); }
+.s5-fset { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.s5-fopt { align-items: flex-start; padding: var(--ads-space-8) var(--ads-space-12) var(--ads-space-12) 0; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.s5-fopt.is-selected { border-color: var(--ads-border-brand); background: var(--ads-background-surface-selected); }
+.s5-fopt .ads-choice__label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-top: var(--ads-space-12); }
+.s5-fopt__head { display: flex; justify-content: space-between; gap: var(--ads-space-12); font-weight: var(--ads-font-weight-semibold); }
+.s5-fopt__price { text-align: right; white-space: nowrap; }
+.s5-fopt__unit { display: block; font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-secondary); }
+.s5-ffoot > span { display: flex; flex-direction: column; }
+.s5-ffoot__label { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5-ffoot__amt { font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
+.s5-ffoot__sub { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5-ffoot .ads-btn { flex: none; min-width: 140px; }

@@ -147,12 +147,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const re = await bk(); ok(re.from === 'NYP' && re.ret === '2026-11-09' && re.codeText === 'FALL' && /FALL/.test(await txt()), 'reopening Fare Finder restores the saved search selections, including the code');
   await p.keyboard.press('Escape'); await w(400); ok(!(await dlg()) && await top() === 'none', 'Escape at Fare Finder before a cart: no dialog');
   // 5 Exit with an item in the cart
-  await click('[data-a="open-booking"]', 500); await click('[data-a="find-trains"]', 1000); await click('[data-a="cart-add"]:not([disabled])', 700);
-  // Sprint 5 (proposed, NMA-1109): a round trip chooses the departure, then the return, before anything is in the cart
-  ok(await top() === 'ff>handoff>handoff', 'round trip: choosing a departure fare opens the Return step');
-  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]:not([disabled])').first().click(); await w(500);
+  await click('[data-a="open-booking"]', 500); await click('[data-a="find-trains"]', 1000);
+  // Sprint 5 (proposed, NMA-1109 and fare selection): a round trip chooses the departure class and fare, then the return, before anything is in the cart
+  await click('[data-a="s5-fare"]:not([disabled])', 600); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
+  ok(await top() === 'ff>handoff>s5fare>handoff', 'round trip: continuing from the departure fare opens the Return step');
+  await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(600); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
   ok(await ev(() => (D().cart || []).length) === 1, 'a sample train is in the cart');
-  await p.locator(D_ + '.pane:last-child .ads-navbar [data-a="back"]').click(); await w(600); await p.locator(D_ + '.pane:last-child .ads-navbar [data-a="back"]').click(); await w(600);
+  for (let i = 0; i < 6 && await top() !== 'ff'; i++) { await p.locator(D_ + '.pane:last-child .ads-navbar [data-a="back"]').click(); await w(600); }
   ok(await top() === 'ff' && !(await dlg()), 'Back from results with a cart: Fare Finder, no dialog');
   await click('.ads-sheet-header__close');
   ok(await dlg() === 'Abandon booking?' && await ev(() => [...document.querySelectorAll('.pdialog [data-dlg]')].map(b => b.textContent).join()) === 'Continue booking,Abandon booking', '5 exiting with a cart asks: Continue booking / Abandon booking');
