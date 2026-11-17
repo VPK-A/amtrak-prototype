@@ -137,3 +137,12 @@
 .s5-x__card .ads-group__label { color: var(--ads-content-text-primary); }
 .s5-x__card .ads-group__value { color: var(--ads-content-text-primary); font-weight: var(--ads-font-weight-semibold); }
 .s5-x__card .ads-group__value--empty { color: var(--ads-content-text-secondary); font-weight: var(--ads-font-weight-regular); }
+
+/* Concept Update 1 on the trip card */
+.s5-x { display: flex; flex-direction: column; gap: var(--ads-space-12); padding-top: var(--ads-space-12); border-top: 1px solid var(--ads-border-subtle); }
+.s5-x__panel { display: flex; flex-direction: column; gap: var(--ads-space-8); padding: 0; }
+.s5-x__panel .s5-x__tag { font-size: var(--ads-type-body-small-size); }
+.s5-x__panel .s5-x__name { font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); }
+.s5-x__panel .s5-x__seat { padding: var(--ads-space-8) 0; }
+.s5-x__act { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-12); padding-top: var(--ads-space-4); }
+.s5-x__act .s5-x__price { margin: 0; }
