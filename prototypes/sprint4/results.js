@@ -16,8 +16,16 @@ const S5_OUTCOMES = [['results', 'Trains found'], ['border', 'Trip crosses the U
 const s5 = () => (V().s5 = V().s5 || { outcome: 'results', sort: 'direct' });
 // Results concepts (Sprint 5 exploration, from design feedback): compare the experience of each class of service
 // (seat type, amenities) on results, instead of leading with fare types.
-const S5_CONCEPTS = [['current', 'Current'], ['c1', 'Concept Update 1: compare classes'], ['c2', 'Concept Update 2: experience on each class']];
+const S5_CONCEPTS = [['current', 'Current'], ['c1', 'Concept Update 1: choose your class'], ['c2', 'Concept Update 2: experience on each class']];
 const s5c = () => (typeof TB !== 'undefined' && TB.s5c) || 'current';
+// Concept Update 1 "Choose your class" content: a short promise, the seat, and what's included (sample content)
+const S5_EXP_CARD = {
+  Coach: { tag: 'Comfortable essentials for your trip', seat: ['Standard seat', '2 × 2 seating · reclines · no middle seat'], wifi: 'Included', power: 'At every seat', food: 'Café car, for purchase', lounge: 'Not included', short: 'Reclining seat · Wi-Fi' },
+  Business: { tag: 'More space and a quieter ride', seat: ['Spacious seat', 'Wider leather seat · extra legroom'], wifi: 'Included', power: 'At every seat', food: 'Free non-alcoholic drinks', lounge: 'Not included', short: 'Spacious seat · free drinks' },
+  First: { tag: 'Our most premium seat, with meals served', seat: ['Premium seat', '1 × 2 leather seating · most legroom'], wifi: 'Included', power: 'At every seat', food: 'At-seat meal service', lounge: 'Club lounge before you board', short: 'Premium seat · meals · lounge' },
+  Rooms: { tag: 'Your own private space, day and night', seat: ['Private room', 'Seats convert to beds · attendant'], wifi: 'Included', power: 'In your room', food: 'Meals in the dining car included', lounge: 'Lounge access before you board', short: 'Private room · meals · lounge' }
+};
+const S5_EXP_CARD_ROWS = [['wifi', 'Wi-Fi'], ['power', 'Power outlet'], ['food', 'Food and drink'], ['lounge', 'Lounge access']];
 // Product-level features by class (sample content; it would come from the content source)
 const S5_EXP = {
   Coach: { seat: 'Reclining seat, no middle seat', short: 'Reclining seat', legroom: 'Generous legroom', food: 'Café car, for purchase', lounge: 'Not included', bags: '2 carry-on and 2 checked bags', points: '2 points per $1', icons: ['seat', 'wifi', 'cafe'] },
@@ -155,7 +163,7 @@ SCR.handoff = (r, ri) => {
   snote('Sprint 5 search results. Approved (VK): NMA-748, 1094, 1096, 759, 1098, 1097, 1095. Items marked “Proposed” on screen are designs for stories still in grooming: round-trip return step (NMA-1109), Lowest fare and Fastest badges (NMA-755), Sort (NMA-758), points prices (NMA-761), discount indicator (NMA-764), trip details (NMA-1092/1093) and “from” prices on multi-segment trips (NMA-1138).');
   snote('Flagged, not designed: service and station alerts (NMA-760: origin only, or origin and destination?), urgency signal (NMA-762: no requirements yet), Pass Rider fares (NMA-1140: prices show as “Pass Rider fare” until the rules are approved), TripLink fares (NMA-1141: story is empty; standard prices shown), filters (NMA-758).');
   snote('NMA-748 AC#4: canceled trains come back today only for the agent channel, so showing them needs a back-end change request. The prototype shows one. Choosing a fare is the exit of this sprint: “Add to cart” stays simulated.');
-  if (s5c() === 'c1') snote('Concept Update 1 (design exploration, from feedback): the test of showing experience. “Compare classes” replaces “Compare fare types” on results; it compares seat, legroom, food and drink, lounge and points for each class on these trains. Fare types are compared on Choose a fare instead. Conflict: NMA-1097 (approved) puts fare types on results; this concept is an exploration only.');
+  if (s5c() === 'c1') snote('Concept Update 1 (design exploration, from feedback): choosing a class opens “Choose your class”, which leads with the experience (seat, Wi-Fi, power, food, lounge) and keeps the price secondary. Its button goes on to Choose a fare. Fare types stay on results (NMA-1097).');
   if (s5c() === 'c2') snote('Concept Update 2 (design exploration, from feedback): each class button on a trip card shows what you get (seat type and amenity icons) under its price, so the experience is compared where you choose. Fare types stay available as a smaller link because NMA-1097 (approved) needs them on results.');
   if (it === 'pr') snote('NMA-1140 (grooming): Pass Rider prices aren’t approved, so each class shows “Pass Rider fare”. Business travel Acela and Auto Train restrictions aren’t applied here.');
   if (it === 'corporate') snote('NMA-1141 (empty story): TripLink fares aren’t defined. Standard prices are shown.');
@@ -163,8 +171,8 @@ SCR.handoff = (r, ri) => {
     <p class="s5-head__meta">${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${list.length} train${list.length === 1 ? '' : 's'}</span></p>
     ${rt ? `<p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5tag('NMA-1109')}</p>` : ''}</div>`;
   const tools = `<div class="s5-tools"><p class="s5-tools__note">${b.pay === 'points' && ['standard', 'personal'].includes(it) ? `Prices in points ${s5tag('NMA-761')}` : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
-    <div class="s5-tools__links">${s5c() === 'c1' ? infoLink('s5-classes', 'Compare classes') : infoLink('s5-fares', s5c() === 'current' ? 'Compare fare types' : 'Fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
-    <p class="s5-proposed">${[tagsOn ? ['NMA-755', 'badges'] : null, list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.segs > 1) ? ['NMA-1138', '“from” prices'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
+    <div class="s5-tools__links">${infoLink('s5-fares', s5c() === 'c2' ? 'Fare types' : 'Compare fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
+    <p class="s5-proposed">${[tagsOn ? ['NMA-755', 'badges'] : null, list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.segs > 1) ? ['NMA-1138', '“from” prices'] : null, s5c() === 'c1' ? ['Concept Update 1', 'choose your class'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
   const border = res.border ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
   const noAssist = b.s5NoAssist ? alertBox('warning', 'Searching without your assistance request', `The assistance you asked for isn’t available at ${esc(ST[b.from].name)}. You chose to continue without it.`) : '';
   const allSold = list.length && !list.some(t => t.low !== Infinity && t.status !== 'canceled') ? alertBox('info', 'Every train is sold out', 'You can still see the full schedule. Go back to try another date.') : '';
@@ -222,7 +230,7 @@ const s5ClsName = k => k === 'Rooms' ? 'Private rooms' : k;
 A['s5-fare'] = (t, ri) => {
   if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
   const sh = sheet(), top = sh.stack[sh.stack.length - 1];
-  push('s5fare', { leg: top.p.leg === 'ret' ? 'ret' : 'dep', trip: t.dataset.trip, cls: t.dataset.cls }, sh.stack.length - 1);
+  push(s5c() === 'c1' && top.s === 'handoff' ? 's5class' : 's5fare', { leg: top.p.leg === 'ret' ? 'ret' : 'dep', trip: t.dataset.trip, cls: t.dataset.cls }, sh.stack.length - 1);
 };
 A['s5-cls'] = (t, ri) => { const r = sheet().stack[+ri]; r.p.cls = t.dataset.v; r.u.fare = null; pendingFocus = `#s5c-${t.dataset.v}`; render(); };
 A['s5-pick'] = (t, ri) => { const r = sheet().stack[+ri]; r.u.fare = t.dataset.v; render(); };
@@ -289,3 +297,30 @@ A['s5-points'] = t => {
   done();
 };
 document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('s5-totacc')) s5().totOpen = e.target.open; }, true);
+
+// =====================================================================
+// Concept Update 1: Choose your class (design exploration). Leads with the experience of each class; price is secondary.
+// Built from existing components: Summary, Segmented control, Card, Group rows, Link, Button.
+// =====================================================================
+A['s5-xcls'] = (t, ri) => { const r = sheet().stack[+ri]; r.p.cls = t.dataset.v; pendingFocus = `#s5x-${t.dataset.v}`; render(); };
+A['s5-xgo'] = (t, ri) => { const r = sheet().stack[+ri]; push('s5fare', { leg: r.p.leg, trip: r.p.trip, cls: r.p.cls }, +ri); };
+SCR.s5class = (r, ri) => {
+  const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), pr = intentOf(b) === 'pr';
+  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), open = k => tr.cls[k] != null;
+  const cls = open(r.p.cls) ? r.p.cls : classes.find(open), e = S5_EXP_CARD[cls];
+  const price = k => pr ? 'Pass Rider fare' : open(k) ? `${s5Price(b, tr.cls[k])}${k === 'Rooms' ? ' a room' : ''}` : 'Sold out';
+  const from = k => pr ? 'Pass Rider fare' : `From ${s5Price(b, tr.cls[k])} ${k === 'Rooms' ? 'a room' : 'per traveler'}`;
+  snote('Concept Update 1 (design exploration): “Choose your class” compares the experience of each class on this train before any fare is chosen. Price is shown, but secondary. “View fare rules” opens fare types; Value and Flex are still chosen on Choose a fare.');
+  const sum = `<div class="ads-summary s5-fsum"><p class="s5-x__eyebrow">${esc(tr.name)} ${tr.num} · ${tr.segs === 1 ? 'Direct' : `${tr.segs} segments`}</p><p class="ads-summary__title">${esc(ST[res.from].city)} <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> ${esc(ST[res.to].city)}</p><p class="s5-fsum__route">${fmtShort(res.date)} · ${s5time(tr.dep + tr.delay)} – ${s5time(tr.arr + tr.delay)} · ${s5dur(tr.dur)}</p></div>`;
+  const seg = `<div class="ads-segmented s5-x__seg" role="tablist" aria-label="Class of service">${classes.map(k => `<button type="button" role="tab" id="s5x-${k}" aria-selected="${k === cls}" aria-controls="s5x-card" tabindex="${k === cls ? 0 : -1}" data-a="s5-xcls" data-v="${k}" ${open(k) ? '' : 'disabled aria-disabled="true"'}><span class="s5-x__segname">${s5ClsName(k)}</span><span class="s5-x__segprice">${price(k)}</span></button>`).join('')}</div>`;
+  const card = `<section class="ads-card s5-x__card" id="s5x-card" role="tabpanel" aria-labelledby="s5x-${cls}">
+      <h3 class="s5-x__name">${s5ClsName(cls)}</h3><p class="s5-x__tag">${e.tag}</p>
+      <div class="s5-x__seat">${ic(cls === 'Rooms' ? 'bedroom' : 'seat', 'ads-icon--lg')}<span><b class="s5-x__seattitle">${e.seat[0]}</b><span class="s5-x__seatsub">${e.seat[1]}</span></span></div>
+      ${group('', S5_EXP_CARD_ROWS.map(([f, l]) => grow({ label: l, value: e[f], empty: /^Not included/.test(e[f]) })))}
+      <p class="s5-x__price">${from(cls)}</p>${pr ? '' : infoLink('s5-fares', 'View fare rules')}</section>`;
+  const others = classes.filter(k => k !== cls);
+  const list = others.length ? group('Other classes on this train', others.map(k => open(k) ? grow({ a: 's5-xcls', data: `data-v="${k}"`, label: s5ClsName(k), value: `${S5_EXP_CARD[k].short} · ${price(k)}` }) : grow({ label: s5ClsName(k), value: `${S5_EXP_CARD[k].short} · Sold out`, empty: true }))) : '';
+  const foot = `<button class="ads-btn ads-btn--block" type="button" data-a="s5-xgo">Choose ${s5ClsName(cls)} · ${pr ? 'Pass Rider fare' : price(cls)}</button>`;
+  return { title: 'Choose your class', kind: 'push', backIcon: true, cls: 'pane--s5', foot, footCls: 'ads-actionfooter', offlineText: 'You can compare classes. Choosing a fare needs a connection.',
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${esc(s5Travelers(b))} ${s5tag('Concept Update 1')}</p>${sum}<h3 class="s5-x__h">Compare the experience</h3><p class="s5-x__sub">See what’s included with each class.</p>${seg}${card}${list}` };
+};

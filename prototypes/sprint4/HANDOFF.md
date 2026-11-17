@@ -941,10 +941,10 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 Based on design feedback, results could compare the *experience* of each class of service (seat type, amenities) instead of leading with fare types, which already have their own step. Use the prototype control **Results concept (Sprint 5)**:
 
 - **Current**: results as designed, with "Compare fare types".
-- **Concept Update 1: the test of showing experience.** "Compare classes" replaces "Compare fare types" on results; fare types are compared on Choose a fare instead. It opens a sheet comparing each class on these trains side by side: seat, legroom, food and drink, lounge and Guest Rewards points. Features that are the same in every class (Wi-Fi, bags) are a single footnote.
+- **Concept Update 1: choose your class.** Tapping a class on results opens **Choose your class** instead of going straight to fares. It shows the trip, "Compare the experience" with a segmented control per class (name first, price small), and a card that leads with the class promise and seat type, then Wi-Fi, power, food and drink, and lounge access. The price sits under the benefits ("From $34 per traveler"), with "View fare rules". Other classes on the train are listed below to switch. The button reads "Choose Coach · $34" and goes on to Choose a fare. Fare types stay on results.
 - **Concept Update 2: experience on each class.** Each class button on a trip card shows what you get under its price: a short seat description and amenity icons. The comparison happens where you choose, with no extra tap. The seat description is part of the button's accessible name.
 
-Both concepts are tagged Proposed and use only existing components. **Flag:** NMA-1097 (approved) puts fare types on results. Concept Update 1 removes them from results as an exploration of the test; if it goes ahead, NMA-1097 needs to change. Concept Update 2 keeps a smaller "Fare types" link.
+Both concepts are tagged Proposed and use only existing components. Both keep fare types on results, so NMA-1097 (approved) still holds. Concept Update 1 adds a step before fares; Choose a fare is unchanged.
 
 **Questions for the fare selection design**
 
