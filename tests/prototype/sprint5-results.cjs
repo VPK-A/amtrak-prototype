@@ -13,6 +13,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const open = async (sc = 'returning', js = '', th = 'light') => { await ev(([sc, js, th]) => { TB.v = 1; TB.dev = 'iphone'; TB.orient = 'portrait'; TB.theme = th; VS[1] = makeVS(sc); V().toast = null; goLoc('ff'); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.dep = '2026-11-05'; if (js) eval(js); render(); }, [sc, js, th]); await w(300); };
   const find = async () => { await p.locator(D_ + '[data-a="find-trains"]').click(); await w(1200); };
   const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
+  // Proposed tags can be hidden by a skin (wireframe branch), so they're checked in the markup, not on screen
+  const tags = () => ev(() => [...document.querySelectorAll('#device .s5-tag')].map(e => e.textContent).join(' | '));
   const stack = () => ev(() => nav().sheet ? nav().sheet.stack.map(r => r.s + (r.p.leg || '')).join('>') : '');
   const cards = () => ev(() => [...document.querySelectorAll('#device .s5-trip')].map(c => ({ id: c.dataset.trip, text: c.innerText.replace(/\s+/g, ' '), cls: [...c.querySelectorAll('.s5-class')].map(b => [b.dataset.cls, b.disabled, b.querySelector('.s5-class__price').textContent]) })));
   const axe = async n => { const v = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes.length)); ok(!v.length, `axe ${n} (${v})`); };
@@ -150,6 +152,21 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   f = await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText.replace(/\s+/g, ' '));
   const num = x => +x.replace(/[^0-9.]/g, ''), m = f.match(/Trip total (\$[\d.,]+) Departure (\$[\d.,]+) Return (\$[\d.,]+)/);
   ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
+
+  // ---- Results concepts (design exploration): compare the experience of each class ----
+  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Current,Concept Update 1,Concept Update 2' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
+  await open('returning', "TB.s5c = 'current'"); await find();
+  ok(await p.locator(D_ + '[data-topic="s5-classes"]').count() === 0 && await p.locator(D_ + '.s5-class__exp').count() === 0, 'Current: no class comparison');
+  await open('returning', "TB.s5c = 'c1'"); await find();
+  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: fare types stay on results (NMA-1097); tagged Proposed');
+  await p.locator(D_ + '[data-topic="s5-classes"]').click(); await w(400);
+  t = await txt();
+  ok(/Compare classes/.test(t) && /Seat/.test(t) && /Lounge/.test(t) && await ev(() => [...document.querySelectorAll('#device .s5-cmp__col')].map(e => e.textContent).join()) === 'Coach,Business,First,Private rooms' && await stack() === 'ff>handoff', 'Concept 1: Compare classes sheet compares each class on these trains without leaving results'); await axe('compare classes');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  await open('returning', "TB.s5c = 'c2'"); await find(); c = await cards();
+  ok(/Reclining seat/.test(c[0].text) && await ev(() => document.querySelector('#device [data-trip="t1"] .s5-class').getAttribute('aria-label').includes('Reclining seat')) && /Proposed · Concept Update 2/.test(await tags()), 'Concept 2: each class shows its seat type and amenities, also in its accessible name');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5faredep', 'Concept 2: choosing a class still opens Choose a fare'); await open('returning', "TB.s5c = 'current'");
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();

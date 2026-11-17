@@ -95,3 +95,17 @@
 .s5-totacc > summary { padding: 0; }
 .s5-totacc .ads-accordion__panel { padding: 0 0 var(--ads-space-12); }
 .s5-totacc__sum { flex: 1; display: flex; justify-content: space-between; gap: var(--ads-space-12); font-size: var(--ads-type-body-size); color: var(--ads-content-text-primary); }
+
+/* Concept Update 1: Compare classes sheet (rows of features, one value per class) */
+.s5-cmp__head { position: sticky; top: 0; z-index: 1; display: flex; gap: var(--ads-space-8); padding: var(--ads-space-8) 0; border-bottom: 2px solid var(--ads-border-strong, var(--ads-content-text-primary)); background: var(--ads-background-surface-raised); }
+.s5-cmp__col { flex: 1; min-width: 0; text-align: center; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.s5-cmp__all { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-4); margin-top: var(--ads-space-12); }
+.s5-cmp__row { padding: var(--ads-space-12) 0; border-bottom: 1px solid var(--ads-border-subtle); }
+.s5-cmp__feat { display: flex; align-items: center; gap: var(--ads-space-8); margin: 0 0 var(--ads-space-8); }
+.s5-cmp__vals { display: flex; gap: var(--ads-space-8); margin: 0; }
+.s5-cmp__val { flex: 1; min-width: 0; }
+.s5-cmp__val dd { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-primary); text-align: center; }
+/* Concept Update 2: the experience on each class button */
+.s5-class__exp { font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-secondary); line-height: 1.25; }
+.s5-class__icons { display: flex; justify-content: center; gap: var(--ads-space-8); color: var(--ads-content-icon-secondary); }
+.s5-class:disabled .s5-class__icons, .s5-class:disabled .s5-class__exp { opacity: .6; }
