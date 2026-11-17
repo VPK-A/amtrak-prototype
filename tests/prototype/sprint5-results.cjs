@@ -56,6 +56,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-topic="s5-pricing"]').click(); await w(400);
   ok(/Seats/.test(await txt()) && /Rooms/.test(await txt()) && /total for all travelers/.test(await txt()), 'pricing sheet explains seat and room prices'); await axe('pricing sheet');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  ok(await ev(() => document.querySelector('#device [data-topic="s5-fares"]').textContent.trim()) === 'Understand fare types', 'the fare types link reads Understand fare types');
   await p.locator(D_ + '[data-topic="s5-fares"]').click(); await w(400);
   ok(/Compare fare types/.test(await txt()) && /Flex/.test(await txt()) && await stack() === 'ff>handoff', 'fare types open without leaving results');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);

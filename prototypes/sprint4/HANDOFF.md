@@ -917,7 +917,7 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 | NMA-1096 Classes of service | Coach, Business, First or Private rooms in that order, lowest fare each, sold-out classes shown and disabled, unoffered classes hidden. First only on Acela. |
 | NMA-759 Unsuccessful searches | Dialogs for no trains on the date (names the next date and offers it), route not served, and assistance not available (continue without it, acknowledgment recorded). Technical failure uses the existing retry alert. Fare Finder values are always kept. |
 | NMA-1098 Pricing | A one-line note on the results screen and an info sheet for seat and room prices. |
-| NMA-1097 Fare types | "Compare fare types" opens an info sheet without leaving results. |
+| NMA-1097 Fare types | "Understand fare types" (wireframe branch; "Compare fare types" on the Sprint 5 branch) opens an info sheet without leaving results. |
 | NMA-1095 Border crossing | An alert and a card flag on cross-border trips only, with a "What to expect" sheet. |
 
 **Proposed designs (story not approved yet; each carries a "Proposed · NMA-…" tag on screen)**
