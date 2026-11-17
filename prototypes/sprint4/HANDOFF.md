@@ -892,6 +892,16 @@ Layout check against the board outlines (56 states, iPhone 390 × 844):
 
 Still to review: the Counter Small steps (36px) pass WCAG 2.5.8 AA (24px) but are under Apple's 44pt guideline and the WCAG 2.5.5 AAA 44px target.
 
+## Wireframe skin (branch `figma-make/sprint5-wireframe`)
+
+This branch runs parallel to `figma-make/sprint5-search-results`. It reskins the whole prototype with the Paper Wireframe Kit (Figma `sD504ztB6nKmv9v08NNBHz`, node 5190:533) in greyscale. Only `wireframe.css` (loaded last), the Patrick Hand font link in `src.html` and the build list change. Every screen, business rule, state and interaction is identical.
+
+- **Color:** the ADS primitive ramps (blue, red, green, amber, purple) are remapped to the kit's greys: white, gray 1 #EEEEEE to gray 6 #454545, and black #1B1B1B. Every semantic token follows automatically. Light mode is black ink on white paper; dark mode is white ink on black. Images, logos, maps and the brand arrows are shown in greyscale.
+- **Type:** Patrick Hand everywhere, with no bold weights, like the kit.
+- **Shapes:** 2px ink outlines with 8–12px corners on buttons, cards, alerts, fields and trip cards. Primary buttons are filled black, secondary buttons are outlined, and disabled buttons are dashed. Badges and tags are outlined pills; "Proposed" tags are dashed. Flat, with no soft shadows.
+- **Status without color:** success, warning, error and info now differ by icon and wording only, not by color. This is fine for wireframes, but don't carry it into visual design.
+- **Tests:** `tests/prototype/wireframe.cjs` checks that every screen is greyscale in light and dark and that the kit font loads. All behavior suites pass, including the axe accessibility checks. Three suites that check exact ADS visual specs fail on purpose here, because they measure ADS corners, border widths and brand colors: `adsnext-rollout.cjs`, `newbooking.cjs` (layout and style checks) and `final.cjs` check 13.
+
 ## Sprint 5 · Fare search results
 
 Branch `figma-make/sprint5-search-results`. Find trains now opens real results instead of the Sprint 4 placeholder. Code is in `results.js` and `results.css`; the route name is still `handoff` so Sprint 4 navigation and tests keep working. Trips, fares and content are mock data standing in for the back end and AEM.

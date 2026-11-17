@@ -1,0 +1,100 @@
+/* =====================================================================
+   Wireframe skin (branch figma-make/sprint5-wireframe)
+   Reskins the whole prototype with the Paper Wireframe Kit (Figma sD504ztB6nKmv9v08NNBHz, node 5190:533):
+   greyscale only, Patrick Hand type, 2px black outlines, black primary buttons, outlined secondary buttons.
+   Only styles change. Every screen, rule, state and test hook is the same as figma-make/sprint5-search-results.
+   It works by remapping the ADS primitive colors to the kit's greys, so every semantic token follows.
+   Kit greys: white #FFFFFF, gray 1 #EEEEEE, gray 2 #D8D8D8, gray 3 #B4B4B4, gray 4 #929292,
+   gray 5 #696969, gray 6 #454545, black #1B1B1B.
+   ===================================================================== */
+:root, [data-theme], [data-platform] {
+  --wf-white: #FFFFFF; --wf-g1: #EEEEEE; --wf-g2: #D8D8D8; --wf-g3: #B4B4B4; --wf-g4: #929292; --wf-g5: #696969; --wf-g6: #454545; --wf-black: #1B1B1B;
+  --wf-line: 2px solid var(--wf-ink, var(--wf-black));
+  --ads-font-family: "Patrick Hand", "Comic Neue", "Segoe Print", cursive;
+  /* Neutrals */
+  --ads-color-neutral-50: #FFFFFF; --ads-color-neutral-100: #F6F6F6; --ads-color-neutral-200: #EEEEEE; --ads-color-neutral-300: #D8D8D8;
+  --ads-color-neutral-400: #B4B4B4; --ads-color-neutral-500: #696969; --ads-color-neutral-600: #545454; --ads-color-neutral-700: #454545;
+  --ads-color-neutral-800: #2E2E2E; --ads-color-neutral-900: #1B1B1B; --ads-color-neutral-950: #000000;
+}
+/* Every hue becomes the same grey ramp: 600 is the kit's black (primary), 50 is gray 1 (selected) */
+:root, [data-theme] {
+  --wf-50: #EEEEEE; --wf-100: #D8D8D8; --wf-200: #B4B4B4; --wf-300: #929292; --wf-400: #696969; --wf-500: #545454;
+  --wf-600: #1B1B1B; --wf-700: #333333; --wf-800: #454545; --wf-900: #1B1B1B; --wf-950: #1B1B1B;
+}
+:root, [data-theme] {
+  --ads-color-blue-50: var(--wf-50); --ads-color-blue-100: var(--wf-100); --ads-color-blue-200: var(--wf-200); --ads-color-blue-300: var(--wf-300); --ads-color-blue-400: var(--wf-400); --ads-color-blue-500: var(--wf-500); --ads-color-blue-600: var(--wf-600); --ads-color-blue-700: var(--wf-700); --ads-color-blue-800: var(--wf-800); --ads-color-blue-900: var(--wf-900); --ads-color-blue-950: var(--wf-950);
+  --ads-color-red-50: var(--wf-50); --ads-color-red-100: var(--wf-100); --ads-color-red-200: var(--wf-200); --ads-color-red-300: var(--wf-300); --ads-color-red-400: var(--wf-400); --ads-color-red-500: var(--wf-500); --ads-color-red-600: var(--wf-600); --ads-color-red-700: var(--wf-700); --ads-color-red-800: var(--wf-800); --ads-color-red-900: var(--wf-900); --ads-color-red-950: var(--wf-950);
+  --ads-color-green-50: var(--wf-50); --ads-color-green-100: var(--wf-100); --ads-color-green-200: var(--wf-200); --ads-color-green-300: var(--wf-300); --ads-color-green-400: var(--wf-400); --ads-color-green-500: var(--wf-500); --ads-color-green-600: var(--wf-600); --ads-color-green-700: var(--wf-700); --ads-color-green-800: var(--wf-800); --ads-color-green-900: var(--wf-900); --ads-color-green-950: var(--wf-950);
+  --ads-color-amber-50: var(--wf-50); --ads-color-amber-100: var(--wf-100); --ads-color-amber-200: var(--wf-200); --ads-color-amber-300: var(--wf-300); --ads-color-amber-400: var(--wf-400); --ads-color-amber-500: var(--wf-500); --ads-color-amber-600: var(--wf-600); --ads-color-amber-700: var(--wf-700); --ads-color-amber-800: var(--wf-800); --ads-color-amber-900: var(--wf-900); --ads-color-amber-950: var(--wf-950);
+  --ads-color-purple-50: var(--wf-50); --ads-color-purple-100: var(--wf-100); --ads-color-purple-200: var(--wf-200); --ads-color-purple-300: var(--wf-300); --ads-color-purple-400: var(--wf-400); --ads-color-purple-500: var(--wf-500); --ads-color-purple-600: var(--wf-600); --ads-color-purple-700: var(--wf-700); --ads-color-purple-800: var(--wf-800); --ads-color-purple-900: var(--wf-900); --ads-color-purple-950: var(--wf-950);
+  /* Reviewer notes and the handoff placeholder were purple: now grey */
+  --pq: #1B1B1B; --pq-bg: #F6F6F6; --pq-edge: #696969;
+  --ffc-navy: #1B1B1B;
+  /* The kit is flat paper: no soft shadows */
+  --ads-shadow-elevation-sm: none; --ads-shadow-elevation-md: 0 2px 0 0 #1B1B1B; --ads-shadow-elevation-lg: 0 3px 0 0 #1B1B1B; --ads-shadow-elevation-xl: 0 4px 0 0 #1B1B1B;
+  --ads-radius-4: 6px; --ads-radius-8: 8px; --ads-radius-12: 12px;
+}
+/* Light mode semantics: black ink on white paper, gray 1 page */
+:root:not([data-theme="dark"]), [data-theme="light"] {
+  --wf-ink: #1B1B1B;
+  --ads-background-surface-page: #F6F6F6; --ads-background-surface-default: #FFFFFF; --ads-background-surface-raised: #FFFFFF; --ads-background-surface-sunken: #EEEEEE;
+  --ads-background-surface-inverse: #1B1B1B; --ads-background-surface-selected: #EEEEEE;
+  --ads-content-text-primary: #1B1B1B; --ads-content-text-secondary: #454545; --ads-content-text-tertiary: #545454; --ads-content-text-disabled: #696969;
+  --ads-content-text-link: #1B1B1B; --ads-content-text-link-hover: #454545; --ads-content-text-link-visited: #1B1B1B;
+  --ads-content-icon-primary: #1B1B1B; --ads-content-icon-brand: #1B1B1B;
+  --ads-border-default: #1B1B1B; --ads-border-subtle: #D8D8D8; --ads-border-strong: #1B1B1B; --ads-border-brand: #1B1B1B; --ads-border-focus: #1B1B1B;
+}
+/* Dark mode: white ink on black paper */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --wf-ink: #FFFFFF;
+  --ads-background-surface-page: #1B1B1B; --ads-background-surface-default: #242424; --ads-background-surface-raised: #2E2E2E; --ads-background-surface-sunken: #111111;
+  --ads-background-surface-selected: #454545; --ads-background-interactive-primary: #FFFFFF; --ads-background-interactive-primary-hover: #D8D8D8; --ads-background-interactive-primary-active: #B4B4B4; --ads-content-text-on-brand: #1B1B1B;
+  --ads-background-interactive-secondary: #242424; --ads-background-interactive-secondary-hover: #454545; --ads-background-interactive-selected: #FFFFFF;
+  --ads-content-text-primary: #FFFFFF; --ads-content-text-secondary: #D8D8D8; --ads-content-text-tertiary: #B4B4B4; --ads-content-text-disabled: #929292; --ads-content-text-link: #FFFFFF; --ads-content-text-link-hover: #D8D8D8;
+  --ads-content-icon-primary: #FFFFFF; --ads-content-icon-secondary: #D8D8D8; --ads-content-icon-brand: #FFFFFF;
+  --ads-border-default: #FFFFFF; --ads-border-subtle: #454545; --ads-border-strong: #FFFFFF; --ads-border-brand: #FFFFFF; --ads-border-focus: #FFFFFF;
+} }
+:root[data-theme="dark"], [data-theme="dark"] {
+  --wf-ink: #FFFFFF;
+  --ads-background-surface-page: #1B1B1B; --ads-background-surface-default: #242424; --ads-background-surface-raised: #2E2E2E; --ads-background-surface-sunken: #111111;
+  --ads-background-surface-selected: #454545; --ads-background-interactive-primary: #FFFFFF; --ads-background-interactive-primary-hover: #D8D8D8; --ads-background-interactive-primary-active: #B4B4B4; --ads-content-text-on-brand: #1B1B1B;
+  --ads-background-interactive-secondary: #242424; --ads-background-interactive-secondary-hover: #454545; --ads-background-interactive-selected: #FFFFFF;
+  --ads-content-text-primary: #FFFFFF; --ads-content-text-secondary: #D8D8D8; --ads-content-text-tertiary: #B4B4B4; --ads-content-text-disabled: #929292; --ads-content-text-link: #FFFFFF; --ads-content-text-link-hover: #D8D8D8;
+  --ads-content-icon-primary: #FFFFFF; --ads-content-icon-secondary: #D8D8D8; --ads-content-icon-brand: #FFFFFF;
+  --ads-border-default: #FFFFFF; --ads-border-subtle: #454545; --ads-border-strong: #FFFFFF; --ads-border-brand: #FFFFFF; --ads-border-focus: #FFFFFF;
+}
+
+/* ---------- Type: Patrick Hand everywhere (the kit's hand-drawn face). It runs small, so body text steps up a little. ---------- */
+body, .ads-root, .device, .device * { font-family: "Patrick Hand", "Comic Neue", "Segoe Print", cursive !important; letter-spacing: 0.02em; }
+.device { font-size: 17px; }
+.device b, .device strong, .device h1, .device h2, .device h3, .device [class*="title"], .device .ads-btn { font-weight: 400 !important; }
+
+/* ---------- Kit shapes: 2px ink outlines, rounded 8px ---------- */
+.device .ads-btn { border-radius: 8px; border: var(--wf-line); box-shadow: none; }
+.device .ads-btn:not(.ads-btn--secondary):not(.ads-btn--tertiary):not(.ads-btn--ghost):not(:disabled) { background: var(--ads-background-interactive-primary); color: var(--ads-content-text-on-brand); }
+.device .ads-btn--secondary { background: var(--ads-background-surface-default); color: var(--ads-content-text-primary); }
+.device .ads-btn:disabled, .device .ads-btn[aria-disabled="true"] { border-style: dashed; border-color: var(--ads-content-text-disabled); }
+.device .ads-icon-btn { border-radius: 8px; }
+.device :is(.ads-card, .ads-summary, .ads-alert, .ads-banner, .ads-control, .ads-codeinput, .ads-selectrow__btn, .ads-stationgroup, .ads-dategroup, .ads-routefield, .ads-ticket, .ads-segmented, .ads-counter, .ads-datefield, .s5-trip, .s5-fopt, .s5-class, .ads-modal, .pdialog__box, .ads-toast) { border: var(--wf-line) !important; border-radius: 12px; box-shadow: none !important; }
+.device :is(.ads-control, .ads-codeinput, .s5-class, .ads-counter, .ads-segmented) { border-radius: 8px; }
+.device :is(.ads-alert, .ads-banner) { background: var(--ads-background-surface-default) !important; }
+.device .ads-alert__icon, .device .ads-banner .ads-icon { color: var(--ads-content-icon-primary) !important; }
+.device .ads-badge, .device .ads-lock { border: 1.5px solid var(--wf-ink); border-radius: 999px; background: var(--ads-background-surface-default) !important; color: var(--ads-content-text-primary) !important; }
+.device .s5-tag { border-style: dashed; }
+.device .ads-link, .device .linkbtn { color: var(--ads-content-text-link); text-decoration-thickness: 1.5px; }
+/* Controls like the kit: black-filled checks and radios, black switch with a white knob */
+.device .ads-choice input:checked + .ads-choice__control { color: var(--wf-ink); }
+.device .ads-switch__track { border: var(--wf-line); background: var(--ads-background-surface-sunken); }
+.device .ads-switch input:checked + .ads-switch__track { background: var(--wf-ink); }
+.device .ads-tab[aria-selected="true"] { color: var(--ads-content-text-primary); }
+.device .ads-tabs { border-bottom: var(--wf-line); }
+.device .ads-accordion { border-bottom-color: var(--ads-border-subtle); }
+/* Handoff placeholders keep their dashed frame like the kit's component outlines */
+.device .handoff { border: 2px dashed var(--ads-content-text-tertiary) !important; background: var(--ads-background-surface-default) !important; }
+.device .handoff__tag { background: var(--wf-ink) !important; color: var(--ads-background-surface-default) !important; }
+.device .ads-sheet-header, .device .ads-navbar { border-bottom: var(--wf-line); }
+/* Pictures, logos, maps and the brand arrows lose their color */
+.device img, .device svg:not(.ads-icon svg), .device .ads-sheet-header__brand, .device .gmap, .device .map-canvas, .mail, .device iframe { filter: grayscale(1); }
+/* The iPad glass tab bar keeps AA contrast on its grey tint in dark mode */
+[data-theme="dark"], [data-theme="dark"] * { --ads-glass-ink-muted: #D8D8D8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) * { --ads-glass-ink-muted: #D8D8D8; } }
