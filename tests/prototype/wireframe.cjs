@@ -28,6 +28,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
     b = await colored(); ok(!b.length, `${th}: Trip summary, success alert and handoff are greyscale ${b.join(' | ')}`);
   }
+  ok(await p.evaluate(() => [...document.querySelectorAll('#device .s5-tag, #device .s5-proposed')].every(e => !e.offsetParent)) && !/Proposed ·/.test(await p.evaluate(() => document.querySelector('#device').innerText)), 'Proposed tags are hidden');
   ok(await p.evaluate(async () => { await document.fonts.ready; return getComputedStyle(document.querySelector('#device .ads-btn, #device button')).fontFamily.includes('Patrick Hand'); }), 'the kit font (Patrick Hand) is applied');
   ok(!errs.length, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);

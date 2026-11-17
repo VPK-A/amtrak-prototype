@@ -13,6 +13,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const open = async (sc = 'returning', js = '', th = 'light') => { await ev(([sc, js, th]) => { TB.v = 1; TB.dev = 'iphone'; TB.orient = 'portrait'; TB.theme = th; VS[1] = makeVS(sc); V().toast = null; goLoc('ff'); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.dep = '2026-11-05'; if (js) eval(js); render(); }, [sc, js, th]); await w(300); };
   const find = async () => { await p.locator(D_ + '[data-a="find-trains"]').click(); await w(1200); };
   const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
+  // Proposed tags can be hidden by a skin (wireframe branch), so they're checked in the markup, not on screen
+  const tags = () => ev(() => [...document.querySelectorAll('#device .s5-tag')].map(e => e.textContent).join(' | '));
   const stack = () => ev(() => nav().sheet ? nav().sheet.stack.map(r => r.s + (r.p.leg || '')).join('>') : '');
   const cards = () => ev(() => [...document.querySelectorAll('#device .s5-trip')].map(c => ({ id: c.dataset.trip, text: c.innerText.replace(/\s+/g, ' '), cls: [...c.querySelectorAll('.s5-class')].map(b => [b.dataset.cls, b.disabled, b.querySelector('.s5-class__price').textContent]) })));
   const axe = async n => { const v = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes.length)); ok(!v.length, `axe ${n} (${v})`); };
@@ -92,7 +94,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // ---- Choose a fare (proposed; follows the current app: class, fare options, price, Continue) ----
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   t = await txt();
-  ok(await stack() === 'ff>handoff>s5faredep' && /Choose a fare/.test(t) && /Proposed · Fare selection/.test(t) && !(await ev(() => (D().cart || []).length)), 'choosing a class opens Choose a fare, tagged Proposed; nothing in the cart yet');
+  ok(await stack() === 'ff>handoff>s5faredep' && /Choose a fare/.test(t) && /Proposed · Fare selection/.test(await tags()) && !(await ev(() => (D().cart || []).length)), 'choosing a class opens Choose a fare, tagged Proposed; nothing in the cart yet');
   ok(/Northeast Regional 171/.test(t) && /6:10 AM → to 8:44 AM|6:10 AM → 8:44 AM/.test(t) && await ev(() => document.querySelector('#device .pane:last-child .s5-ctab[aria-selected="true"]').dataset.v === 'Coach'), 'the trip summary and the chosen class tab are shown');
   ok(/Value/.test(t) && /Flex/.test(t) && /30% cancellation fee/.test(t) && /Full refund/.test(t) && /per traveler/.test(t), 'fare options show their price and rules');
   const amt = () => ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
@@ -106,7 +108,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => (D().cart || []).length === 1) && await stack() === 'ff>handoff>s5faredep>s5sum' && /In your cart/.test(await txt()) && /1 Coach seat · Value/.test(await txt()), 'Continue adds to the simulated cart and shows the trip summary (Sprint 4 abandon rule still has something to act on)');
   await open('returning', "D().booking.trip = 'rt'; D().booking.ret = '2026-11-08'"); await find();
   await p.locator(D_ + '[data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
-  ok(await stack() === 'ff>handoff>s5faredep>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Proposed · NMA-1109/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'round-trip: the return step follows the departure fare, tagged Proposed');
+  ok(await stack() === 'ff>handoff>s5faredep>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Proposed · NMA-1109/.test(await tags()) && !(await ev(() => (D().cart || []).length)), 'round-trip: the return step follows the departure fare, tagged Proposed');
   await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
   ok(/Departure · Thu, Nov 5/.test(await txt()) && /Return · Sun, Nov 8/.test(await txt()), 'the trip summary shows both legs');
 
@@ -152,7 +154,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
-  await open(); await find(); t = await txt();
+  await open(); await find(); t = await tags();
   ok(['NMA-755', 'NMA-758', 'NMA-1092/1093', 'NMA-1138'].every(k => t.includes('Proposed · ' + k)), 'proposed designs carry a Proposed tag with the story number');
   ok(await ev(() => [...NOTES.scope].some(n => /NMA-760/.test(n) && /NMA-762/.test(n) && /NMA-1140/.test(n) && /NMA-1141/.test(n))), 'open stories are flagged in the reviewer notes');
   ok(await ev(() => [...document.querySelector('#tbS5').options].length === S5_OUTCOMES.length) && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5"]').textContent)), 'the new control is labelled (Sprint 5)');

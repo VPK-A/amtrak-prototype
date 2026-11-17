@@ -3314,6 +3314,9 @@ body, .ads-root, .device, .device * { font-family: "Patrick Hand", "Comic Neue",
 /* The iPad glass tab bar keeps AA contrast on its grey tint in dark mode */
 [data-theme="dark"], [data-theme="dark"] * { --ads-glass-ink-muted: #D8D8D8; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) * { --ads-glass-ink-muted: #D8D8D8; } }
+/* "Proposed · NMA-…" tags are hidden in the wireframe. They stay in the markup (and in the reviewer notes), so the
+   Sprint 5 branch and its tests keep the story mapping. */
+.device .s5-tag, .device .s5-proposed { display: none !important; }
 
 </style>
 </head>
