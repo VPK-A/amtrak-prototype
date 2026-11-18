@@ -159,11 +159,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open('returning', "TB.s5c = 'current'"); await find();
   ok(await p.locator(D_ + '[data-topic="s5-classes"]').count() === 0 && await p.locator(D_ + '.s5-class__exp').count() === 0, 'Current: no class comparison');
   await open('returning', "TB.s5c = 'c1'"); await find();
-  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: fare types stay on results (NMA-1097); tagged Proposed');
+  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 0 && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: Compare classes replaces fare types on results; tagged Proposed');
   await p.locator(D_ + '[data-topic="s5-classes"]').click(); await w(400);
   t = await txt();
   ok(/Compare classes/.test(t) && /Seat/.test(t) && /Lounge/.test(t) && await ev(() => [...document.querySelectorAll('#device .s5-cmp__col')].map(e => e.textContent).join()) === 'Coach,Business,First,Private rooms' && await stack() === 'ff>handoff', 'Concept 1: Compare classes sheet compares each class on these trains without leaving results'); await axe('compare classes');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await p.locator(D_ + '.pane:last-child [data-topic="s5-fares"]').count() === 1, 'Concept 1: fare types are compared on Choose a fare');
   await open('returning', "TB.s5c = 'c2'"); await find(); c = await cards();
   ok(/Reclining seat/.test(c[0].text) && await ev(() => document.querySelector('#device [data-trip="t1"] .s5-class').getAttribute('aria-label').includes('Reclining seat')) && /Proposed · Concept Update 2/.test(await tags()), 'Concept 2: each class shows its seat type and amenities, also in its accessible name');
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
