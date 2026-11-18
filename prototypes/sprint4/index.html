@@ -3235,6 +3235,25 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .s5-strike { font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
 .s5-netp { font-weight: var(--ads-font-weight-semibold); }
 
+/* Multi-segment: trip segments and class combinations */
+.s5-segs, .s5-combos { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.s5-seg { padding: var(--ads-space-12); gap: var(--ads-space-4); }
+.s5-seg__top { display: flex; justify-content: space-between; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-seg__train { display: flex; align-items: center; gap: var(--ads-space-8); }
+.s5-seg__route { margin: 0; display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
+.s5-seg__route span:last-child { text-align: right; }
+.s5-lay { display: flex; align-items: center; gap: var(--ads-space-8); padding: 0 var(--ads-space-12); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-combo { padding: var(--ads-space-16); gap: var(--ads-space-8); }
+.s5-combo__price { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-combo__price b { font-size: var(--ads-type-h4-headline-size); color: var(--ads-content-text-primary); }
+.s5-combo__title { margin: 0; font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); }
+.s5-combo__segs { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; font-size: var(--ads-type-body-small-size); }
+.s5-combo__amen > summary { padding-inline: 0; }
+.s5-combo__amen .ads-accordion__panel { padding-inline: 0; }
+.s5-combo__amen .ads-accordion__panel p { margin: 0 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+.s5-combo .ads-group, .s5-combo .ads-group__body { margin: 0; border: 0; box-shadow: none; background: none; }
+.s5-combo .ads-group__row { padding-inline: 0; border-top: 1px solid var(--ads-border-subtle); }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -7733,9 +7752,9 @@ function s5Trips(b, leg) {
     T({ id: 't6', num: '2165', name: 'Acela', dep: 13 * 60, dur: Math.round(base * 0.82), cls: { Business: null, First: null } }),
     T({ id: 't7', num: '19', name: 'Crescent', dep: 14 * 60 + 15, dur: base + 28, cls: { Coach: fare - 6, Rooms: fare + 312 } }),
     T({ id: 't8', num: '67', name: 'Northeast Regional', dep: 21 * 60 + 40, dur: base + 190, cls: { Coach: fare - 10, Business: fare + 30 } }),
-    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, cls: { Coach: fare + 14, Business: fare + 61 }, sale: ['Coach'] }),
-    T({ id: 't10', svc: 'mixed', segs: 2, num: '8012 + 181', name: 'Thruway Bus and Northeast Regional', dep: 12 * 60 + 20, dur: base + 140, layover: 70, via, self: true, cls: { Coach: fare + 2 } }),
-    T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, cls: { Coach: fare + 72, Rooms: fare + 540 } })
+    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, segNames: ['Northeast Regional', 'Northeast Regional'], cls: { Coach: fare + 14, Business: fare + 61 }, sale: ['Coach'] }),
+    T({ id: 't10', svc: 'mixed', segs: 2, num: '8012 + 181', name: 'Thruway Bus and Northeast Regional', dep: 12 * 60 + 20, dur: base + 140, layover: 70, via, self: true, segNames: ['Thruway Bus', 'Northeast Regional'], segSvc: ['bus', 'train'], cls: { Coach: fare + 2 } }),
+    T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, segNames: ['Lake Shore Limited', 'Capitol Limited', 'Northeast Regional'], segOffers: [['Coach', 'Rooms'], ['Coach', 'Rooms'], ['Coach']], cls: { Coach: fare + 72, Rooms: fare + 540 } })
   ];
   const xb = s5Border(from, to); if (xb) list = s5BorderTrips(from, to, h, fare);
   if (date === TODAY_S) list = list.filter(t => t.status === 'canceled' || t.dep + t.delay > S5_NOW); // NMA-748 AC#4: delayed trains stay until they actually leave; canceled stay by schedule
@@ -7870,7 +7889,7 @@ SCR.handoff = (r, ri) => {
     if (s5().outcome === 'hold' && !s5().holdDone) { s5().holdDone = true; dialog({ title: 'Prices have been refreshed', body: `We hold a fare for 30 minutes. It’s been longer than that, so we checked this trip again. Review the price before you continue. ${s5tag('NMA-757')}`, returnFocus: '.pane:last-child [data-a="cart-add"]', actions: [['Review price', 'primary', () => render()]] }); return; }
     const b = D().booking, sh = sheet(), top = sh.stack[sh.stack.length - 1];
     const leg = top.p.leg === 'ret' ? 'ret' : 'dep', sel = D().s5sel = D().s5sel || {};
-    sel[leg] = { trip: t.dataset.trip, cls: t.dataset.cls, fare: t.dataset.fare };
+    sel[leg] = { trip: t.dataset.trip, cls: t.dataset.cls, fare: t.dataset.fare, combo: t.dataset.combo != null ? +t.dataset.combo : null };
     if (b.trip === 'rt' && leg !== 'ret') { push('handoff', { leg: 'ret', out: t.dataset.trip }, sh.stack.length - 1); return; }
     add(t, ri); push('s5sum', {}, sh.stack.length - 1);
   }; }
@@ -7908,13 +7927,64 @@ const s5ClsName = k => k === 'Rooms' ? 'Private rooms' : k;
 A['s5-fare'] = (t, ri) => {
   if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
   const sh = sheet(), top = sh.stack[sh.stack.length - 1];
-  push('s5fare', { leg: top.p.leg === 'ret' ? 'ret' : 'dep', trip: t.dataset.trip, cls: t.dataset.cls }, sh.stack.length - 1);
+  const leg = top.p.leg === 'ret' ? 'ret' : 'dep', tr = top.s === 'handoff' && s5Trips(D().booking, leg).list.find(x => x.id === t.dataset.trip);
+  // Multi-segment trips: see the segments and pick a class combination first, then the fare type
+  push(tr && tr.segs > 1 ? 's5combo' : 's5fare', { leg, trip: t.dataset.trip, cls: t.dataset.cls }, sh.stack.length - 1);
+};
+// =====================================================================
+// Multi-segment trips (NMA-1096; NMA-1138 is consolidated into it): the card and its prices stay the same as a
+// single-segment trip. Choosing a class opens the trip's segments (route information) and the class combinations
+// for that class; a combination then goes on to the fare types. Combinations come from the back end; these are mock.
+// =====================================================================
+function s5Segs(t, res) {
+  const n = t.segs, names = t.segNames || (t.name.includes(' and ') ? t.name.replace(/, \d trains$/, '').split(' and ') : Array(n).fill(t.name.replace(/, \d trains$/, '')));
+  const nums = String(t.num).split(' + '), share = n === 2 ? [0.55, 0.45] : [0.45, 0.4, 0.15];
+  const via2 = n === 3 ? ST[['CHI', 'PGH', 'WAS', 'PHL', 'NYP'].find(c => ![res.from, res.to, t.via && t.via.code].includes(c))] : null;
+  const stops = [ST[res.from], t.via, via2, ST[res.to]].filter(Boolean), lay = [t.layover, 60];
+  const ride = t.dur - lay.slice(0, n - 1).reduce((a, x) => a + x, 0); let clock = t.dep + t.delay;
+  return Array.from({ length: n }, (_, i) => { const d = Math.round(ride * share[i]), s = { i, name: names[Math.min(i, names.length - 1)], num: nums[i] || nums[0], svc: (t.segSvc || [])[i] || 'train', from: stops[i], to: stops[i + 1], dep: clock, arr: clock + d, layover: i < n - 1 ? lay[i] : 0, offers: (t.segOffers || [])[i] || Object.keys(t.cls) }; clock += d + s.layover; return s; });
+}
+// Combinations for the class tapped on the card. The cheapest one is the card's price, so the card stays honest.
+function s5Combos(t, res, k) {
+  const segs = s5Segs(t, res), on = segs.filter(s => s.offers.includes(k)), base = t.cls[k];
+  if (base == null || !on.length) return [];
+  const longest = on.reduce((a, s) => (s.arr - s.dep > a.arr - a.dep ? s : a), on[0]);
+  const mk = (pick, price) => ({ segs: segs.map(s => ({ ...s, cls: pick(s) })), price });
+  const cheap = mk(s => s === longest ? k : 'Coach', base), full = mk(s => s.offers.includes(k) ? k : 'Coach', base + Math.round((base - (t.cls.Coach || base * 0.7)) * 0.6 + 12));
+  const same = cheap.segs.every((s, i) => s.cls === full.segs[i].cls);
+  return (k === 'Coach' || same ? [cheap] : [cheap, full]).map((c, i) => ({ ...c, id: i, title: c.segs.map(s => s.cls === 'Rooms' ? 'Private room' : s5ClsName(s.cls)).join(' + ') }));
+}
+A['s5-combo'] = (t, ri) => {
+  if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
+  const r = sheet().stack[+ri]; push('s5fare', { leg: r.p.leg, trip: r.p.trip, cls: r.p.cls, combo: +t.dataset.v }, +ri);
+};
+const s5SegQty = (b, cls) => { const n = travelerCount(b); return cls === 'Rooms' ? '1 room' : `${n} ${s5ClsName(cls)} seat${n === 1 ? '' : 's'}`; };
+SCR.s5combo = (r, ri) => {
+  const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), it = intentOf(b), pr = it === 'pr';
+  const segs = s5Segs(tr, res), combos = s5Combos(tr, res, r.p.cls), room = r.p.cls === 'Rooms';
+  snote('Multi-segment trips (NMA-1096, with NMA-1138 consolidated into it): the results card and its prices are the same as for a direct trip. Choosing a class shows the trip’s segments and layovers, then the class combinations for that class, each priced “from” its lowest fare. “Select a fare type” goes on to Choose a fare. Proposed: the combination step itself isn’t in a story. Combinations, prices and amenities are sample content from the back end.');
+  const code = s => `<span class="s5-seg__codes"><b>${s.from.code}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s.to.code}</b></span>`;
+  const segCard = s => `<li class="ads-card s5-seg"><div class="s5-seg__top"><span class="s5-seg__n">Segment ${s.i + 1} of ${segs.length}</span>${code(s)}</div>
+      <div class="s5-seg__train">${ic(s.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<b>${s.num} ${esc(s.name)}</b></div>
+      <p class="s5-seg__route"><span><b>${s5time(s.dep)}</b><br>${esc(s.from.city)}, ${s.from.st}</span><span aria-hidden="true">→</span><span class="ads-sr-only">to</span><span><b>${s5time(s.arr)}</b><br>${esc(s.to.city)}, ${s.to.st}</span></p></li>
+    ${s.layover ? `<li class="s5-lay">${ic('clock', 'ads-icon--sm')}<span>Layover in ${esc(s.to.city)}, ${s.to.st} · ${s5dur(s.layover)}${tr.self && s.i === 0 ? ' · Self-transfer: change stations' : ''}</span></li>` : ''}`;
+  const comboCard = c => `<li class="ads-card s5-combo">
+      <p class="s5-combo__price">${pr ? 'Pass Rider fare' : `From <b>${s5Price(b, s5Net(b, c.price, r.p.cls))}</b> ${room ? 'a room' : 'per traveler'}`}</p>
+      <h4 class="s5-combo__title">${c.title}</h4>
+      <ul class="s5-combo__segs">${c.segs.map(s => `<li>${s.from.code} <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> ${s.to.code}: ${s5SegQty(b, s.cls)}</li>`).join('')}</ul>
+      <details class="ads-accordion ads-accordion--sm s5-combo__amen"><summary>Amenities by segment${ic('chevron-down')}</summary><div class="ads-accordion__panel">${c.segs.map(s => `<p><b>${s.from.code} → ${s.to.code}, ${s5ClsName(s.cls)}:</b> ${S5_EXP[s.cls].short}</p>`).join('')}</div></details>
+      ${group('', [grow({ a: 's5-combo', data: `data-v="${c.id}" aria-label="Select a fare type for ${c.title}"`, label: 'Select a fare type' })])}</li>`;
+  return { title: 'Choose your classes', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these combinations. Choosing a fare needs a connection.',
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Class combinations')}</p>
+      <h3 class="ads-group__title s5-dsec">Your trip segments</h3><ol class="s5-segs">${segs.map(segCard).join('')}</ol>
+      <h3 class="ads-group__title s5-dsec">Choose a ${room ? 'room' : s5ClsName(r.p.cls)} combination</h3>
+      ${combos.length ? `<ul class="s5-combos">${combos.map(comboCard).join('')}</ul>` : alertBox('info', 'No combinations available', 'Go back to choose another class.')}` };
 };
 A['s5-cls'] = (t, ri) => { const r = sheet().stack[+ri]; r.p.cls = t.dataset.v; r.u.fare = null; pendingFocus = `#s5c-${t.dataset.v}`; render(); };
 A['s5-pick'] = (t, ri) => { const r = sheet().stack[+ri]; r.u.fare = t.dataset.v; render(); };
 SCR.s5fare = (r, ri) => {
   const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), it = intentOf(b), pr = it === 'pr';
-  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), cls = r.p.cls, base = tr.cls[cls];
+  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), cls = r.p.cls, combo = r.p.combo != null ? s5Combos(tr, res, cls)[r.p.combo] : null, base = combo ? combo.price : tr.cls[cls];
   const fares = pr ? [['Pass Rider', null]] : s5Fares(cls, base).map(([n, p]) => [n, p, s5Net(b, p, cls)]), pick = r.u.fare && fares.some(f => f[0] === r.u.fare) ? r.u.fare : fares[0][0], pf = fares.find(f => f[0] === pick) || fares[0], price = pf[2] != null ? pf[2] : pf[1], disc = s5Disc(b);
   const seats = travelerCount(b), room = cls === 'Rooms', total = price == null ? null : room ? price : price * seats;
   const label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`;
@@ -7925,9 +7995,9 @@ SCR.s5fare = (r, ri) => {
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
-  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}">Continue</button></div>`;
+  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}"${combo ? ` data-combo="${combo.id}"` : ''}>Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
-    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
 };
 
@@ -7935,8 +8005,8 @@ const np0 = (fares, cls) => cls !== 'Rooms' && fares.some(f => f[2] != null && f
 // Trip summary after Continue (the cart and add-ons are outside Sprint 5)
 SCR.s5sum = (r, ri) => {
   const b = D().booking, sel = D().s5sel || {}, it = intentOf(b);
-  const legCard = leg => { const s = sel[leg]; if (!s) return ''; const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr) return ''; const room = s.cls === 'Rooms', p = it === 'pr' ? null : s5Net(b, (s5Fares(s.cls, tr.cls[s.cls]).find(f => f[0] === s.fare) || [, tr.cls[s.cls]])[1], s.cls), n = travelerCount(b);
-    return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${room ? '1 private room' : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${p == null ? '' : ` · ${s5Price(b, room ? p : p * n)}`}</p></div>`; };
+  const legCard = leg => { const s = sel[leg]; if (!s) return ''; const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr) return ''; const room = s.cls === 'Rooms', p = it === 'pr' ? null : s5Net(b, (s5Fares(s.cls, s5SelBase(tr, res, s)).find(f => f[0] === s.fare) || [, s5SelBase(tr, res, s)])[1], s.cls), n = travelerCount(b), combo = s.combo != null ? s5Combos(tr, res, s.cls)[s.combo] : null;
+    return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${combo ? combo.title : room ? '1 private room' : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${p == null ? '' : ` · ${s5Price(b, room ? p : p * n)}`}</p></div>`; };
   snote('Trip summary after Continue: the trip is in the (simulated) cart. Add-ons, seats, traveler details and checkout aren’t part of Sprint 5.');
   return { title: 'Trip summary', kind: 'push', backIcon: true, cls: 'pane--s5',
     body: `${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
@@ -7949,10 +8019,12 @@ SCR.s5sum = (r, ri) => {
 const s5PtsOk = b => ['standard', 'personal'].includes(intentOf(b));
 function s5LegCost(b, leg, s) {
   s = s || (D().s5sel || {})[leg]; if (!s) return null;
-  const tr = s5Trips(b, leg).list.find(x => x.id === s.trip); if (!tr || tr.cls[s.cls] == null) return null;
-  const p = (s5Fares(s.cls, tr.cls[s.cls]).find(f => f[0] === s.fare) || [, tr.cls[s.cls]])[1];
+  const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr || tr.cls[s.cls] == null) return null;
+  const base = s5SelBase(tr, res, s), p = (s5Fares(s.cls, base).find(f => f[0] === s.fare) || [, base])[1];
   const np = s5Net(b, p, s.cls); return s.cls === 'Rooms' ? np : np * travelerCount(b);
 }
+// The chosen class's base price: a multi-segment combination's own price, or the class price
+const s5SelBase = (tr, res, s) => s.combo != null ? (s5Combos(tr, res, s.cls)[s.combo] || { price: tr.cls[s.cls] }).price : tr.cls[s.cls];
 const s5Money = (b, v) => intentOf(b) === 'pr' ? 'Pass Rider fare' : v == null ? '—' : b.pay === 'points' && s5PtsOk(b) ? s5Price(b, v) : `$${v.toFixed(2)}`;
 // pending: the fare being chosen on the Choose a fare screen (its leg and cost), so the total shows before Continue
 function s5Drawer(b, leg, pending) {

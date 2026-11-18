@@ -196,6 +196,26 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok((await strikeOf('t1')).every(x => !x[0]), 'points: codes don’t apply, so no strikethrough from a code');
   await ev(() => { TB.s5d = 'current'; });
 
+  // ---- Multi-segment: trip segments, class combinations, then fare types ----
+  await open(); await find();
+  await p.locator(D_ + '[data-trip="t11"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
+  t = await txt();
+  ok(await stack() === 'ff>handoff>s5combodep' && /Your trip segments/.test(t) && /Segment 1 of 3/.test(t) && /Segment 3 of 3/.test(t) && (t.match(/Layover in/g) || []).length === 2, 'a multi-segment class opens the trip segments with each layover');
+  const combos = await ev(() => [...document.querySelectorAll('#device .s5-combo')].map(c => [c.querySelector('.s5-combo__title').textContent, c.querySelector('.s5-combo__price b').textContent, c.querySelectorAll('.s5-combo__segs li').length]));
+  const cardRooms = c.find(x => x.id === 't11') ? c.find(x => x.id === 't11').cls.find(k => k[0] === 'Rooms')[2] : null;
+  ok(combos.length === 2 && combos.every(x => /Private room/.test(x[0]) && x[2] === 3) && combos[0][1] === (await ev(() => s5Price(D().booking, s5Trips(D().booking, 'dep').list.find(t => t.id === 't11').cls.Rooms))), `room combinations list each segment’s class; the cheapest matches the card’s price (${JSON.stringify(combos)})`);
+  ok(/Amenities by segment/.test(t) && /Select a fare type/.test(t) && /Proposed · Class combinations/.test(await tags()), 'each combination has amenities by segment and Select a fare type; tagged Proposed'); await axe('class combinations');
+  await p.locator(D_ + '.pane:last-child [data-a="s5-combo"]').last().click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5combodep>s5faredep' && new RegExp(combos[1][0].replace(/[+]/g, '\\+')).test(await txt()) && /Value/.test(await txt()) && /Flex/.test(await txt()) && await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.combo) === '1', 'Select a fare type opens the fare types for that combination');
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(await ev(() => (D().cart || []).length === 1) && new RegExp(combos[1][0].replace(/[+]/g, '\\+')).test(await txt()), 'Continue adds it; the trip summary names the combination');
+  await open(); await find();
+  await p.locator(D_ + '[data-trip="t9"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok((await ev(() => document.querySelectorAll('#device .s5-combo').length)) === 1 && /Coach \+ Coach/.test(await txt()), 'Coach on a multi-segment trip is a single all-Coach combination');
+  await open(); await find();
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5faredep', 'a direct trip still goes straight to Choose a fare');
+
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();
   ok(['NMA-758', 'NMA-1092/1093', 'NMA-762'].every(k => t.includes('Proposed · ' + k)) && !/NMA-755|NMA-1138|NMA-761/.test(t), 'proposed designs carry a Proposed tag; approved NMA-755 and NMA-761, and consolidated NMA-1138, don’t');
