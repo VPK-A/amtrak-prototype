@@ -986,6 +986,19 @@ Use the prototype control **Discount pricing (Sprint 5)** to switch between **Cu
 - **Rooms:** unchanged, because room prices already include discounts (NMA-1098).
 - **Flags:** NMA-1098 says seat prices are shown before discounts, so this concept needs that rule changed. Discount amounts are sample values; the back end prices discounts, including codes limited to a train or class (for example "20% off Northeast Regional Coach", which the prototype applies to every seat).
 
+**Private rooms: room type first, then fare type**
+
+For private rooms, Choose a fare starts with **Room type**, as on the current site. The fare type comes after it.
+
+- **Roomette:** up to 2 adults; shared restroom and shower.
+- **Bedroom:** up to 2 adults; 2× the space of a Roomette; private in-room sink, restroom and shower.
+- **Family Room:** up to 2 adults and 2 children; spans the width of the car; shared restroom and shower.
+- Each type shows its total for the party and how many rooms that is ("$345 for 1 room"). When more than one is needed, it says so ("3 travelers need 2 Roomettes"). Sold-out types show "Sold out" and can't be chosen; in the mock, the Crescent's Family Room is sold out.
+- **Rooms needed:** Roomettes and Bedrooms hold up to 2 travelers who take a seat (lap infants share). Family Rooms hold up to 2 adults and 2 children, so a family of 4 needs 1 Family Room or 2 Roomettes.
+- **Included in all rooms:** seating by day and berths by night; meals and an attendant; lounge access and priority boarding at select stations; bedding and linens.
+- The chosen room type sets the fare prices, the total, the trip total and the trip summary ("1 Bedroom for 1 traveler"). On a multi-segment combination, the room type applies to every segment with a room. The card shows the lowest available room total.
+- **Flags:** room-type prices are sample multipliers of the Roomette price. Which room types each train offers and their availability come from the back end. Confirm the capacity rules for larger groups and Family Rooms.
+
 **Fare types by class and route (from the fare-type definitions)**
 
 | Class | Fare types offered | Seat choice |
