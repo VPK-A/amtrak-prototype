@@ -960,6 +960,17 @@ Based on design feedback, results could compare the *experience* of each class o
 
 Both concepts are tagged Proposed and use only existing components. **Flag:** NMA-1097 (approved) puts fare types on results. Concept Update 1 removes them from results as an exploration of the test; if it goes ahead, NMA-1097 needs to change. Concept Update 2 keeps a smaller "Fare types" link.
 
+**Multi-segment trips: segments, class combinations, then fare types (proposed)**
+
+The results card for a multi-segment trip keeps the same layout and prices as a direct trip (NMA-1096, with NMA-1138 consolidated into it). Tapping a class opens **Choose your classes**:
+
+- **Your trip segments:** one card per segment ("Segment 1 of 3", station codes, train number and name, departure and arrival time and city), with the layover between segments (city and length, plus "Self-transfer: change stations" where it applies).
+- **Class combinations** for the class tapped: each card shows "From $X per traveler" (rooms: "a room"), the combination ("Private room + Private room + Coach"), each segment's class and quantity ("NYP → PHL: 1 room", "CHI → WAS: 1 Coach seat"), "Amenities by segment", and **Select a fare type**.
+- The cheapest combination is the price on the results card, so the card stays accurate. Coach is a single all-Coach combination. A class that only some segments offer falls back to Coach on the others.
+- **Select a fare type** opens Choose a fare with the combination shown in place of the class tabs. Value and Flex, the trip total, the round-trip Return step and the trip summary all use the combination.
+- Direct trips still go straight to Choose a fare.
+- **Flags:** combinations, their prices and room counts come from the back end; the prototype's are sample data. Room quantity is shown as 1 room for up to 2 travelers. Confirm how rooms are counted for larger groups.
+
 **Discount pricing concept: strikethrough for one traveler (design exploration)**
 
 Use the prototype control **Discount pricing (Sprint 5)** to switch between **Current** and **Strikethrough for one traveler**.
