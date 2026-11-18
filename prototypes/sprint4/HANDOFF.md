@@ -959,7 +959,11 @@ The results card for a multi-segment trip keeps the same layout and prices as a 
 - The cheapest combination is the price on the results card, so the card stays accurate. Coach is a single all-Coach combination. A class that only some segments offer falls back to Coach on the others.
 - **Select a fare type** opens Choose a fare with the combination shown in place of the class tabs. Value and Flex, the trip total, the round-trip Return step and the trip summary all use the combination.
 - Direct trips still go straight to Choose a fare.
-- **Flags:** combinations, their prices and room counts come from the back end; the prototype's are sample data. Room quantity is shown as 1 room for up to 2 travelers. Confirm how rooms are counted for larger groups.
+- **Party size rules:** seats are priced per traveler. A private room holds up to 2 travelers, so a party needs one room for every 2 travelers who take a seat (lap infants share), for example 3 travelers need 2 rooms. A room's price is for the room, so the party's room total is the room price times the rooms needed (NMA-1098: room prices are totals).
+  - Results: a room price is the total for the rooms the party needs; on a multi-segment trip it's the cheapest combination.
+  - Combinations show each segment's quantity ("2 rooms for 3 travelers", "3 Coach seats") and, when they include rooms, the total for the party ("From $689 total for 3 travelers, 2 rooms"). Seat-only combinations stay per traveler.
+  - Choose a fare: direct rooms say "3 travelers need 2 rooms"; a combination's Value and Flex are party totals; the footer says "for 3 travelers, 2 rooms". The trip total and summary use the same amounts.
+- **Flags:** combinations and their prices come from the back end; the prototype's are sample data. Confirm the room rule for groups: the reference screenshots show one room per traveler (for example "3 Roomette"), while this uses up to 2 travelers per room. Room prices aren't struck through in the discount concept because they already include discounts.
 
 **Discount pricing concept: strikethrough for one traveler (design exploration)**
 

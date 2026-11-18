@@ -114,7 +114,8 @@ const S5_SORTS = { direct: ['Most direct', (a, b) => a.segs - b.segs || a.dep - 
 const s5Sorted = (list) => [...list].sort(S5_SORTS[s5().sort][1]);
 const s5Travelers = b => { const it = intentOf(b), n = travelerCount(b); return it === 'standard' || it === 'personal' ? paxSummary(b) : `${n} traveler${n === 1 ? '' : 's'}`; };
 // NMA-761 (approved): the back end returns points prices; the app never converts. This mock shows 1 point as about 2.9 cents.
-const s5Price = (b, usd) => b.pay === 'points' && ['standard', 'personal'].includes(intentOf(b)) ? `${(Math.round(usd / 0.029 / 10) * 10).toLocaleString('en-US')} pts` : `$${usd}`;
+const s5Price = (b, usd) => b.pay === 'points' && ['standard', 'personal'].includes(intentOf(b)) ? `${(Math.round(usd / 0.029 / 10) * 10).toLocaleString('en-US')} pts` : `$${usd.toLocaleString('en-US')}`;
+const s5Cents = v => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // ---------- Supporting content (configurable: comes from AEM, never hard-coded in the app) ----------
 INFO['s5-pricing'] = { title: 'How prices are shown', body: () => `<p><b>Seats</b> (Coach, Business, First): the price is for one adult, one way, before discounts. Discounts you chose are applied in your cart.</p><p><b>Rooms</b>: the price is the total for all travelers in the room, with your discounts already applied.</p><p>Each price is the lowest fare still available in that class.</p>${snote('NMA-1098: pricing explanation. Content is configurable (AEM) and available offline.')}` };
@@ -154,7 +155,7 @@ function s5Card(t, r, b, ctx) {
   const disc = !canceled && ctx.disc && t.segs === 1 && t.low !== Infinity ? `<p class="ads-helper ads-helper--success s5-disc">${ic('discount', 'ads-icon--sm')}<span>${s5Disc(b) && t.segs >= 1 ? `Price includes ${esc(s5Disc(b).label)} ${s5tag('Discount pricing')}` : `${esc(ctx.disc)} applies ${s5tag('NMA-764')}`}</span></p>` : '';
   const cls = S5_CLASS_ORDER.filter(k => k in t.cls).map(k => {
     const p = t.cls[k], name = k === 'Rooms' ? 'Private rooms' : k, off = p == null || canceled;
-    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${k === 'Rooms' ? 'from ' : ''}${s5Strike(b, p, k)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
+    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${k === 'Rooms' ? 'from ' : ''}${s5Strike(b, s5CardPrice(b, t, r, k), k)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
     const sale = !off && ctx.sale && t.sale.includes(k), left = !off && t.left[k];
     return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price.replace(/<[^>]+>/g, '')}${s5Net(b, p, k) !== p ? ` with ${s5Disc(b).label}` : ''}${sale ? ', sale fare' : ''}${left ? `, ${left} left at this price` : ''}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${sale ? '<span class="s5-class__sale">Sale fare</span>' : ''}${left ? `<span class="s5-class__left">${left} left at this price</span>` : ''}${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
   }).join('');
@@ -271,32 +272,56 @@ function s5Segs(t, res) {
   const ride = t.dur - lay.slice(0, n - 1).reduce((a, x) => a + x, 0); let clock = t.dep + t.delay;
   return Array.from({ length: n }, (_, i) => { const d = Math.round(ride * share[i]), s = { i, name: names[Math.min(i, names.length - 1)], num: nums[i] || nums[0], svc: (t.segSvc || [])[i] || 'train', from: stops[i], to: stops[i + 1], dep: clock, arr: clock + d, layover: i < n - 1 ? lay[i] : 0, offers: (t.segOffers || [])[i] || Object.keys(t.cls) }; clock += d + s.layover; return s; });
 }
-// Combinations for the class tapped on the card. The cheapest one is the card's price, so the card stays honest.
-function s5Combos(t, res, k) {
-  const segs = s5Segs(t, res), on = segs.filter(s => s.offers.includes(k)), base = t.cls[k];
-  if (base == null || !on.length) return [];
+// Party size rules (NMA-611, NMA-1096, NMA-1098): seats are priced per traveler; a private room holds up to 2
+// travelers, so a party needs one room for every 2 travelers who take a seat (lap infants share). A room's price is
+// for the room, so a party's room total is the room price times the rooms it needs.
+const s5Party = b => { const n = travelerCount(b), occ = ['standard', 'personal'].includes(intentOf(b)) && b.pax ? paxOccupied(b.pax) : n; return { n, rooms: Math.max(1, Math.ceil(occ / 2)) }; };
+// Combinations for the class tapped on the card, priced for the whole party: each segment costs its share of the
+// trip at that segment's class (seats × travelers, rooms × rooms needed). The cheapest one is the card's price.
+function s5Combos(t, res, k, b) {
+  b = b || D().booking;
+  const segs = s5Segs(t, res), on = segs.filter(s => s.offers.includes(k));
+  if (t.cls[k] == null || !on.length) return [];
+  const { n, rooms } = s5Party(b), ride = segs.reduce((a, s) => a + s.arr - s.dep, 0);
+  const segCost = (s, c) => { const share = (s.arr - s.dep) / ride, u = c === 'Rooms' ? t.cls.Rooms : t.cls[c] != null ? t.cls[c] : t.cls.Coach; return share * u * (c === 'Rooms' ? rooms : n); };
   const longest = on.reduce((a, s) => (s.arr - s.dep > a.arr - a.dep ? s : a), on[0]);
-  const mk = (pick, price) => ({ segs: segs.map(s => ({ ...s, cls: pick(s) })), price });
-  const cheap = mk(s => s === longest ? k : 'Coach', base), full = mk(s => s.offers.includes(k) ? k : 'Coach', base + Math.round((base - (t.cls.Coach || base * 0.7)) * 0.6 + 12));
+  const mk = pick => { const ss = segs.map(s => ({ ...s, cls: pick(s) })); return { segs: ss, total: Math.round(ss.reduce((a, s) => a + segCost(s, s.cls), 0)), rooms: ss.some(s => s.cls === 'Rooms') ? rooms : 0 }; };
+  const cheap = mk(s => s === longest ? k : 'Coach'), full = mk(s => s.offers.includes(k) ? k : 'Coach');
   const same = cheap.segs.every((s, i) => s.cls === full.segs[i].cls);
-  return (k === 'Coach' || same ? [cheap] : [cheap, full]).map((c, i) => ({ ...c, id: i, title: c.segs.map(s => s.cls === 'Rooms' ? 'Private room' : s5ClsName(s.cls)).join(' + ') }));
+  return (k === 'Coach' ? [full] : same ? [cheap] : [cheap, full]).map((c, i) => ({ ...c, id: i, perTraveler: c.rooms ? null : Math.round(c.total / n), title: c.segs.map(s => s.cls === 'Rooms' ? 'Private room' : s5ClsName(s.cls)).join(' + ') }));
+}
+// What the results card shows for a class: a seat price per traveler, or a room total for the rooms the party needs.
+// On a multi-segment trip it's the cheapest combination, so the card and the next step agree.
+function s5CardPrice(b, t, res, k) {
+  if (t.cls[k] == null) return null;
+  if (t.segs > 1 && res) { const c = s5Combos(t, res, k, b)[0]; if (c) return c.rooms ? c.total : c.perTraveler; }
+  return k === 'Rooms' ? t.cls.Rooms * s5Party(b).rooms : t.cls[k];
+}
+// Fare options for a choice, and what they cost the party: unit is 'traveler', 'room' or 'party' (a combination)
+function s5FareSet(b, tr, res, cls, combo) {
+  const { n, rooms } = s5Party(b);
+  if (combo) { const d = s5Fares(cls, 0); return { unit: 'party', rooms: combo.rooms, fares: d.map(([nm, x]) => [nm, combo.total + (cls === 'First' ? 0 : x * (combo.rooms ? combo.rooms : n))]), total: v => v }; }
+  const room = cls === 'Rooms';
+  return { unit: room ? 'room' : 'traveler', rooms: room ? rooms : 0, fares: s5Fares(cls, tr.cls[cls]), total: v => v * (room ? rooms : n) };
 }
 A['s5-combo'] = (t, ri) => {
   if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
   const r = sheet().stack[+ri]; push('s5fare', { leg: r.p.leg, trip: r.p.trip, cls: r.p.cls, combo: +t.dataset.v }, +ri);
 };
-const s5SegQty = (b, cls) => { const n = travelerCount(b); return cls === 'Rooms' ? '1 room' : `${n} ${s5ClsName(cls)} seat${n === 1 ? '' : 's'}`; };
+const s5Plural = (x, w) => `${x} ${w}${x === 1 ? '' : 's'}`;
+const s5SegQty = (b, cls) => { const { n, rooms } = s5Party(b); return cls === 'Rooms' ? `${s5Plural(rooms, 'room')} for ${s5Plural(n, 'traveler')}` : s5Plural(n, `${s5ClsName(cls)} seat`); };
+const s5PartyLine = (b, rooms) => { const { n } = s5Party(b); return `for ${s5Plural(n, 'traveler')}${rooms ? `, ${s5Plural(rooms, 'room')}` : ''}`; };
 SCR.s5combo = (r, ri) => {
   const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), it = intentOf(b), pr = it === 'pr';
   const segs = s5Segs(tr, res), combos = s5Combos(tr, res, r.p.cls), room = r.p.cls === 'Rooms';
-  snote('Multi-segment trips (NMA-1096, with NMA-1138 consolidated into it): the results card and its prices are the same as for a direct trip. Choosing a class shows the trip’s segments and layovers, then the class combinations for that class, each priced “from” its lowest fare. “Select a fare type” goes on to Choose a fare. Proposed: the combination step itself isn’t in a story. Combinations, prices and amenities are sample content from the back end.');
+  snote('Multi-segment trips (NMA-1096, with NMA-1138 consolidated into it): the results card and its prices are the same as for a direct trip. Choosing a class shows the trip’s segments and layovers, then the class combinations for that class, each priced “from” its lowest fare for the whole party: seats per traveler, and a private room (up to 2 travelers each) for every 2 travelers who take a seat, so 3 travelers need 2 rooms. A combination with rooms shows its total for the party. “Select a fare type” goes on to Choose a fare. Proposed: the combination step itself isn’t in a story. Combinations, prices and amenities are sample content from the back end.');
   const code = s => `<span class="s5-seg__codes"><b>${s.from.code}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s.to.code}</b></span>`;
   const segCard = s => `<li class="ads-card s5-seg"><div class="s5-seg__top"><span class="s5-seg__n">Segment ${s.i + 1} of ${segs.length}</span>${code(s)}</div>
       <div class="s5-seg__train">${ic(s.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<b>${s.num} ${esc(s.name)}</b></div>
       <p class="s5-seg__route"><span><b>${s5time(s.dep)}</b><br>${esc(s.from.city)}, ${s.from.st}</span><span aria-hidden="true">→</span><span class="ads-sr-only">to</span><span><b>${s5time(s.arr)}</b><br>${esc(s.to.city)}, ${s.to.st}</span></p></li>
     ${s.layover ? `<li class="s5-lay">${ic('clock', 'ads-icon--sm')}<span>Layover in ${esc(s.to.city)}, ${s.to.st} · ${s5dur(s.layover)}${tr.self && s.i === 0 ? ' · Self-transfer: change stations' : ''}</span></li>` : ''}`;
   const comboCard = c => `<li class="ads-card s5-combo">
-      <p class="s5-combo__price">${pr ? 'Pass Rider fare' : `From <b>${s5Price(b, s5Net(b, c.price, r.p.cls))}</b> ${room ? 'a room' : 'per traveler'}`}</p>
+      <p class="s5-combo__price">${pr ? 'Pass Rider fare' : c.rooms ? `From <b>${s5Price(b, c.total)}</b> total ${s5PartyLine(b, c.rooms)}` : `From <b>${s5Price(b, s5Net(b, c.perTraveler, r.p.cls))}</b> per traveler`}</p>
       <h4 class="s5-combo__title">${c.title}</h4>
       <ul class="s5-combo__segs">${c.segs.map(s => `<li>${s.from.code} <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> ${s.to.code}: ${s5SegQty(b, s.cls)}</li>`).join('')}</ul>
       <details class="ads-accordion ads-accordion--sm s5-combo__amen"><summary>Amenities by segment${ic('chevron-down')}</summary><div class="ads-accordion__panel">${c.segs.map(s => `<p><b>${s.from.code} → ${s.to.code}, ${s5ClsName(s.cls)}:</b> ${S5_EXP[s.cls].short}</p>`).join('')}</div></details>
@@ -311,20 +336,22 @@ A['s5-cls'] = (t, ri) => { const r = sheet().stack[+ri]; r.p.cls = t.dataset.v; 
 A['s5-pick'] = (t, ri) => { const r = sheet().stack[+ri]; r.u.fare = t.dataset.v; render(); };
 SCR.s5fare = (r, ri) => {
   const b = D().booking, leg = r.p.leg, res = s5Trips(b, leg), tr = res.list.find(x => x.id === r.p.trip), it = intentOf(b), pr = it === 'pr';
-  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), cls = r.p.cls, combo = r.p.combo != null ? s5Combos(tr, res, cls)[r.p.combo] : null, base = combo ? combo.price : tr.cls[cls];
-  const fares = pr ? [['Pass Rider', null]] : s5Fares(cls, base).map(([n, p]) => [n, p, s5Net(b, p, cls)]), pick = r.u.fare && fares.some(f => f[0] === r.u.fare) ? r.u.fare : fares[0][0], pf = fares.find(f => f[0] === pick) || fares[0], price = pf[2] != null ? pf[2] : pf[1], disc = s5Disc(b);
-  const seats = travelerCount(b), room = cls === 'Rooms', total = price == null ? null : room ? price : price * seats;
+  const classes = S5_CLASS_ORDER.filter(k => k in tr.cls), cls = r.p.cls, combo = r.p.combo != null ? s5Combos(tr, res, cls)[r.p.combo] : null, fs = s5FareSet(b, tr, res, cls, combo);
+  const noDisc = fs.rooms > 0; // room prices already include discounts (NMA-1098)
+  const fares = pr ? [['Pass Rider', null]] : fs.fares.map(([n, p]) => [n, p, noDisc ? p : s5Net(b, p, cls)]), pick = r.u.fare && fares.some(f => f[0] === r.u.fare) ? r.u.fare : fares[0][0], pf = fares.find(f => f[0] === pick) || fares[0], price = pf[2] != null ? pf[2] : pf[1], disc = s5Disc(b);
+  const seats = travelerCount(b), room = fs.rooms > 0, total = price == null ? null : fs.total(price);
+  const unitLabel = fs.unit === 'party' ? `total ${s5PartyLine(b, fs.rooms)}` : fs.unit === 'room' ? 'a room' : 'per traveler';
   const label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`;
   snote('Choose a fare follows the current app’s pattern (class, fare options with their rules, price and Continue). Proposed design: fare selection isn’t a Sprint 5 story yet. Fare names, rules and prices are sample content from the back end.');
   if (pr) snote('NMA-1140 (grooming): Pass Rider fares aren’t approved, so only “Pass Rider fare” is shown, with no price.');
-  const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, s5Net(b, p, k))}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
-  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${s5Strike(b, p, cls)} <span class="s5-fopt__unit">${room ? 'a room' : 'per traveler'}</span></span>`}</span>${n === fares[0][0] && !pr && tr.sale.includes(cls) ? '<span class="ads-choice__supporting s5-fopt__sale">Sale fare</span>' : ''}${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
+  const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, k === 'Rooms' ? p : s5Net(b, p, k))}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
+  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${noDisc ? s5Price(b, p) : s5Strike(b, p, cls)} <span class="s5-fopt__unit">${unitLabel}</span></span>`}</span>${n === fares[0][0] && !pr && tr.sale.includes(cls) ? '<span class="ads-choice__supporting s5-fopt__sale">Sale fare</span>' : ''}${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
-  const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
+  const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : s5Cents(total);
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
-  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${room ? 'for 1 room' : `for ${seats} traveler${seats === 1 ? '' : 's'}`}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}"${combo ? ` data-combo="${combo.id}"` : ''}>Continue</button></div>`;
+  const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${s5PartyLine(b, fs.rooms)}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}"${combo ? ` data-combo="${combo.id}"` : ''}>Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
-    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>${room && seats > 2 ? `<p class="ads-helper s5-rooms-note">${ic('info-circle', 'ads-icon--sm')}<span>${s5Plural(seats, 'traveler')} need ${s5Plural(fs.rooms, 'room')}. Each room holds up to 2 travelers.</span></p>` : ''}
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
 };
 
@@ -332,8 +359,8 @@ const np0 = (fares, cls) => cls !== 'Rooms' && fares.some(f => f[2] != null && f
 // Trip summary after Continue (the cart and add-ons are outside Sprint 5)
 SCR.s5sum = (r, ri) => {
   const b = D().booking, sel = D().s5sel || {}, it = intentOf(b);
-  const legCard = leg => { const s = sel[leg]; if (!s) return ''; const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr) return ''; const room = s.cls === 'Rooms', p = it === 'pr' ? null : s5Net(b, (s5Fares(s.cls, s5SelBase(tr, res, s)).find(f => f[0] === s.fare) || [, s5SelBase(tr, res, s)])[1], s.cls), n = travelerCount(b), combo = s.combo != null ? s5Combos(tr, res, s.cls)[s.combo] : null;
-    return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${combo ? combo.title : room ? '1 private room' : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${p == null ? '' : ` · ${s5Price(b, room ? p : p * n)}`}</p></div>`; };
+  const legCard = leg => { const s = sel[leg]; if (!s) return ''; const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr) return ''; const room = s.cls === 'Rooms', total = it === 'pr' ? null : s5SelTotal(b, tr, res, s), n = travelerCount(b), combo = s.combo != null ? s5Combos(tr, res, s.cls)[s.combo] : null;
+    return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${combo ? combo.title : room ? `${s5Plural(s5Party(b).rooms, 'private room')} for ${s5Plural(n, 'traveler')}` : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${total == null ? '' : ` · ${s5Price(b, total)}`}</p></div>`; };
   snote('Trip summary after Continue: the trip is in the (simulated) cart. Add-ons, seats, traveler details and checkout aren’t part of Sprint 5.');
   return { title: 'Trip summary', kind: 'push', backIcon: true, cls: 'pane--s5',
     body: `${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
@@ -347,12 +374,15 @@ const s5PtsOk = b => ['standard', 'personal'].includes(intentOf(b));
 function s5LegCost(b, leg, s) {
   s = s || (D().s5sel || {})[leg]; if (!s) return null;
   const res = s5Trips(b, leg), tr = res.list.find(x => x.id === s.trip); if (!tr || tr.cls[s.cls] == null) return null;
-  const base = s5SelBase(tr, res, s), p = (s5Fares(s.cls, base).find(f => f[0] === s.fare) || [, base])[1];
-  const np = s5Net(b, p, s.cls); return s.cls === 'Rooms' ? np : np * travelerCount(b);
+  return s5SelTotal(b, tr, res, s);
 }
 // The chosen class's base price: a multi-segment combination's own price, or the class price
-const s5SelBase = (tr, res, s) => s.combo != null ? (s5Combos(tr, res, s.cls)[s.combo] || { price: tr.cls[s.cls] }).price : tr.cls[s.cls];
-const s5Money = (b, v) => intentOf(b) === 'pr' ? 'Pass Rider fare' : v == null ? '—' : b.pay === 'points' && s5PtsOk(b) ? s5Price(b, v) : `$${v.toFixed(2)}`;
+function s5SelTotal(b, tr, res, s) {
+  const combo = s.combo != null ? s5Combos(tr, res, s.cls, b)[s.combo] : null, fs = s5FareSet(b, tr, res, s.cls, combo);
+  const f = fs.fares.find(x => x[0] === s.fare) || fs.fares[0], v = fs.rooms ? f[1] : s5Net(b, f[1], s.cls);
+  return fs.total(v);
+}
+const s5Money = (b, v) => intentOf(b) === 'pr' ? 'Pass Rider fare' : v == null ? '—' : b.pay === 'points' && s5PtsOk(b) ? s5Price(b, v) : s5Cents(v);
 // pending: the fare being chosen on the Choose a fare screen (its leg and cost), so the total shows before Continue
 function s5Drawer(b, leg, pending) {
   const rt = b.trip === 'rt', pts = s5PtsOk(b), member = D().signedIn;
