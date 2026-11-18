@@ -141,7 +141,7 @@ function s5Card(t, r, b, ctx) {
     const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${t.segs > 1 || k === 'Rooms' ? 'from ' : ''}${s5Price(b, p)}`;
     return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
   }).join('');
-  return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
+  return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}${s5c() === 'c1' ? ' s5-trip--x' : ''}" data-trip="${t.id}">
     <div class="s5-trip__main">
       <div class="s5-trip__top"><span class="s5-trip__svc">${ic(svc[0])}<span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span><button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button></div>
       ${tags || badge ? `<span class="s5-trip__badges">${tags}${badge}</span>` : ''}
