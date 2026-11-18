@@ -132,11 +132,15 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => D().booking.pay === 'points') && /pts/.test(await ev(() => document.querySelector('#device .s5-class__price').textContent)), 'turning on points switches the prices to points');
   await open('returning', "const b = D().booking; b.code = { code: 'FALL', benefit: '10% off' }; b.codeText = 'FALL'; b.codeState = 'applied'"); await find();
   await p.locator(D_ + '#s5-points').click({ force: true }); await w(300);
-  ok(/Use points and remove your code\?/.test(await txt()) && await ev(() => D().booking.pay !== 'points'), 'with a code, turning on points asks first (points searches don’t take codes)');
-  await p.locator('.pdialog button', { hasText: 'Keep my code' }).click(); await w(300);
-  ok(await ev(() => D().booking.code && D().booking.pay !== 'points'), 'Keep my code leaves cash and the code');
-  await p.locator(D_ + '#s5-points').click({ force: true }); await w(300); await p.locator('.pdialog button', { hasText: 'Use points' }).click(); await w(300);
-  ok(await ev(() => !D().booking.code && D().booking.pay === 'points'), 'Use points removes the code');
+  t = await txt();
+  ok(await ev(() => D().booking.pay === 'points' && !!D().booking.code) && !(await ev(() => document.querySelector('.pdialog'))) && /Promo codes and coupons don’t apply to points/.test(t) && /Passenger discounts still apply/.test(t), 'NMA-761 AC#3: with a code, points switch straight away and the results say the code isn’t used');
+  ok(!/Code FALL applies/.test(t), 'NMA-761 AC#3: the code is not shown as applying to points');
+  await p.locator(D_ + '#s5-points').uncheck({ force: true }); await w(300);
+  ok(/Code FALL applies/.test(await txt()) && !/isn’t used while prices are in points/.test(await txt()), 'switching back to cash brings the code back');
+  await open('returning', "const b = D().booking; b.pay = 'points'"); await find();
+  ok(await p.locator(D_ + '#s5-points').count() === 1 && /Prices in points/.test(await txt()) && !/Proposed · NMA-761/.test(await tags()), 'NMA-761 AC#1: a points search shows points, with the switch on results (approved, no Proposed tag)');
+  await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'leisure'"); await find();
+  ok(await p.locator(D_ + '#s5-points').count() === 0, 'NMA-761 AC#4: no cash/points switch for Pass Rider');
   await open('returning', "const b = D().booking; b.trip = 'rt'; b.ret = '2026-11-08'"); await find();
   ok(!/Trip total/.test(await ev(() => document.querySelector('#device .pane:last-child .pane__foot').innerText)), 'Departure drawer has no total yet');
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
@@ -173,8 +177,36 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await tags();
-  ok(['NMA-755', 'NMA-758', 'NMA-1092/1093', 'NMA-1138'].every(k => t.includes('Proposed · ' + k)), 'proposed designs carry a Proposed tag with the story number');
-  ok(await ev(() => [...NOTES.scope].some(n => /NMA-760/.test(n) && /NMA-762/.test(n) && /NMA-1140/.test(n) && /NMA-1141/.test(n))), 'open stories are flagged in the reviewer notes');
+  ok(['NMA-758', 'NMA-1092/1093', 'NMA-762'].every(k => t.includes('Proposed · ' + k)) && !/NMA-755|NMA-1138|NMA-761/.test(t), 'proposed designs carry a Proposed tag; approved NMA-755 and NMA-761, and consolidated NMA-1138, don’t');
+  ok(await ev(() => [...NOTES.scope].some(n => /NMA-760/.test(n) && /NMA-1140/.test(n) && /NMA-1141/.test(n) && /NMA-705/.test(n))), 'open stories are flagged in the reviewer notes');
+  // ---- NMA-755 (approved): Lowest fare, Fastest trip and Sale ----
+  const badges = () => ev(() => Object.fromEntries([...document.querySelectorAll('#device .s5-trip')].map(c => [c.dataset.trip, [...c.querySelectorAll('.ads-badge')].map(b => b.textContent).join('/')])));
+  let bd = await badges();
+  ok(/Fastest trip/.test(bd.t2) && /Lowest fare/.test(bd.t8) && /Sale/.test(bd.t3) && /Delayed/.test(bd.t3) && /Sale/.test(bd.t9), 'Lowest fare, Fastest trip and Sale badges; a delayed trip keeps its badge');
+  ok(!/Lowest|Fastest|Sale/.test(bd.t5) && !/Lowest|Fastest|Sale/.test(bd.t6), 'no badges on canceled or fully sold-out trips');
+  ok(await ev(() => /Sale fare/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Business"]').textContent) && !/Sale/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Coach"]').textContent)), 'Sale also marks the class that has the sale fare');
+  await open('returning', "const b = D().booking; b.from = 'NYP'; b.to = 'BOS'; window._s5o = window._s5o || s5Trips; s5Trips = (o => (b, l) => { const r = o(b, l); if (r.list.length < 8) return r; r.list.find(t => t.id === 't7').cls.Coach = r.list.find(t => t.id === 't8').cls.Coach; r.list.forEach(t => { t.low = Math.min(...Object.values(t.cls).filter(x => x != null).concat(Infinity)); }); return r; })(s5Trips)"); await find();
+  bd = await badges();
+  ok(/Lowest fare/.test(bd.t7) && /Lowest fare/.test(bd.t8), 'tied options both get the badge');
+  await ev(() => { s5Trips = window._s5o; });
+  await open('returning', "s5().outcome = 'single'"); await find(); bd = await badges();
+  ok(Object.values(bd).every(x => !/Lowest|Fastest/.test(x)), 'AC5: one result shows no Lowest fare or Fastest trip');
+  await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'business'"); await find(); bd = await badges();
+  ok(Object.values(bd).every(x => !/Lowest fare|Sale/.test(x)) && Object.values(bd).some(x => /Fastest trip/.test(x)), 'Pass Rider business: no Lowest fare and no Sale; Fastest trip still shows');
+  // ---- Meeting decisions ----
+  await open(); await find(); c = await cards();
+  ok(/^\$\d+$/.test(c.find(x => x.id === 't9').cls[0][2]), 'NMA-1138 → NMA-1096: multi-segment trips are priced like single-segment ones (no “from”)');
+  ok(/2 left at this price/.test(c.find(x => x.id === 't1').text), 'NMA-762: low inventory is shown for a specific class at its price');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(/Only 2 left at this price/.test(await txt()), 'NMA-762: and on that fare when choosing it');
+  await open('returning', "s5().outcome = 'hold'"); await find();
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(!/\d+:\d\d remaining|timer/i.test(await txt()), 'NMA-757: no visible hold timer');
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(400);
+  ok(/Prices have been refreshed/.test(await txt()) && /30 minutes/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'NMA-757: after the 30-minute hold, Continue refreshes prices before anything is added');
+  await p.locator('.pdialog button', { hasText: 'Review price' }).click(); await w(300);
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(await ev(() => (D().cart || []).length === 1), 'NMA-757: continuing again adds the refreshed fare');
   ok(await ev(() => [...document.querySelector('#tbS5').options].length === S5_OUTCOMES.length) && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5"]').textContent)), 'the new control is labelled (Sprint 5)');
   await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'leisure'"); await find();
   ok((await cards())[0].cls.every(k => k[2] === 'Pass Rider fare'), 'Pass Rider: no unapproved prices shown');

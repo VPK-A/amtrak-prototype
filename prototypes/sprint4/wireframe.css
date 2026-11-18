@@ -101,3 +101,6 @@ body, .ads-root, .device, .device * { font-family: "Patrick Hand", "Comic Neue",
 /* "Proposed · NMA-…" tags are hidden in the wireframe. They stay in the markup (and in the reviewer notes), so the
    Sprint 5 branch and its tests keep the story mapping. */
 .device .s5-tag, .device .s5-proposed { display: none !important; }
+/* Dark mode: status text (Sale, low inventory, delays) stays readable on black paper */
+[data-theme="dark"], [data-theme="dark"] * { --ads-content-text-info: #D8D8D8; --ads-content-text-error: #FFFFFF; --ads-content-text-warning: #FFFFFF; --ads-content-text-success: #D8D8D8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) * { --ads-content-text-info: #D8D8D8; --ads-content-text-error: #FFFFFF; --ads-content-text-warning: #FFFFFF; --ads-content-text-success: #D8D8D8; } }

@@ -2,17 +2,17 @@
 // Sprint 5 · Fare search results (replaces the Sprint 4 "handoff" placeholder; the route name stays 'handoff')
 // Approved stories (assigned VK): NMA-748 one-way results, NMA-1094 trip card info, NMA-1096 classes of service
 //   (direct trips, regular travelers), NMA-759 unsuccessful searches, NMA-1098 pricing explanation,
-//   NMA-1097 fare types, NMA-1095 border crossing.
+//   NMA-1097 fare types, NMA-1095 border crossing. Approved 2026-11-18: NMA-755 trip tags, NMA-761 cash or points.
 // Proposed designs for stories still in grooming are marked on screen with a "Proposed" badge (s5tag) and in the
-//   reviewer notes: NMA-1109 round-trip, NMA-755 badges, NMA-758 sort, NMA-761 points, NMA-764 discounts,
-//   NMA-1092/1093 trip details, NMA-1138 multi-segment fares.
+//   reviewer notes: NMA-1109 round-trip, NMA-758 sort, NMA-764 discounts, NMA-1092/1093 trip details,
+//   NMA-762 urgency, NMA-757 fare hold. NMA-1138 is consolidated into NMA-1096 (same card and pricing).
 // Flagged only (open questions, nothing designed): NMA-760 alerts, NMA-762 urgency, NMA-1140 Pass Rider fares,
 //   NMA-1141 TripLink fares, filters in NMA-758.
 // Built from existing components only: Card, Badge, Alert, Button, Link, Accordion, Radio, Info sheet, Dialog.
 // All trips, fares and content are mock data standing in for the back end (S3P) and AEM.
 // =====================================================================
 const S5_OUTCOMES = [['results', 'Trains found'], ['border', 'Trip crosses the U.S.–Canada border'], ['soldout', 'Every train sold out'], ['single', 'Only one train'],
-  ['nodate', 'No trains on the departure date'], ['nodate-ret', 'No trains on the return date (round-trip)'], ['noroute', 'Route not served'], ['assist', 'Assistance not available at the station']];
+  ['nodate', 'No trains on the departure date'], ['nodate-ret', 'No trains on the return date (round-trip)'], ['noroute', 'Route not served'], ['assist', 'Assistance not available at the station'], ['hold', 'Fare hold expired after 30 minutes']];
 const s5 = () => (V().s5 = V().s5 || { outcome: 'results', sort: 'direct' });
 // Results concepts (Sprint 5 exploration, from design feedback): compare the experience of each class of service
 // (seat type, amenities) on results, instead of leading with fare types.
@@ -47,17 +47,18 @@ const S5_SVC = { train: ['train', 'Train'], trains: ['trip-multiple-train', 'Mul
 function s5Trips(b, leg) {
   const from = leg === 'ret' ? b.to : b.from, to = leg === 'ret' ? b.from : b.to, date = leg === 'ret' ? b.ret : b.dep;
   const h = s5hash([from, to].sort().join('')), base = 150 + h % 180, fare = 29 + h % 60, out = s5().outcome, via = ST[['PHL', 'NYP', 'WAS', 'CHI', 'ALB'].find(c => c !== from && c !== to && ST[c])];
-  const T = (o) => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0 }, o);
+  // sale (NMA-755) and left (NMA-762) come from the back end per class of service, never from train capacity
+  const T = (o) => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0, sale: [], left: {} }, o);
   let list = [
-    T({ id: 't1', num: '171', name: 'Northeast Regional', dep: 6 * 60 + 10, dur: base, cls: { Coach: fare, Business: fare + 38 } }),
+    T({ id: 't1', num: '171', name: 'Northeast Regional', dep: 6 * 60 + 10, dur: base, cls: { Coach: fare, Business: fare + 38 }, left: { Coach: 2 } }),
     T({ id: 't2', num: '2151', name: 'Acela', dep: 7 * 60, dur: Math.round(base * 0.82), cls: { Business: fare + 86, First: fare + 210 } }),
-    T({ id: 't3', num: '93', name: 'Northeast Regional', dep: 9 * 60 + 25, dur: base + 12, status: 'delayed', delay: 25, cls: { Coach: fare + 8, Business: fare + 46 } }),
+    T({ id: 't3', num: '93', name: 'Northeast Regional', dep: 9 * 60 + 25, dur: base + 12, status: 'delayed', delay: 25, cls: { Coach: fare + 8, Business: fare + 46 }, sale: ['Business'] }),
     T({ id: 't4', num: '125', name: 'Northeast Regional', dep: 10 * 60 + 35, dur: base + 6, cls: { Coach: fare + 8, Business: null } }),
     T({ id: 't5', num: '79', name: 'Carolinian', dep: 11 * 60 + 15, dur: base + 20, status: 'canceled', cls: { Coach: fare + 4, Business: fare + 40 } }),
     T({ id: 't6', num: '2165', name: 'Acela', dep: 13 * 60, dur: Math.round(base * 0.82), cls: { Business: null, First: null } }),
     T({ id: 't7', num: '19', name: 'Crescent', dep: 14 * 60 + 15, dur: base + 28, cls: { Coach: fare - 6, Rooms: fare + 312 } }),
     T({ id: 't8', num: '67', name: 'Northeast Regional', dep: 21 * 60 + 40, dur: base + 190, cls: { Coach: fare - 10, Business: fare + 30 } }),
-    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, cls: { Coach: fare + 14, Business: fare + 61 } }),
+    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, cls: { Coach: fare + 14, Business: fare + 61 }, sale: ['Coach'] }),
     T({ id: 't10', svc: 'mixed', segs: 2, num: '8012 + 181', name: 'Thruway Bus and Northeast Regional', dep: 12 * 60 + 20, dur: base + 140, layover: 70, via, self: true, cls: { Coach: fare + 2 } }),
     T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, cls: { Coach: fare + 72, Rooms: fare + 540 } })
   ];
@@ -72,7 +73,7 @@ function s5Trips(b, leg) {
 // Toronto: Maple Leaf from New York via Albany and Niagara Falls. Vancouver: Cascades from Seattle and Portland, plus Thruway buses.
 const s5Border = (a, b) => ST[a] && ST[b] && ST[a].country !== ST[b].country;
 function s5BorderTrips(from, to, h, fare) {
-  const T = o => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0 }, o), ca = ST[from].country === 'CA' ? from : to, us = ca === from ? to : from, out = ca === to;
+  const T = o => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0, sale: [], left: {} }, o), ca = ST[from].country === 'CA' ? from : to, us = ca === from ? to : from, out = ca === to;
   const near = { MTR: ['NYP', 'ALB'], TWO: ['NYP', 'ALB'], VAC: ['SEA', 'PDX'] }[ca], hub = near[0], direct = near.includes(us);
   const viaHub = ST[us === hub ? near[1] : hub];
   const base = { MTR: { NYP: 660, ALB: 520 }, TWO: { NYP: 750, ALB: 600 }, VAC: { SEA: 245, PDX: 470 } }[ca], d = direct ? base[us] : base[hub] + 150 + h % 300;
@@ -91,7 +92,7 @@ function s5BorderTrips(from, to, h, fare) {
 const S5_SORTS = { direct: ['Most direct', (a, b) => a.segs - b.segs || a.dep - b.dep || a.dur - b.dur || a.low - b.low], dep: ['Departure time', (a, b) => a.dep - b.dep || a.segs - b.segs], dur: ['Shortest trip', (a, b) => a.dur - b.dur || a.dep - b.dep], fare: ['Lowest fare', (a, b) => a.low - b.low || a.dep - b.dep] };
 const s5Sorted = (list) => [...list].sort(S5_SORTS[s5().sort][1]);
 const s5Travelers = b => { const it = intentOf(b), n = travelerCount(b); return it === 'standard' || it === 'personal' ? paxSummary(b) : `${n} traveler${n === 1 ? '' : 's'}`; };
-// Points are a proposed view (NMA-761 is waiting for requirement approval): 1 point is shown as about 2.9 cents
+// NMA-761 (approved): the back end returns points prices; the app never converts. This mock shows 1 point as about 2.9 cents.
 const s5Price = (b, usd) => b.pay === 'points' && ['standard', 'personal'].includes(intentOf(b)) ? `${(Math.round(usd / 0.029 / 10) * 10).toLocaleString('en-US')} pts` : `$${usd}`;
 
 // ---------- Supporting content (configurable: comes from AEM, never hard-coded in the app) ----------
@@ -121,7 +122,9 @@ function s5Card(t, r, b, ctx) {
   const c2 = s5c() === 'c2';
   const svc = S5_SVC[t.svc], canceled = t.status === 'canceled', delayed = t.status === 'delayed', it = intentOf(b);
   const badge = canceled ? `<span class="ads-badge ads-badge--error">Canceled</span>` : delayed ? `<span class="ads-badge ads-badge--warning">Delayed ${t.delay} min</span>` : '';
-  const tags = !canceled && ctx.tags ? [t.id === ctx.lowId ? 'Lowest fare' : '', t.id === ctx.fastId ? 'Fastest' : ''].filter(Boolean).map(x => `<span class="ads-badge ads-badge--success">${x}</span>`).join('') : '';
+  // NMA-755: every tied option gets the badge; none on canceled or fully sold-out trips; Sale when any open class has a sale fare
+  const onSale = !canceled && ctx.sale && t.sale.some(k => t.cls[k] != null);
+  const tags = !canceled && t.low !== Infinity ? [ctx.tags && ctx.low != null && t.low === ctx.low ? ['Lowest fare', 'success'] : null, ctx.tags && t.dur === ctx.fast ? ['Fastest trip', 'success'] : null, onSale ? ['Sale', 'info'] : null].filter(Boolean).map(([x, k]) => `<span class="ads-badge ads-badge--${k}">${x}</span>`).join('') : '';
   const tm = (m) => delayed ? `<span class="s5-t"><s class="s5-was"><span class="ads-sr-only">Scheduled </span>${s5time(m)}</s><b class="s5-now"><span class="ads-sr-only">Now </span>${s5time(m + t.delay)}</b></span>` : `<span class="s5-t"><b>${s5time(m)}</b></span>`;
   const day = t.days ? ` <span class="s5-day">+${t.days} day${t.days > 1 ? 's' : ''}</span>` : '';
   const meta = [s5dur(t.dur), t.segs === 1 ? 'Direct' : `${t.segs} segments`, t.segs > 1 ? `${s5dur(t.layover)} layover in ${esc(t.via.city)}` : ''].filter(Boolean).join(' · ');
@@ -130,8 +133,9 @@ function s5Card(t, r, b, ctx) {
   const disc = !canceled && ctx.disc && t.segs === 1 && t.low !== Infinity ? `<p class="ads-helper ads-helper--success s5-disc">${ic('discount', 'ads-icon--sm')}<span>${esc(ctx.disc)} applies ${s5tag('NMA-764')}</span></p>` : '';
   const cls = S5_CLASS_ORDER.filter(k => k in t.cls).map(k => {
     const p = t.cls[k], name = k === 'Rooms' ? 'Private rooms' : k, off = p == null || canceled;
-    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${t.segs > 1 || k === 'Rooms' ? 'from ' : ''}${s5Price(b, p)}`;
-    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
+    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${k === 'Rooms' ? 'from ' : ''}${s5Price(b, p)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
+    const sale = !off && ctx.sale && t.sale.includes(k), left = !off && t.left[k];
+    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price}${sale ? ', sale fare' : ''}${left ? `, ${left} left at this price` : ''}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${sale ? '<span class="s5-class__sale">Sale fare</span>' : ''}${left ? `<span class="s5-class__left">${left} left at this price</span>` : ''}${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
   }).join('');
   return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
     <div class="s5-trip__main">
@@ -148,12 +152,14 @@ SCR.handoff = (r, ri) => {
   const b = D().booking, leg = r.p.leg === 'ret' ? 'ret' : 'dep', res = s5Trips(b, leg), list = s5Sorted(res.list), it = intentOf(b), rt = b.trip === 'rt';
   ref('748', '1094', '1096', '759', '1098', '1097', '1095');
   const open = list.filter(t => t.status !== 'canceled' && t.low !== Infinity);
-  const tagsOn = list.length > 1 && open.length > 1; // NMA-755 AC5: one result shows no badges
-  const ctx = { tags: tagsOn, lowId: tagsOn ? [...open].sort((a, c) => a.low - c.low)[0].id : null, fastId: tagsOn ? [...open].sort((a, c) => a.dur - c.dur)[0].id : null,
-    disc: ['standard', 'personal'].includes(it) ? (b.code && b.codeState !== 'ineligible' ? `Code ${b.code.code}` : paxList(b).some(t => tdiscOf(b, t) !== 'none') ? 'Your traveler discount' : '') : '' };
+  const tagsOn = list.length > 1 && open.length > 1; // NMA-755 AC5: one result shows no Lowest fare or Fastest trip
+  const prBiz = it === 'pr' && b.prType === 'business', pts = b.pay === 'points' && ['standard', 'personal'].includes(it);
+  const ctx = { tags: tagsOn, low: tagsOn && !prBiz ? Math.min(...open.map(t => t.low)) : null, fast: tagsOn ? Math.min(...open.map(t => t.dur)) : null, sale: it !== 'pr', // NMA-755: no Lowest fare on Pass Rider business; no Sale for Pass Rider
+    // NMA-761 AC#3 / NMA-764: promo codes and coupons don't apply to points; passenger discounts do
+    disc: ['standard', 'personal'].includes(it) ? (b.code && b.codeState !== 'ineligible' && !pts ? `Code ${b.code.code}` : paxList(b).some(t => tdiscOf(b, t) !== 'none') ? 'Your traveler discount' : '') : '' };
   const cart = D().cart || [], inCart = cart.some(x => x.label === `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`);
-  snote('Sprint 5 search results. Approved (VK): NMA-748, 1094, 1096, 759, 1098, 1097, 1095. Items marked “Proposed” on screen are designs for stories still in grooming: round-trip return step (NMA-1109), Lowest fare and Fastest badges (NMA-755), Sort (NMA-758), points prices (NMA-761), discount indicator (NMA-764), trip details (NMA-1092/1093) and “from” prices on multi-segment trips (NMA-1138).');
-  snote('Flagged, not designed: service and station alerts (NMA-760: origin only, or origin and destination?), urgency signal (NMA-762: no requirements yet), Pass Rider fares (NMA-1140: prices show as “Pass Rider fare” until the rules are approved), TripLink fares (NMA-1141: story is empty; standard prices shown), filters (NMA-758).');
+  snote('Sprint 5 search results. Approved (VK): NMA-748, 1094, 1096, 759, 1098, 1097, 1095, and since 2026-11-18 NMA-755 (Lowest fare, Fastest trip and Sale tags) and NMA-761 (switch between cash and points on results). Items marked “Proposed” are designs for stories still in grooming: round-trip return step (NMA-1109, sequential flow settled), Sort (NMA-758), discount indicator (NMA-764), trip details (NMA-1092/1093), low-inventory message (NMA-762) and fare hold (NMA-757). NMA-1138 is consolidated into NMA-1096: multi-segment trips use the same card and pricing; differences are route information.');
+  snote('Flagged, not designed: service and station alerts (NMA-760: origin only, or origin and destination?), Pass Rider fares (NMA-1140: same search framework with back-end employee pricing and contextual policies; refundability and discount presentation are open, so prices still show as “Pass Rider fare”), TripLink fares (NMA-1141: story is empty; standard prices shown), filters (NMA-758), Buy Points (NMA-705: 100-point Points + Cash threshold and 400-point full-redemption minimum; buying points mustn’t interrupt booking; messaging and navigation are open), Sale badge placement and who calculates it (NMA-755: shown on the trip and on the class here).');
   snote('NMA-748 AC#4: canceled trains come back today only for the agent channel, so showing them needs a back-end change request. The prototype shows one. Choosing a fare is the exit of this sprint: “Add to cart” stays simulated.');
   if (s5c() === 'c1') snote('Concept Update 1 (design exploration, from feedback): the test of showing experience. “Compare classes” replaces “Compare fare types” on results; it compares seat, legroom, food and drink, lounge and points for each class on these trains. Fare types are compared on Choose a fare instead. Conflict: NMA-1097 (approved) puts fare types on results; this concept is an exploration only.');
   if (s5c() === 'c2') snote('Concept Update 2 (design exploration, from feedback): each class button on a trip card shows what you get (seat type and amenity icons) under its price, so the experience is compared where you choose. Fare types stay available as a smaller link because NMA-1097 (approved) needs them on results.');
@@ -162,17 +168,18 @@ SCR.handoff = (r, ri) => {
   const head = `<div class="s5-head"><p class="s5-head__route"><b>${ST[res.from].code}</b> ${esc(ST[res.from].city)} <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${ST[res.to].code}</b> ${esc(ST[res.to].city)}</p>
     <p class="s5-head__meta">${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${list.length} train${list.length === 1 ? '' : 's'}</span></p>
     ${rt ? `<p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5tag('NMA-1109')}</p>` : ''}</div>`;
-  const tools = `<div class="s5-tools"><p class="s5-tools__note">${b.pay === 'points' && ['standard', 'personal'].includes(it) ? `Prices in points ${s5tag('NMA-761')}` : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
+  const tools = `<div class="s5-tools"><p class="s5-tools__note">${pts ? 'Prices in points, per traveler, one way' : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
     <div class="s5-tools__links">${s5c() === 'c1' ? infoLink('s5-classes', 'Compare classes') : infoLink('s5-fares', s5c() === 'current' ? 'Understand fare types' : 'Fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
-    <p class="s5-proposed">${[tagsOn ? ['NMA-755', 'badges'] : null, list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.segs > 1) ? ['NMA-1138', '“from” prices'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
+    <p class="s5-proposed">${[list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.status !== 'canceled' && Object.keys(t.left).some(k => t.cls[k] != null)) ? ['NMA-762', 'low inventory'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
   const border = res.border ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
+  const ptsCode = pts && b.code && b.codeState !== 'ineligible' ? alertBox('info', 'Promo codes and coupons don’t apply to points', `Your code ${esc(b.code.code || b.codeText)} isn’t used while prices are in points. It comes back if you switch to cash. Passenger discounts still apply.`) : '';
   const noAssist = b.s5NoAssist ? alertBox('warning', 'Searching without your assistance request', `The assistance you asked for isn’t available at ${esc(ST[b.from].name)}. You chose to continue without it.`) : '';
   const allSold = list.length && !list.some(t => t.low !== Infinity && t.status !== 'canceled') ? alertBox('info', 'Every train is sold out', 'You can still see the full schedule. Go back to try another date.') : '';
   const added = inCart ? `<p class="ads-helper ads-helper--success cartdemo" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : '';
   const details = `<details class="ads-accordion ads-accordion--sm s5-search" open><summary>Search details${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${rt ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${rt ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.s5NoAssist ? 'Not included in this search' : b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl></div></details>`;
   const foot = s5Drawer(b, leg, null);
   return { title: leg === 'ret' ? 'Return' : 'Departure', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
-    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${noAssist}${border}${allSold}${tools}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>${details}` };
+    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${ptsCode}${noAssist}${border}${allSold}${tools}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>${details}` };
 };
 // Trip details open in the info sheet: route the "s5-trip:<id>" topic
 { const base = infoTopic; infoTopic = function (topic) { return topic.startsWith('s5-trip:') ? s5Details(topic.split(':')[1]) : base(topic); }; }
@@ -182,6 +189,9 @@ SCR.handoff = (r, ri) => {
   A['cart-add'] = (t, ri) => {
     if (!t.dataset.trip) return add(t, ri);
     if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
+    // NMA-757 (proposed): fares are held for 30 minutes with no visible timer; the hold resets when the booking changes.
+    // When it has run out, Continue refreshes prices and seats before anything goes in the cart.
+    if (s5().outcome === 'hold' && !s5().holdDone) { s5().holdDone = true; dialog({ title: 'Prices have been refreshed', body: `We hold a fare for 30 minutes. It’s been longer than that, so we checked this trip again. Review the price before you continue. ${s5tag('NMA-757')}`, returnFocus: '.pane:last-child [data-a="cart-add"]', actions: [['Review price', 'primary', () => render()]] }); return; }
     const b = D().booking, sh = sheet(), top = sh.stack[sh.stack.length - 1];
     const leg = top.p.leg === 'ret' ? 'ret' : 'dep', sel = D().s5sel = D().s5sel || {};
     sel[leg] = { trip: t.dataset.trip, cls: t.dataset.cls, fare: t.dataset.fare };
@@ -192,7 +202,7 @@ SCR.handoff = (r, ri) => {
 // ---------- Find trains: unsuccessful outcomes (NMA-759) ----------
 function s5Go(ri) {
   const b = D().booking, o = s5().outcome, back = '[data-a="find-trains"]', rt = b.trip === 'rt';
-  b.s5NoAssist = false; s5().sort = 'direct';
+  b.s5NoAssist = false; s5().sort = 'direct'; s5().holdDone = false;
   const go = () => { D().s5sel = {}; push('handoff', {}, +ri); };
   const caOnly = ST[b.from] && ST[b.to] && ST[b.from].country === 'CA' && ST[b.to].country === 'CA';
   if (o === 'noroute' || caOnly) { ref('759'); dialog({ title: 'No trains between these stations', body: `We don’t have service from ${esc(ST[b.from].city)} to ${esc(ST[b.to].city)}.${caOnly ? ' Amtrak trains to Canada start or end in the U.S.' : ''} Try a different station nearby.`, returnFocus: back, actions: [['Change stations', 'primary', null]] }); return; }
@@ -235,7 +245,7 @@ SCR.s5fare = (r, ri) => {
   snote('Choose a fare follows the current app’s pattern (class, fare options with their rules, price and Continue). Proposed design: fare selection isn’t a Sprint 5 story yet. Fare names, rules and prices are sample content from the back end.');
   if (pr) snote('NMA-1140 (grooming): Pass Rider fares aren’t approved, so only “Pass Rider fare” is shown, with no price.');
   const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, p)}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
-  const opts = fares.map(([n, p]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${s5Price(b, p)} <span class="s5-fopt__unit">${room ? 'a room' : 'per traveler'}</span></span>`}</span>${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
+  const opts = fares.map(([n, p]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${s5Price(b, p)} <span class="s5-fopt__unit">${room ? 'a room' : 'per traveler'}</span></span>`}</span>${n === fares[0][0] && !pr && tr.sale.includes(cls) ? '<span class="ads-choice__supporting s5-fopt__sale">Sale fare</span>' : ''}${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : `$${total.toFixed(2)}`;
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
@@ -270,7 +280,7 @@ const s5Money = (b, v) => intentOf(b) === 'pr' ? 'Pass Rider fare' : v == null ?
 // pending: the fare being chosen on the Choose a fare screen (its leg and cost), so the total shows before Continue
 function s5Drawer(b, leg, pending) {
   const rt = b.trip === 'rt', pts = s5PtsOk(b), member = D().signedIn;
-  const toggle = pts && !pending ? pointsRow({ id: 's5-points', title: 'Pay with points', sub: b.code && b.pay !== 'points' ? 'Codes can’t be used with points.' : member ? '12,450 points available' : 'You’ll sign in to use your points after you choose a fare.', checked: b.pay === 'points', attrs: 'data-a="s5-points"' }) : '';
+  const toggle = pts && !pending ? pointsRow({ id: 's5-points', title: 'Pay with points', sub: b.code && b.pay !== 'points' ? 'Promo codes and coupons don’t apply to points.' : member ? '12,450 points available' : 'You’ll sign in to use your points after you choose a fare.', checked: b.pay === 'points', attrs: 'data-a="s5-points"' }) : '';
   let totals = '';
   if (rt && leg === 'ret') {
     const dep = s5LegCost(b, 'dep'), ret = pending ? pending.cost : null, pr = intentOf(b) === 'pr';
@@ -284,8 +294,8 @@ function s5Drawer(b, leg, pending) {
 A['s5-points'] = t => {
   const b = D().booking, on = t.checked;
   const done = () => { b.pay = on ? 'points' : 'cash'; pendingFocus = '#s5-points'; render(); };
-  // NMA-613 scenario 1: points searches don't take codes. Turning points on with a code asks before removing it.
-  if (on && b.code) { t.checked = false; dialog({ title: 'Use points and remove your code?', body: `Codes can’t be used when you pay with points. Your code ${esc(b.code.code || b.codeText)} will be removed from this search.`, returnFocus: '#s5-points', actions: [['Use points', 'primary', () => { Object.assign(b, { code: null, codeText: '', codeState: '', codeErr: '', codeTries: 0, codeDraft: '', codeSrc: '', codeSig: '' }); done(); }], ['Keep my code', 'secondary', null]] }); return; }
+  // NMA-761 AC#3: switching to points keeps the code but doesn't use it; the results say so (no dialog, no data lost)
+  if (on && b.code) { toast('Prices are in points. Your promo code isn’t used with points.', 'info'); done(); return; }
   done();
 };
 document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('s5-totacc')) s5().totOpen = e.target.open; }, true);

@@ -917,25 +917,29 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 | NMA-1096 Classes of service | Coach, Business, First or Private rooms in that order, lowest fare each, sold-out classes shown and disabled, unoffered classes hidden. First only on Acela. |
 | NMA-759 Unsuccessful searches | Dialogs for no trains on the date (names the next date and offers it), route not served, and assistance not available (continue without it, acknowledgment recorded). Technical failure uses the existing retry alert. Fare Finder values are always kept. |
 | NMA-1098 Pricing | A one-line note on the results screen and an info sheet for seat and room prices. |
+| NMA-755 Trip tags (approved 2026-11-18) | "Lowest fare", "Fastest trip" and "Sale" badges. Every tied option gets the badge. No Lowest fare or Fastest trip when there is one result. No badges on canceled or fully sold-out trips; delayed trips keep theirs. Sale shows on the trip and on the class with the sale fare, in cash and points. Pass Rider: no Sale; Pass Rider business: no Lowest fare. Premium services (Acela) are not given a Premium badge. |
+| NMA-761 Cash or points (approved 2026-11-18) | Pay with points in the results drawer switches prices without a new search, either way; the active mode shows in the note above the trips. Not offered for Pass Rider or TripLink. With a promo code or coupon, switching to points goes ahead and the results say the code isn't used with points (it comes back in cash); passenger discounts still apply. |
 | NMA-1097 Fare types | "Understand fare types" (wireframe branch; "Compare fare types" on the Sprint 5 branch) opens an info sheet without leaving results. |
 | NMA-1095 Border crossing | An alert and a card flag on cross-border trips only, with a "What to expect" sheet. |
 
 **Proposed designs (story not approved yet; each carries a "Proposed · NMA-…" tag on screen)**
 
-- NMA-1109 Round-trip: choosing a departure fare goes on to a Return step ("Step 2 of 2").
-- NMA-755 Lowest fare and Fastest badges (hidden when there's one result).
+- NMA-1109 Round-trip: choosing a departure fare goes on to a Return step ("Step 2 of 2"). The meeting settled the sequential outbound-then-return flow, because return options depend on the outbound choice.
 - NMA-758 Sort only (Most direct, Departure time, Shortest trip, Lowest fare). Filters aren't designed.
-- NMA-761 Prices in points when Pay with points is on. Switching between points and dollars on results isn't designed.
-- NMA-764 "applies" indicator on a card when a code or traveler discount is in the search.
+- NMA-764 "applies" indicator on a card when a code or traveler discount is in the search. In points, only passenger discounts show, and the results tell the customer the code isn't used (meeting: inform customers when discounts are removed; keep eligible passenger discounts with points).
+- NMA-762 Low inventory (meeting: back-end driven, for a specific fare and class, not train capacity): "2 left at this price" on that class, and "Only 2 left at this price" on that fare when choosing it.
+- NMA-757 Fare hold (meeting: 30-minute price and inventory hold, reset when the booking changes, no visible timer): no timer anywhere. Use the Search outcome "Fare hold expired after 30 minutes" to see Continue refresh prices before anything goes in the cart.
 - NMA-1092/1093 A "Details" link on each card opens a trip details sheet with Services (amenities and add-ons) and Route tabs, as in the current app.
 - Fare selection (no story yet): choosing a class opens **Choose a fare**, following the current app's pattern. It shows the trip summary, class tabs with prices (sold-out classes disabled), what the class includes, fare options as radio cards with their price and rules (Value and Flex; First has Flex only; Pass Rider shows "Pass Rider fare" with no price), and a footer with the total for all travelers (rooms: per room) and **Continue**. Continue adds to the simulated cart; on a round trip it goes to the Return step first. A **Trip summary** follows with each leg and a handoff note: add-ons, seats, traveler details and checkout aren't part of Sprint 5.
-- NMA-1138 Multi-segment trips show "from" prices.
+- NMA-1138 is consolidated into NMA-1096 (the story is now marked NOT NEEDED): multi-segment trips use the same card and prices as single-segment ones, with no "from"; differences are in the route information.
 
 **Flagged, not designed (open questions)**
 
 - NMA-760 Service and station alerts: origin only, or origin and destination? Where else do alerts show?
-- NMA-762 Urgency signal: the story has no requirements yet.
-- NMA-1140 Pass Rider fares: rules aren't approved, so each class shows "Pass Rider fare" and no price.
+- NMA-1140 Pass Rider fares: the meeting settled the same search framework with back-end employee pricing and extra contextual policies. Refundability disclosure and discount presentation are open, so classes still show "Pass Rider fare".
+- NMA-705 Buy Points: 100-point minimum for Points + Cash, 400-point minimum for a full redemption, and buying points mustn't interrupt booking. Messaging, navigation and API behavior are open; nothing designed yet.
+- NMA-755 open points: where the Sale badge sits (trip, class or both; both here) and who calculates the badges (app or back end).
+- NMA-1094 open point: final hierarchy. The cards already show overnight and multi-segment together, and self-transfer.
 - NMA-1141 TripLink fares: the story is empty; standard prices are shown.
 - NMA-748 AC#4: canceled trains are returned today only for the agent channel, so showing them needs a back-end change request.
 - NMA-759 BR#1.2: for round trips the prototype handles "departure date has no trains" and "return date has no trains" separately; the case where both have none isn't designed.
