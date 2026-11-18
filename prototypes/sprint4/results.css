@@ -146,3 +146,19 @@
 .s5-x__panel .s5-x__seat { padding: var(--ads-space-8) 0; }
 .s5-x__act { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-12); padding-top: var(--ads-space-4); }
 .s5-x__act .s5-x__price { margin: 0; }
+
+/* Concept Update 1: a compact trip summary so more of the experience shows above the fold.
+   Same details (scheduled and updated times, duration, segments); smaller type and tighter spacing. */
+.s5-trip--x { gap: var(--ads-space-8); }
+.s5-trip--x .s5-trip__main { gap: var(--ads-space-4); }
+.s5-trip--x .s5-trip__times { font-size: var(--ads-type-body-size); gap: var(--ads-space-4) var(--ads-space-8); }
+.s5-trip--x .s5-t { flex-direction: row; align-items: baseline; gap: var(--ads-space-4); }
+.s5-trip--x .s5-was { font-size: var(--ads-type-caption-size); }
+.s5-trip--x .s5-trip__meta, .s5-trip--x .s5-trip__flags { font-size: var(--ads-type-caption-size); }
+.s5-trip--x .s5-x { gap: var(--ads-space-8); padding-top: var(--ads-space-8); }
+.s5-trip--x .s5-x__seg > button { min-height: 36px; padding-block: 2px; }
+.s5-trip--x .s5-x__panel { gap: var(--ads-space-4); }
+.s5-trip--x .s5-x__seat { gap: var(--ads-space-8); padding: var(--ads-space-4) 0; }
+.s5-trip--x .s5-x__seatsub { font-size: var(--ads-type-caption-size); }
+.s5-trip--x .s5-x__card .ads-group__row { min-height: 28px; padding-block: 2px; }
+.s5-trip--x .s5-x__act { padding-top: 0; }
