@@ -64,6 +64,7 @@ const S5_NOW = 9 * 60 + 41; // the device clock (9:41 AM): trains that already l
 const S5_CLASS_ORDER = ['Coach', 'Business', 'First', 'Rooms']; // NMA-1096 BR#1.5
 const S5_SVC = { train: ['train', 'Train'], trains: ['trip-multiple-train', 'Multiple trains'], mixed: ['trip-multiple-mixed', 'Train and bus'], bus: ['bus', 'Bus'] };
 
+const S5_UNRESERVED = ['SAC', 'EMY', 'OKJ']; // Capitol Corridor stations in the mock: unreserved Coach
 // Mock back end: the same search always returns the same trips. Times, durations and fares come "from the back end".
 function s5Trips(b, leg) {
   const from = leg === 'ret' ? b.to : b.from, to = leg === 'ret' ? b.from : b.to, date = leg === 'ret' ? b.ret : b.dep;
@@ -84,6 +85,12 @@ function s5Trips(b, leg) {
     T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, segNames: ['Lake Shore Limited', 'Capitol Limited', 'Northeast Regional'], segOffers: [['Coach', 'Rooms'], ['Coach', 'Rooms'], ['Coach']], cls: { Coach: fare + 72, Rooms: fare + 540 } })
   ];
   const xb = s5Border(from, to); if (xb) list = s5BorderTrips(from, to, h, fare);
+  // Unreserved Coach (Capitol Corridor): Coach only, no private rooms; Sale and Flex fares only
+  if (S5_UNRESERVED.includes(from) && S5_UNRESERVED.includes(to)) list = [
+    T({ id: 't1', num: '524', name: 'Capitol Corridor', dep: 6 * 60 + 50, dur: 170, unreserved: true, cls: { Coach: 36 } }),
+    T({ id: 't2', num: '528', name: 'Capitol Corridor', dep: 9 * 60 + 53, dur: 171, unreserved: true, cls: { Coach: 31 }, sale: ['Coach'] }),
+    T({ id: 't3', num: '530', name: 'Capitol Corridor', dep: 11 * 60 + 8, dur: 157, unreserved: true, cls: { Coach: 36 } })
+  ];
   if (date === TODAY_S) list = list.filter(t => t.status === 'canceled' || t.dep + t.delay > S5_NOW); // NMA-748 AC#4: delayed trains stay until they actually leave; canceled stay by schedule
   if (out === 'soldout') list.forEach(t => Object.keys(t.cls).forEach(k => t.cls[k] = null));
   if (out === 'single') list = list.filter(t => t.id === 't4').map(t => Object.assign(t, { cls: { Coach: fare + 8, Business: fare + 52 } }));
@@ -119,7 +126,11 @@ const s5Cents = v => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, m
 
 // ---------- Supporting content (configurable: comes from AEM, never hard-coded in the app) ----------
 INFO['s5-pricing'] = { title: 'How prices are shown', body: () => `<p><b>Seats</b> (Coach, Business, First): the price is for one adult, one way, before discounts. Discounts you chose are applied in your cart.</p><p><b>Rooms</b>: the price is the total for all travelers in the room, with your discounts already applied.</p><p>Each price is the lowest fare still available in that class.</p>${snote('NMA-1098: pricing explanation. Content is configurable (AEM) and available offline.')}` };
-INFO['s5-fares'] = { title: 'Compare fare types', body: () => `<div class="s5-fares">${[['Sale', 'Offered on some trips and classes. Lowest price. 50% cancellation fee before departure; no changes.'], ['Value', 'Lowest price. Changes allowed for a fee. 75% refund up to 8 days before departure, then not refundable.'], ['Flex', 'Fully refundable before departure. No change fees.'], ['Business', 'Fully refundable before departure. Extra legroom and a reserved seat.'], ['First (Acela)', 'Fully refundable. At-seat meal service and lounge access.'], ['Rooms', 'Refundable up to 121 days before departure; fees apply after that. Meals and lounge access included.']].map(([n, d]) => `<div class="ads-group__row s5-fares__row"><span class="ads-group__text"><span class="ads-group__label">${n}</span><span class="ads-group__value">${d}</span></span></div>`).join('')}</div><p class="info-draft">Sample content. Fare names, benefits and restrictions come from the content source.</p>${snote('NMA-1097: fare type comparison. Content is configurable and available offline. Wording here is placeholder.')}` };
+INFO['s5-fares'] = { title: 'Compare fare types', body: () => {
+  const rows = [['Changes', n => S5_FT[n].changes], ['Cancellation', n => S5_FT[n].cancel], ['Guest Rewards points', () => '100% of points earned'], ['Personal item', () => '1 free'], ['Carry-on bags', n => `${S5_FT[n].carry} free, $20 per extra`], ['Checked bags', n => `${S5_FT[n].checked || 'None'} free, $20 per extra`], ['Seat choice', n => ({ Sale: 'Not available (Cascades Coach: auto-assigned)', Value: 'For a fee in Business and on Cascades Coach', Flex: 'For a lower fee in Business and on Cascades Coach', 'Flex+': 'Included in Business and on Cascades Coach' })[n]]];
+  return `<div class="s5-fares">${Object.keys(S5_FT).map(n => `<details class="ads-accordion ads-accordion--sm s5-fares__ft"${n === 'Sale' ? ' open' : ''}><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="cpn-dl">${rows.map(([l, f]) => `<dt>${l}</dt><dd>${f(n)}</dd>`).join('')}</dl></div></details>`).join('')}</div>
+    <p class="ads-body-small"><b>Which fares you’ll see:</b> reserved Coach and Business offer Value, Flex and Flex+. Unreserved Coach offers Flex. Sale is added when a trip and class have a sale fare.</p>
+    <p class="info-draft">Sample content from the fare-type definitions. Bag fees and seat-choice prices come from the content source.</p>${snote('NMA-1097: fare type comparison. Fare types follow the definitions for Coach Reserved (all routes and Cascades), Business and Coach Unreserved. First and private rooms aren’t in those definitions yet.')}`; } };
 INFO['s5-border'] = { title: 'Crossing the U.S.–Canada border', body: () => `<p><b>Before you book</b></p><p>Every traveler needs a valid passport or other approved travel document. Enter each traveler’s name exactly as it appears on that document.</p><p><b>At the border</b></p><p>Customs and immigration officers board the train or meet it at the station. Inspections can add time to your trip.</p><p><b>Good to know</b></p><p>Arrive at least 60 minutes before departure. Children traveling without both parents may need a consent letter.</p><p class="info-draft">Sample content. Requirements come from the content source.</p>${snote('NMA-1095: shown only when the trip crosses the U.S.–Canada border. Content is configurable and available offline.')}` };
 INFO['s5-sort'] = { title: 'Sort', body: () => `<fieldset class="ads-fieldset s5-sortset"><legend class="ads-sr-only">Sort trains by</legend>${Object.entries(S5_SORTS).map(([k, [l]]) => `<label class="ads-choice ads-radio" for="s5s-${k}"><input type="radio" name="s5sort" id="s5s-${k}" data-a="s5-sort" data-v="${k}" ${s5().sort === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${l}</span></span></label>`).join('')}</fieldset><p class="info-draft">${s5tag('NMA-758')} Sort only. Filters (time of day, route, class, add-ons) are still being groomed and aren’t designed yet.</p>` };
 A['s5-sort'] = t => { s5().sort = t.dataset.v; nav().info = null; pendingFocus = '[data-topic="s5-sort"]'; render(); };
@@ -249,17 +260,41 @@ function s5Go(ri) {
 // Fare types and their rules are sample content; they come from the back end (see NMA-1097).
 // =====================================================================
 const S5_CLASS_INFO = { Coach: ['No middle seat and plenty of legroom', 'At-seat power', 'Earn 2 Guest Rewards points per $1'], Business: ['Extra legroom and a reserved seat', 'Complimentary non-alcoholic drinks', 'Earn 3 Guest Rewards points per $1'], First: ['Wide leather seats in a 1-2 layout', 'At-seat meal service', 'Lounge access before you board'], Rooms: ['A private room for up to 2 travelers', 'Meals in the dining car included', 'Lounge access and a dedicated attendant'] };
-const S5_RULES = { Sale: ['50% cancellation fee if canceled before departure', 'No changes permitted'], Value: ['30% cancellation fee if canceled before departure', 'No changes permitted'], Flex: ['Full refund if canceled before departure', 'Changes permitted with no change fee'] };
+// Fare types (fare-type definitions, Coach Reserved / Cascades / Business / Coach Unreserved). Every fare earns 100%
+// Guest Rewards points and includes 1 personal item. Bag prices are the published sample ($20 per extra bag).
+const S5_FT = {
+  Sale: { changes: 'No changes permitted', cancel: '50% cancellation fee if canceled before departure', carry: 1, checked: 0 },
+  Value: { changes: 'No changes permitted', cancel: '30% cancellation fee if canceled before departure', carry: 1, checked: 0 },
+  Flex: { changes: 'Changes permitted with no change fee', cancel: 'Full refund if canceled before departure', carry: 1, checked: 1 },
+  'Flex+': { changes: 'Changes permitted with no change fee', cancel: 'Full refund if canceled before departure', carry: 2, checked: 2 }
+};
+// Seat choice: none on most Coach routes and unreserved Coach; on Cascades Coach and in Business it depends on the fare
+const S5_SEAT = { cascades: { Sale: 'Seat auto-assigned', Value: 'Choose a seat for a fee', Flex: 'Choose a seat for a lower fee', 'Flex+': 'Seat choice included' }, business: { Value: 'Choose a seat for a fee', Flex: 'Choose a seat for a lower fee', 'Flex+': 'Seat choice included' } };
+const s5Kind = tr => tr && tr.unreserved ? 'unreserved' : tr && /Cascades/.test(tr.name) ? 'cascades' : 'reserved';
+const s5Bags = f => `${f.carry} carry-on free · ${f.checked ? `${f.checked} checked bag${f.checked > 1 ? 's' : ''} free` : 'no free checked bags'} · $20 per extra bag`;
+function s5FareRules(n, cls, kind) {
+  const f = S5_FT[n]; if (!f) return ['Pass Rider travel rules apply'];
+  const seat = cls === 'Business' ? S5_SEAT.business[n] : cls === 'Coach' && kind === 'cascades' ? S5_SEAT.cascades[n] : '';
+  return [f.changes, f.cancel, seat, s5Bags(f)].filter(Boolean);
+}
+const S5_RULES = Object.fromEntries(Object.keys(S5_FT).map(n => [n, s5FareRules(n, 'Coach', 'reserved')]));
 // NMA-755: Sale is a fare type, not a label on Value. When a class has a sale, the back end returns a Sale fare: the
 // class's lowest price (so it's the price on the card), with its own rules, offered alongside Value and Flex.
 // The Sale badge on a trip or class means a Sale fare is one of the choices there.
-function s5Fares(cls, base, sale) {
-  const flex = base + (cls === 'Rooms' ? 60 : cls === 'Business' ? 18 : 10);
-  if (cls === 'First') return sale ? [['Sale', base], ['Flex', flex + 20]] : [['Flex', base]];
-  if (!sale) return [['Value', base], ['Flex', flex]];
-  const up = Math.round(base * 0.15) + 5; // Value and Flex sit above the sale price
-  return [['Sale', base], ['Value', base + up], ['Flex', flex + up]];
+// Which fare types a class offers: reserved Coach (all routes, Cascades included) and Business offer Value, Flex and
+// Flex+, plus Sale when there's a sale. Unreserved Coach offers Flex only, plus Sale when there's a sale. The first
+// fare is the class's lowest price (the price on the card); the others sit above it. First and private rooms aren't in
+// the fare-type definitions, so they keep Flex (First) and Value and Flex (rooms) for now.
+function s5Fares(cls, base, sale, kind) {
+  const step = cls === 'Rooms' ? 60 : cls === 'Business' ? 18 : 10, up = Math.round(base * 0.15) + 5;
+  let names;
+  if (cls === 'First') names = sale ? ['Sale', 'Flex'] : ['Flex'];
+  else if (cls === 'Rooms') names = ['Value', 'Flex'];
+  else if (cls === 'Coach' && kind === 'unreserved') names = sale ? ['Sale', 'Flex'] : ['Flex'];
+  else names = sale ? ['Sale', 'Value', 'Flex', 'Flex+'] : ['Value', 'Flex', 'Flex+'];
+  return names.map((n, i) => [n, i === 0 ? base : base + (names[0] === 'Sale' ? up : 0) + (i - (names[0] === 'Sale' ? 1 : 0)) * step + (n === 'Flex+' ? step : 0)]);
 }
+const s5Fid = n => n.replace(/\+/g, 'Plus').replace(/\s/g, '');
 const s5SaleOn = (b, tr, cls) => intentOf(b) !== 'pr' && tr.sale.includes(cls) && tr.cls[cls] != null;
 const s5ClsName = k => k === 'Rooms' ? 'Private rooms' : k;
 A['s5-fare'] = (t, ri) => {
@@ -310,9 +345,9 @@ function s5CardPrice(b, t, res, k) {
 // Fare options for a choice, and what they cost the party: unit is 'traveler', 'room' or 'party' (a combination)
 function s5FareSet(b, tr, res, cls, combo) {
   const { n, rooms } = s5Party(b);
-  if (combo) { const d = s5Fares(cls, 0, s5SaleOn(b, tr, cls) && combo.segs.some(s => s.cls === cls)); return { unit: 'party', rooms: combo.rooms, fares: d.map(([nm, x]) => [nm, combo.total + (cls === 'First' ? 0 : x * (combo.rooms ? combo.rooms : n))]), total: v => v }; }
+  if (combo) { const d = s5Fares(cls, 0, s5SaleOn(b, tr, cls) && combo.segs.some(s => s.cls === cls), 'reserved'); return { unit: 'party', rooms: combo.rooms, fares: d.map(([nm, x]) => [nm, combo.total + (cls === 'First' ? 0 : x * (combo.rooms ? combo.rooms : n))]), total: v => v }; }
   const room = cls === 'Rooms';
-  return { unit: room ? 'room' : 'traveler', rooms: room ? rooms : 0, fares: s5Fares(cls, tr.cls[cls], s5SaleOn(b, tr, cls)), total: v => v * (room ? rooms : n) };
+  return { unit: room ? 'room' : 'traveler', rooms: room ? rooms : 0, fares: s5Fares(cls, tr.cls[cls], s5SaleOn(b, tr, cls), s5Kind(tr)), total: v => v * (room ? rooms : n) };
 }
 A['s5-combo'] = (t, ri) => {
   if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
@@ -355,13 +390,13 @@ SCR.s5fare = (r, ri) => {
   snote('Choose a fare follows the current app’s pattern (class, fare options with their rules, price and Continue). Proposed design: fare selection isn’t a Sprint 5 story yet. Fare names, rules and prices are sample content from the back end.');
   if (pr) snote('NMA-1140 (grooming): Pass Rider fares aren’t approved, so only “Pass Rider fare” is shown, with no price.');
   const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, k === 'Rooms' ? p : s5Net(b, p, k))}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
-  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${n.replace(/\s/g, '')}"><input type="radio" name="s5fare" id="s5f-${n.replace(/\s/g, '')}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${noDisc ? s5Price(b, p) : s5Strike(b, p, cls)} <span class="s5-fopt__unit">${unitLabel}</span></span>`}</span>${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${(S5_RULES[n] || ['Pass Rider travel rules apply']).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
+  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${s5Fid(n)}"><input type="radio" name="s5fare" id="s5f-${s5Fid(n)}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${noDisc ? s5Price(b, p) : s5Strike(b, p, cls)} <span class="s5-fopt__unit">${unitLabel}</span></span>`}</span>${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${s5FareRules(n, cls, s5Kind(tr)).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : s5Cents(total);
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
   const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${s5PartyLine(b, fs.rooms)}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}"${combo ? ` data-combo="${combo.id}"` : ''}>Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
-    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${S5_CLASS_INFO[cls].map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>${room && seats > 2 ? `<p class="ads-helper s5-rooms-note">${ic('info-circle', 'ads-icon--sm')}<span>${s5Plural(seats, 'traveler')} need ${s5Plural(fs.rooms, 'room')}. Each room holds up to 2 travelers.</span></p>` : ''}
+    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel"><ul class="s5-cinfo">${(cls === 'Coach' && tr.unreserved ? ['Unreserved: sit in any open Coach seat', ...S5_CLASS_INFO.Coach.slice(1)] : S5_CLASS_INFO[cls]).map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>${room && seats > 2 ? `<p class="ads-helper s5-rooms-note">${ic('info-circle', 'ads-icon--sm')}<span>${s5Plural(seats, 'traveler')} need ${s5Plural(fs.rooms, 'room')}. Each room holds up to 2 travelers.</span></p>` : ''}
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
 };
 
