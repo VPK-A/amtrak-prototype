@@ -243,12 +243,33 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/Fastest trip/.test(bd.t2) && /Lowest fare/.test(bd.t8) && /Sale/.test(bd.t3) && /Delayed/.test(bd.t3) && /Sale/.test(bd.t9), 'Lowest fare, Fastest trip and Sale badges; a delayed trip keeps its badge');
   ok(!/Lowest|Fastest|Sale/.test(bd.t5) && !/Lowest|Fastest|Sale/.test(bd.t6), 'no badges on canceled or fully sold-out trips');
   ok(await ev(() => /Sale fare available/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Business"]').textContent) && !/Sale/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Coach"]').textContent)), 'Sale also marks the class that has the sale fare');
+  // Fare types by class and route (fare-type definitions)
+  await open(); await find();
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  let fnames = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt__head > span:first-child')].map(e => e.textContent));
+  ok(fnames.join() === 'Value,Flex,Flex+' && !/Choose a seat|Seat choice included/.test(await txt()) && /2 carry-on free · 2 checked bags free/.test(await txt()) && /1 carry-on free · no free checked bags/.test(await txt()), `reserved Coach: Value, Flex, Flex+; no seat choice; bag allowance per fare (${fnames})`);
+  await p.locator(D_ + '.pane:last-child #s5c-Business').click(); await w(300);
+  ok(/Choose a seat for a fee/.test(await txt()) && /Seat choice included/.test(await txt()), 'Business: seat choice for a fee on Value and Flex, included with Flex+');
+  await p.evaluate(() => document.querySelector('#device .pane:last-child #s5f-FlexPlus').scrollIntoView()); await p.locator(D_ + '.pane:last-child label[for="s5f-FlexPlus"]').click(); await w(300);
+  ok(await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.fare) === 'Flex+', 'Flex+ can be chosen');
+  await open('returning', "const b = D().booking; b.from = 'SEA'; b.to = 'VAC'"); await find();
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(/Choose a seat for a fee/.test(await txt()) && /Seat choice included/.test(await txt()), 'Cascades Coach: seat choice by fare');
+  await open('returning', "const b = D().booking; b.from = 'EMY'; b.to = 'SAC'"); await find();
+  ok(/Capitol Corridor/.test(await txt()) && (await cards()).every(x => x.cls.map(k => k[0]).join() === 'Coach'), 'Capitol Corridor: unreserved Coach only');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  fnames = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt__head > span:first-child')].map(e => e.textContent));
+  ok(fnames.join() === 'Flex' && /Unreserved: sit in any open Coach seat/.test(await txt()), `unreserved Coach: Flex only (${fnames})`);
+  await p.locator(D_ + '.pane:last-child [data-a="back"]').click(); await w(400);
+  await p.locator(D_ + '[data-trip="t2"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  fnames = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt__head > span:first-child')].map(e => e.textContent));
+  ok(fnames.join() === 'Sale,Flex', `unreserved Coach with a sale: Sale and Flex (${fnames})`);
   // Sale is a fare type: the Sale badge means a Sale fare is one of the choices for that trip and class
   await open(); await find();
   const t3b = await ev(() => document.querySelector('#device [data-trip="t3"] [data-cls="Business"] .s5-class__price').textContent);
   await p.locator(D_ + '[data-trip="t3"] [data-a="s5-fare"][data-cls="Business"]').click(); await w(500);
   const fopts = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt')].map(o => [o.querySelector('.s5-fopt__head span').textContent, o.querySelector('.s5-fopt__price').textContent.split(' ')[0], o.querySelector('input').checked]));
-  ok(fopts.map(f => f[0]).join() === 'Sale,Value,Flex' && fopts[0][1] === t3b && fopts[0][2] && /50% cancellation fee/.test(await txt()), `a class with a sale offers a Sale fare type first, at the card’s price (${JSON.stringify(fopts)})`);
+  ok(fopts.map(f => f[0]).join() === 'Sale,Value,Flex,Flex+' && fopts[0][1] === t3b && fopts[0][2] && /50% cancellation fee/.test(await txt()), `a class with a sale offers a Sale fare type first, at the card’s price (${JSON.stringify(fopts)})`);
   ok(+fopts[1][1].slice(1) > +fopts[0][1].slice(1), 'Value costs more than Sale');
   await p.locator(D_ + '.pane:last-child #s5c-Coach').click(); await w(300);
   ok(!(await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt__head span:first-child')].some(e => e.textContent === 'Sale'))), 'a class without a sale has no Sale fare');

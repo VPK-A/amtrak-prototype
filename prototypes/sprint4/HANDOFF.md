@@ -986,6 +986,27 @@ Use the prototype control **Discount pricing (Sprint 5)** to switch between **Cu
 - **Rooms:** unchanged, because room prices already include discounts (NMA-1098).
 - **Flags:** NMA-1098 says seat prices are shown before discounts, so this concept needs that rule changed. Discount amounts are sample values; the back end prices discounts, including codes limited to a train or class (for example "20% off Northeast Regional Coach", which the prototype applies to every seat).
 
+**Fare types by class and route (from the fare-type definitions)**
+
+| Class | Fare types offered | Seat choice |
+|---|---|---|
+| Coach, reserved (all routes) | Value, Flex, Flex+ (Sale first when the class has a sale) | Not offered |
+| Coach, reserved (Cascades) | Value, Flex, Flex+ (+ Sale) | Sale: auto-assigned. Value: for a fee. Flex: for a lower fee. Flex+: included. |
+| Business | Value, Flex, Flex+ (+ Sale) | Sale: not offered. Value: for a fee. Flex: for a lower fee. Flex+: included. |
+| Coach, unreserved (Capitol Corridor in the mock: Sacramento, Emeryville, Oakland) | Flex (+ Sale) | Not offered |
+| First, private rooms | Unchanged for now: First offers Flex (+ Sale); rooms offer Value and Flex | — |
+
+- Every fare earns 100% Guest Rewards points and includes 1 free personal item.
+- **Changes:** not permitted on Sale and Value; permitted on Flex and Flex+.
+- **Cancellation:** 50% fee on Sale, 30% fee on Value, no fee on Flex and Flex+.
+- **Bags:** 1 free carry-on (2 with Flex+). Free checked bags: none on Sale and Value, 1 on Flex, 2 on Flex+. $20 per extra bag.
+- Each fare option on Choose a fare lists its changes, cancellation, seat choice (where offered) and bag allowance. Compare fare types shows the four fare types side by side.
+- The first fare listed is the class's lowest price, which is the price on the card.
+- **Flags:**
+  - First and private rooms aren't in the fare-type definitions.
+  - Seat-choice prices ($ and $$) and the bag fees per service line are still inputs.
+  - The prototype treats Capitol Corridor as the unreserved example.
+
 **Questions for the fare selection design**
 
 - Fare names, rules and price differences are sample content. Which fare types does each class offer, and does the back end send their rules?
