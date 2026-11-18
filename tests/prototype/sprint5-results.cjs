@@ -154,6 +154,26 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const num = x => +x.replace(/[^0-9.]/g, ''), m = f.match(/Trip total (\$[\d.,]+) Departure (\$[\d.,]+) Return (\$[\d.,]+)/);
   ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
 
+  // ---- Results concepts (design exploration): compare the experience of each class ----
+  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Current,Concept Update 1,Concept Update 2' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
+  await open('returning', "TB.s5c = 'current'"); await find();
+  ok(await p.locator(D_ + '[data-topic="s5-classes"]').count() === 0 && await p.locator(D_ + '.s5-class__exp').count() === 0, 'Current: no class comparison');
+  await open('returning', "TB.s5c = 'c1'"); await find();
+  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: fare types stay on results (NMA-1097); tagged Proposed');
+  t = await ev(() => document.querySelector('#device [data-trip="t1"]').innerText.replace(/\s+/g, ' '));
+  ok(/Coach · Comfortable essentials/.test(t) && /Standard seat/.test(t) && /Wi-Fi/.test(t) && /Lounge access/.test(t) && /Choose Coach/.test(t), 'Concept 1: each trip card leads with the experience of a class on results');
+  ok(await ev(() => { const c = document.querySelector('#device [data-trip="t1"]'); return parseFloat(getComputedStyle(c.querySelector('.s5-x__price')).fontSize) < parseFloat(getComputedStyle(c.querySelector('.s5-x__seattitle')).fontSize); }), 'Concept 1: price is secondary to the benefits');
+  await p.locator(D_ + '#s5x-t1-Business').click(); await w(300);
+  t = await ev(() => document.querySelector('#device [data-trip="t1"]').innerText.replace(/\s+/g, ' '));
+  ok(/Spacious seat/.test(t) && /Choose Business/.test(t) && await stack() === 'ff>handoff', 'Concept 1: switching class on the card updates its experience, without leaving results');
+  ok(await ev(() => document.querySelector('#device #s5x-t4-Business').disabled) && await ev(() => !document.querySelector('#device [data-trip="t5"] .s5-x__panel')), 'Concept 1: sold-out classes are disabled; a canceled trip shows no experience panel'); await axe('concept 1 results');
+  await p.locator(D_ + '[data-trip="t1"] .s5-x__act [data-a="s5-fare"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5faredep' && await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.cls) === 'Business', 'Concept 1: Choose Business opens Choose a fare for that class');
+  await open('returning', "TB.s5c = 'c2'"); await find(); c = await cards();
+  ok(/Reclining seat/.test(c[0].text) && await ev(() => document.querySelector('#device [data-trip="t1"] .s5-class').getAttribute('aria-label').includes('Reclining seat')) && /Proposed · Concept Update 2/.test(await tags()), 'Concept 2: each class shows its seat type and amenities, also in its accessible name');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5faredep', 'Concept 2: choosing a class still opens Choose a fare'); await open('returning', "TB.s5c = 'current'");
+
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await tags();
   ok(['NMA-755', 'NMA-758', 'NMA-1092/1093', 'NMA-1138'].every(k => t.includes('Proposed · ' + k)), 'proposed designs carry a Proposed tag with the story number');

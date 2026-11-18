@@ -946,6 +946,16 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 - Proposed (NMA-761, NMA-1109): Departure and Return results have a drawer with **Pay with points** (regular and personal bookings only). On the Return step it also shows "Trip total so far" as an accordion, collapsed by default; opening it shows the departure cost and "Return: Choose a fare". On the return fare screen the same accordion shows the trip total, opening to both legs, and the footer shows the return price beside Continue. Open or closed is kept while you browse.
 - Points searches don't take codes (NMA-613). Turning on points with a code asks "Use points and remove your code?" (Use points / Keep my code). **Flag:** confirm this is the wanted behavior, since Sprint 4 only hides the code field on Fare Finder.
 
+**Results concepts: compare the experience of each class (design exploration)**
+
+Based on design feedback, results could compare the *experience* of each class of service (seat type, amenities) instead of leading with fare types, which already have their own step. Use the prototype control **Results concept (Sprint 5)**:
+
+- **Current**: results as designed, with "Compare fare types".
+- **Concept Update 1: experience on results.** Each trip card leads with the experience instead of a row of prices. A segmented control on the card switches between the classes on that train (name first, price small; sold-out classes disabled). Below it, the chosen class shows its promise, seat type, and Wi-Fi, food and drink, and lounge access. The price is secondary ("$34 per traveler") next to a "Choose Coach" button that goes on to Choose a fare. Canceled trips show the classes but no panel. Fare types stay on results.
+- **Concept Update 2: experience on each class.** Each class button on a trip card shows what you get under its price: a short seat description and amenity icons. The comparison happens where you choose, with no extra tap. The seat description is part of the button's accessible name.
+
+Both concepts are tagged Proposed and use only existing components. Both keep fare types on results, so NMA-1097 (approved) still holds. Choose a fare is unchanged in both.
+
 **Questions for the fare selection design**
 
 - Fare names, rules and price differences are sample content. Which fare types does each class offer, and does the back end send their rules?
