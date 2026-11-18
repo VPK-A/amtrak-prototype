@@ -951,10 +951,10 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 Based on design feedback, results could compare the *experience* of each class of service (seat type, amenities) instead of leading with fare types, which already have their own step. Use the prototype control **Results concept (Sprint 5)**:
 
 - **Current**: results as designed, with "Compare fare types".
-- **Concept Update 1: experience on results.** Each trip card leads with the experience instead of a row of prices. A segmented control on the card switches between the classes on that train (name first, price small; sold-out classes disabled). Below it, the chosen class shows its promise, seat type, and Wi-Fi, food and drink, and lounge access. The price is secondary ("$34 per traveler") next to a "Choose Coach" button that goes on to Choose a fare. Canceled trips show the classes but no panel. To keep more of the experience above the fold, the trip summary is compact in this concept (smaller times, with the scheduled and updated times side by side when delayed) and the experience rows are tighter. Fare types stay on results.
+- **Concept Update 1: compare classes.** "Compare classes" leads the results links. It opens a sheet comparing each class on these trains side by side: seat, legroom, food and drink, lounge and Guest Rewards points. Features that are the same in every class (Wi-Fi, bags) are a single footnote.
 - **Concept Update 2: experience on each class.** Each class button on a trip card shows what you get under its price: a short seat description and amenity icons. The comparison happens where you choose, with no extra tap. The seat description is part of the button's accessible name.
 
-Both concepts are tagged Proposed and use only existing components. Both keep fare types on results, so NMA-1097 (approved) still holds. Choose a fare is unchanged in both.
+Both concepts are tagged Proposed and use only existing components. **Flag:** NMA-1097 (approved) needs fare types reachable from results, so both concepts keep a smaller "Fare types" link instead of removing it. If the test drops fare types from results, NMA-1097 needs to change.
 
 **Questions for the fare selection design**
 
