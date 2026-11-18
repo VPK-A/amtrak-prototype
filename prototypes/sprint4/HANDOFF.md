@@ -913,7 +913,7 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 | Story | What's in the prototype |
 |---|---|
 | NMA-748 One-way results | Compact header (route, date, travelers, number of trains). Every trip returned is listed, including delayed, canceled and sold out. Default order: most direct, earliest departure, shortest, lowest fare. Discounts never filter trips. Offline: results stay, choosing a fare is blocked. |
-| NMA-1094 Trip card | Service icon, train name and number, departure and arrival, "+1 day", duration, Direct or number of segments with layover, Overnight (direct and multi-segment), Delayed with scheduled and updated times, Canceled, self-transfer. |
+| NMA-1094 Trip card | Train name and number (the service icon was removed from the card by design request; the service type is still announced to screen readers), departure and arrival, "+1 day", duration, Direct or number of segments with layover, Overnight (direct and multi-segment), Delayed with scheduled and updated times, Canceled, self-transfer. |
 | NMA-1096 Classes of service | Coach, Business, First or Private rooms in that order, lowest fare each, sold-out classes shown and disabled, unoffered classes hidden. First only on Acela. |
 | NMA-759 Unsuccessful searches | Dialogs for no trains on the date (names the next date and offers it), route not served, and assistance not available (continue without it, acknowledgment recorded). Technical failure uses the existing retry alert. Fare Finder values are always kept. |
 | NMA-1098 Pricing | A one-line note on the results screen and an info sheet for seat and room prices. |

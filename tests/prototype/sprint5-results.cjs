@@ -44,7 +44,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/\+1 day/.test(by('t8').text) && /Overnight/.test(by('t8').text), 'arrival on a later day and the overnight indicator (direct)');
   ok(/Overnight/.test(by('t11').text) && /3 segments/.test(by('t11').text), 'overnight indicator on a multi-segment trip, with its number of segments');
   ok(/2 segments · 45m layover in Philadelphia/.test(by('t9').text), 'multi-segment: segments and layover');
-  ok(/Self-transfer: change stations/.test(by('t10').text) && await ev(() => !!document.querySelector('#device [data-trip="t10"] .ads-icon--trip-multiple-mixed')), 'mixed service icon and the self-transfer indicator');
+  ok(/Self-transfer: change stations/.test(by('t10').text) && await ev(() => !document.querySelector('#device .s5-trip__svc .ads-icon') && /Train and bus/.test(document.querySelector('#device [data-trip="t10"] .s5-trip__svc').textContent)), 'no service icon on the card (service type stays for screen readers) and the self-transfer indicator');
 
   // ---- NMA-1096 classes of service ----
   ok(by('t1').cls.map(k => k[0]).join() === 'Coach,Business' && by('t2').cls.map(k => k[0]).join() === 'Business,First' && by('t7').cls.map(k => k[0]).join() === 'Coach,Rooms', 'classes in order; First only on Acela, rooms on non-Acela; unoffered classes hidden');

@@ -7959,7 +7959,7 @@ function s5Card(t, r, b, ctx) {
   }).join('');
   return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
     <div class="s5-trip__main">
-      <div class="s5-trip__top"><span class="s5-trip__svc">${ic(svc[0])}<span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span><button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button></div>
+      <div class="s5-trip__top"><span class="s5-trip__svc"><span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span><button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button></div>
       ${tags || badge ? `<span class="s5-trip__badges">${tags}${badge}</span>` : ''}
       <span class="s5-trip__times">${tm(t.dep)}<span class="s5-arrow" aria-hidden="true">→</span><span class="ads-sr-only">to</span>${tm(t.arr)}${day}</span>
       <span class="s5-trip__meta">${meta}</span>${flags ? `<span class="s5-trip__flags">${flags}</span>` : ''}
