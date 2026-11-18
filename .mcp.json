@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "amtrak-claude-api": {
+      "command": "npm",
+      "args": ["--prefix", "mcp", "run", "start"]
+    }
+  }
+}

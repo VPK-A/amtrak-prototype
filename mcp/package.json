@@ -1,0 +1,13 @@
+{
+  "name": "amtrak-prototype-claude-mcp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.10.0",
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "^4.0.0"
+  }
+}
