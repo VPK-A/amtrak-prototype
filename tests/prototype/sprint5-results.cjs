@@ -242,7 +242,18 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   let bd = await badges();
   ok(/Fastest trip/.test(bd.t2) && /Lowest fare/.test(bd.t8) && /Sale/.test(bd.t3) && /Delayed/.test(bd.t3) && /Sale/.test(bd.t9), 'Lowest fare, Fastest trip and Sale badges; a delayed trip keeps its badge');
   ok(!/Lowest|Fastest|Sale/.test(bd.t5) && !/Lowest|Fastest|Sale/.test(bd.t6), 'no badges on canceled or fully sold-out trips');
-  ok(await ev(() => /Sale fare/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Business"]').textContent) && !/Sale/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Coach"]').textContent)), 'Sale also marks the class that has the sale fare');
+  ok(await ev(() => /Sale fare available/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Business"]').textContent) && !/Sale/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Coach"]').textContent)), 'Sale also marks the class that has the sale fare');
+  // Sale is a fare type: the Sale badge means a Sale fare is one of the choices for that trip and class
+  await open(); await find();
+  const t3b = await ev(() => document.querySelector('#device [data-trip="t3"] [data-cls="Business"] .s5-class__price').textContent);
+  await p.locator(D_ + '[data-trip="t3"] [data-a="s5-fare"][data-cls="Business"]').click(); await w(500);
+  const fopts = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt')].map(o => [o.querySelector('.s5-fopt__head span').textContent, o.querySelector('.s5-fopt__price').textContent.split(' ')[0], o.querySelector('input').checked]));
+  ok(fopts.map(f => f[0]).join() === 'Sale,Value,Flex' && fopts[0][1] === t3b && fopts[0][2] && /50% cancellation fee/.test(await txt()), `a class with a sale offers a Sale fare type first, at the card’s price (${JSON.stringify(fopts)})`);
+  ok(+fopts[1][1].slice(1) > +fopts[0][1].slice(1), 'Value costs more than Sale');
+  await p.locator(D_ + '.pane:last-child #s5c-Coach').click(); await w(300);
+  ok(!(await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-fopt__head span:first-child')].some(e => e.textContent === 'Sale'))), 'a class without a sale has no Sale fare');
+  await p.locator(D_ + '.pane:last-child #s5c-Business').click(); await w(300); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(/Sale/.test(await txt()) && await ev(() => D().s5sel.dep.fare === 'Sale'), 'choosing the Sale fare carries into the cart and summary');
   await open('returning', "const b = D().booking; b.from = 'NYP'; b.to = 'BOS'; window._s5o = window._s5o || s5Trips; s5Trips = (o => (b, l) => { const r = o(b, l); if (r.list.length < 8) return r; r.list.find(t => t.id === 't7').cls.Coach = r.list.find(t => t.id === 't8').cls.Coach; r.list.forEach(t => { t.low = Math.min(...Object.values(t.cls).filter(x => x != null).concat(Infinity)); }); return r; })(s5Trips)"); await find();
   bd = await badges();
   ok(/Lowest fare/.test(bd.t7) && /Lowest fare/.test(bd.t8), 'tied options both get the badge');
