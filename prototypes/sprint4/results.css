@@ -109,3 +109,8 @@
 .s5-class__exp { font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-secondary); line-height: 1.25; }
 .s5-class__icons { display: flex; justify-content: center; gap: var(--ads-space-8); color: var(--ads-content-icon-secondary); }
 .s5-class:disabled .s5-class__icons, .s5-class:disabled .s5-class__exp { opacity: .6; }
+
+/* NMA-755 Sale on a class, NMA-762 low inventory at a price (both from the back end, per class) */
+.s5-class__sale, .s5-class__left, .s5-fopt__sale, .s5-fopt__left { font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); }
+.s5-class__sale, .s5-fopt__sale { color: var(--ads-content-text-info); }
+.s5-class__left, .s5-fopt__left { color: var(--ads-content-text-error); }
