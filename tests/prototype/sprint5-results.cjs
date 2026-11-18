@@ -174,6 +174,28 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   ok(await stack() === 'ff>handoff>s5faredep', 'Concept 2: choosing a class still opens Choose a fare'); await open('returning', "TB.s5c = 'current'");
 
+  // ---- Discount pricing concept (exploration): strikethrough for one traveler ----
+  ok(await ev(() => [...document.querySelector('#tbS5d').options].map(o => o.value).join()) === 'current,strike' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5d"]').textContent)), 'discount pricing switcher: Current and Strikethrough (labelled Sprint 5)');
+  const code = "const b = D().booking; b.code = { code: 'FALL', benefit: '20% off' }; b.codeText = 'FALL'; b.codeState = 'applied'";
+  const strikeOf = id => ev(id => [...document.querySelectorAll(`#device [data-trip="${id}"] .s5-class`)].map(x => [x.querySelector('.s5-strike') && x.querySelector('.s5-strike').textContent.replace('Was ', ''), (x.querySelector('.s5-netp') || x.querySelector('.s5-class__price')).textContent.replace('Now ', '')]), id);
+  await open('returning', code + "; TB.s5d = 'current'"); await find();
+  ok((await strikeOf('t1')).every(x => !x[0]), 'Current: no strikethrough; prices before discounts');
+  await open('returning', code + "; TB.s5d = 'strike'"); await find();
+  let sk = await strikeOf('t1');
+  ok(sk.every(x => x[0] && Math.round(+x[0].slice(1) * 0.8) === +x[1].slice(1)), `Strikethrough: one traveler with a 20% code shows the full price struck through and the code price (${JSON.stringify(sk)})`);
+  ok(/Seat prices include Code FALL/.test(await txt()) && /Price includes Code FALL/.test(await txt()) && /Proposed · Discount pricing/.test(await tags()), 'the results and cards name the discount; tagged Proposed');
+  ok(await ev(() => /with Code FALL/.test(document.querySelector('#device [data-trip="t1"] .s5-class').getAttribute('aria-label'))), 'screen readers hear the discount on each class');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await ev(() => document.querySelector('#device .pane:last-child .s5-fopt .s5-strike') !== null) && /with Code FALL/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)) && await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent) === sk[0][1] + '.00', 'Choose a fare carries the struck-through fare and the discounted total');
+  await open('returning', "D().booking.disc = 'military'; TB.s5d = 'strike'"); await find();
+  sk = await strikeOf('t1');
+  ok(sk.every(x => x[0] && Math.round(+x[0].slice(1) * 0.9) === +x[1].slice(1)) && /Seat prices include Military/.test(await txt()), 'a traveler discount type (Military) also shows as strikethrough');
+  await open('returning', code + "; D().booking.pax.adult = 2; TB.s5d = 'strike'"); await find();
+  ok((await strikeOf('t1')).every(x => !x[0]) && /Code FALL applies/.test(await txt()), 'more than one traveler keeps the current pattern');
+  await open('returning', code + "; D().booking.pay = 'points'; TB.s5d = 'strike'"); await find();
+  ok((await strikeOf('t1')).every(x => !x[0]), 'points: codes don’t apply, so no strikethrough from a code');
+  await ev(() => { TB.s5d = 'current'; });
+
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();
   ok(['NMA-758', 'NMA-1092/1093', 'NMA-762'].every(k => t.includes('Proposed · ' + k)) && !/NMA-755|NMA-1138|NMA-761/.test(t), 'proposed designs carry a Proposed tag; approved NMA-755 and NMA-761, and consolidated NMA-1138, don’t');

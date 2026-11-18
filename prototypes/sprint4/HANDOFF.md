@@ -950,6 +950,17 @@ Based on design feedback, results could compare the *experience* of each class o
 
 Both concepts are tagged Proposed and use only existing components. **Flag:** NMA-1097 (approved) puts fare types on results. Concept Update 1 removes them from results as an exploration of the test; if it goes ahead, NMA-1097 needs to change. Concept Update 2 keeps a smaller "Fare types" link.
 
+**Discount pricing concept: strikethrough for one traveler (design exploration)**
+
+Use the prototype control **Discount pricing (Sprint 5)** to switch between **Current** and **Strikethrough for one traveler**.
+
+- **Current:** seat prices are shown before discounts, and a card says "Code FALL applies" or "Your traveler discount applies".
+- **Strikethrough, one traveler:** each seat price shows the full price struck through, then the discounted price (for example ~~$34~~ $27). The note above the trips and each card name the discount ("Seat prices include Code FALL"). Choose a fare shows the same on each fare, and the total says "with Code FALL". The trip total and trip summary use the discounted price.
+- **Which discount:** an applied promo code or coupon first. In points, codes don't apply (NMA-761), so only a traveler discount type counts: Military, Rail Passenger Association, Senior, Passenger with disability, Companion or Child fare.
+- **More than one traveler:** keeps the current pattern.
+- **Rooms:** unchanged, because room prices already include discounts (NMA-1098).
+- **Flags:** NMA-1098 says seat prices are shown before discounts, so this concept needs that rule changed. Discount amounts are sample values; the back end prices discounts, including codes limited to a train or class (for example "20% off Northeast Regional Coach", which the prototype applies to every seat).
+
 **Questions for the fare selection design**
 
 - Fare names, rules and price differences are sample content. Which fare types does each class offer, and does the back end send their rules?

@@ -114,3 +114,7 @@
 .s5-class__sale, .s5-class__left, .s5-fopt__sale, .s5-fopt__left { font-size: var(--ads-type-caption-size); font-weight: var(--ads-font-weight-semibold); }
 .s5-class__sale, .s5-fopt__sale { color: var(--ads-content-text-info); }
 .s5-class__left, .s5-fopt__left { color: var(--ads-content-text-error); }
+
+/* Discount pricing concept: full price struck through, discounted price after it */
+.s5-strike { font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5-netp { font-weight: var(--ads-font-weight-semibold); }
