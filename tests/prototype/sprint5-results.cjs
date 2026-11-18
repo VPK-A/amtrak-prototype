@@ -214,7 +214,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const unit = await ev(() => s5Trips(D().booking, 'dep').list.find(t => t.id === 't7').cls.Rooms);
   ok(c.find(x => x.id === 't7').cls.find(k => k[0] === 'Rooms')[2] === 'from $' + (unit * 2).toLocaleString('en-US'), '3 travelers: a direct trip’s room price is the total for the 2 rooms they need');
   await p.locator(D_ + '[data-trip="t7"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
-  ok(/3 travelers need 2 rooms/.test(await txt()) && /for 3 travelers, 2 rooms/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)) && await ev(u => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent === '$' + (u * 2).toLocaleString('en-US', { minimumFractionDigits: 2 }), unit), 'Choose a fare: says how many rooms, and the total covers both rooms');
+  ok(/3 travelers need 2 Roomettes/.test(await txt()) && /for 3 travelers, 2 rooms/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)) && await ev(u => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent === '$' + (u * 2).toLocaleString('en-US', { minimumFractionDigits: 2 }), unit), 'Choose a fare: says how many rooms, and the total covers both rooms');
   await open('returning', "D().booking.pax.adult = 3"); await find(); c = await cards();
   const card11 = c.find(x => x.id === 't11').cls.find(k => k[0] === 'Rooms')[2];
   await p.locator(D_ + '[data-trip="t11"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
@@ -222,7 +222,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(cb3.every(x => /total for 3 travelers, 2 rooms/.test(x) && /2 rooms for 3 travelers/.test(x) && /3 Coach seats/.test(x) && !/: 1 room\b/.test(x)) && cb3[0].includes(card11.replace('from ', 'From ')), `multi-segment rooms: 2 rooms for 3 travelers, seats for all 3, totals for the party, cheapest = card (${card11})`);
   await p.locator(D_ + '.pane:last-child [data-a="s5-combo"]').last().click(); await w(500);
   const amt3 = await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
-  ok(/2 rooms for 3 travelers/.test(await txt()) && /for 3 travelers, 2 rooms/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)) && /total for 3 travelers, 2 rooms/.test(await txt()), 'the combination’s fares are totals for 3 travelers in 2 rooms');
+  ok(/2 Roomettes for 3 travelers/.test(await txt()) && /for 3 travelers, 2 rooms/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)) && /total for 3 travelers, 2 rooms/.test(await txt()), 'the combination’s fares are totals for 3 travelers in 2 rooms');
   await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
   ok((await txt()).includes(amt3.replace('.00', '')), `the trip summary shows the same total (${amt3})`);
   await open(); await find();
@@ -242,6 +242,26 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/Fastest trip/.test(bd.t2) && /Lowest fare/.test(bd.t8) && /Sale/.test(bd.t3) && /Delayed/.test(bd.t3) && /Sale/.test(bd.t9), 'Lowest fare, Fastest trip and Sale badges; a delayed trip keeps its badge');
   ok(!/Lowest|Fastest|Sale/.test(bd.t5) && !/Lowest|Fastest|Sale/.test(bd.t6), 'no badges on canceled or fully sold-out trips');
   ok(await ev(() => /Sale fare available/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Business"]').textContent) && !/Sale/.test(document.querySelector('#device [data-trip="t3"] [data-cls="Coach"]').textContent)), 'Sale also marks the class that has the sale fare');
+  // Private rooms: choose the room type first (Roomette, Bedroom, Family Room), then the fare type
+  await open(); await find();
+  await p.locator(D_ + '[data-trip="t7"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
+  t = await txt();
+  const rt = await ev(() => [...document.querySelectorAll('#device .pane:last-child .s5-room')].map(o => [o.querySelector('.s5-fopt__head span').textContent, o.querySelector('input').disabled, o.querySelector('input').checked]));
+  ok(rt.map(x => x[0]).join() === 'Roomette,Bedroom,Family Room' && rt[0][2] && rt[2][1] && /Sold out/.test(t) && /Included in all rooms/.test(t) && /Up to 2 adults and 2 children/.test(t), `room types come first; Roomette chosen; a sold-out type can’t be chosen (${JSON.stringify(rt)})`);
+  ok(await ev(() => { const h = [...document.querySelectorAll('#device .pane:last-child .s5-dsec')].map(e => e.textContent); return h.indexOf('Room type') < h.indexOf('Fare'); }), 'the room type comes before the fare type');
+  const rmAmt = await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
+  await p.locator(D_ + '.pane:last-child label[for="s5r-bedroom"]').click(); await w(300);
+  const bdAmt = await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot__amt').textContent);
+  ok(+bdAmt.replace(/[$,]/g, '') > +rmAmt.replace(/[$,]/g, '') && await ev(() => document.querySelector('#device .pane:last-child [data-a="cart-add"]').dataset.rtype) === 'bedroom', `choosing a Bedroom changes the fares and total (${rmAmt} → ${bdAmt})`);
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(/1 Bedroom for 1 traveler/.test(await txt()) && (await txt()).includes(bdAmt.replace('.00', '')), 'the trip summary names the room type and its total');
+  await open('returning', "const b = D().booking; b.pax.adult = 2; b.pax.child = 2"); await find();
+  await p.locator(D_ + '[data-trip="t11"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
+  await p.locator(D_ + '.pane:last-child [data-a="s5-combo"]').first().click(); await w(500);
+  t = await txt();
+  ok(/Room type/.test(t) && /4 travelers need 2 Roomettes/.test(t) && /for 1 room/.test(t), 'a family of 4: 2 Roomettes, or 1 Family Room');
+  await p.locator(D_ + '.pane:last-child label[for="s5r-family"]').click(); await w(300);
+  ok(/1 Family Room for 4 travelers/.test(await txt()) && /for 4 travelers, 1 room/.test(await ev(() => document.querySelector('#device .pane:last-child .s5-ffoot').innerText)), 'choosing the Family Room: 1 room for the 4 travelers, across the combination');
   // Fare types by class and route (fare-type definitions)
   await open(); await find();
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);

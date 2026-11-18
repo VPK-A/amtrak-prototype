@@ -137,3 +137,8 @@
 .s5-combo__amen .ads-accordion__panel p { margin: 0 0 var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
 .s5-combo .ads-group, .s5-combo .ads-group__body { margin: 0; border: 0; box-shadow: none; background: none; }
 .s5-combo .ads-group__row { padding-inline: 0; border-top: 1px solid var(--ads-border-subtle); }
+
+/* Room type choice (before the fare type) */
+.s5-room.is-sold { opacity: .6; }
+.s5-room__need { color: var(--ads-content-text-primary); font-weight: var(--ads-font-weight-semibold); }
+.s5-roomall { margin: var(--ads-space-8) 0 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); }
