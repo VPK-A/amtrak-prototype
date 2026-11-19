@@ -66,9 +66,20 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/passport/.test(await txt()), 'border sheet shows what to expect');
 
   await open(); await find(); await p.locator(D_ + '[data-trip="t1"] .s5-details').click(); await w(400);
-  ok(/Trip details/.test(await txt()) && /Amenities and add-ons/.test(await txt()) && await stack() === 'ff>handoff', 'Details opens trip details (Services) without leaving results');
-  await p.locator(D_ + '#s5d-route').click(); await w(300);
-  ok(/Washington/.test(await ev(() => document.querySelector('#device #s5d-panel').innerText)) && !/Amenities/.test(await txt()), 'the Route tab shows the stops'); await axe('trip details');
+  ok(/Trip details/.test(await txt()) && /Washington/.test(await ev(() => document.querySelector('#device #s5d-panel').innerText)) && !/Amenities/.test(await txt()) && await stack() === 'ff>handoff', 'NMA-1093: Details opens the route without leaving results');
+  const nStops = () => ev(() => document.querySelectorAll('#device #s5d-panel .s5-stop').length);
+  const s0 = await nStops(); await p.locator(D_ + '[data-a="s5-stops"]').first().click(); await w(300);
+  ok(s0 === 2 && await nStops() > 2 && /Hide stops/.test(await txt()) && /Times can change/.test(await txt()), `NMA-1093: collapsed to first and last stop by default, expands to every stop (${s0})`); await axe('trip details');
+  await p.locator(D_ + '#s5d-services').click(); await w(300);
+  ok(/Amenities and add-ons/.test(await txt()) && /Sprint 6 · NMA-1092/.test(await tags()), 'Services (NMA-1092) is tagged Sprint 6');
+  await ev(() => { s5().dtab = 'route'; });
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  await p.locator(D_ + '[data-trip="t2"] .s5-details').click(); await w(400);
+  ok(/Nonstop · /.test(await txt()) && await p.locator(D_ + '[data-a="s5-stops"]').count() === 0, 'NMA-1093: a nonstop train says so, with no expand');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  await p.locator(D_ + '[data-trip="t10"] .s5-details').click(); await w(400);
+  t = await txt();
+  ok(/Connection in .* · 1h 10m/.test(t) && /Self-transfer/.test(t) && /partner bus company/.test(t) && await ev(() => document.querySelectorAll('#device .s5-seg').length) === 2, 'NMA-1093: each segment separately, with the connection, self-transfer and the bus operator');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
   // ---- NMA-759 unsuccessful searches ----
   await open('returning', "s5().outcome = 'nodate'"); await find();
@@ -80,9 +91,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '.pdialog button', { hasText: 'Change stations' }).click(); await w(300);
   ok(await ev(() => D().booking.from === 'NYP' && D().booking.to === 'WAS'), 'Fare Finder values are kept after an error');
   await open('assist', "s5().outcome = 'assist'"); await find();
-  ok(/Assistance isn’t available at this station/.test(await txt()), 'assistance not available');
-  await p.locator(D_ + '.pdialog button', { hasText: 'Continue without assistance' }).click(); await w(500);
-  ok(await stack() === 'ff>handoff' && /Searching without your assistance request/.test(await txt()) && await ev(() => !!D().booking.s5AssistAck && D().booking.assistOn), 'continuing records the acknowledgment and keeps the saved answers');
+  ok(!/Assistance isn’t available at this station/.test(await txt()) && await stack() === 'ff>handoff' && await ev(() => !S5_OUTCOMES.some(o => o[0] === 'assist')), 'assistance not available moved to NMA-620 (Sprint 7): no Sprint 5 dialog or outcome');
   await open('returning', "V().net = 'error'"); await find();
   ok(/We couldn’t search right now/.test(await txt()) && !/\b\d{3}\b error|Error code/.test(await txt()) && await p.locator(D_ + '[data-a="retry"]').count() === 1, 'technical failure: clear message, retry, no codes');
 
@@ -108,7 +117,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => (D().cart || []).length === 1) && await stack() === 'ff>handoff>s5faredep>s5sum' && /In your cart/.test(await txt()) && /1 Coach seat · Value/.test(await txt()), 'Continue adds to the simulated cart and shows the trip summary (Sprint 4 abandon rule still has something to act on)');
   await open('returning', "D().booking.trip = 'rt'; D().booking.ret = '2026-11-08'"); await find();
   await p.locator(D_ + '[data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
-  ok(await stack() === 'ff>handoff>s5faredep>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Proposed · NMA-1109/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'round-trip: the return step follows the departure fare, tagged Proposed');
+  ok(await stack() === 'ff>handoff>s5faredep>handoffret' && /WAS Washington .* NYP New York/.test(await txt()) && /Sprint 6 · NMA-1109/.test(await txt()) && !(await ev(() => (D().cart || []).length)), 'round-trip: the return step follows the departure fare, tagged Proposed');
   await p.locator(D_ + '.pane:last-child [data-a="s5-fare"]:not([disabled])').first().click(); await w(500); await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(700);
   ok(/Departure · Thu, Nov 5/.test(await txt()) && /Return · Sun, Nov 8/.test(await txt()), 'the trip summary shows both legs');
 
@@ -265,8 +274,49 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();
-  ok(['NMA-758', 'NMA-1092/1093', 'NMA-762'].every(k => t.includes('Proposed · ' + k)) && !/NMA-755|NMA-1138|NMA-761/.test(t), 'proposed designs carry a Proposed tag; approved NMA-755 and NMA-761, and consolidated NMA-1138, don’t');
-  ok(await ev(() => [...NOTES.scope].some(n => /NMA-760/.test(n) && /NMA-1140/.test(n) && /NMA-1141/.test(n) && /NMA-705/.test(n))), 'open stories are flagged in the reviewer notes');
+  ok(!/Proposed · NMA-(755|758|760|761|762|1093|1140)/.test(await tags()), 'stories Ready for Design carry no Proposed tag');
+  ok(await ev(() => [...NOTES.scope].some(n => /Sprint 6/.test(n) && /1097/.test(n) && /1109/.test(n) && /1092/.test(n) && /757/.test(n) && /Cancelled: NMA-1105, 1138, 1141 and 1169/.test(n))) && await ev(() => [...NOTES.scope].some(n => /NMA-620/.test(n))), 'Sprint 6 moves, cancellations and the NMA-620 move are in the reviewer notes');
+  await p.locator(D_ + '[data-topic="s5-fares"]').click(); await w(300);
+  ok(/Sprint 6 · NMA-1097/.test(await tags()), 'fare types (NMA-1097, now Sprint 6) are tagged Sprint 6');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+
+  // ---- NMA-758 (Ready for Design): sort and filter ----
+  await open(); await find();
+  const shown = () => ev(() => [...document.querySelectorAll('#device .s5-trip')].map(c => c.dataset.trip).join());
+  const allIds = await shown();
+  await p.locator(D_ + '[data-a="s5-sf-open"]').click(); await w(400);
+  t = await txt();
+  ok(/Sort and filter/.test(t) && ['Most direct', 'Departure time', 'Shortest trip', 'Lowest fare', 'Time of day', 'Route', 'Class of service', 'Add-ons', '12a–6a', '6p–12a', 'Acela', 'Bike', 'Golf'].every(x => t.includes(x)) && await ev(() => document.querySelector('#device #s5s-direct').checked), 'the sheet has the four sorts (Most direct by default) and the four filter groups, from the trips returned');
+  await p.locator(D_ + 'label[for="s5sf-route-Acela"]').click(); await w(200);
+  ok(/Show 2 trains/.test(await txt()), 'the button counts the trains that match');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  ok(await shown() === allIds && await p.locator(D_ + '.s5-sf__n').count() === 0, 'closing without saving changes nothing');
+  await p.locator(D_ + '[data-a="s5-sf-open"]').click(); await w(400);
+  ok(await ev(() => !document.querySelector('#device #s5sf-route-Acela').checked), 'reopening starts from the saved choices');
+  await p.locator(D_ + 'label[for="s5sf-route-Acela"]').click(); await w(150);
+  await p.locator(D_ + 'label[for="s5sf-cls-First"]').click(); await w(150);
+  await p.locator(D_ + 'label[for="s5s-dep"]').click(); await w(150);
+  await p.locator(D_ + '[data-a="s5-sf-save"]').click(); await w(400);
+  ok(await shown() === 't2,t6' && (await ev(() => document.querySelector('#device .s5-sf__n').textContent)) === '2' && /Showing 2 of 11 trains · sorted by departure time/.test(await txt()), `saving filters the trips and shows the count of filters (${await shown()})`);
+  await p.locator(D_ + '[data-a="s5-sf-open"]').click(); await w(400);
+  await p.locator(D_ + '[data-a="s5-sf-clear"]').click(); await w(200);
+  ok(await ev(() => document.querySelector('#device #s5s-direct').checked && ![...document.querySelectorAll('#device .info-sheet input[type=checkbox]')].some(x => x.checked)), 'Clear all resets every section to the default');
+  await p.locator(D_ + 'label[for="s5sf-tod-night"]').click(); await w(150);
+  await p.locator(D_ + '[data-a="s5-sf-save"]').click(); await w(400);
+  ok(/No trains match your filters/.test(await txt()) && await p.locator(D_ + '[data-a="s5-sf-reset"]').count() === 1, 'filters with no matches say so');
+  await p.locator(D_ + '[data-a="s5-sf-reset"]').click(); await w(300);
+  ok(await shown() === allIds, 'Clear filters brings every trip back'); await axe('sort and filter');
+  await open('returning', "s5().outcome = 'single'"); await find();
+  ok(await p.locator(D_ + '[data-a="s5-sf-open"]').count() === 0, 'one trip: no Sort and filter');
+
+  // ---- NMA-760 (Ready for Design): service and station alerts ----
+  await open('returning', "s5().outcome = 'alerts'"); await find();
+  const al = await ev(() => [...document.querySelectorAll('#device .s5-alert__type')].map(e => e.textContent));
+  ok(al.join('|') === 'Service alert|Station alert · New York|Station alert · Washington|Passenger service notice', `alerts in order: service, station (origin and destination), passenger notice (${al.join('|')})`);
+  await p.locator(D_ + '[data-a="s5-alert"]').first().click(); await w(400);
+  ok(/winter storm/.test(await txt()) && await stack() === 'ff>handoff', 'an alert opens its full text in the app');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  ok(await p.locator(D_ + '[data-a="s5-fare"]:not([disabled])').count() > 0, 'alerts never block choosing a trip'); await axe('alerts');
   // ---- NMA-755 (approved): Lowest fare, Fastest trip and Sale ----
   const badges = () => ev(() => Object.fromEntries([...document.querySelectorAll('#device .s5-trip')].map(c => [c.dataset.trip, [...c.querySelectorAll('.ads-badge')].map(b => b.textContent).join('/')])));
   let bd = await badges();
@@ -330,15 +380,16 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(/Lowest fare/.test(bd.t7) && /Lowest fare/.test(bd.t8), 'tied options both get the badge');
   await ev(() => { s5Trips = window._s5o; });
   await open('returning', "s5().outcome = 'single'"); await find(); bd = await badges();
-  ok(Object.values(bd).every(x => !/Lowest|Fastest/.test(x)), 'AC5: one result shows no Lowest fare or Fastest trip');
+  ok(Object.values(bd).every(x => !/Lowest|Fastest/.test(x)) && /New train/.test(bd.t4), 'AC6: one result shows no Lowest fare or Fastest trip, but New train still shows');
   await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'business'"); await find(); bd = await badges();
   ok(Object.values(bd).every(x => !/Lowest fare|Sale/.test(x)) && Object.values(bd).some(x => /Fastest trip/.test(x)), 'Pass Rider business: no Lowest fare and no Sale; Fastest trip still shows');
   // ---- Meeting decisions ----
   await open(); await find(); c = await cards();
   ok(/^\$\d+$/.test(c.find(x => x.id === 't9').cls[0][2]), 'NMA-1138 → NMA-1096: multi-segment trips are priced like single-segment ones (no “from”)');
-  ok(/2 left at this price/.test(c.find(x => x.id === 't1').text), 'NMA-762: low inventory is shown for a specific class at its price');
+  ok(/Only 2 seats left at this price/.test(c.find(x => x.id === 't1').text) && /Only 4 seats left at this price/.test(c.find(x => x.id === 't1').text), 'NMA-762: low inventory is shown for each class it applies to, at its price');
+  ok(/Only 1 room left at this price/.test(c.find(x => x.id === 't7').text), 'NMA-762: rooms can carry it too');
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
-  ok(/Only 2 left at this price/.test(await txt()), 'NMA-762: and on that fare when choosing it');
+  ok(/Only 2 seats left at this price/.test(await txt()), 'NMA-762: and on that fare when choosing it');
   await open('returning', "s5().outcome = 'hold'"); await find();
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   ok(!/\d+:\d\d remaining|timer/i.test(await txt()), 'NMA-757: no visible hold timer');
@@ -349,7 +400,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => (D().cart || []).length === 1), 'NMA-757: continuing again adds the refreshed fare');
   ok(await ev(() => [...document.querySelector('#tbS5').options].length === S5_OUTCOMES.length) && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5"]').textContent)), 'the new control is labelled (Sprint 5)');
   await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'leisure'"); await find();
-  ok((await cards())[0].cls.every(k => k[2] === 'Pass Rider fare'), 'Pass Rider: no unapproved prices shown');
+  c = await cards();
+  ok(/^\$\d+\.\d\d$/.test(c[0].cls[0][2]) && /Retail fares, before your Pass Rider discount/.test(await txt()) && !/Pass Rider fare/.test(await txt()), 'NMA-1140 Leisure: retail fares, with the policy');
+  await p.locator(D_ + '[data-topic="s5-prpolicy"]').click(); await w(400);
+  ok(/Pass Rider pricing/.test(await txt()) && /Within 1 hour of departure/.test(await txt()), 'NMA-1140: the Pass Rider policy opens from results');
+  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  await open('passrider', "const b = D().booking; b.intent = 'pr'; b.prType = 'business'"); await find(); c = await cards();
+  ok(c.filter(x => x.cls.some(k => !k[1])).every(x => x.cls.filter(k => !k[1]).every(k => k[2] === '$0')), 'NMA-1140 Business travel: every class offered shows $0');
   await open(); await find(); await axe('results light');
   await open('returning', '', 'dark'); await find(); await axe('results dark');
   ok(!errs.length, `no page errors (${errs.join(' | ')})`);
