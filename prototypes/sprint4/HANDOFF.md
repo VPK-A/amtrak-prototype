@@ -950,6 +950,21 @@ To try the outcomes, use the new prototype control **Search outcome (Sprint 5)**
 - Proposed (NMA-761, NMA-1109): Departure and Return results have a drawer with **Pay with points** (regular and personal bookings only). On the Return step it also shows "Trip total so far" as an accordion, collapsed by default; opening it shows the departure cost and "Return: Choose a fare". On the return fare screen the same accordion shows the trip total, opening to both legs, and the footer shows the return price beside Continue. Open or closed is kept while you browse.
 - Points searches don't take codes (NMA-613). Turning on points with a code asks "Use points and remove your code?" (Use points / Keep my code). **Flag:** confirm this is the wanted behavior, since Sprint 4 only hides the code field on Fare Finder.
 
+**Results: header, full screen, price-first card, Sprint 6 tag (all concepts)**
+
+- **Header:** the route ("NYP New York → PHL Philadelphia") is the screen title. Under it: "Departure · Wed, Oct 28 · 1 adult · 9 trains" (NMA-748 AC1). On a round trip, "Step 1 of 2" stays at the top of the body.
+- **Full screen:** results and every step after them (class combinations, Choose a fare, Trip summary) open as a full-screen modal instead of a drawer, on iPhone and iPad.
+- **Card hierarchy:** the trip's lowest price leads the card, top right and largest ("From $69 per traveler"; rooms "for N rooms"). Times sit beside it, then a line with duration, Direct or segments and the train name and number, then Details, flags and the classes.
+  - Canceled, Sold out and Pass Rider fare show in the price spot.
+  - Delayed trips keep the scheduled time struck through beside the updated time.
+  - Badges stay above.
+  - The class buttons keep their prices, sale and low-inventory messages.
+- **Sprint 6 tag:** class combinations, Choose a fare (room types and fare types) and the Trip summary carry a warning-style "Sprint 6 · Out of scope for Sprint 5" banner at the top. It also shows in the wireframe branch, which hides only the Proposed tags.
+
+**Concept Update 3: rails by type of trip.** Trips are grouped into horizontal rails, each scrolling sideways: Direct trains, Multiple trains, then Trips with a bus. Each rail keeps the default order, so the most direct trips still come first (NMA-748 AC6). Every trip is shown with the same card, and empty rails are hidden.
+
+**Concept Update 4: departure board.** Each trip is one dense row: times, duration, train, badges and its lowest price. A row opens in place to its flags, classes and Details. "Jump to" chips (Lowest fare, Fastest trip, Earliest) open that trip's row and move focus to it without reordering the list, so the default order holds.
+
 **Results concepts: compare the experience of each class (design exploration)**
 
 Based on design feedback, results could compare the *experience* of each class of service (seat type, amenities) instead of leading with fare types, which already have their own step. Use the prototype control **Results concept (Sprint 5)**:
