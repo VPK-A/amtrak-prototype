@@ -158,7 +158,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
 
   // ---- Results concepts (design exploration): compare the experience of each class ----
-  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Current,Concept Update 1,Concept Update 2' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
+  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Current,Concept Update 1,Concept Update 2,Concept Update 3,Concept Update 4' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
   await open('returning', "TB.s5c = 'current'"); await find();
   ok(await p.locator(D_ + '[data-topic="s5-classes"]').count() === 0 && await p.locator(D_ + '.s5-class__exp').count() === 0, 'Current: no class comparison');
   await open('returning', "TB.s5c = 'c1'"); await find();
@@ -231,6 +231,37 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open(); await find();
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   ok(await stack() === 'ff>handoff>s5faredep', 'a direct trip still goes straight to Choose a fare');
+
+  // ---- Overarching updates: header, full screen, Sprint 6 tag, price-first card ----
+  await open(); await find();
+  ok(await ev(() => { const h = document.querySelector('#device .pane:last-child .ads-navbar__title'); return /NYP New York → WAS Washington/.test(h.textContent) && /Departure · Thu, Nov 5 · 1 adult · 11 trains/.test(h.querySelector('.ads-navbar__sub').textContent); }), 'the route, date, travelers and number of trains are in the header');
+  ok(await ev(() => { const s = document.querySelector('#device .psheet'); const d = document.querySelector('#device').getBoundingClientRect(); return s.classList.contains('psheet--full') && Math.abs(s.getBoundingClientRect().top - d.top) < 1 && s.getBoundingClientRect().height >= d.height - 1; }), 'results open full screen, not as a drawer');
+  ok(await ev(() => { const c = document.querySelector('#device [data-trip="t1"]'); const amt = c.querySelector('.s5-from__amt'), tm = c.querySelector('.s5-trip__times'); const lo = Math.min(...[...c.querySelectorAll('.s5-class__price')].map(e => +e.textContent.replace(/[^0-9.]/g, '')).filter(Boolean)); return +amt.textContent.replace(/[^0-9.]/g, '') === lo && parseFloat(getComputedStyle(amt).fontSize) > parseFloat(getComputedStyle(tm).fontSize); }), 'the card leads with its lowest price, larger than the times');
+  ok(await ev(() => /Canceled/.test(document.querySelector('#device [data-trip="t5"] .s5-from').textContent) && /Sold out/.test(document.querySelector('#device [data-trip="t6"] .s5-from').textContent)), 'canceled and sold-out trips say so where the price would be');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(/Sprint 6 · Out of scope for Sprint 5/.test(await txt()) && await ev(() => !!document.querySelector('#device .pane:last-child .s5-s6 .ads-alert--warning')), 'Choose a fare carries a Sprint 6, out of scope for Sprint 5, tag');
+  await p.locator(D_ + '.pane:last-child [data-a="cart-add"]').click(); await w(500);
+  ok(/Sprint 6 · Out of scope for Sprint 5/.test(await txt()), 'and so does the trip summary');
+  await open(); await find(); await p.locator(D_ + '[data-trip="t11"] [data-a="s5-fare"][data-cls="Rooms"]').click(); await w(500);
+  ok(/Sprint 6 · Out of scope for Sprint 5/.test(await txt()), 'and the class combinations');
+  // ---- Concept Update 3: rails by type of trip ----
+  await open('returning', "TB.s5c = 'c3'"); await find();
+  const rails = await ev(() => [...document.querySelectorAll('#device .s5-rail')].map(r => [r.querySelector('.s5-rail__h').firstChild.textContent.trim(), [...r.querySelectorAll('.s5-trip')].map(t => t.dataset.trip).join()]));
+  ok(JSON.stringify(rails) === JSON.stringify([['Direct trains', 't1,t2,t3,t4,t5,t6,t7,t8'], ['Multiple trains', 't9,t11'], ['Trips with a bus', 't10']]), `rails: direct, multiple trains, with a bus; every trip, in the default order (${JSON.stringify(rails)})`);
+  ok(await ev(() => getComputedStyle(document.querySelector('#device .s5-rail__list')).overflowX === 'auto') && /Proposed · Concept Update 3/.test(await tags()), 'rails scroll sideways; tagged Proposed'); await axe('rails');
+  await p.locator(D_ + '.s5-rail [data-trip="t9"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5combodep', 'a card in a rail works the same (multi-segment opens its combinations)');
+  // ---- Concept Update 4: departure board ----
+  await open('returning', "TB.s5c = 'c4'"); await find();
+  ok(await ev(() => [...document.querySelectorAll('#device .s5-row')].map(r => r.dataset.trip).join()) === await ev(() => s5Sorted(s5Trips(D().booking, 'dep').list).map(t => t.id).join()) && await ev(() => !document.querySelector('#device .s5-row .s5-class')), 'departure board: one row per trip, in the default order, classes folded away');
+  await p.locator(D_ + '.s5-jump', { hasText: 'Lowest fare' }).click(); await w(400);
+  const lowRow = await ev(() => [...document.querySelectorAll('#device .s5-row.is-open')].map(r => r.dataset.trip).join());
+  ok(lowRow === 't8' && await ev(() => document.activeElement.id === 's5row-t8') && await ev(() => document.querySelector('#device .s5-row.is-open .s5-class') !== null), `Jump to Lowest fare opens that row in place (${lowRow})`);
+  await p.locator(D_ + '#s5row-t1').click(); await w(300);
+  ok(await ev(() => document.querySelector('#device #s5row-t1').getAttribute('aria-expanded')) === 'true' && /Proposed · Concept Update 4/.test(await tags()), 'a row opens when tapped; tagged Proposed'); await axe('departure board');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  ok(await stack() === 'ff>handoff>s5faredep', 'choosing a class from the board opens Choose a fare');
+  await ev(() => { TB.s5c = 'current'; });
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();

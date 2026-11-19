@@ -364,7 +364,7 @@ function navbar(o, ri, ctx) {
     if (ctx.showClose && !noX) trail = close;
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
-  return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
+  return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}${o.titleSub ? `<span class="ads-navbar__sub">${o.titleSub}</span>` : ''}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
 }
 function offlineBanner(what) { return V().net === 'offline' ? `<div class="ads-banner" role="status">${ic('alert-triangle')}<span>You’re offline. ${what}</span></div>` : ''; }
 function paneHtml(r, ri, ctx) {
@@ -384,6 +384,8 @@ function renderSheet(sh, covered) {
   const brand = sh.id === 'booking' && n === 1 && st[0].s === 'ff' && TB.v === 1; // New booking root: navy header, no grabber
   if (brand) cls += ' psheet--brand';
   if (n > 1) cls += ' psheet--pushed';
+  // Sprint 5: search results and the steps after them open as a full-screen modal, not a drawer
+  if (sh.id === 'booking' && ['handoff', 's5fare', 's5combo', 's5sum'].includes(top.s)) cls += ' psheet--full';
   // Which way to slide: compare with the depth and top screen at the last render
   const replaced = sh._n === n && sh._top && sh._top !== top;
   if (sh._n != null && (sh._n !== n || replaced) && !splitOK && !selfSplit && !sh._split) {

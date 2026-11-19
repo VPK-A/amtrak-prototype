@@ -16,7 +16,7 @@ const S5_OUTCOMES = [['results', 'Trains found'], ['border', 'Trip crosses the U
 const s5 = () => (V().s5 = V().s5 || { outcome: 'results', sort: 'direct' });
 // Results concepts (Sprint 5 exploration, from design feedback): compare the experience of each class of service
 // (seat type, amenities) on results, instead of leading with fare types.
-const S5_CONCEPTS = [['current', 'Current'], ['c1', 'Concept Update 1: compare classes'], ['c2', 'Concept Update 2: experience on each class']];
+const S5_CONCEPTS = [['current', 'Current'], ['c1', 'Concept Update 1: compare classes'], ['c2', 'Concept Update 2: experience on each class'], ['c3', 'Concept Update 3: rails by type of trip'], ['c4', 'Concept Update 4: departure board']];
 const s5c = () => (typeof TB !== 'undefined' && TB.s5c) || 'current';
 // Discount pricing concept (Sprint 5 exploration): for a single traveler, seat prices show the discounted price with
 // the full price struck through. The discount is the applied promo code or coupon (not in points, NMA-761 AC#3) or,
@@ -151,34 +151,69 @@ function s5Details(id) {
 }
 
 // ---------- Trip card (NMA-1094 trip info, NMA-1096 classes of service) ----------
-function s5Card(t, r, b, ctx) {
+// Card parts, shared by the card, the rails and the departure board (same rules, different layouts)
+function s5Parts(t, r, b, ctx) {
   const c2 = s5c() === 'c2';
   const svc = S5_SVC[t.svc], canceled = t.status === 'canceled', delayed = t.status === 'delayed', it = intentOf(b);
   const badge = canceled ? `<span class="ads-badge ads-badge--error">Canceled</span>` : delayed ? `<span class="ads-badge ads-badge--warning">Delayed ${t.delay} min</span>` : '';
   // NMA-755: every tied option gets the badge; none on canceled or fully sold-out trips; Sale when any open class has a sale fare
   const onSale = !canceled && ctx.sale && t.sale.some(k => t.cls[k] != null);
   const tags = !canceled && t.low !== Infinity ? [ctx.tags && ctx.low != null && t.low === ctx.low ? ['Lowest fare', 'success'] : null, ctx.tags && t.dur === ctx.fast ? ['Fastest trip', 'success'] : null, onSale ? ['Sale', 'info'] : null].filter(Boolean).map(([x, k]) => `<span class="ads-badge ads-badge--${k}">${x}</span>`).join('') : '';
-  const tm = (m) => delayed ? `<span class="s5-t"><s class="s5-was"><span class="ads-sr-only">Scheduled </span>${s5time(m)}</s><b class="s5-now"><span class="ads-sr-only">Now </span>${s5time(m + t.delay)}</b></span>` : `<span class="s5-t"><b>${s5time(m)}</b></span>`;
+  // Delayed: the scheduled time is struck through, with the updated time beside it (NMA-1094)
+  const tm = (m) => delayed ? `<span class="s5-t"><s class="s5-was"><span class="ads-sr-only">Scheduled </span>${s5time(m)}</s> <b class="s5-now"><span class="ads-sr-only">Now </span>${s5time(m + t.delay)}</b></span>` : `<span class="s5-t"><b>${s5time(m)}</b></span>`;
   const day = t.days ? ` <span class="s5-day">+${t.days} day${t.days > 1 ? 's' : ''}</span>` : '';
+  const times = `<span class="s5-trip__times">${tm(t.dep)}<span class="s5-arrow" aria-hidden="true">→</span><span class="ads-sr-only">to</span>${tm(t.arr)}${day}</span>`;
   const meta = [s5dur(t.dur), t.segs === 1 ? 'Direct' : `${t.segs} segments`, t.segs > 1 ? `${s5dur(t.layover)} layover in ${esc(t.via.city)}` : ''].filter(Boolean).join(' · ');
   const flags = [t.days ? `<span class="s5-flag">${ic('overnight', 'ads-icon--sm')}Overnight</span>` : '', t.self ? `<span class="s5-flag">${ic('walk', 'ads-icon--sm')}Self-transfer: change stations in ${esc(t.via.city)}</span>` : '', t.border ? `<span class="s5-flag">${ic('passport-check', 'ads-icon--sm')}Crosses the border</span>` : ''].join('');
-  const label = `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`; // the Sprint 4 cart label, so the abandon-booking rule still works
   const disc = !canceled && ctx.disc && t.segs === 1 && t.low !== Infinity ? `<p class="ads-helper ads-helper--success s5-disc">${ic('discount', 'ads-icon--sm')}<span>${s5Disc(b) && t.segs >= 1 ? `Price includes ${esc(s5Disc(b).label)} ${s5tag('Discount pricing')}` : `${esc(ctx.disc)} applies ${s5tag('NMA-764')}`}</span></p>` : '';
+  const name = `<span class="s5-trip__svc"><span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span>`;
+  const details = `<button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button>`;
+  // The lowest price on the trip leads the card: the cheapest open seat class per traveler, or a room total
+  const open = S5_CLASS_ORDER.filter(k => k in t.cls && t.cls[k] != null);
+  let from;
+  if (canceled) from = '<span class="s5-from__na">Canceled</span>';
+  else if (!open.length) from = '<span class="s5-from__na">Sold out</span>';
+  else if (it === 'pr') from = '<span class="s5-from__na">Pass Rider fare</span>';
+  else {
+    const seats = open.filter(k => k !== 'Rooms'), pool = seats.length ? seats : ['Rooms'];
+    const k0 = pool.reduce((a, k) => s5CardPrice(b, t, r, k) < s5CardPrice(b, t, r, a) ? k : a, pool[0]), v = s5CardPrice(b, t, r, k0);
+    from = `<span class="s5-from__lab">From</span><b class="s5-from__amt">${s5Strike(b, v, k0)}</b><span class="s5-from__unit">${k0 === 'Rooms' ? `for ${s5Plural(s5RoomsFor(b, 'roomette'), 'room')}` : 'per traveler'}</span>`;
+  }
   const cls = S5_CLASS_ORDER.filter(k => k in t.cls).map(k => {
     const p = t.cls[k], name = k === 'Rooms' ? 'Private rooms' : k, off = p == null || canceled;
     const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${k === 'Rooms' ? 'from ' : ''}${s5Strike(b, s5CardPrice(b, t, r, k), k)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
     const sale = !off && ctx.sale && t.sale.includes(k), left = !off && t.left[k];
     return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price.replace(/<[^>]+>/g, '')}${s5Net(b, p, k) !== p ? ` with ${s5Disc(b).label}` : ''}${sale ? ', sale fare available' : ''}${left ? `, ${left} left at this price` : ''}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${sale ? '<span class="s5-class__sale">Sale fare available</span>' : ''}${left ? `<span class="s5-class__left">${left} left at this price</span>` : ''}${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
   }).join('');
-  return `<li class="ads-card s5-trip${canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
-    <div class="s5-trip__main">
-      <div class="s5-trip__top"><span class="s5-trip__svc"><span><b>${esc(t.name)}</b> ${t.num}<span class="ads-sr-only">, ${svc[1]}</span></span></span><button class="ads-link ads-link--sm linkbtn s5-details" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">Details${ic('info-circle', 'ads-icon--sm')}</button></div>
-      ${tags || badge ? `<span class="s5-trip__badges">${tags}${badge}</span>` : ''}
-      <span class="s5-trip__times">${tm(t.dep)}<span class="s5-arrow" aria-hidden="true">→</span><span class="ads-sr-only">to</span>${tm(t.arr)}${day}</span>
-      <span class="s5-trip__meta">${meta}</span>${flags ? `<span class="s5-trip__flags">${flags}</span>` : ''}
-    </div>${disc}
-    <div class="s5-classes" role="group" aria-label="Classes of service on ${esc(t.name)} ${t.num}">${cls}</div></li>`;
+  const classes = `<div class="s5-classes" role="group" aria-label="Classes of service on ${esc(t.name)} ${t.num}">${cls}</div>`;
+  return { canceled, tags, badge, times, meta, flags, disc, name, details, from, classes };
 }
+// Trip card. Hierarchy: the price leads (top right, largest), then the times, then trip facts, then the classes.
+function s5Card(t, r, b, ctx) {
+  const x = s5Parts(t, r, b, ctx);
+  return `<li class="ads-card s5-trip${x.canceled ? ' is-canceled' : ''}" data-trip="${t.id}">
+    <div class="s5-trip__main">
+      ${x.tags || x.badge ? `<span class="s5-trip__badges">${x.tags}${x.badge}</span>` : ''}
+      <div class="s5-hero">${x.times}<p class="s5-from">${x.from}</p></div>
+      <div class="s5-trip__line"><span class="s5-trip__meta">${x.meta}</span>${x.name}${x.details}</div>
+      ${x.flags ? `<span class="s5-trip__flags">${x.flags}</span>` : ''}
+    </div>${x.disc}
+    ${s5c() === 'c1x' ? '' : x.classes}</li>`;
+}
+// Concept Update 4: a departure-board row (dense, scannable), expanding in place to the classes
+function s5Row(t, r, b, ctx) {
+  const x = s5Parts(t, r, b, ctx), open = !!(s5().rows || {})[t.id];
+  return `<li class="ads-card s5-row${x.canceled ? ' is-canceled' : ''}${open ? ' is-open' : ''}" data-trip="${t.id}">
+    <button class="s5-row__head" type="button" data-a="s5-row" data-trip="${t.id}" id="s5row-${t.id}" aria-expanded="${open}" aria-controls="s5rowb-${t.id}">
+      <span class="s5-row__l">${x.times}<span class="s5-row__meta">${x.meta} · ${esc(t.name)} ${t.num}</span>${x.tags || x.badge ? `<span class="s5-trip__badges">${x.tags}${x.badge}</span>` : ''}</span>
+      <span class="s5-row__r"><span class="s5-from">${x.from}</span>${ic('chevron-down', 'ads-icon--sm s5-row__chev')}</span>
+    </button>
+    ${open ? `<div class="s5-row__body" id="s5rowb-${t.id}">${x.flags ? `<span class="s5-trip__flags">${x.flags}</span>` : ''}${x.disc}${x.classes}<div class="s5-row__more">${x.details}</div></div>` : ''}</li>`;
+}
+A['s5-row'] = t => { const o = s5().rows = s5().rows || {}; o[t.dataset.trip] = !o[t.dataset.trip]; pendingFocus = `#s5row-${t.dataset.trip}`; render(); };
+A['s5-jump'] = t => { const o = s5().rows = s5().rows || {}; o[t.dataset.trip] = true; pendingFocus = `#s5row-${t.dataset.trip}`; render(); };
+// Concept Update 3: rails by type of trip (direct, multiple trains, with a bus). Each rail keeps the default order.
+const S5_RAILS = [['Direct trains', t => t.segs === 1 && t.svc !== 'bus'], ['Multiple trains', t => t.svc === 'trains'], ['Trips with a bus', t => t.svc === 'mixed' || t.svc === 'bus']];
 
 // ---------- Results screen ----------
 SCR.handoff = (r, ri) => {
@@ -199,12 +234,13 @@ SCR.handoff = (r, ri) => {
   if (s5c() === 'c2') snote('Concept Update 2 (design exploration, from feedback): each class button on a trip card shows what you get (seat type and amenity icons) under its price, so the experience is compared where you choose. Fare types stay available as a smaller link because NMA-1097 (approved) needs them on results.');
   if (it === 'pr') snote('NMA-1140 (grooming): Pass Rider prices aren’t approved, so each class shows “Pass Rider fare”. Business travel Acela and Auto Train restrictions aren’t applied here.');
   if (it === 'corporate') snote('NMA-1141 (empty story): TripLink fares aren’t defined. Standard prices are shown.');
-  const head = `<div class="s5-head"><p class="s5-head__route"><b>${ST[res.from].code}</b> ${esc(ST[res.from].city)} <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${ST[res.to].code}</b> ${esc(ST[res.to].city)}</p>
-    <p class="s5-head__meta">${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${list.length} train${list.length === 1 ? '' : 's'}</span></p>
-    ${rt ? `<p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5tag('NMA-1109')}</p>` : ''}</div>`;
+  // The route, date, travelers and number of trains sit in the header (NMA-748 AC1); the body starts with the trips
+  const navTitle = `${ST[res.from].code} ${ST[res.from].city} → ${ST[res.to].code} ${ST[res.to].city}`;
+  const navSub = `${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${list.length} train${list.length === 1 ? '' : 's'}</span>`;
+  const head = rt ? `<div class="s5-head"><p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5tag('NMA-1109')}</p></div>` : '';
   const tools = `<div class="s5-tools"><p class="s5-tools__note">${pts ? `Prices in points, per traveler, one way${s5Disc(b) ? `, with ${esc(s5Disc(b).label)}` : ''}` : s5Disc(b) ? `Seat prices include ${esc(s5Disc(b).label)}, one way` : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
     <div class="s5-tools__links">${s5c() === 'c1' ? infoLink('s5-classes', 'Compare classes') : infoLink('s5-fares', s5c() === 'current' ? 'Compare fare types' : 'Fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
-    <p class="s5-proposed">${[list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.status !== 'canceled' && Object.keys(t.left).some(k => t.cls[k] != null)) ? ['NMA-762', 'low inventory'] : null, s5Disc(b) ? ['Discount pricing', 'strikethrough'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
+    <p class="s5-proposed">${[list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.status !== 'canceled' && Object.keys(t.left).some(k => t.cls[k] != null)) ? ['NMA-762', 'low inventory'] : null, s5Disc(b) ? ['Discount pricing', 'strikethrough'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : s5c() === 'c3' ? ['Concept Update 3', 'rails'] : s5c() === 'c4' ? ['Concept Update 4', 'departure board'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
   const border = res.border ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
   const ptsCode = pts && b.code && b.codeState !== 'ineligible' ? alertBox('info', 'Promo codes and coupons don’t apply to points', `Your code ${esc(b.code.code || b.codeText)} isn’t used while prices are in points. It comes back if you switch to cash. Passenger discounts still apply.`) : '';
   const noAssist = b.s5NoAssist ? alertBox('warning', 'Searching without your assistance request', `The assistance you asked for isn’t available at ${esc(ST[b.from].name)}. You chose to continue without it.`) : '';
@@ -212,8 +248,19 @@ SCR.handoff = (r, ri) => {
   const added = inCart ? `<p class="ads-helper ads-helper--success cartdemo" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : '';
   const details = `<details class="ads-accordion ads-accordion--sm s5-search" open><summary>Search details${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${rt ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${rt ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.s5NoAssist ? 'Not included in this search' : b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl></div></details>`;
   const foot = s5Drawer(b, leg, null);
-  return { title: leg === 'ret' ? 'Return' : 'Departure', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
-    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${ptsCode}${noAssist}${border}${allSold}${tools}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>${details}` };
+  let trips;
+  if (s5c() === 'c3') {
+    snote('Concept Update 3 (design exploration): the trips are grouped into rails by type of trip: direct trains, then multiple trains, then trips with a bus. Each rail scrolls sideways and keeps the default order (NMA-748 AC#6), so the most direct trips still come first. Every trip is still shown, with the same card, badges and classes.');
+    trips = S5_RAILS.map(([h, f], i) => { const ts = list.filter(f); return ts.length ? `<section class="s5-rail" aria-labelledby="s5rail-${i}"><h3 class="s5-rail__h" id="s5rail-${i}">${h} <span class="s5-rail__n">${ts.length}</span></h3><ul class="s5-rail__list" tabindex="0" aria-label="${h}, ${ts.length} trip${ts.length === 1 ? '' : 's'}. Scroll sideways for more.">${ts.map(t => s5Card(t, res, b, ctx)).join('')}</ul></section>` : ''; }).join('');
+  } else if (s5c() === 'c4') {
+    snote('Concept Update 4 (design exploration): a departure board. Each trip is one dense row (times, duration, train and its lowest price, with its badges) that opens in place to the classes. “Jump to” chips open the lowest-fare, fastest and earliest trip without reordering the list, so the default order (NMA-748 AC#6) holds.');
+    const earliest = open.length ? [...open].sort((a, c) => (a.dep + a.delay) - (c.dep + c.delay))[0] : null, lowT = ctx.low != null ? open.find(t => t.low === ctx.low) : null, fastT = ctx.fast != null ? open.find(t => t.dur === ctx.fast) : null;
+    const chip = (t, l) => t ? `<button class="ads-btn ads-btn--secondary ads-btn--sm s5-jump" type="button" data-a="s5-jump" data-trip="${t.id}">${l} · ${s5time(t.dep + t.delay)}</button>` : '';
+    const chips = [chip(lowT, 'Lowest fare'), chip(fastT, 'Fastest trip'), chip(earliest, 'Earliest')].join('');
+    trips = `${chips ? `<div class="s5-jumps" role="group" aria-label="Jump to a trip"><span class="s5-jumps__l">Jump to</span>${chips}</div>` : ''}<ul class="s5-list s5-board" aria-labelledby="s5-count">${list.map(t => s5Row(t, res, b, ctx)).join('')}</ul>`;
+  } else trips = `<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>`;
+  return { title: navTitle, titleSub: navSub, kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
+    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${ptsCode}${noAssist}${border}${allSold}${tools}${trips}${details}` };
 };
 // Trip details open in the info sheet: route the "s5-trip:<id>" topic
 { const base = infoTopic; infoTopic = function (topic) { return topic.startsWith('s5-trip:') ? s5Details(topic.split(':')[1]) : base(topic); }; }
@@ -392,7 +439,7 @@ SCR.s5combo = (r, ri) => {
       <details class="ads-accordion ads-accordion--sm s5-combo__amen"><summary>Amenities by segment${ic('chevron-down')}</summary><div class="ads-accordion__panel">${c.segs.map(s => `<p><b>${s.from.code} → ${s.to.code}, ${s5ClsName(s.cls)}:</b> ${S5_EXP[s.cls].short}</p>`).join('')}</div></details>
       ${group('', [grow({ a: 's5-combo', data: `data-v="${c.id}" aria-label="Select a fare type for ${c.title}"`, label: 'Select a fare type' })])}</li>`;
   return { title: 'Choose your classes', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these combinations. Choosing a fare needs a connection.',
-    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Class combinations')}</p>
+    body: `${s5S6()}<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Class combinations')}</p>
       <h3 class="ads-group__title s5-dsec">Your trip segments</h3><ol class="s5-segs">${segs.map(segCard).join('')}</ol>
       <h3 class="ads-group__title s5-dsec">Choose a ${room ? 'room' : s5ClsName(r.p.cls)} combination</h3>
       ${combos.length ? `<ul class="s5-combos">${combos.map(comboCard).join('')}</ul>` : alertBox('info', 'No combinations available', 'Go back to choose another class.')}` };
@@ -421,7 +468,7 @@ SCR.s5fare = (r, ri) => {
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
   const foot = `${tot}<div class="calfoot s5-ffoot"><span><span class="s5-ffoot__label">${b.trip === 'rt' ? (leg === 'ret' ? 'Return' : 'Departure') : 'Price'}</span><b class="s5-ffoot__amt">${amount}</b><span class="s5-ffoot__sub">${s5PartyLine(b, fs.rooms)}${total != null && !room ? (disc && np0(fares, cls) ? `, with ${esc(disc.label)}` : ', before discounts') : ''}</span></span><button class="ads-btn" type="button" data-a="cart-add" data-label="${esc(label)}" data-trip="${tr.id}" data-cls="${cls}" data-fare="${pick}"${combo ? ` data-combo="${combo.id}"` : ''}${rtype ? ` data-rtype="${rtype}"` : ''}>Continue</button></div>`;
   return { title: 'Choose a fare', kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these fares. Choosing one needs a connection.', foot, footCls: 'ads-actionfooter',
-    body: `<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls, rtype)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel">${hasRooms ? s5RoomPicker(b, tr, res, cls, r.p.combo, rtypes, rtype, pr) : `<ul class="s5-cinfo">${(cls === 'Coach' && tr.unreserved ? ['Unreserved: sit in any open Coach seat', ...S5_CLASS_INFO.Coach.slice(1)] : S5_CLASS_INFO[cls]).map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>`}
+    body: `${s5S6()}<p class="s5-head__meta">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} ${s5tag('Fare selection')}</p>${sum}${combo ? `<h3 class="ads-group__title s5-dsec">Classes</h3><div class="ads-summary s5-fsum"><p class="ads-summary__title">${combo.title}</p>${combo.segs.map(s => `<p class="s5-fsum__route">${s.from.code} → ${s.to.code}: ${s5SegQty(b, s.cls, rtype)}</p>`).join('')}</div>` : `<h3 class="ads-group__title s5-dsec">Class</h3>${tabs}`}<div id="s5c-panel" role="tabpanel" aria-labelledby="s5c-${cls}" class="s5-cpanel">${hasRooms ? s5RoomPicker(b, tr, res, cls, r.p.combo, rtypes, rtype, pr) : `<ul class="s5-cinfo">${(cls === 'Coach' && tr.unreserved ? ['Unreserved: sit in any open Coach seat', ...S5_CLASS_INFO.Coach.slice(1)] : S5_CLASS_INFO[cls]).map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>`}
       <fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Fare</legend>${opts}</fieldset>${pr ? '' : infoLink('s5-fares', 'Compare fare types')}</div>` };
 };
 
@@ -434,6 +481,8 @@ function s5RoomPicker(b, tr, res, cls, comboId, rtypes, rtype, pr) {
   return `<fieldset class="ads-fieldset s5-fset"><legend class="ads-group__title s5-dsec">Room type</legend>${rtypes.map(card).join('')}</fieldset>
     <h4 class="s5-dsec s5-roomall">Included in all rooms</h4><ul class="s5-cinfo">${S5_ROOMS_ALL.map(x => `<li>${ic('check', 'ads-icon--sm')}${x}</li>`).join('')}</ul>`;
 }
+// Sprint 6: choosing classes, room types and fare types, and the trip summary, are out of scope for Sprint 5
+const s5S6 = () => `<div class="s5-s6">${alertBox('warning', 'Sprint 6 · Out of scope for Sprint 5', 'Choosing classes, room types and fare types, and the trip summary, are planned for Sprint 6. They’re shown here to complete the flow.')}</div>`;
 const np0 = (fares, cls) => cls !== 'Rooms' && fares.some(f => f[2] != null && f[2] !== f[1]);
 // Trip summary after Continue (the cart and add-ons are outside Sprint 5)
 SCR.s5sum = (r, ri) => {
@@ -442,7 +491,7 @@ SCR.s5sum = (r, ri) => {
     return `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num} · <b>${s5time(tr.dep + tr.delay)}</b> → <b>${s5time(tr.arr + tr.delay)}</b></p><p class="s5-fsum__route">${combo ? `${combo.title}${s.rtype && combo.rooms ? ` (${S5_ROOM_TYPES[s.rtype].name})` : ''}` : room ? `${s5RoomName(s.rtype, s5RoomsFor(b, s.rtype || 'roomette'))} for ${s5Plural(n, 'traveler')}` : `${n} ${s5ClsName(s.cls)} seat${n === 1 ? '' : 's'}`} · ${esc(s.fare)}${total == null ? '' : ` · ${s5Price(b, total)}`}</p></div>`; };
   snote('Trip summary after Continue: the trip is in the (simulated) cart. Add-ons, seats, traveler details and checkout aren’t part of Sprint 5.');
   return { title: 'Trip summary', kind: 'push', backIcon: true, cls: 'pane--s5',
-    body: `${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
+    body: `${s5S6()}${alertBox('success', 'In your cart', 'Your trip is held in your cart while you finish booking.')}${legCard('dep')}${legCard('ret')}<div class="handoff"><span class="handoff__tag">Prototype handoff</span><p class="ads-body-small">Add-ons (bags, bikes, pets), seats, traveler details and checkout come next. They aren’t part of Sprint 5.</p></div>` };
 };
 
 // =====================================================================
