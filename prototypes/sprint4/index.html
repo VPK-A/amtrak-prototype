@@ -3309,6 +3309,37 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .s5-row__body { display: flex; flex-direction: column; gap: var(--ads-space-8); padding: 0 var(--ads-space-12) var(--ads-space-12); }
 .s5-row__more { display: flex; justify-content: flex-end; }
 
+/* Sprint 5 update (stories as of 2026-11-19): sort and filter, alerts, route details, Sprint 6 tags */
+.s5-tag--s6 { color: var(--ads-content-text-secondary); }
+.s5-sf__h { font-size: var(--ads-type-h4-headline-size); font-weight: var(--ads-type-h4-headline-weight); line-height: var(--ads-type-h4-headline-line-height); margin: var(--ads-space-16) 0 0; }
+.s5-sortset + .s5-sortset { margin-top: var(--ads-space-16); }
+.s5-sortset .ads-group__title { margin-bottom: var(--ads-space-8); }
+.info-sheet { overflow: clip; } /* focus moving inside the sheet must never scroll the sheet itself */
+.s5-sf__actions { display: grid; gap: var(--ads-space-8); position: sticky; bottom: calc(-1 * var(--ads-space-24)); margin: var(--ads-space-8) calc(-1 * var(--ads-space-20)) calc(-1 * var(--ads-space-24)); padding: var(--ads-space-12) var(--ads-space-20) var(--ads-space-24); background: var(--ads-background-surface-default); border-top: 1px solid var(--ads-border-default); }
+.s5-sf__n { margin-left: var(--ads-space-4); }
+.s5-sf__shown { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); margin: var(--ads-space-4) 0 0; flex-basis: 100%; }
+.s5-nofilt { display: grid; gap: var(--ads-space-8); justify-items: start; padding: var(--ads-space-16); border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-12); background: var(--ads-background-surface-default); }
+.s5-nofilt p { margin: 0; }
+.s5-alerts { margin-bottom: var(--ads-space-16); }
+.s5-alerts__h { font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); margin: 0 0 var(--ads-space-8); }
+.s5-alerts__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ads-space-8); }
+.s5-alert { display: flex; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-12); border-radius: var(--ads-radius-8); border: 1px solid var(--ads-border-default); background: var(--ads-background-surface-default); }
+.s5-alert--warning { border-color: var(--ads-border-status-warning, var(--ads-border-default)); }
+.s5-alert__body { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
+.s5-alert__body .linkbtn { margin-left: auto; }
+.s5-alert__type { flex-basis: 100%; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5-seg { margin-top: var(--ads-space-16); }
+.s5-seg__h { display: flex; align-items: center; gap: var(--ads-space-8); margin: 0 0 var(--ads-space-8); }
+.s5-stops { list-style: none; margin: 0 0 var(--ads-space-8); padding: 0 0 0 var(--ads-space-12); border-left: 2px solid var(--ads-border-default); display: grid; gap: var(--ads-space-12); }
+.s5-stop { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
+.s5-stop--mid { color: var(--ads-content-text-secondary); }
+.s5-stop__t { font-weight: var(--ads-font-weight-semibold); }
+.s5-seg__ns, .s5-seg__tot { font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-semibold); margin: var(--ads-space-8) 0 0; }
+.s5-conn { display: flex; gap: var(--ads-space-8); margin: var(--ads-space-12) 0 0; padding: var(--ads-space-12); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-sunken); font-size: var(--ads-type-body-small-size); }
+.s5-alert__body b { flex: 1 1 0; min-width: 0; }
+.s5-seg__h { flex-wrap: wrap; }
+.s5-seg__op { flex-basis: 100%; padding-left: calc(var(--ads-icon-size-sm, 16px) + var(--ads-space-8)); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+
 /* =====================================================================
    Wireframe skin (branch figma-make/sprint5-wireframe)
    Reskins the whole prototype with the Paper Wireframe Kit (Figma sD504ztB6nKmv9v08NNBHz, node 5190:533):
@@ -7837,20 +7868,23 @@ INFO.assistance = {
 
 // =====================================================================
 // Sprint 5 · Fare search results (replaces the Sprint 4 "handoff" placeholder; the route name stays 'handoff')
-// Approved stories (assigned VK): NMA-748 one-way results, NMA-1094 trip card info, NMA-1096 classes of service
-//   (direct trips, regular travelers), NMA-759 unsuccessful searches, NMA-1098 pricing explanation,
-//   NMA-1097 fare types, NMA-1095 border crossing. Approved 2026-11-18: NMA-755 trip tags, NMA-761 cash or points.
-// Proposed designs for stories still in grooming are marked on screen with a "Proposed" badge (s5tag) and in the
-//   reviewer notes: NMA-1109 round-trip, NMA-758 sort, NMA-764 discounts, NMA-1092/1093 trip details,
-//   NMA-762 urgency, NMA-757 fare hold. NMA-1138 is consolidated into NMA-1096 (same card and pricing).
-// Flagged only (open questions, nothing designed): NMA-760 alerts, NMA-762 urgency, NMA-1140 Pass Rider fares,
-//   NMA-1141 TripLink fares, filters in NMA-758.
+// Sprint 5 stories Ready for Design (Jira, 2026-11-19): NMA-748 one-way results, NMA-1094 trip card info,
+//   NMA-1096 classes of service (regular and TripLink/corporate), NMA-759 unsuccessful searches, NMA-1098 pricing
+//   explanation (not Pass Rider), NMA-1095 border crossing, NMA-755 trip tags (with New train), NMA-761 cash or
+//   points, NMA-758 sort and filter, NMA-762 low inventory, NMA-760 service and station alerts, NMA-1093 route
+//   details, NMA-1140 Pass Rider classes and policy.
+// Moved to Sprint 6 (shown with a "Sprint 6" tag): NMA-1097 fare comparison table, NMA-1109 round-trip,
+//   NMA-1092 available services, NMA-757 fare hold, NMA-705 Buy Points.
+// Still in grooming ("Proposed" tag): NMA-764 discounts and coupons. Cancelled: NMA-1105 (Sale is in NMA-755),
+//   NMA-1138 (in NMA-1096), NMA-1141 (TripLink is in NMA-1096), NMA-1169 class comparison.
+// NMA-759's "assistance not available" case moved to NMA-620 (Sprint 7), so it isn't a Sprint 5 outcome.
 // Built from existing components only: Card, Badge, Alert, Button, Link, Accordion, Radio, Info sheet, Dialog.
 // All trips, fares and content are mock data standing in for the back end (S3P) and AEM.
 // =====================================================================
 const S5_OUTCOMES = [['results', 'Trains found'], ['border', 'Trip crosses the U.S.–Canada border'], ['soldout', 'Every train sold out'], ['single', 'Only one train'],
-  ['nodate', 'No trains on the departure date'], ['nodate-ret', 'No trains on the return date (round-trip)'], ['noroute', 'Route not served'], ['assist', 'Assistance not available at the station'], ['hold', 'Fare hold expired after 30 minutes']];
-const s5 = () => (V().s5 = V().s5 || { outcome: 'results', sort: 'direct' });
+  ['nodate', 'No trains on the departure date'], ['nodate-ret', 'No trains on the return date (round-trip)'], ['noroute', 'Route not served'], ['alerts', 'Trains found, with service and station alerts'], ['hold', 'Fare hold expired after 30 minutes (Sprint 6)']];
+const s5 = () => (V().s5 = V().s5 || { outcome: 'results', sort: 'direct', filt: s5NoFilt() });
+const s5NoFilt = () => ({ tod: [], route: [], cls: [], add: [] });
 // Results concepts (Sprint 5 exploration, from design feedback): compare the experience of each class of service
 // (seat type, amenities) on results, instead of leading with fare types.
 const S5_CONCEPTS = [['current', 'Current'], ['c1', 'Concept Update 1: compare classes'], ['c2', 'Concept Update 2: experience on each class'], ['c3', 'Concept Update 3: rails by type of trip'], ['c4', 'Concept Update 4: departure board']];
@@ -7894,6 +7928,7 @@ INFO['s5-classes'] = { title: 'Compare classes', body: () => {
     ${S5_EXP_ROWS.map(([f, i, l]) => `<div class="s5-cmp__row"><h3 class="ads-group__title s5-cmp__feat">${ic(i, 'ads-icon--sm')}${l}</h3><dl class="s5-cmp__vals">${offered.map(k => `<div class="s5-cmp__val"><dt class="ads-sr-only">${s5ClsName(k)}</dt><dd>${val(k, f)}</dd></div>`).join('')}</dl></div>`).join('')}
     <p class="ads-body-small s5-cmp__all">${ic('wifi', 'ads-icon--sm')} Free Wi-Fi and ${ic('luggage', 'ads-icon--sm')} 2 carry-on and 2 checked bags in every class.</p><p class="info-draft">Sample content. Features by class come from the content source.</p>${snote('Concept Update 1 (design exploration): results show an experience comparison instead of a fare comparison. Fare types move to Choose a fare. This conflicts with NMA-1097 (approved), which puts fare types on results.')}`; } };
 const s5tag = id => `<span class="ads-lock s5-tag" title="Proposed design, story not yet approved">Proposed · ${id}</span>`;
+const s5s6 = id => `<span class="ads-lock s5-tag s5-tag--s6" title="Planned for Sprint 6">Sprint 6 · ${id}</span>`;
 const s5hash = s => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 9973; return h; };
 const s5time = m => { const d = ((m % 1440) + 1440) % 1440, h = Math.floor(d / 60), mm = d % 60; return `${h % 12 || 12}:${String(mm).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
 const s5dur = m => m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
@@ -7901,25 +7936,26 @@ const S5_NOW = 9 * 60 + 41; // the device clock (9:41 AM): trains that already l
 const S5_CLASS_ORDER = ['Coach', 'Business', 'First', 'Rooms']; // NMA-1096 BR#1.5
 const S5_SVC = { train: ['train', 'Train'], trains: ['trip-multiple-train', 'Multiple trains'], mixed: ['trip-multiple-mixed', 'Train and bus'], bus: ['bus', 'Bus'] };
 
+const S5_NEW_TRAIN_ON = true; // NMA-755 AC8: showing the New train badge is configurable
 const S5_UNRESERVED = ['SAC', 'EMY', 'OKJ']; // Capitol Corridor stations in the mock: unreserved Coach
 // Mock back end: the same search always returns the same trips. Times, durations and fares come "from the back end".
 function s5Trips(b, leg) {
   const from = leg === 'ret' ? b.to : b.from, to = leg === 'ret' ? b.from : b.to, date = leg === 'ret' ? b.ret : b.dep;
   const h = s5hash([from, to].sort().join('')), base = 150 + h % 180, fare = 29 + h % 60, out = s5().outcome, via = ST[['PHL', 'NYP', 'WAS', 'CHI', 'ALB'].find(c => c !== from && c !== to && ST[c])];
   // sale (NMA-755) and left (NMA-762) come from the back end per class of service, never from train capacity
-  const T = (o) => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0, sale: [], left: {} }, o);
+  const T = (o) => Object.assign({ svc: 'train', segs: 1, status: 'ok', delay: 0, sale: [], left: {}, add: [], isNew: false }, o);
   let list = [
-    T({ id: 't1', num: '171', name: 'Northeast Regional', dep: 6 * 60 + 10, dur: base, cls: { Coach: fare, Business: fare + 38 }, left: { Coach: 2 } }),
+    T({ id: 't1', num: '171', name: 'Northeast Regional', dep: 6 * 60 + 10, dur: base, cls: { Coach: fare, Business: fare + 38 }, left: { Coach: 2, Business: 4 }, add: ['Bike', 'Pet'] }),
     T({ id: 't2', num: '2151', name: 'Acela', dep: 7 * 60, dur: Math.round(base * 0.82), cls: { Business: fare + 86, First: fare + 210 } }),
-    T({ id: 't3', num: '93', name: 'Northeast Regional', dep: 9 * 60 + 25, dur: base + 12, status: 'delayed', delay: 25, cls: { Coach: fare + 8, Business: fare + 46 }, sale: ['Business'] }),
-    T({ id: 't4', num: '125', name: 'Northeast Regional', dep: 10 * 60 + 35, dur: base + 6, cls: { Coach: fare + 8, Business: null } }),
+    T({ id: 't3', num: '93', name: 'Northeast Regional', dep: 9 * 60 + 25, dur: base + 12, status: 'delayed', delay: 25, cls: { Coach: fare + 8, Business: fare + 46 }, sale: ['Business'], add: ['Pet'] }),
+    T({ id: 't4', num: '125', name: 'Northeast Regional', dep: 10 * 60 + 35, dur: base + 6, cls: { Coach: fare + 8, Business: null }, isNew: true, add: ['Bike', 'Pet'] }),
     T({ id: 't5', num: '79', name: 'Carolinian', dep: 11 * 60 + 15, dur: base + 20, status: 'canceled', cls: { Coach: fare + 4, Business: fare + 40 } }),
     T({ id: 't6', num: '2165', name: 'Acela', dep: 13 * 60, dur: Math.round(base * 0.82), cls: { Business: null, First: null } }),
-    T({ id: 't7', num: '19', name: 'Crescent', dep: 14 * 60 + 15, dur: base + 28, cls: { Coach: fare - 6, Rooms: fare + 312 }, roomSold: ['family'] }),
-    T({ id: 't8', num: '67', name: 'Northeast Regional', dep: 21 * 60 + 40, dur: base + 190, cls: { Coach: fare - 10, Business: fare + 30 } }),
-    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, segNames: ['Northeast Regional', 'Northeast Regional'], cls: { Coach: fare + 14, Business: fare + 61 }, sale: ['Coach'] }),
+    T({ id: 't7', num: '19', name: 'Crescent', dep: 14 * 60 + 15, dur: base + 28, cls: { Coach: fare - 6, Rooms: fare + 312 }, roomSold: ['family'], left: { Rooms: 1 }, add: ['Bike', 'Pet', 'Golf'] }),
+    T({ id: 't8', num: '67', name: 'Northeast Regional', dep: 21 * 60 + 40, dur: base + 190, cls: { Coach: fare - 10, Business: fare + 30 }, add: ['Pet'] }),
+    T({ id: 't9', svc: 'trains', segs: 2, num: '141 + 195', name: 'Northeast Regional, 2 trains', dep: 9 * 60 + 50, dur: base + 95, layover: 45, via, segNames: ['Northeast Regional', 'Northeast Regional'], cls: { Coach: fare + 14, Business: fare + 61 }, sale: ['Coach'], add: ['Bike'] }),
     T({ id: 't10', svc: 'mixed', segs: 2, num: '8012 + 181', name: 'Thruway Bus and Northeast Regional', dep: 12 * 60 + 20, dur: base + 140, layover: 70, via, self: true, segNames: ['Thruway Bus', 'Northeast Regional'], segSvc: ['bus', 'train'], cls: { Coach: fare + 2 } }),
-    T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, segNames: ['Lake Shore Limited', 'Capitol Limited', 'Northeast Regional'], segOffers: [['Coach', 'Rooms'], ['Coach', 'Rooms'], ['Coach']], cls: { Coach: fare + 72, Rooms: fare + 540 } })
+    T({ id: 't11', svc: 'trains', segs: 3, num: '449 + 49 + 29', name: 'Lake Shore Limited and Capitol Limited, 3 trains', dep: 15 * 60 + 40, dur: base + 1210, layover: 185, via, segNames: ['Lake Shore Limited', 'Capitol Limited', 'Northeast Regional'], segOffers: [['Coach', 'Rooms'], ['Coach', 'Rooms'], ['Coach']], cls: { Coach: fare + 72, Rooms: fare + 540 }, add: ['Bike', 'Pet'] })
   ];
   const xb = s5Border(from, to); if (xb) list = s5BorderTrips(from, to, h, fare);
   // Unreserved Coach (Capitol Corridor): Coach only, no private rooms; Sale and Flex fares only
@@ -7931,6 +7967,8 @@ function s5Trips(b, leg) {
   if (date === TODAY_S) list = list.filter(t => t.status === 'canceled' || t.dep + t.delay > S5_NOW); // NMA-748 AC#4: delayed trains stay until they actually leave; canceled stay by schedule
   if (out === 'soldout') list.forEach(t => Object.keys(t.cls).forEach(k => t.cls[k] = null));
   if (out === 'single') list = list.filter(t => t.id === 't4').map(t => Object.assign(t, { cls: { Coach: fare + 8, Business: fare + 52 } }));
+  if (!S5_NEW_TRAIN_ON) list.forEach(t => { t.isNew = false; });
+  list.forEach(t => { t.routes = [...new Set(t.segNames || [t.name])]; });
   list.forEach(t => { t.arr = t.dep + t.dur; t.days = Math.floor(t.arr / 1440); t.low = Math.min(...Object.values(t.cls).filter(x => x != null).concat(Infinity)); t.border = out === 'border' || xb; });
   return { from, to, date, list, border: out === 'border' || xb };
 }
@@ -7964,27 +8002,72 @@ const s5Cents = v => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, m
 // ---------- Supporting content (configurable: comes from AEM, never hard-coded in the app) ----------
 INFO['s5-pricing'] = { title: 'How prices are shown', body: () => `<p><b>Seats</b> (Coach, Business, First): the price is for one adult, one way, before discounts. Discounts you chose are applied in your cart.</p><p><b>Rooms</b>: the price is the total for all travelers in the room, with your discounts already applied.</p><p>Each price is the lowest fare still available in that class.</p>${snote('NMA-1098: pricing explanation. Content is configurable (AEM) and available offline.')}` };
 INFO['s5-fares'] = { title: 'Compare fare types', body: () => {
+  const s6 = `<p>${s5s6('NMA-1097 fare comparison table')}</p>`;
   const rows = [['Changes', n => S5_FT[n].changes], ['Cancellation', n => S5_FT[n].cancel], ['Guest Rewards points', () => '100% of points earned'], ['Personal item', () => '1 free'], ['Carry-on bags', n => `${S5_FT[n].carry} free, $20 per extra`], ['Checked bags', n => `${S5_FT[n].checked || 'None'} free, $20 per extra`], ['Seat choice', n => ({ Sale: 'Not available (Cascades Coach: auto-assigned)', Value: 'For a fee in Business and on Cascades Coach', Flex: 'For a lower fee in Business and on Cascades Coach', 'Flex+': 'Included in Business and on Cascades Coach' })[n]]];
-  return `<div class="s5-fares">${Object.keys(S5_FT).map(n => `<details class="ads-accordion ads-accordion--sm s5-fares__ft"${n === 'Sale' ? ' open' : ''}><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="cpn-dl">${rows.map(([l, f]) => `<dt>${l}</dt><dd>${f(n)}</dd>`).join('')}</dl></div></details>`).join('')}</div>
+  return `${s6}<div class="s5-fares">${Object.keys(S5_FT).map(n => `<details class="ads-accordion ads-accordion--sm s5-fares__ft"${n === 'Sale' ? ' open' : ''}><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="cpn-dl">${rows.map(([l, f]) => `<dt>${l}</dt><dd>${f(n)}</dd>`).join('')}</dl></div></details>`).join('')}</div>
     <p class="ads-body-small"><b>Which fares you’ll see:</b> reserved Coach and Business offer Value, Flex and Flex+. Unreserved Coach offers Flex. Sale is added when a trip and class have a sale fare.</p>
-    <p class="info-draft">Sample content from the fare-type definitions. Bag fees and seat-choice prices come from the content source.</p>${snote('NMA-1097: fare type comparison. Fare types follow the definitions for Coach Reserved (all routes and Cascades), Business and Coach Unreserved. First and private rooms aren’t in those definitions yet.')}`; } };
+    <p class="info-draft">Sample content from the fare-type definitions. Bag fees and seat-choice prices come from the content source.</p>${snote('NMA-1097 “Fare comparison table” moved to Sprint 6 (Ready for Design there). Content comes from the back end and works offline. Fare types follow the definitions for Coach Reserved (all routes and Cascades), Business and Coach Unreserved. First and private rooms aren’t in those definitions yet.')}`; } };
+INFO['s5-prpolicy'] = { title: 'Pass Rider pricing', body: () => `<p><b>Leisure travel</b></p><p>Prices shown are retail fares. Your Pass Rider discount is applied when you choose a fare. Within 1 hour of departure, the discounted Pass Rider fare is shown instead.</p><p>Child and disability discounts are applied on top of your Pass Rider discount.</p><p><b>Business travel</b></p><p>Every class you can book shows $0. On Acela, Business class is available and First class isn’t.</p><p class="info-draft">Sample policy. The policy text comes from the content source (AEM).</p>${snote('NMA-1140 (Ready for Design): classes offered and Pass Rider prices come from the back end; the app shows what’s returned. Auto Train restrictions are NMA-1016. Leisure discount details on results are NMA-764 (grooming). Testing can’t finish before Jan 18; design and build are in Sprint 5.')}` };
 INFO['s5-border'] = { title: 'Crossing the U.S.–Canada border', body: () => `<p><b>Before you book</b></p><p>Every traveler needs a valid passport or other approved travel document. Enter each traveler’s name exactly as it appears on that document.</p><p><b>At the border</b></p><p>Customs and immigration officers board the train or meet it at the station. Inspections can add time to your trip.</p><p><b>Good to know</b></p><p>Arrive at least 60 minutes before departure. Children traveling without both parents may need a consent letter.</p><p class="info-draft">Sample content. Requirements come from the content source.</p>${snote('NMA-1095: shown only when the trip crosses the U.S.–Canada border. Content is configurable and available offline.')}` };
-INFO['s5-sort'] = { title: 'Sort', body: () => `<fieldset class="ads-fieldset s5-sortset"><legend class="ads-sr-only">Sort trains by</legend>${Object.entries(S5_SORTS).map(([k, [l]]) => `<label class="ads-choice ads-radio" for="s5s-${k}"><input type="radio" name="s5sort" id="s5s-${k}" data-a="s5-sort" data-v="${k}" ${s5().sort === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${l}</span></span></label>`).join('')}</fieldset><p class="info-draft">${s5tag('NMA-758')} Sort only. Filters (time of day, route, class, add-ons) are still being groomed and aren’t designed yet.</p>` };
-A['s5-sort'] = t => { s5().sort = t.dataset.v; nav().info = null; pendingFocus = '[data-topic="s5-sort"]'; render(); };
+// NMA-758 (Ready for Design): Sort (one option, Most direct by default) and Filters (time of day, route, class of
+// service, add-ons; any number, OR within a group). Routes, classes and add-ons come from the trips returned.
+// Exit discards changes; Show trains saves them; Clear all resets to the default. Works offline.
+const S5_TOD = [['night', '12a–6a', 0, 360], ['morning', '6a–12p', 360, 720], ['afternoon', '12p–6p', 720, 1080], ['evening', '6p–12a', 1080, 1440]];
+const S5_ADDONS = ['Bike', 'Pet', 'Golf'];
+const s5FiltCount = f => f.tod.length + f.route.length + f.cls.length + f.add.length;
+const s5Filtered = (list, f) => list.filter(t => (!f.tod.length || f.tod.some(k => { const x = S5_TOD.find(y => y[0] === k), m = t.dep % 1440; return m >= x[2] && m < x[3]; }))
+  && (!f.route.length || t.routes.some(r => f.route.includes(r))) && (!f.cls.length || f.cls.some(k => k in t.cls)) && (!f.add.length || f.add.some(a => t.add.includes(a))));
+const s5Leg = () => { const sh = sheet(), top = sh && sh.stack[sh.stack.length - 1]; return top && top.p && top.p.leg === 'ret' ? 'ret' : 'dep'; };
+INFO['s5-sort'] = { title: 'Sort and filter', body: () => {
+  const st = s5(), d = st.draft = st.draft || { sort: st.sort, f: JSON.parse(JSON.stringify(st.filt)) };
+  const all = s5Trips(D().booking, s5Leg()).list, n = s5Filtered(all, d.f).length;
+  const routes = [...new Set(all.flatMap(t => t.routes))], clss = S5_CLASS_ORDER.filter(k => all.some(t => k in t.cls)), adds = S5_ADDONS.filter(a => all.some(t => t.add.includes(a)));
+  const box = (g, v, l) => { const id = `s5sf-${g}-${v.replace(/\W+/g, '')}`; return `<label class="ads-choice ads-checkbox" for="${id}"><input type="checkbox" id="${id}" data-a="s5-sf" data-g="${g}" data-v="${esc(v)}" ${d.f[g].includes(v) ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${esc(l)}</span></span></label>`; };
+  const set = (g, legend, items) => items.length ? `<fieldset class="ads-fieldset s5-sortset"><legend class="ads-group__title">${legend}</legend>${items.join('')}</fieldset>` : '';
+  return `<fieldset class="ads-fieldset s5-sortset"><legend class="ads-group__title">Sort by</legend>${Object.entries(S5_SORTS).map(([k, [l]]) => `<label class="ads-choice ads-radio" for="s5s-${k}"><input type="radio" name="s5sort" id="s5s-${k}" data-a="s5-sf" data-g="sort" data-v="${k}" ${d.sort === k ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span>${l}</span></span></label>`).join('')}</fieldset>
+    <h3 class="s5-sf__h">Filter by</h3>
+    ${set('tod', 'Time of day', S5_TOD.map(([k, l]) => box('tod', k, l)))}${set('route', 'Route', routes.map(r => box('route', r, r)))}${set('cls', 'Class of service', clss.map(k => box('cls', k, s5ClsName(k))))}${set('add', 'Add-ons', adds.map(a => box('add', a, a)))}
 
-// Trip details (proposed: NMA-1092 and NMA-1093 are still in grooming): Services and Route tabs, as in the current app
+    <p class="info-draft">Time of day uses the scheduled departure. Routes, classes and add-ons list what these trips offer, as returned by the back end. Closing without “Show” keeps your current results.</p><div class="s5-sf__actions"><button class="ads-btn ads-btn--block" type="button" data-a="s5-sf-save">${n ? `Show ${n} train${n === 1 ? '' : 's'}` : 'Show results'}</button><button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="s5-sf-clear">Clear all</button></div>${snote('NMA-758 (Ready for Design): Most direct is the default sort. Filters can be combined; within a group a trip matches any choice. The count of filters shows next to “Sort and filter” on results. Sort and filter is hidden when there’s only one trip. Add-ons beyond Bike, Pet and Golf are NMA-1172 (future).')}`;
+} };
+A['s5-sf-open'] = () => { s5().draft = null; openInfo('s5-sort', '[data-a="s5-sf-open"]'); };
+A['s5-sf'] = t => { const d = s5().draft, g = t.dataset.g, v = t.dataset.v; if (g === 'sort') d.sort = v; else d.f[g] = d.f[g].includes(v) ? d.f[g].filter(x => x !== v) : [...d.f[g], v]; pendingFocus = `#${t.id}`; render(); };
+A['s5-sf-save'] = () => { const st = s5(), d = st.draft; st.sort = d.sort; st.filt = d.f; st.draft = null; nav().info = null; pendingFocus = '[data-a="s5-sf-open"]'; render(); };
+A['s5-sf-clear'] = () => { s5().draft = { sort: 'direct', f: s5NoFilt() }; pendingFocus = '#s5s-direct'; render(); };
+A['s5-sf-reset'] = () => { s5().filt = s5NoFilt(); pendingFocus = '[data-a="s5-sf-open"]'; render(); };
+
+// Trip details: Route (NMA-1093, Ready for Design) and Services (NMA-1092, Sprint 6), as in the current app
 const S5_AMENITIES = [['luggage', 'Checked baggage', 'Check up to 2 bags at staffed stations on this train. Carry-on bags are always free.'], ['cafe', 'Café car', 'Snacks, light meals and drinks for purchase.'], ['lounge', 'Lounge access', 'Station lounges for private room travelers before you board.', true], ['wifi', 'Free Wi-Fi', 'Basic Wi-Fi for browsing and email.'], ['pet', 'Pet', 'Small dogs and cats up to 20 lb in a carrier. A fee applies.']];
+// Northeast Corridor stops in order (sample); a segment lists the ones between its two ends. Other routes: ends only.
+const S5_NEC = [['New York'], ['Newark', 'Newark, NJ · Newark Penn Station'], ['Metropark', 'Metropark, NJ · Metropark Station'], ['Trenton', 'Trenton, NJ · Trenton Transit Center'], ['Philadelphia'], ['Wilmington', 'Wilmington, DE · Joseph R. Biden, Jr. Railroad Station'], ['Baltimore', 'Baltimore, MD · Penn Station'], ['Washington']];
+const s5Between = (a, z) => { const i = S5_NEC.findIndex(x => x[0] === a), j = S5_NEC.findIndex(x => x[0] === z); if (i < 0 || j < 0) return []; const seg = i < j ? S5_NEC.slice(i + 1, j) : S5_NEC.slice(j + 1, i).reverse(); return seg.filter(x => x[1]).map(x => x[1]); };
 A['s5-dtab'] = t => { s5().dtab = t.dataset.v; pendingFocus = `#s5d-${t.dataset.v}`; render(); };
+A['s5-stops'] = t => { const o = s5().stops = s5().stops || {}; o[t.dataset.k] = !o[t.dataset.k]; pendingFocus = `[data-a="s5-stops"][data-k="${t.dataset.k}"]`; render(); };
 function s5Details(id) {
-  const b = D().booking, sh = sheet(), top = sh && sh.stack[sh.stack.length - 1], leg = top && top.p && top.p.leg === 'ret' ? 'ret' : 'dep';
-  const r = s5Trips(b, leg), t = r.list.find(x => x.id === id); if (!t) return { title: 'Trip details', body: () => '' };
-  const stops = t.segs === 1 ? [[t.dep, ST[r.from]], [t.arr, ST[r.to]]] : [[t.dep, ST[r.from]], [t.dep + Math.round((t.dur - t.layover) / 2), t.via, `${s5dur(t.layover)} layover${t.self ? ' · self-transfer to another station' : ''}`], [t.arr, ST[r.to]]];
-  const tab = s5().dtab || 'services', tb = (k, l) => `<button class="ads-tab" type="button" role="tab" id="s5d-${k}" aria-selected="${tab === k}" aria-controls="s5d-panel" tabindex="${tab === k ? 0 : -1}" data-a="s5-dtab" data-v="${k}">${l}</button>`;
+  const b = D().booking, leg = s5Leg(), r = s5Trips(b, leg), t = r.list.find(x => x.id === id); if (!t) return { title: 'Trip details', body: () => '' };
+  const tab = s5().dtab || 'route', tb = (k, l) => `<button class="ads-tab" type="button" role="tab" id="s5d-${k}" aria-selected="${tab === k}" aria-controls="s5d-panel" tabindex="${tab === k ? 0 : -1}" data-a="s5-dtab" data-v="${k}">${l}</button>`;
   const am = S5_AMENITIES.filter(([, , , rooms]) => !rooms || 'Rooms' in t.cls);
-  const services = `<div class="ads-summary s5-dsum"><p class="ads-summary__title s5-dsum__name">${ic(S5_SVC[t.svc][0])}${esc(t.name)} ${t.num}</p><p class="s5-dsum__icons" aria-hidden="true">${am.map(([i]) => ic(i)).join('')}</p><p class="s5-dsum__cls">${S5_CLASS_ORDER.filter(k => k in t.cls).map(k => k === 'Rooms' ? 'Private rooms' : k).join(', ')}</p></div>
+  const services = `<p>${s5s6('NMA-1092')}</p><div class="ads-summary s5-dsum"><p class="ads-summary__title s5-dsum__name">${ic(S5_SVC[t.svc][0])}${esc(t.name)} ${t.num}</p><p class="s5-dsum__icons" aria-hidden="true">${am.map(([i]) => ic(i)).join('')}</p><p class="s5-dsum__cls">${S5_CLASS_ORDER.filter(k => k in t.cls).map(k => k === 'Rooms' ? 'Private rooms' : k).join(', ')}</p></div>
     <h3 class="ads-group__title s5-dsec">Amenities and add-ons</h3><div class="s5-amen">${am.map(([i, n, d]) => `<details class="ads-accordion ads-accordion--sm"><summary><span class="s5-amen__label">${ic(i)}${n}</span>${ic('chevron-down')}</summary><div class="ads-accordion__panel"><p>${d}</p></div></details>`).join('')}</div>`;
-  const route = `<dl class="cpn-dl">${stops.map(([m, s, note]) => `<dt>${s5time(m)}</dt><dd>${esc(s.city)}, ${s.st} · ${esc(s.name)}${note ? `<br><span class="ads-text-secondary">${note}</span>` : ''}</dd>`).join('')}<dt>Duration</dt><dd>${s5dur(t.dur)}</dd></dl>`;
-  return { title: 'Trip details', body: () => `<p>${s5tag('NMA-1092/1093')}</p><div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trip details">${tb('services', 'Services')}${tb('route', 'Route')}</div><div id="s5d-panel" role="tabpanel" aria-labelledby="s5d-${tab}" class="s5-dpanel">${tab === 'route' ? route : services}</div><p class="info-draft">Sample services, amenities and stops. Content comes from the back end.</p>` };
+  // NMA-1093: collapsed by default (first and last stop of each segment); expand to every stop. Nonstop trains say so.
+  // Multi-segment trips list each segment, with the connection between them; self-transfers explain the change of station.
+  const day = m => fmtShort(addDays(r.date, Math.floor(m / 1440))), stn = s => `${esc(s.city)}, ${s.st} · ${esc(s.name)}`;
+  const segs = t.segs === 1 ? [{ name: `${t.name} ${t.num}`, svc: t.svc, a: [t.dep, stn(ST[r.from])], z: [t.arr, stn(ST[r.to])], ac: ST[r.from].city, zc: ST[r.to].city }] : (() => {
+    const leg1 = Math.round((t.dur - t.layover) / t.segs), names = t.segNames, nums = String(t.num).split(' + ');
+    return names.map((n, i) => { const a = t.dep + i * (leg1 + t.layover), z = a + leg1; const A0 = i ? t.via : ST[r.from], Z0 = i === names.length - 1 ? ST[r.to] : t.via; return { name: `${n} ${nums[i] || ''}`.trim(), svc: (t.segSvc || [])[i] || 'train', a: [a, stn(A0)], z: [z, stn(Z0)], ac: A0.city, zc: Z0.city }; });
+  })();
+  const nonstop = t.segs === 1 && /Acela/.test(t.name) && t.id === 't2';
+  const segHtml = segs.map((s, i) => {
+    const k = `${t.id}-${i}`, openStops = (s5().stops || {})[k], mids = nonstop || s.svc === 'bus' ? [] : s5Between(s.ac, s.zc).filter((x, j) => /Acela/.test(s.name) ? j % 2 === 0 : true), span = s.z[0] - s.a[0];
+    const mid = mids.map((x, j) => { const m = s.a[0] + Math.round(span * (j + 1) / (mids.length + 1)); return `<li class="s5-stop s5-stop--mid"><span class="s5-stop__t">${s5time(m)}</span><span class="s5-stop__n">${esc(x)}</span></li>`; }).join('');
+    const conn = i < segs.length - 1 ? `<p class="s5-conn">${ic(t.self ? 'walk' : 'clock', 'ads-icon--sm')}<span><b>Connection in ${esc(t.via.city)} · ${s5dur(t.layover)}</b>${t.self ? '<br>Self-transfer: you change stations on your own. Allow time to collect bags and walk between stations.' : ''}</span></p>` : '';
+    return `<section class="s5-seg" aria-label="Segment ${i + 1}: ${esc(s.name)}"><p class="s5-seg__h">${ic(s.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<b>${esc(s.name)}</b>${s.svc === 'bus' ? '<span class="s5-seg__op">Operated by a partner bus company</span>' : ''}</p>
+      <ol class="s5-stops"><li class="s5-stop"><span class="s5-stop__t">${s5time(s.a[0])}<br><span class="ads-text-secondary">${day(s.a[0])}</span></span><span class="s5-stop__n">${s.a[1]}</span></li>${openStops ? mid : ''}<li class="s5-stop"><span class="s5-stop__t">${s5time(s.z[0])}<br><span class="ads-text-secondary">${day(s.z[0])}</span></span><span class="s5-stop__n">${s.z[1]}</span></li></ol>
+      ${nonstop ? `<p class="s5-seg__ns">Nonstop · ${s5dur(t.dur)}</p>` : mids.length ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-stops" data-k="${k}" aria-expanded="${!!openStops}">${openStops ? 'Hide stops' : `Show all ${mids.length + 2} stops`}</button>` : ''}</section>${conn}`;
+  }).join('');
+  const note = V().net === 'offline' ? alertBox('info', 'You’re offline', 'These are the last times we received. They might not be up to date.') : `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>Times can change before your trip. ${t.status === 'delayed' ? `This train is running ${t.delay} minutes late.` : ''}</span></p>`;
+  const route = `${note}${segHtml}<p class="s5-seg__tot">Total trip time: ${s5dur(t.dur)}</p>`;
+  return { title: 'Trip details', body: () => `<div class="ads-tabs ads-tabs--fill" role="tablist" aria-label="Trip details">${tb('route', 'Route')}${tb('services', 'Services')}</div><div id="s5d-panel" role="tabpanel" aria-labelledby="s5d-${tab}" class="s5-dpanel">${tab === 'services' ? services : route}</div><p class="info-draft">Sample stops and times. Route details come from the back end (travel services); self-transfer and inspection details from AEM.</p>${snote('NMA-1093 (Ready for Design): route details for every trip, including delayed, canceled and sold-out ones. Open: the label for the time between segments (“Connection” here; today “Layover”). Services is NMA-1092, moved to Sprint 6.')}` };
 }
 
 // ---------- Trip card (NMA-1094 trip info, NMA-1096 classes of service) ----------
@@ -7995,7 +8078,7 @@ function s5Parts(t, r, b, ctx) {
   const badge = canceled ? `<span class="ads-badge ads-badge--error">Canceled</span>` : delayed ? `<span class="ads-badge ads-badge--warning">Delayed ${t.delay} min</span>` : '';
   // NMA-755: every tied option gets the badge; none on canceled or fully sold-out trips; Sale when any open class has a sale fare
   const onSale = !canceled && ctx.sale && t.sale.some(k => t.cls[k] != null);
-  const tags = !canceled && t.low !== Infinity ? [ctx.tags && ctx.low != null && t.low === ctx.low ? ['Lowest fare', 'success'] : null, ctx.tags && t.dur === ctx.fast ? ['Fastest trip', 'success'] : null, onSale ? ['Sale', 'info'] : null].filter(Boolean).map(([x, k]) => `<span class="ads-badge ads-badge--${k}">${x}</span>`).join('') : '';
+  const tags = !canceled && t.low !== Infinity ? [ctx.tags && ctx.low != null && t.low === ctx.low ? ['Lowest fare', 'success'] : null, ctx.tags && t.dur === ctx.fast ? ['Fastest trip', 'success'] : null, onSale ? ['Sale', 'info'] : null, t.isNew ? ['New train', 'neutral'] : null].filter(Boolean).map(([x, k]) => `<span class="ads-badge${k === 'neutral' ? '' : ` ads-badge--${k}`}">${x}</span>`).join('') : '';
   // Delayed: the scheduled time is struck through, with the updated time beside it (NMA-1094)
   const tm = (m) => delayed ? `<span class="s5-t"><s class="s5-was"><span class="ads-sr-only">Scheduled </span>${s5time(m)}</s> <b class="s5-now"><span class="ads-sr-only">Now </span>${s5time(m + t.delay)}</b></span>` : `<span class="s5-t"><b>${s5time(m)}</b></span>`;
   const day = t.days ? ` <span class="s5-day">+${t.days} day${t.days > 1 ? 's' : ''}</span>` : '';
@@ -8010,7 +8093,10 @@ function s5Parts(t, r, b, ctx) {
   let from;
   if (canceled) from = '<span class="s5-from__na">Canceled</span>';
   else if (!open.length) from = '<span class="s5-from__na">Sold out</span>';
-  else if (it === 'pr') from = '<span class="s5-from__na">Pass Rider fare</span>';
+  else if (it === 'pr') { // NMA-1140: Business travel shows $0 on every class offered; Leisure shows the retail fare (discount info: NMA-764)
+    const k0 = open.filter(k => k !== 'Rooms')[0] || open[0];
+    from = b.prType === 'business' ? `<b class="s5-from__amt">$0</b><span class="s5-from__unit">Business travel</span>` : `<span class="s5-from__lab">From</span><b class="s5-from__amt">${s5Cents(t.cls[k0])}</b><span class="s5-from__unit">${k0 === 'Rooms' ? 'per room' : 'retail, per traveler'}</span>`;
+  }
   else {
     const seats = open.filter(k => k !== 'Rooms'), pool = seats.length ? seats : ['Rooms'];
     const k0 = pool.reduce((a, k) => s5CardPrice(b, t, r, k) < s5CardPrice(b, t, r, a) ? k : a, pool[0]), v = s5CardPrice(b, t, r, k0);
@@ -8018,9 +8104,9 @@ function s5Parts(t, r, b, ctx) {
   }
   const cls = S5_CLASS_ORDER.filter(k => k in t.cls).map(k => {
     const p = t.cls[k], name = k === 'Rooms' ? 'Private rooms' : k, off = p == null || canceled;
-    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? 'Pass Rider fare' : `${k === 'Rooms' ? 'from ' : ''}${s5Strike(b, s5CardPrice(b, t, r, k), k)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
+    const price = canceled ? 'Not available' : p == null ? 'Sold out' : it === 'pr' ? (b.prType === 'business' ? '$0' : s5Cents(p)) : `${k === 'Rooms' ? 'from ' : ''}${s5Strike(b, s5CardPrice(b, t, r, k), k)}`; // NMA-1138 → NMA-1096: multi-segment priced like single-segment
     const sale = !off && ctx.sale && t.sale.includes(k), left = !off && t.left[k];
-    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price.replace(/<[^>]+>/g, '')}${s5Net(b, p, k) !== p ? ` with ${s5Disc(b).label}` : ''}${sale ? ', sale fare available' : ''}${left ? `, ${left} left at this price` : ''}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${sale ? '<span class="s5-class__sale">Sale fare available</span>' : ''}${left ? `<span class="s5-class__left">${left} left at this price</span>` : ''}${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
+    return `<button class="ads-btn ads-btn--secondary s5-class" type="button" data-a="s5-fare" data-trip="${t.id}" data-cls="${k}" ${off ? 'disabled' : ''} aria-label="${name}, ${price.replace(/<[^>]+>/g, '')}${s5Net(b, p, k) !== p ? ` with ${s5Disc(b).label}` : ''}${sale ? ', sale fare available' : ''}${left ? `, ${s5Left(k, left).toLowerCase()}` : ''}${c2 ? `, ${S5_EXP[k].short}` : ''}${off ? '' : `. See ${name} fares on ${esc(t.name)} ${t.num}`}"><span class="s5-class__name">${name}</span><span class="s5-class__price">${price}</span>${sale ? '<span class="s5-class__sale">Sale fare available</span>' : ''}${left ? `<span class="s5-class__left">${s5Left(k, left)}</span>` : ''}${c2 ? `<span class="s5-class__exp">${S5_EXP[k].short}</span><span class="s5-class__icons" aria-hidden="true">${S5_EXP[k].icons.map(x => ic(x, 'ads-icon--sm')).join('')}</span>` : ''}</button>`;
   }).join('');
   const classes = `<div class="s5-classes" role="group" aria-label="Classes of service on ${esc(t.name)} ${t.num}">${cls}</div>`;
   return { canceled, tags, badge, times, meta, flags, disc, name, details, from, classes };
@@ -8052,36 +8138,53 @@ A['s5-jump'] = t => { const o = s5().rows = s5().rows || {}; o[t.dataset.trip] =
 // Concept Update 3: rails by type of trip (direct, multiple trains, with a bus). Each rail keeps the default order.
 const S5_RAILS = [['Direct trains', t => t.segs === 1 && t.svc !== 'bus'], ['Multiple trains', t => t.svc === 'trains'], ['Trips with a bus', t => t.svc === 'mixed' || t.svc === 'bus']];
 
+// NMA-760: alerts the back end (AEM) returns for this search. Order: service alerts, then station alerts, then
+// passenger service notices, each most recent first. All alerts are listed (no swiping between them), stay while
+// they're valid, never block choosing a trip, and open their full text in the app.
+function s5Alerts(res) {
+  const o = ST[res.from], d = ST[res.to];
+  return [
+    ['service', 'warning', 'Service alert', 'Weather may delay trains', `Trains between ${o.city} and ${d.city} may run up to 60 minutes late through Thursday evening.`, 'A winter storm is expected along the route. Check your train’s status before you go. If your train is canceled, you can change your trip at no cost.'],
+    ['station', 'info', `Station alert · ${o.city}`, 'Some escalators are out of service', `At ${o.name}, use the elevators to reach Tracks 5 to 8.`, 'Elevators are at the west end of the concourse. Station staff can help you reach your train. Ask at the information desk.'],
+    ['station', 'info', `Station alert · ${d.city}`, 'Shorter ticket office hours', `The ticket office at ${d.name} is open 6:00 AM to 9:00 PM until Dec 31.`, 'Ticket machines and the app are available at all times.'],
+    ['notice', 'info', 'Passenger service notice', 'Schedule changes from Dec 14', 'Some trains on this route will leave up to 10 minutes earlier.', 'Check the departure time on your ticket after Dec 14. We’ll let you know if your train changes.']
+  ];
+}
+A['s5-alert'] = t => openInfo(`s5-alert:${t.dataset.i}`, `[data-a="s5-alert"][data-i="${t.dataset.i}"]`);
+{ const base = infoTopic; infoTopic = function (topic) { if (!topic.startsWith('s5-alert:')) return base(topic); const a = s5Alerts(s5Trips(D().booking, s5Leg()))[+topic.split(':')[1]]; return { title: a[3], body: () => `<p class="ads-overline">${a[2]}</p><p>${a[4]}</p><p>${a[5]}</p><p class="info-draft">Sample alert. Alerts and their expiry come from the back end (AEM).</p>` }; }; }
+
 // ---------- Results screen ----------
 SCR.handoff = (r, ri) => {
-  const b = D().booking, leg = r.p.leg === 'ret' ? 'ret' : 'dep', res = s5Trips(b, leg), list = s5Sorted(res.list), it = intentOf(b), rt = b.trip === 'rt';
-  ref('748', '1094', '1096', '759', '1098', '1097', '1095');
-  const open = list.filter(t => t.status !== 'canceled' && t.low !== Infinity);
-  const tagsOn = list.length > 1 && open.length > 1; // NMA-755 AC5: one result shows no Lowest fare or Fastest trip
+  const b = D().booking, leg = r.p.leg === 'ret' ? 'ret' : 'dep', res = s5Trips(b, leg), all = s5Sorted(res.list), list = s5Filtered(all, s5().filt), nf = s5FiltCount(s5().filt), it = intentOf(b), rt = b.trip === 'rt';
+  ref('748', '1094', '1096', '759', '1098', '1095', '755', '761', '758', '762', '760', '1093', '1140');
+  const open = all.filter(t => t.status !== 'canceled' && t.low !== Infinity);
+  const tagsOn = all.length > 1 && open.length > 1; // NMA-755 AC5: one result shows no Lowest fare or Fastest trip
   const prBiz = it === 'pr' && b.prType === 'business', pts = b.pay === 'points' && ['standard', 'personal'].includes(it);
   const ctx = { tags: tagsOn, low: tagsOn && !prBiz ? Math.min(...open.map(t => t.low)) : null, fast: tagsOn ? Math.min(...open.map(t => t.dur)) : null, sale: it !== 'pr', // NMA-755: no Lowest fare on Pass Rider business; no Sale for Pass Rider
     // NMA-761 AC#3 / NMA-764: promo codes and coupons don't apply to points; passenger discounts do
     disc: ['standard', 'personal'].includes(it) ? (b.code && b.codeState !== 'ineligible' && !pts ? `Code ${b.code.code}` : paxList(b).some(t => tdiscOf(b, t) !== 'none') ? 'Your traveler discount' : '') : '' };
   const cart = D().cart || [], inCart = cart.some(x => x.label === `${stLabel(b.from)} → ${stLabel(b.to)}, ${fmtShort(b.dep)}`);
-  snote('Sprint 5 search results. Approved (VK): NMA-748, 1094, 1096, 759, 1098, 1097, 1095, and since 2026-11-18 NMA-755 (Lowest fare, Fastest trip and Sale tags) and NMA-761 (switch between cash and points on results). Items marked “Proposed” are designs for stories still in grooming: round-trip return step (NMA-1109, sequential flow settled), Sort (NMA-758), discount indicator (NMA-764), trip details (NMA-1092/1093), low-inventory message (NMA-762) and fare hold (NMA-757). NMA-1138 is consolidated into NMA-1096: multi-segment trips use the same card and pricing; differences are route information.');
-  snote('Flagged, not designed: service and station alerts (NMA-760: origin only, or origin and destination?), Pass Rider fares (NMA-1140: same search framework with back-end employee pricing and contextual policies; refundability and discount presentation are open, so prices still show as “Pass Rider fare”), TripLink fares (NMA-1141: story is empty; standard prices shown), filters (NMA-758), Buy Points (NMA-705: 100-point Points + Cash threshold and 400-point full-redemption minimum; buying points mustn’t interrupt booking; messaging and navigation are open), Sale badge placement and who calculates it (NMA-755: shown on the trip and on the class here).');
+  snote('Sprint 5 search results, updated to the Jira stories as of 2026-11-19. Ready for Design: NMA-748, 1094, 1096 (now also TripLink/corporate), 759, 1098 (not Pass Rider), 1095, 755 (with New train), 761, 758 (sort and filter), 762 (low inventory), 760 (alerts), 1093 (route details) and 1140 (Pass Rider). Moved to Sprint 6 and tagged “Sprint 6”: NMA-1097 fare comparison table, 1109 round-trip, 1092 services, 757 fare hold, 705 Buy Points. Still in grooming, tagged “Proposed”: NMA-764 discounts and coupons. Cancelled: NMA-1105, 1138, 1141 and 1169.');
+  snote('Open points: NMA-755 Sale badge placement (trip and class here) and who flags badges (the back end, per the story). NMA-1093 label for the time between segments (“Connection” here). NMA-759 “assistance not available” moved to NMA-620 (Sprint 7). Buy Points (NMA-705, Sprint 6): 100-point Points + Cash and 400-point full-redemption minimums; nothing designed yet.');
   snote('NMA-748 AC#4: canceled trains come back today only for the agent channel, so showing them needs a back-end change request. The prototype shows one. Choosing a fare is the exit of this sprint: “Add to cart” stays simulated.');
   if (s5dm() === 'strike') snote('Discount pricing concept (design exploration): with one traveler, seat prices show the full price struck through and the price with the applied promo code or coupon, or the traveler’s discount type. Codes don’t apply in points, so points show only a traveler discount. More than one traveler keeps the current pattern (“applies” on the card, prices before discounts). Rooms already include discounts (NMA-1098). Conflict to resolve: NMA-1098 says seat prices are shown before discounts. Discount amounts are sample values from the back end.');
-  if (s5c() === 'c1') snote('Concept Update 1 (design exploration, from feedback): the test of showing experience. “Compare classes” replaces “Compare fare types” on results; it compares seat, legroom, food and drink, lounge and points for each class on these trains. Fare types are compared on Choose a fare instead. Conflict: NMA-1097 (approved) puts fare types on results; this concept is an exploration only.');
+  if (s5c() === 'c1') snote('Concept Update 1 (design exploration, from feedback): the test of showing experience. “Compare classes” replaces “Compare fare types” on results; it compares seat, legroom, food and drink, lounge and points for each class on these trains. Fare types are compared on Choose a fare instead. Note: NMA-1169 Class of Services Comparison was cancelled on 2026-11-19, and NMA-1097 (fare comparison table, Sprint 6) puts fare types on results; this concept is an exploration only.');
   if (s5c() === 'c2') snote('Concept Update 2 (design exploration, from feedback): each class button on a trip card shows what you get (seat type and amenity icons) under its price, so the experience is compared where you choose. Fare types stay available as a smaller link because NMA-1097 (approved) needs them on results.');
-  if (it === 'pr') snote('NMA-1140 (grooming): Pass Rider prices aren’t approved, so each class shows “Pass Rider fare”. Business travel Acela and Auto Train restrictions aren’t applied here.');
-  if (it === 'corporate') snote('NMA-1141 (empty story): TripLink fares aren’t defined. Standard prices are shown.');
+  if (it === 'pr') snote('NMA-1140 (Ready for Design): Business travel shows $0 for every class offered; Leisure shows retail fares, with the Pass Rider policy behind the info button. Within 1 hour of departure the back end returns the discounted fare. Classes offered (for example no Acela First on business travel) come from the back end.');
+  if (it === 'corporate') snote('NMA-1096 now covers TripLink (NMA-1141 cancelled): the back end returns the corporate fare for each class; the card is the same as for regular travelers.');
   // The route, date, travelers and number of trains sit in the header (NMA-748 AC1); the body starts with the trips
   const navTitle = `${ST[res.from].code} ${ST[res.from].city} → ${ST[res.to].code} ${ST[res.to].city}`;
-  const navSub = `${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${list.length} train${list.length === 1 ? '' : 's'}</span>`;
-  const head = rt ? `<div class="s5-head"><p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5tag('NMA-1109')}</p></div>` : '';
-  const tools = `<div class="s5-tools"><p class="s5-tools__note">${pts ? `Prices in points, per traveler, one way${s5Disc(b) ? `, with ${esc(s5Disc(b).label)}` : ''}` : s5Disc(b) ? `Seat prices include ${esc(s5Disc(b).label)}, one way` : it === 'pr' ? 'Pass Rider fares' : 'Seat prices are per traveler, one way'} <button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button></p>
-    <div class="s5-tools__links">${s5c() === 'c1' ? infoLink('s5-classes', 'Compare classes') : infoLink('s5-fares', s5c() === 'current' ? 'Understand fare types' : 'Fare types')}${list.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="s5-sort">Sort: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>
-    <p class="s5-proposed">${[list.length > 1 ? ['NMA-758', 'sort'] : null, ['NMA-1092/1093', 'trip details'], list.some(t => t.status !== 'canceled' && Object.keys(t.left).some(k => t.cls[k] != null)) ? ['NMA-762', 'low inventory'] : null, s5Disc(b) ? ['Discount pricing', 'strikethrough'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : s5c() === 'c3' ? ['Concept Update 3', 'rails'] : s5c() === 'c4' ? ['Concept Update 4', 'departure board'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
+  const navSub = `${leg === 'ret' ? 'Return' : 'Departure'} · ${fmtShort(res.date)} · ${esc(s5Travelers(b))} · <span id="s5-count">${all.length} train${all.length === 1 ? '' : 's'}</span>`;
+  const head = rt ? `<div class="s5-head"><p class="s5-head__step">Step ${leg === 'ret' ? 2 : 1} of 2: choose your ${leg === 'ret' ? 'return' : 'departure'} ${s5s6('NMA-1109')}</p></div>` : '';
+  const tools = `<div class="s5-tools"><p class="s5-tools__note">${pts ? `Prices in points, per traveler, one way${s5Disc(b) ? `, with ${esc(s5Disc(b).label)}` : ''}` : s5Disc(b) ? `Seat prices include ${esc(s5Disc(b).label)}, one way` : it === 'pr' ? (b.prType === 'business' ? 'Pass Rider business travel' : 'Retail fares, before your Pass Rider discount') : 'Seat prices are per traveler, one way'} ${it === 'pr' ? `<button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-prpolicy" aria-label="Pass Rider pricing">${ic('info-circle', 'ads-icon--sm')}</button>` : `<button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="info" data-topic="s5-pricing" aria-label="How prices are shown">${ic('info-circle', 'ads-icon--sm')}</button>`}</p>
+    <div class="s5-tools__links">${s5c() === 'c1' ? infoLink('s5-classes', 'Compare classes') : infoLink('s5-fares', s5c() === 'current' ? 'Understand fare types' : 'Fare types')}${all.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-sf-open" aria-label="Sort and filter. Sorted by ${S5_SORTS[s5().sort][0]}${nf ? `, ${nf} filter${nf === 1 ? '' : 's'} on` : ''}">Sort and filter${nf ? ` <span class="ads-badge ads-badge--info s5-sf__n">${nf}</span>` : ''}</button>` : ''}</div>
+    ${nf && list.length ? `<p class="s5-sf__shown" role="status">Showing ${list.length} of ${all.length} trains · sorted by ${S5_SORTS[s5().sort][0].toLowerCase()}</p>` : ''}
+    <p class="s5-proposed">${[s5Disc(b) ? ['Discount pricing', 'strikethrough'] : null, s5c() === 'c1' ? ['Concept Update 1', 'compare classes'] : s5c() === 'c2' ? ['Concept Update 2', 'class experience'] : s5c() === 'c3' ? ['Concept Update 3', 'rails'] : s5c() === 'c4' ? ['Concept Update 4', 'departure board'] : null].filter(Boolean).map(([id, l]) => `<span class="ads-lock s5-tag">Proposed · ${id} ${l}</span>`).join('')}</p></div>`;
   const border = res.border ? alertBox('info', 'This trip crosses the U.S.–Canada border', 'Every traveler needs a valid travel document.', infoLink('s5-border', 'What to expect')) : '';
   const ptsCode = pts && b.code && b.codeState !== 'ineligible' ? alertBox('info', 'Promo codes and coupons don’t apply to points', `Your code ${esc(b.code.code || b.codeText)} isn’t used while prices are in points. It comes back if you switch to cash. Passenger discounts still apply.`) : '';
   const noAssist = b.s5NoAssist ? alertBox('warning', 'Searching without your assistance request', `The assistance you asked for isn’t available at ${esc(ST[b.from].name)}. You chose to continue without it.`) : '';
-  const allSold = list.length && !list.some(t => t.low !== Infinity && t.status !== 'canceled') ? alertBox('info', 'Every train is sold out', 'You can still see the full schedule. Go back to try another date.') : '';
+  const allSold = all.length && !all.some(t => t.low !== Infinity && t.status !== 'canceled') ? alertBox('info', 'Every train is sold out', 'You can still see the full schedule. Go back to try another date.') : '';
+  const alerts = s5().outcome === 'alerts' ? (() => { const al = s5Alerts(res); return `<section class="s5-alerts" aria-labelledby="s5-alerts-h"><h3 class="s5-alerts__h" id="s5-alerts-h">${al.length} alerts for this trip</h3><ul class="s5-alerts__list">${al.map(([, tone, type, title], i) => `<li class="s5-alert s5-alert--${tone}">${ic(tone === 'warning' ? 'alert-triangle' : 'info-circle', 'ads-icon--sm')}<span class="s5-alert__body"><span class="s5-alert__type">${esc(type)}</span><b>${esc(title)}</b><button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-alert" data-i="${i}" aria-label="More about ${esc(title)}">More</button></span></li>`).join('')}</ul></section>`; })() : '';
   const added = inCart ? `<p class="ads-helper ads-helper--success cartdemo" role="status">${ic('check-circle', 'ads-icon--sm')}<span>In your cart</span></p>` : '';
   const details = `<details class="ads-accordion ads-accordion--sm s5-search" open><summary>Search details${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="handoff__list"><dt>Route</dt><dd>${stLabel(b.from)} → ${stLabel(b.to)}</dd><dt>Trip</dt><dd>${rt ? 'Round-trip' : 'One-way'}</dd><dt>Depart</dt><dd>${fmtWeekday(b.dep)}, ${fmtDate(b.dep)}</dd>${rt ? `<dt>Return</dt><dd>${fmtWeekday(b.ret)}, ${fmtDate(b.ret)}</dd>` : ''}${handoffExtra(b)}<dt>Assistance</dt><dd>${b.s5NoAssist ? 'Not included in this search' : b.assistOn && travelerList(b).some(t => assistCat(b, t.key)) ? travelerList(b).filter(t => assistCat(b, t.key)).map(t => `${esc(t.label)}: ${esc(assistSummaryItems(assistRec(b, t.key).m).join(' · '))}`).join('<br>') : 'None requested'}</dd></dl></div></details>`;
   const foot = s5Drawer(b, leg, null);
@@ -8091,13 +8194,15 @@ SCR.handoff = (r, ri) => {
     trips = S5_RAILS.map(([h, f], i) => { const ts = list.filter(f); return ts.length ? `<section class="s5-rail" aria-labelledby="s5rail-${i}"><h3 class="s5-rail__h" id="s5rail-${i}">${h} <span class="s5-rail__n">${ts.length}</span></h3><ul class="s5-rail__list" tabindex="0" aria-label="${h}, ${ts.length} trip${ts.length === 1 ? '' : 's'}. Scroll sideways for more.">${ts.map(t => s5Card(t, res, b, ctx)).join('')}</ul></section>` : ''; }).join('');
   } else if (s5c() === 'c4') {
     snote('Concept Update 4 (design exploration): a departure board. Each trip is one dense row (times, duration, train and its lowest price, with its badges) that opens in place to the classes. “Jump to” chips open the lowest-fare, fastest and earliest trip without reordering the list, so the default order (NMA-748 AC#6) holds.');
-    const earliest = open.length ? [...open].sort((a, c) => (a.dep + a.delay) - (c.dep + c.delay))[0] : null, lowT = ctx.low != null ? open.find(t => t.low === ctx.low) : null, fastT = ctx.fast != null ? open.find(t => t.dur === ctx.fast) : null;
+    const shown = open.filter(t => list.includes(t)), earliest = shown.length ? [...shown].sort((a, c) => (a.dep + a.delay) - (c.dep + c.delay))[0] : null, lowT = ctx.low != null ? shown.find(t => t.low === ctx.low) : null, fastT = ctx.fast != null ? shown.find(t => t.dur === ctx.fast) : null;
     const chip = (t, l) => t ? `<button class="ads-btn ads-btn--secondary ads-btn--sm s5-jump" type="button" data-a="s5-jump" data-trip="${t.id}">${l} · ${s5time(t.dep + t.delay)}</button>` : '';
     const chips = [chip(lowT, 'Lowest fare'), chip(fastT, 'Fastest trip'), chip(earliest, 'Earliest')].join('');
     trips = `${chips ? `<div class="s5-jumps" role="group" aria-label="Jump to a trip"><span class="s5-jumps__l">Jump to</span>${chips}</div>` : ''}<ul class="s5-list s5-board" aria-labelledby="s5-count">${list.map(t => s5Row(t, res, b, ctx)).join('')}</ul>`;
   } else trips = `<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>`;
+  // NMA-758: filters that match nothing say so, with a way back
+  if (!list.length && all.length) trips = `<div class="s5-nofilt" role="status"><p class="ads-body"><b>No trains match your filters</b></p><p class="ads-body-small">Try fewer filters to see more trains.</p><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="s5-sf-reset">Clear filters</button></div>`;
   return { title: navTitle, titleSub: navSub, kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
-    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${ptsCode}${noAssist}${border}${allSold}${tools}${trips}${details}` };
+    body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${alerts}${ptsCode}${noAssist}${border}${allSold}${tools}${trips}${details}` };
 };
 // Trip details open in the info sheet: route the "s5-trip:<id>" topic
 { const base = infoTopic; infoTopic = function (topic) { return topic.startsWith('s5-trip:') ? s5Details(topic.split(':')[1]) : base(topic); }; }
@@ -8109,7 +8214,7 @@ SCR.handoff = (r, ri) => {
     if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
     // NMA-757 (proposed): fares are held for 30 minutes with no visible timer; the hold resets when the booking changes.
     // When it has run out, Continue refreshes prices and seats before anything goes in the cart.
-    if (s5().outcome === 'hold' && !s5().holdDone) { s5().holdDone = true; dialog({ title: 'Prices have been refreshed', body: `We hold a fare for 30 minutes. It’s been longer than that, so we checked this trip again. Review the price before you continue. ${s5tag('NMA-757')}`, returnFocus: '.pane:last-child [data-a="cart-add"]', actions: [['Review price', 'primary', () => render()]] }); return; }
+    if (s5().outcome === 'hold' && !s5().holdDone) { s5().holdDone = true; dialog({ title: 'Prices have been refreshed', body: `We hold a fare for 30 minutes. It’s been longer than that, so we checked this trip again. Review the price before you continue. ${s5s6('NMA-757')}`, returnFocus: '.pane:last-child [data-a="cart-add"]', actions: [['Review price', 'primary', () => render()]] }); return; }
     const b = D().booking, sh = sheet(), top = sh.stack[sh.stack.length - 1];
     const leg = top.p.leg === 'ret' ? 'ret' : 'dep', sel = D().s5sel = D().s5sel || {};
     sel[leg] = { trip: t.dataset.trip, cls: t.dataset.cls, fare: t.dataset.fare, combo: t.dataset.combo != null ? +t.dataset.combo : null, rtype: t.dataset.rtype || null };
@@ -8120,7 +8225,7 @@ SCR.handoff = (r, ri) => {
 // ---------- Find trains: unsuccessful outcomes (NMA-759) ----------
 function s5Go(ri) {
   const b = D().booking, o = s5().outcome, back = '[data-a="find-trains"]', rt = b.trip === 'rt';
-  b.s5NoAssist = false; s5().sort = 'direct'; s5().holdDone = false;
+  b.s5NoAssist = false; s5().sort = 'direct'; s5().filt = s5NoFilt(); s5().draft = null; s5().holdDone = false;
   const go = () => { D().s5sel = {}; push('handoff', {}, +ri); };
   const caOnly = ST[b.from] && ST[b.to] && ST[b.from].country === 'CA' && ST[b.to].country === 'CA';
   if (o === 'noroute' || caOnly) { ref('759'); dialog({ title: 'No trains between these stations', body: `We don’t have service from ${esc(ST[b.from].city)} to ${esc(ST[b.to].city)}.${caOnly ? ' Amtrak trains to Canada start or end in the U.S.' : ''} Try a different station nearby.`, returnFocus: back, actions: [['Change stations', 'primary', null]] }); return; }
@@ -8130,12 +8235,7 @@ function s5Go(ri) {
       actions: [[`See trains on ${fmtShort(next)}`, 'primary', () => { if (ret) b.ret = next; else { b.dep = next; if (rt && b.ret < next) b.ret = next; } go(); }], ['Change my search', 'secondary', null]] });
     return;
   }
-  if (o === 'assist' && b.assistOn && travelerList(b).some(t => assistCat(b, t.key))) {
-    ref('759');
-    dialog({ title: 'Assistance isn’t available at this station', body: `${esc(ST[b.from].name)} can’t provide the assistance you asked for. You can continue without the assistance request, or change your search.`, returnFocus: back,
-      actions: [['Continue without assistance', 'primary', () => { b.s5NoAssist = true; b.s5AssistAck = { at: 'find-trains', station: b.from }; go(); }], ['Change my search', 'secondary', null]] });
-    return;
-  }
+  // NMA-759 AC (assistance not available at the station) moved to NMA-620, Sprint 7: no Sprint 5 dialog
   go();
 }
 
@@ -8181,6 +8281,8 @@ function s5Fares(cls, base, sale, kind) {
 const s5Fid = n => n.replace(/\+/g, 'Plus').replace(/\s/g, '');
 const s5SaleOn = (b, tr, cls) => intentOf(b) !== 'pr' && tr.sale.includes(cls) && tr.cls[cls] != null;
 const s5ClsName = k => k === 'Rooms' ? 'Private rooms' : k;
+// NMA-762: the urgency message and count come from the back end, for one class at its displayed fare (seats or rooms)
+const s5Left = (k, n) => `Only ${n} ${k === 'Rooms' ? 'room' : 'seat'}${n === 1 ? '' : 's'} left at this price`;
 A['s5-fare'] = (t, ri) => {
   if (V().net === 'offline') { toast('You’re offline. Connect to choose a fare.', 'info'); return; }
   const sh = sheet(), top = sh.stack[sh.stack.length - 1];
@@ -8299,7 +8401,7 @@ SCR.s5fare = (r, ri) => {
   snote('Choose a fare follows the current app’s pattern (class, fare options with their rules, price and Continue). Proposed design: fare selection isn’t a Sprint 5 story yet. Fare names, rules and prices are sample content from the back end.');
   if (pr) snote('NMA-1140 (grooming): Pass Rider fares aren’t approved, so only “Pass Rider fare” is shown, with no price.');
   const tabs = `<div class="ads-tabs ads-tabs--fill s5-ctabs" role="tablist" aria-label="Class of service">${classes.map(k => { const p = tr.cls[k], off = p == null; return `<button class="ads-tab s5-ctab" type="button" role="tab" id="s5c-${k}" aria-selected="${k === cls}" aria-controls="s5c-panel" tabindex="${k === cls ? 0 : -1}" data-a="s5-cls" data-v="${k}" ${off ? 'disabled aria-disabled="true"' : ''}><span class="s5-ctab__name">${s5ClsName(k)}</span><span class="s5-ctab__price">${off ? 'Sold out' : pr ? 'Pass Rider' : `${s5Price(b, k === 'Rooms' ? p : s5Net(b, p, k))}${k === 'Rooms' ? ' a room' : ''}`}</span></button>`; }).join('')}</div>`;
-  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${s5Fid(n)}"><input type="radio" name="s5fare" id="s5f-${s5Fid(n)}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${noDisc ? s5Price(b, p) : s5Strike(b, p, cls)} <span class="s5-fopt__unit">${unitLabel}</span></span>`}</span>${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">Only ${tr.left[cls]} left at this price ${s5tag('NMA-762')}</span>` : ''}${s5FareRules(n, cls, s5Kind(tr)).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
+  const opts = fares.map(([n, p, np]) => `<label class="ads-choice ads-radio s5-fopt${n === pick ? ' is-selected' : ''}" for="s5f-${s5Fid(n)}"><input type="radio" name="s5fare" id="s5f-${s5Fid(n)}" data-a="s5-pick" data-v="${n}" ${n === pick ? 'checked' : ''}><span class="ads-choice__control"></span><span class="ads-choice__label"><span class="s5-fopt__head"><span>${n}</span>${p == null ? '' : `<span class="s5-fopt__price">${noDisc ? s5Price(b, p) : s5Strike(b, p, cls)} <span class="s5-fopt__unit">${unitLabel}</span></span>`}</span>${n === fares[0][0] && tr.left[cls] ? `<span class="ads-choice__supporting s5-fopt__left">${s5Left(cls, tr.left[cls])}</span>` : ''}${s5FareRules(n, cls, s5Kind(tr)).map(x => `<span class="ads-choice__supporting">${x}</span>`).join('')}</span></label>`).join('');
   const sum = `<div class="ads-summary s5-fsum"><div class="ads-summary__head"><div><p class="ads-summary__title">${ic(S5_SVC[tr.svc][0], 'ads-icon--sm')} ${esc(tr.name)} ${tr.num}</p><p class="s5-fsum__route">${esc(ST[res.from].city)} → ${esc(ST[res.to].city)}</p></div>${infoLink(`s5-trip:${tr.id}`, 'Details')}</div><p class="s5-fsum__times"><b>${s5time(tr.dep + tr.delay)}</b> <span aria-hidden="true">→</span><span class="ads-sr-only">to</span> <b>${s5time(tr.arr + tr.delay)}</b> · ${s5dur(tr.dur)}${tr.days ? ` · +${tr.days} day` : ''}</p></div>`;
   const amount = total == null ? 'Pass Rider fare' : b.pay === 'points' && ['standard', 'personal'].includes(it) ? s5Price(b, total) : s5Cents(total);
   const tot = b.trip === 'rt' && leg === 'ret' ? s5Drawer(b, 'ret', { cost: total }) : '';
