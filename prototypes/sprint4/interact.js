@@ -20,10 +20,13 @@ const INFO = {
     title: 'Traveling alone?',
     body: () => `<p>A youth needs an adult or senior on the same booking in the app.</p><div class="info-pending"><b>Youths traveling without an adult</b><span>Content pending</span></div>${snote('Unaccompanied minor rules will come from AEM.')}${q(10)}`
   },
-  // NMA-628 and NMA-621 have no defined content: placeholders only, no invented copy or behavior
+  // Accessible travel information (NMA-621) has no defined content: placeholders only, no invented copy
+  'accessible-seats': { title: 'Accessible seats', body: () => `<div class="info-pending"><b>About accessible seats</b><span>Content pending</span></div>${snote('Content will come from AEM (NMA-621).')}<p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>` },
+  'station-assistance': { title: 'Station assistance', body: () => `<div class="info-pending"><b>About station assistance</b><span>Content pending</span></div>${snote('Content will come from AEM (NMA-621).')}<p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>` },
+  'wheelchair-space': { title: 'Wheelchair space', body: () => `<div class="info-pending"><b>About wheelchair space</b><span>Content pending</span></div>${snote('Content will come from AEM (NMA-621).')}<p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>` },
   'service-animals': {
     title: 'Service animals',
-    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Service animal information</b><span>Content pending</span></div>${snote('Service animal content and rules will come from AEM; none are defined for Sprint 4.')}<p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
+    body: () => `<div class="info-art" aria-hidden="true">${ic('service-dog')}</div><div class="info-pending"><b>Service animal information</b><span>Content pending</span></div>${snote('Service animal information content will come from AEM (NMA-621). The service animal questions themselves are NMA-628, in Profile.')}<p>${infoLink('accessible-travel', 'About accessible travel', 'push')}</p>`
   },
   'accessible-travel': {
     title: 'Accessible travel',

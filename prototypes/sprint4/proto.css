@@ -1068,3 +1068,10 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* Booking type switch: the Pay with points row (pointsRow), above the trip tabs */
 .v1modes--switch { display: flex; flex-direction: column; gap: var(--ads-space-4); }
 .v1modes--switch > .ads-helper { margin: 0; }
+/* Figma 4734:249198: About links under each other need, in the checkbox message row */
+.assist-about { margin: calc(-1 * var(--ads-space-2)) 0 var(--ads-space-3) calc(var(--ads-size-interactive-md) - var(--ads-space-4)); font-size: 13px; line-height: 18px; }
+.wcq .assist-about { margin: var(--ads-space-3) 0 0; }
+/* NMA-29 and NMA-628 follow-up questions (Profile) */
+.assist-details { margin-top: var(--ads-space-6); padding-top: var(--ads-space-5); border-top: 1px solid var(--ads-border-subtle); }
+.assist-details__h { margin: 0 0 var(--ads-space-4); font-weight: 600; }
+.assist-details .assist-q { margin: 0 0 var(--ads-space-5); }

@@ -128,7 +128,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     await go(v, 'returning', 'edit:address'); await dclick('[data-a="addr-remove"]'); ok(await dlg() === 'Remove billing address?', `${T} 23 delete asks first`);
     await dlgBtn(1); await w(900); ok(await ev(() => !D().profile.address.street) && /Billing address removed/.test(await txt()), `${T} 23 address removed`);
     // NMA-26-28 Profile assistance: failure keeps answers, retry saves
-    await go(v, 'returning', 'assist-profile', 'error'); await ev(() => { const r = sheet().stack[sheet().stack.length - 1]; r.u.d = { cat: 'station', dis: [], wc: '', needs: ['seat'], for: '' }; render(); });
+    await go(v, 'returning', 'assist-profile', 'error'); await ev(() => { const r = sheet().stack[sheet().stack.length - 1]; r.u.d = { cat: 'station', dis: [], wc: '', needs: ['seat'], for: '', mob: 'none', sa: 'no' }; render(); });
     ok(await p.locator(D + 'input[data-f="cat"]').count() === 2, `${T} 26 Profile offers two types only`);
     await dclick('[data-a="assist-save"]'); await w(900);
     ok(/couldn’t save/i.test(await txt()) && await ev(() => sheet().stack[sheet().stack.length - 1].u.d.cat === 'station' && !D().assist.cat), `${T} 28 failed save keeps the answers`);
