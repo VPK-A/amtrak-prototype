@@ -3122,6 +3122,49 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .stinfo-dl dt { color: var(--ads-content-text-primary); }
 .stinfo-dl dd { text-align: right; font-size: var(--ads-type-body-small-size); }
 .stinfo-pending { margin: var(--ads-space-12) 0 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-small-size); }
+/* ---- Station search with the iOS keyboard (iPhone). Figma 4735:235119 (Apple iOS 27 Keyboard, Light) ---- */
+.ss-kbwrap { position: relative; --kb-h: 307px; --kb-ms: 320ms; --kb-ease: cubic-bezier(.32, .72, 0, 1); }
+.ss-collapse { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--kb-ms) var(--kb-ease), opacity 200ms ease, margin var(--kb-ms) var(--kb-ease); }
+.ss-collapse > div { min-height: 0; overflow: hidden; }
+.is-kb .ss-collapse { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows var(--kb-ms) var(--kb-ease), opacity 160ms ease, margin var(--kb-ms) var(--kb-ease), visibility 0s var(--kb-ms); }
+.ss-lay-a.is-kb .ss-collapse { margin-bottom: calc(-1 * var(--ads-space-16)); } /* the field glides up into the card's place */
+.ss-lay-b.is-kb .ss-collapse { margin-top: calc(-1 * var(--ads-space-16)); } /* the field stays; the card folds away beneath it */
+.ss-lay-b .ss-top .ss-group { margin: 0; }
+.is-kb .pane__body { padding-bottom: calc(var(--kb-h) + var(--ads-space-16)); }
+.is-kb .pane__foot { display: none; }
+.ios-kb { position: absolute; left: 0; right: 0; bottom: 0; height: var(--kb-h); z-index: 6; display: flex; flex-direction: column; padding-top: 24px; background: #e0e0e2; border-radius: 27px 27px 62px 62px; box-shadow: inset 0 0 8px rgba(0, 0, 0, .05); transform: translateY(100%); visibility: hidden; transition: transform var(--kb-ms) var(--kb-ease), visibility 0s var(--kb-ms); font-family: "SF Compact", "SF Compact Text", "SF Pro Text", -apple-system, system-ui, sans-serif; color: #000; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+.is-kb .ios-kb { transform: none; visibility: visible; transition: transform var(--kb-ms) var(--kb-ease); }
+.ios-kb__keys { display: flex; flex-direction: column; gap: 11px; padding: 0 6.67px; }
+.ios-kb__row { display: flex; gap: 6px; }
+.ios-kb__row--2 { padding: 0 20px; }
+.ios-kb__row--3 { gap: 13.333px; }
+.ios-kb__mid { flex: 1; display: flex; gap: 6px; min-width: 0; }
+.kb-key { flex: 1 0 0; min-width: 0; height: 43px; padding: 0 0 3px; border: 0; border-radius: 8.5px; background: #fdfdfe; color: #000; font-family: inherit; font-size: 23px; line-height: 28px; font-weight: 400; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.kb-key:active, .kb-key.is-down { background: #b7b9bf; }
+.kb-key--fn { flex: 0 0 45px; padding: 0; }
+.kb-key--123 { flex: 0 0 92.667px; font: 400 18px/28px "SF Pro Text", -apple-system, system-ui, sans-serif; padding: 0 0 2px; }
+.kb-key--ret { flex: 0 0 93px; padding: 0; }
+.kb-g { display: block; fill: currentColor; }
+.kb-g--line { fill: none; stroke: currentColor; stroke-width: 1.4px; }
+.ios-kb__bottom { display: flex; align-items: center; justify-content: space-between; padding: 23px 32px 26px; }
+.kb-bb { display: flex; align-items: center; justify-content: center; width: 26.8px; height: 26.8px; }
+.kb-bb .kb-g { max-height: 100%; }
+/* one-shot motion on the redraw that starts or ends search */
+.kb-anim-in .ios-kb { animation: kb-rise var(--kb-ms) var(--kb-ease); }
+.kb-anim-out .ios-kb { animation: kb-drop var(--kb-ms) var(--kb-ease) forwards; visibility: visible; }
+.kb-anim-in .ss-collapse { animation: kb-fold var(--kb-ms) var(--kb-ease); }
+.kb-anim-out .ss-collapse { animation: kb-unfold var(--kb-ms) var(--kb-ease); }
+.kb-anim-in.ss-lay-a .ss-collapse { animation-name: kb-fold-a; }
+.kb-anim-out.ss-lay-a .ss-collapse { animation-name: kb-unfold-a; }
+.kb-anim-in.ss-lay-b .ss-collapse { animation-name: kb-fold-b; }
+.kb-anim-out.ss-lay-b .ss-collapse { animation-name: kb-unfold-b; }
+@keyframes kb-rise { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes kb-drop { from { transform: none; } to { transform: translateY(100%); visibility: hidden; } }
+@keyframes kb-fold-a { from { grid-template-rows: 1fr; opacity: 1; margin-bottom: 0; visibility: visible; } 60% { opacity: 0; } to { grid-template-rows: 0fr; opacity: 0; margin-bottom: calc(-1 * var(--ads-space-16)); } }
+@keyframes kb-unfold-a { from { grid-template-rows: 0fr; opacity: 0; margin-bottom: calc(-1 * var(--ads-space-16)); } 40% { opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; margin-bottom: 0; } }
+@keyframes kb-fold-b { from { grid-template-rows: 1fr; opacity: 1; margin-top: 0; visibility: visible; } 60% { opacity: 0; } to { grid-template-rows: 0fr; opacity: 0; margin-top: calc(-1 * var(--ads-space-16)); } }
+@keyframes kb-unfold-b { from { grid-template-rows: 0fr; opacity: 0; margin-top: calc(-1 * var(--ads-space-16)); } 40% { opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; margin-top: 0; } }
+@media (prefers-reduced-motion: reduce) { .ss-kbwrap { --kb-ms: 1ms; } }
 
 /* Sprint 5 · Fare search results. Layout only: every surface, colour, radius and type size is an ADS token,
    and every control is an existing component (Card, Badge, Alert, Button, Link, Accordion, Radio). */
@@ -3470,6 +3513,7 @@ body, .ads-root, .device, .device * { font-family: "Patrick Hand", "Comic Neue",
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5">Search outcome (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5c">Results concept (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5c"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5d">Discount pricing (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5d"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbSsl">Station search layout (iPhone)</label><div class="ads-control ads-control--select"><select id="tbSsl"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbNet">Network</label><div class="ads-control ads-control--select"><select id="tbNet"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbToken">Session token</label><div class="ads-control ads-control--select"><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired (asks “Verify it’s you” before Change email)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <p class="nlabel ctl__sub">Location (simulated)</p>
@@ -4325,7 +4369,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); if ($('#tbSsl')) $('#tbSsl').value = ssl(); $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
@@ -4371,6 +4415,7 @@ function wireToolbar() {
   $('#tbS5d').innerHTML = S5_DISC_MODES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbS5d').addEventListener('change', e => { TB.s5d = e.target.value; render(); });
   $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
+  if ($('#tbSsl')) { $('#tbSsl').innerHTML = SS_LAYOUTS.map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); $('#tbSsl').addEventListener('change', e => { TB.ssl = e.target.value; render(); }); }
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }
 
@@ -4636,7 +4681,10 @@ function stationSearch(r, ri, field, inline) {
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
   const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${r.p.ctx === 'ts' || !selPair() ? '' : selGroup(r, field)}${sq}`;
+  // iPhone: the From / To card collapses while search is active (iOS keyboard up). Layout A: card above the field;
+  // layout B: field above the card (Prototype controls › Station search layout).
+  const grp = r.p.ctx === 'ts' || !selPair() ? '' : focus ? `<div class="ss-collapse"${r.u.kb ? ' inert' : ''}><div>${selGroup(r, field)}</div></div>` : selGroup(r, field);
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${focus && ssl() === 'b' ? sq + grp : grp + sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
@@ -4675,7 +4723,9 @@ SCR.stations = (r, ri) => {
   const f = r.p.field;
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
-  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
+  const kbOk = stationFocus() && r.u.view !== 'map'; if (!kbOk) r.u.kb = false;
+  const anim = kbOk && r.u.kbAnim ? ' kb-anim-' + r.u.kbAnim : ''; r.u.kbAnim = null; // one-shot: typing redraws don't replay it
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : '') + (kbOk ? ` ss-kbwrap ss-lay-${ssl()}${r.u.kb ? ' is-kb' : ''}${anim}` : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why) + (kbOk ? iosKeyboard(!!r.u.kbShift) : '');
   const foot = (typeof mapFoot === 'function' ? mapFoot(r) : null) || (r.u.view !== 'map' && r.u.fullFoot ? `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>` : null), fo = foot ? { foot, footCls: 'ads-actionfooter' } : {};
   return stationFocus() ? Object.assign({ title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false }, fo) : Object.assign({ title: heading, kind: 'push', cls, body, banner: false }, fo);
 };
@@ -4687,7 +4737,7 @@ function selGroup(r, field) {
 }
 A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
 A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
-A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
+A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; if (r.u.kb) { r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); return; } /* X ends search: keyboard drops, card returns */ pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {
   const d = D(), c = t.dataset.code;
@@ -7769,6 +7819,71 @@ function syncLocCtl() {
     el.addEventListener('change', () => { loc()[k] = el.value; V().locAlertOff = false; V().nearCache = null; const r = typeof selRoute === 'function' && sheet() && selRoute(); if (r) r.u.near = { st: 'idle' }; render(); });
   });
 })();
+
+// ---- iOS keyboard (Figma Sprint 4 node 4735:235119: Apple iOS 27 "Keyboard" component, Light, Upper Case, no
+// suggestions). Shown on iPhone while station search is active. Glyphs are the component's own vectors (shift.fill,
+// delete.left, return, emoji); the microphone is drawn to match (its symbol isn't exported by Figma). The keyboard is a
+// simulation, so it's hidden from assistive technology: the search field itself takes real typing.
+const KB_G = {"shift": {"vb": "17.61 143.21 23.11 19.94", "d": "M25.8507 163.148C25.0988 163.148 24.5258 162.941 24.132 162.525C23.7381 162.117 23.5411 161.559 23.5411 160.85V156.037H19.1691C18.7322 156.037 18.3634 155.915 18.0626 155.672C17.7618 155.421 17.6115 155.092 17.6115 154.684C17.6115 154.433 17.6652 154.211 17.7726 154.018C17.8872 153.824 18.0483 153.624 18.256 153.416L27.838 143.866C28.0457 143.651 28.257 143.49 28.4718 143.383C28.6938 143.268 28.923 143.211 29.1593 143.211C29.4028 143.211 29.632 143.268 29.8468 143.383C30.0688 143.49 30.2837 143.651 30.4913 143.866L40.0734 153.416C40.2667 153.609 40.4207 153.806 40.5353 154.007C40.657 154.207 40.7179 154.433 40.7179 154.684C40.7179 155.092 40.5639 155.421 40.256 155.672C39.9552 155.915 39.5864 156.037 39.1495 156.037H34.7882V160.85C34.7882 161.559 34.5913 162.117 34.1974 162.525C33.8035 162.941 33.2306 163.148 32.4786 163.148H25.8507Z"}, "del": {"vb": "350.35 145.77 20.1 17.13", "d": "M367.471 162.904H359.473C359.082 162.904 358.717 162.862 358.379 162.777C358.047 162.699 357.731 162.572 357.432 162.396C357.139 162.221 356.859 161.993 356.592 161.713L351.26 156.137C350.934 155.798 350.7 155.486 350.557 155.199C350.42 154.906 350.352 154.617 350.352 154.33C350.352 154.135 350.381 153.943 350.439 153.754C350.505 153.565 350.602 153.37 350.732 153.168C350.869 152.966 351.045 152.751 351.26 152.523L356.582 146.928C356.849 146.641 357.129 146.417 357.422 146.254C357.721 146.085 358.037 145.964 358.369 145.893C358.708 145.814 359.072 145.775 359.463 145.775H367.471C368.454 145.775 369.196 146.023 369.697 146.518C370.199 147.006 370.449 147.738 370.449 148.715V160.014C370.449 160.99 370.199 161.716 369.697 162.191C369.196 162.667 368.454 162.904 367.471 162.904ZM367.412 161.254C367.855 161.254 368.193 161.137 368.428 160.902C368.669 160.668 368.789 160.32 368.789 159.857V148.832C368.789 148.37 368.669 148.021 368.428 147.787C368.193 147.553 367.855 147.436 367.412 147.436H359.414C359.082 147.436 358.796 147.478 358.555 147.562C358.314 147.641 358.076 147.8 357.842 148.041L352.549 153.598C352.295 153.871 352.168 154.115 352.168 154.33C352.168 154.441 352.194 154.555 352.246 154.672C352.305 154.783 352.406 154.916 352.549 155.072L357.852 160.6C358.086 160.84 358.32 161.01 358.555 161.107C358.796 161.205 359.085 161.254 359.424 161.254H367.412ZM359.58 157.992C359.424 158.155 359.235 158.236 359.014 158.236C358.792 158.236 358.604 158.158 358.447 158.002C358.298 157.846 358.223 157.66 358.223 157.445C358.223 157.23 358.304 157.042 358.467 156.879L364.648 150.717C364.792 150.561 364.977 150.482 365.205 150.482C365.42 150.482 365.605 150.557 365.762 150.707C365.918 150.857 365.996 151.042 365.996 151.264C365.996 151.479 365.915 151.661 365.752 151.811L359.58 157.992ZM364.639 157.992L358.467 151.811C358.304 151.661 358.223 151.479 358.223 151.264C358.223 151.042 358.298 150.857 358.447 150.707C358.604 150.557 358.792 150.482 359.014 150.482C359.235 150.482 359.417 150.561 359.561 150.717L365.752 156.879C365.915 157.042 365.996 157.23 365.996 157.445C365.996 157.66 365.918 157.846 365.762 158.002C365.605 158.158 365.42 158.236 365.205 158.236C364.984 158.236 364.795 158.155 364.639 157.992Z"}, "ret": {"vb": "327.04 198.34 19.58 17.03", "d": "M333.37 215.373C333.141 215.373 332.943 215.29 332.776 215.123L327.321 209.77C327.228 209.677 327.157 209.578 327.107 209.473C327.064 209.368 327.042 209.259 327.042 209.148C327.042 209.03 327.064 208.919 327.107 208.814C327.157 208.709 327.228 208.613 327.321 208.526L332.776 203.173C332.943 203 333.141 202.914 333.37 202.914C333.617 202.914 333.815 202.991 333.963 203.146C334.118 203.3 334.195 203.495 334.195 203.73C334.195 203.854 334.174 203.962 334.13 204.055C334.093 204.147 334.041 204.231 333.973 204.305L331.292 206.912L329 208.87L328.833 208.443L331.709 208.322H343.556C344.045 208.322 344.4 208.211 344.623 207.988C344.846 207.759 344.957 207.391 344.957 206.884V201.401C344.957 200.907 344.846 200.548 344.623 200.325C344.4 200.103 344.045 199.991 343.556 199.991H338.361C338.101 199.991 337.894 199.911 337.739 199.75C337.591 199.589 337.517 199.394 337.517 199.166C337.517 198.937 337.594 198.742 337.749 198.581C337.903 198.42 338.107 198.34 338.361 198.34H343.556C344.639 198.34 345.418 198.581 345.894 199.063C346.376 199.54 346.618 200.319 346.618 201.401V206.884C346.618 207.936 346.376 208.715 345.894 209.222C345.418 209.723 344.639 209.974 343.556 209.974H331.709L328.833 209.844L329 209.417L331.292 211.384L333.973 213.991C334.041 214.065 334.093 214.148 334.13 214.241C334.174 214.334 334.195 214.439 334.195 214.557C334.195 214.798 334.118 214.993 333.963 215.141C333.815 215.296 333.617 215.373 333.37 215.373Z"}, "emoji": {"vb": "0 0 26.8 26.8", "d": "M13.4 26.8C20.7305 26.8 26.8 20.7175 26.8 13.4C26.8 6.06941 20.7175 0 13.3868 0C6.06941 0 0 6.06941 0 13.4C0 20.7175 6.08255 26.8 13.4 26.8ZM13.4 24.5666C7.19922 24.5666 2.24647 19.6008 2.24647 13.4C2.24647 7.19922 7.18608 2.23333 13.3868 2.23333C19.5876 2.23333 24.5404 7.19922 24.5536 13.4C24.5666 19.5745 19.6008 24.5666 13.4 24.5666ZM9.49822 12.2045C10.339 12.2045 11.0878 11.3374 11.0878 10.339C11.0878 9.31431 10.3521 8.47353 9.49822 8.47353C8.63116 8.47353 7.92175 9.32744 7.92175 10.339C7.92175 11.3243 8.6443 12.2045 9.49822 12.2045ZM17.3149 12.2045C18.1557 12.2045 18.8782 11.3243 18.8782 10.339C18.8782 9.32744 18.1688 8.47353 17.3149 8.47353C16.4478 8.47353 15.7121 9.31431 15.7121 10.339C15.7121 11.3374 16.461 12.2045 17.3149 12.2045ZM13.4 22.3991C17.9192 22.3991 21.532 19.0753 22.0312 15.1473C22.1363 14.3459 21.6239 13.9912 20.9277 14.2014C18.379 14.9503 16.0144 15.3706 13.4 15.3706C10.7857 15.3706 8.42098 14.9503 5.87235 14.2014C5.16293 13.9912 4.66373 14.359 4.76882 15.1473C5.26803 19.0753 8.88078 22.3991 13.4 22.3991ZM13.3868 18.3264C11.298 18.3264 9.06469 18.0375 7.30431 17.5908C7.05471 17.5251 6.9102 17.4068 6.80509 17.223C6.60804 16.8683 6.39783 16.4215 6.24018 15.8435C6.22706 15.7516 6.2796 15.7121 6.35843 15.7253C8.48665 16.3033 10.917 16.6974 13.3868 16.6974C15.8567 16.6974 18.2871 16.3033 20.4153 15.7253C20.494 15.7121 20.5467 15.7516 20.5335 15.8435C20.389 16.4084 20.1393 16.8944 19.9686 17.223C19.8504 17.4068 19.7322 17.5119 19.4826 17.5908C17.7091 18.0375 15.4757 18.3264 13.3868 18.3264Z"}};
+KB_G.mic = { vb: '0 0 16 24', d: 'M8 0a4 4 0 0 0-4 4v8a4 4 0 0 0 8 0V4a4 4 0 0 0-4-4Zm0 1.6A2.4 2.4 0 0 1 10.4 4v8a2.4 2.4 0 0 1-4.8 0V4A2.4 2.4 0 0 1 8 1.6ZM.8 10.4a.8.8 0 0 1 .8.8 6.4 6.4 0 0 0 12.8 0 .8.8 0 0 1 1.6 0 8 8 0 0 1-7.2 7.96v3.24h3.2a.8.8 0 0 1 0 1.6H4a.8.8 0 0 1 0-1.6h3.2v-3.24A8 8 0 0 1 0 11.2a.8.8 0 0 1 .8-.8Z' };
+const kbG = (k, cls = '') => { const g = KB_G[k], [, , w, h] = g.vb.split(' ').map(Number); return `<svg class="kb-g ${cls}" viewBox="${g.vb}" width="${w}" height="${h}" aria-hidden="true" focusable="false"><path d="${g.d}"/></svg>`; };
+function iosKeyboard(upper) {
+  const key = k => `<button type="button" class="kb-key" tabindex="-1" data-kb="${k}">${upper ? k : k.toLowerCase()}</button>`, row = s => [...s].map(key).join('');
+  return `<div class="ios-kb" aria-hidden="true" data-kb-root><div class="ios-kb__keys">
+<div class="ios-kb__row">${row('QWERTYUIOP')}</div><div class="ios-kb__row ios-kb__row--2">${row('ASDFGHJKL')}</div>
+<div class="ios-kb__row ios-kb__row--3"><button type="button" class="kb-key kb-key--fn${upper ? ' is-on' : ''}" tabindex="-1" data-kb="shift">${kbG('shift', upper ? '' : 'kb-g--line')}</button><div class="ios-kb__mid">${row('ZXCVBNM')}</div><button type="button" class="kb-key kb-key--fn" tabindex="-1" data-kb="del">${kbG('del')}</button></div>
+<div class="ios-kb__row ios-kb__row--4"><button type="button" class="kb-key kb-key--123" tabindex="-1" data-kb="123">123</button><button type="button" class="kb-key kb-key--space" tabindex="-1" data-kb=" "></button><button type="button" class="kb-key kb-key--ret" tabindex="-1" data-kb="ret">${kbG('ret')}</button></div>
+</div><div class="ios-kb__bottom"><span class="kb-bb">${kbG('emoji')}</span><span class="kb-bb">${kbG('mic')}</span></div></div>`;
+}
+// Prototype controls › Station search layout (iPhone): A keeps the From / To card above the search field; while search
+// is active the card collapses and the field glides up into its place. B puts the field above the card; the field stays
+// put and the card collapses beneath it. Both: the keyboard rises with search and drops when it ends (tap outside,
+// the field's X, or Return), and the card comes back.
+const SS_LAYOUTS = [['a', 'A · From / To above search'], ['b', 'B · Search above From / To']];
+const ssl = () => (typeof TB !== 'undefined' && TB.ssl) || 'a';
+let KB_MUTE = false; // programmatic focus (after X or Return) doesn't reopen the keyboard
+const kbPane = el => el && el.closest('.ss-kbwrap');
+const kbRouteOf = el => { const p = el && el.closest('[data-ri]'); return p ? routeAt(p.dataset.ri) : null; };
+function kbSet(r, on, renderNow = true, focusSel) {
+  if (!r || !!r.u.kb === on) return;
+  r.u.kb = on; r.u.kbAnim = on ? 'in' : 'out';
+  if (on && r.u.kbShift == null) r.u.kbShift = !(r.u.d && r.u.d.q);
+  if (!renderNow) return;
+  KB_MUTE = true; pendingFocus = focusSel || (on ? '#ss-q' : null); render(); KB_MUTE = false;
+}
+function kbInsert(inp, text) {
+  const s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? s;
+  inp.setRangeText(text, s, e, 'end'); inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function kbDelete(inp) {
+  let s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? s; if (s === e) { if (!s) return; s--; }
+  inp.setRangeText('', s, e, 'end'); inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
+document.addEventListener('focusin', e => {
+  if (KB_MUTE || !e.target.matches || !e.target.matches('#device #ss-q') || !kbPane(e.target)) return;
+  const r = kbRouteOf(e.target); if (r && !r.u.kb) setTimeout(() => kbSet(r, true), 0); // after the tap lands
+});
+document.addEventListener('pointerdown', e => {
+  const t = e.target; if (!t.closest || !t.closest('#device')) return;
+  if (t.closest('[data-kb-root]')) { e.preventDefault(); return; } // keys never take focus from the field
+  const pane = kbPane(t);
+  if (t.closest('#ss-q') && pane) { const r = kbRouteOf(t); if (r && !r.u.kb && document.activeElement === t.closest('#ss-q')) kbSet(r, true); return; }
+  const open = document.querySelector('#device .ss-kbwrap.is-kb'); if (!open || t.closest('.ss-search')) return;
+  const r = kbRouteOf(open); if (!r) return;
+  // Tapping anything else ends search. A control (a station, a tab) still does its own job: its render closes the keyboard.
+  if (t.closest('button, a, [data-a], input, select')) kbSet(r, false, false); else kbSet(r, false);
+});
+document.addEventListener('click', e => {
+  const k = e.target.closest && e.target.closest('#device [data-kb]'); if (!k) return;
+  const inp = document.querySelector('#device #ss-q'), r = kbRouteOf(k); if (!inp || !r) return;
+  const v = k.dataset.kb;
+  if (v === 'shift') { r.u.kbShift = !r.u.kbShift; render(); return; }
+  if (v === 'del') { kbDelete(inp); if (!inp.value) { r.u.kbShift = true; render(); } return; }
+  if (v === 'ret') { kbSet(r, false, true, '#ss-q'); return; }
+  if (v === '123') return; // number and symbol layouts aren't simulated
+  if (v === ' ') { kbInsert(inp, ' '); return; }
+  const up = !!r.u.kbShift; r.u.kbShift = false; kbInsert(inp, up ? v : v.toLowerCase());
+});
 
 /* Sprint 4 prototype: Google Maps surface for the station selector's Map view (NMA-1084).
    - Only the map surface changes. The screen, its List / Map tabs, the ADS zoom and locate controls, the floating

@@ -260,7 +260,10 @@ function stationSearch(r, ri, field, inline) {
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
   const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${r.p.ctx === 'ts' || !selPair() ? '' : selGroup(r, field)}${sq}`;
+  // iPhone: the From / To card collapses while search is active (iOS keyboard up). Layout A: card above the field;
+  // layout B: field above the card (Prototype controls › Station search layout).
+  const grp = r.p.ctx === 'ts' || !selPair() ? '' : focus ? `<div class="ss-collapse"${r.u.kb ? ' inert' : ''}><div>${selGroup(r, field)}</div></div>` : selGroup(r, field);
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${focus && ssl() === 'b' ? sq + grp : grp + sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
@@ -299,7 +302,9 @@ SCR.stations = (r, ri) => {
   const f = r.p.field;
   const lead = v2() ? `<p class="ghint">${ic('info-circle', 'ads-icon--sm')}<span>${f === 'from' ? 'Step 1 of 2 for your route. Next you’ll choose where you’re going.' : 'Step 2 of 2 for your route. It can’t be the same as your departure station.'}</span></p>` : '';
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
-  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why);
+  const kbOk = stationFocus() && r.u.view !== 'map'; if (!kbOk) r.u.kb = false;
+  const anim = kbOk && r.u.kbAnim ? ' kb-anim-' + r.u.kbAnim : ''; r.u.kbAnim = null; // one-shot: typing redraws don't replay it
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : '') + (kbOk ? ` ss-kbwrap ss-lay-${ssl()}${r.u.kb ? ' is-kb' : ''}${anim}` : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why) + (kbOk ? iosKeyboard(!!r.u.kbShift) : '');
   const foot = (typeof mapFoot === 'function' ? mapFoot(r) : null) || (r.u.view !== 'map' && r.u.fullFoot ? `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>` : null), fo = foot ? { foot, footCls: 'ads-actionfooter' } : {};
   return stationFocus() ? Object.assign({ title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false }, fo) : Object.assign({ title: heading, kind: 'push', cls, body, banner: false }, fo);
 };
@@ -311,7 +316,7 @@ function selGroup(r, field) {
 }
 A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
 A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
-A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; pendingFocus = '#ss-q'; render(); };
+A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; if (r.u.kb) { r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); return; } /* X ends search: keyboard drops, card returns */ pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {
   const d = D(), c = t.dataset.code;
