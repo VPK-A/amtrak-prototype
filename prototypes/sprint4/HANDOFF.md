@@ -938,7 +938,7 @@ Checked against Jira on 2026-11-19. Sprint 5 now has 13 stories Ready for Design
 - NMA-1094: final hierarchy.
 - NMA-748 AC#4: canceled trains are returned today only for the agent channel, so showing them needs a back-end change request.
 - NMA-759 BR#1.2: for round trips, the case where both dates have no trains isn't designed.
-- Concept Update 1 (Compare classes) explores showing class experience; NMA-1169 Class of Services Comparison was cancelled on 2026-11-19, so it stays an exploration only.
+- Concept Update 1 (Compare classes) is a selected direction, but NMA-1169 Class of Services Comparison was cancelled on 2026-11-19, so its comparison sheet needs a story.
 
 **Cross-border trips and the results drawer**
 
@@ -961,15 +961,15 @@ Checked against Jira on 2026-11-19. Sprint 5 now has 13 stories Ready for Design
 
 **Concept Update 4: departure board.** Each trip is one dense row: times, duration, train, badges and its lowest price. A row opens in place to its flags, classes and Details. "Jump to" chips (Lowest fare, Fastest trip, Earliest) open that trip's row and move focus to it without reordering the list, so the default order holds.
 
-**Results concepts: compare the experience of each class (design exploration)**
+**Results concepts: moving forward with Concept Updates 1, 3 and 4 (decided 2026-11-20)**
 
-Based on design feedback, results could compare the *experience* of each class of service (seat type, amenities) instead of leading with fare types, which already have their own step. Use the prototype control **Results concept (Sprint 5)**:
+Current and Concept Update 2 (experience on each class button) are retired from the prototype. The control **Results concept (Sprint 5)** now offers only:
 
-- **Current**: results as designed, with "Compare fare types".
-- **Concept Update 1: the test of showing experience.** "Compare classes" replaces "Compare fare types" on results; fare types are compared on Choose a fare instead. It opens a sheet comparing each class on these trains side by side: seat, legroom, food and drink, lounge and Guest Rewards points. Features that are the same in every class (Wi-Fi, bags) are a single footnote.
-- **Concept Update 2: experience on each class.** Each class button on a trip card shows what you get under its price: a short seat description and amenity icons. The comparison happens where you choose, with no extra tap. The seat description is part of the button's accessible name.
+- **Concept Update 1: compare classes (the default).** "Compare classes" replaces "Compare fare types" on results; fare types are compared on Choose a fare instead. It opens a sheet comparing each class on these trains side by side: seat, legroom, food and drink, lounge and Guest Rewards points. Features that are the same in every class (Wi-Fi, bags) are a single footnote.
+- **Concept Update 3: rails by type of trip** (above).
+- **Concept Update 4: departure board** (above).
 
-Both concepts are tagged Proposed and use only existing components. **Flag:** NMA-1097 (approved) puts fare types on results. Concept Update 1 removes them from results as an exploration of the test; if it goes ahead, NMA-1097 needs to change. Concept Update 2 keeps a smaller "Fare types" link.
+All three stay tagged Proposed. **Flags:** NMA-1169 Class of Services Comparison was cancelled on 2026-11-19, so Concept Update 1's comparison has no story yet. NMA-1097 (fare comparison table, now Sprint 6) puts fare types on results; Concept Update 1 moves them to Choose a fare, and Concepts 3 and 4 keep a "Fare types" link on results.
 
 **Multi-segment trips: segments, class combinations, then fare types (proposed)**
 

@@ -56,9 +56,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-topic="s5-pricing"]').click(); await w(400);
   ok(/Seats/.test(await txt()) && /Rooms/.test(await txt()) && /total for all travelers/.test(await txt()), 'pricing sheet explains seat and room prices'); await axe('pricing sheet');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
-  await p.locator(D_ + '[data-topic="s5-fares"]').click(); await w(400);
-  ok(/Compare fare types/.test(await txt()) && /Flex/.test(await txt()) && await stack() === 'ff>handoff', 'fare types open without leaving results');
-  await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
+  ok(await ev(() => TB.s5c == null) && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && await p.locator(D_ + '.s5-tools [data-topic="s5-fares"]').count() === 0, 'Concept Update 1 is the default: Compare classes on results, no fare types link');
   ok(!/crosses the U.S.–Canada border/.test(await txt()), 'no border information on a domestic trip');
   await open('returning', "s5().outcome = 'border'"); await find();
   ok(/This trip crosses the U.S.–Canada border/.test(await txt()), 'border information on a cross-border trip');
@@ -167,9 +165,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(m && Math.abs(num(m[2]) + num(m[3]) - num(m[1])) < 0.01 && f.includes('Return ' + m[3] + ' for 1 traveler'), `return fare: trip total, each leg, and the return price by Continue (${f})`); await axe('return fare with total');
 
   // ---- Results concepts (design exploration): compare the experience of each class ----
-  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Current,Concept Update 1,Concept Update 2,Concept Update 3,Concept Update 4' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
-  await open('returning', "TB.s5c = 'current'"); await find();
-  ok(await p.locator(D_ + '[data-topic="s5-classes"]').count() === 0 && await p.locator(D_ + '.s5-class__exp').count() === 0, 'Current: no class comparison');
+  ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Concept Update 1,Concept Update 3,Concept Update 4' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
   await open('returning', "TB.s5c = 'c1'"); await find();
   ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 0 && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: Compare classes replaces fare types on results; tagged Proposed');
   await p.locator(D_ + '[data-topic="s5-classes"]').click(); await w(400);
@@ -178,10 +174,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   ok(await p.locator(D_ + '.pane:last-child [data-topic="s5-fares"]').count() === 1, 'Concept 1: fare types are compared on Choose a fare');
-  await open('returning', "TB.s5c = 'c2'"); await find(); c = await cards();
-  ok(/Reclining seat/.test(c[0].text) && await ev(() => document.querySelector('#device [data-trip="t1"] .s5-class').getAttribute('aria-label').includes('Reclining seat')) && /Proposed · Concept Update 2/.test(await tags()), 'Concept 2: each class shows its seat type and amenities, also in its accessible name');
-  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
-  ok(await stack() === 'ff>handoff>s5faredep', 'Concept 2: choosing a class still opens Choose a fare'); await open('returning', "TB.s5c = 'current'");
+  ok(await ev(() => { TB.s5c = 'c2'; return s5c(); }) === 'c1' && await ev(() => { TB.s5c = null; return s5c(); }) === 'c1', 'retired concepts (Current, Concept Update 2) fall back to Concept Update 1'); await ev(() => { TB.s5c = null; });
 
   // ---- Discount pricing concept (exploration): strikethrough for one traveler ----
   ok(await ev(() => [...document.querySelector('#tbS5d').options].map(o => o.value).join()) === 'current,strike' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5d"]').textContent)), 'discount pricing switcher: Current and Strikethrough (labelled Sprint 5)');
@@ -270,14 +263,15 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => document.querySelector('#device #s5row-t1').getAttribute('aria-expanded')) === 'true' && /Proposed · Concept Update 4/.test(await tags()), 'a row opens when tapped; tagged Proposed'); await axe('departure board');
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   ok(await stack() === 'ff>handoff>s5faredep', 'choosing a class from the board opens Choose a fare');
-  await ev(() => { TB.s5c = 'current'; });
+  await ev(() => { TB.s5c = null; });
 
   // ---- Proposed designs are tagged; flagged stories are in the notes ----
   await open(); await find(); t = await txt();
   ok(!/Proposed · NMA-(755|758|760|761|762|1093|1140)/.test(await tags()), 'stories Ready for Design carry no Proposed tag');
   ok(await ev(() => [...NOTES.scope].some(n => /Sprint 6/.test(n) && /1097/.test(n) && /1109/.test(n) && /1092/.test(n) && /757/.test(n) && /Cancelled: NMA-1105, 1138, 1141 and 1169/.test(n))) && await ev(() => [...NOTES.scope].some(n => /NMA-620/.test(n))), 'Sprint 6 moves, cancellations and the NMA-620 move are in the reviewer notes');
-  await p.locator(D_ + '[data-topic="s5-fares"]').click(); await w(300);
-  ok(/Sprint 6 · NMA-1097/.test(await tags()), 'fare types (NMA-1097, now Sprint 6) are tagged Sprint 6');
+  await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
+  await p.locator(D_ + '.pane:last-child [data-topic="s5-fares"]').click(); await w(300);
+  ok(/Compare fare types/.test(await txt()) && /Flex/.test(await txt()) && /Sprint 6 · NMA-1097/.test(await tags()), 'fare types (NMA-1097, now Sprint 6) open from Choose a fare and are tagged Sprint 6');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
 
   // ---- NMA-758 (Ready for Design): sort and filter ----
