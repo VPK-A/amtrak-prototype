@@ -31,7 +31,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await ev(() => { const pn = [...document.querySelectorAll('#device .pane')].pop(); return pn.querySelector('.ads-navbar__iconback') && !pn.querySelector('.ads-navbar__trail [data-a="close"]') && [...pn.querySelectorAll('.pane__foot .ads-btn')].map(b => b.textContent).join() === 'Save,Clear' && pn.querySelector('.pane__foot .ads-btn--secondary[data-a="assist-clear-draft"]'); }), 'header and footer: Back, Save and a secondary Clear');
   await pick('cat', 'disability');
   ok(await ev(() => { const c = document.querySelector('#device .assist-opt.is-selected'); return c && c.querySelector('input[value="disability"]:checked') && c.querySelector('input[data-f="dis"]') && c.querySelector('input[data-f="needs"]'); }) && /\*/.test(await ev(() => document.querySelector('#device input[data-f="dis"]').closest('fieldset').querySelector('legend').innerText)) && /\(optional\)/.test(await ev(() => document.querySelector('#device input[data-f="needs"]').closest('fieldset').querySelector('legend').innerText)), 'chosen type in a card with its questions; disabilities marked *, other needs (optional)');
-  ok(await ev(() => { const h = document.querySelector('#device #ba-needs-why'); return h && h.classList.contains('ads-sr-only') && document.querySelector('#device input[data-f="needs"]').closest('fieldset').getAttribute('aria-describedby') === 'ba-needs-why'; }), 'locked other needs: reason kept for screen readers');
+  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => !i.disabled) && !document.querySelector('#device .assistform .is-locked')), 'other needs selectable before a disability is chosen (Figma AS.2)');
   await p.click(D_ + '.pane__foot [data-a="assist-clear-draft"]'); await w(300);
   ok(await p.locator(D_ + 'input[name$="-cat"]:checked').count() === 0, 'Clear empties the answers');
   await axe('questionnaire with error');
@@ -50,14 +50,17 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   // ---- Disability branch ----
   await p.click(D_ + '[data-a="assist-edit"][data-t="adult-1"]'); await w(500); await pick('cat', 'disability');
   ok(/Accessible seat was removed|removed/.test(await txt()) || true, 'switching type: inapplicable answers handled');
-  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => i.disabled)) && /Select at least one disability above to choose other needs\./.test(await txt()), 'no disability: other needs visibly disabled with reason');
+  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => !i.disabled)) && !/Select at least one disability above/.test(await txt()), 'no disability: other needs stay selectable (Figma AS.2)');
+  ok(await ev(() => ['accessible-seats', 'station-assistance', 'service-animals'].every(t => document.querySelectorAll(`#device .assist-about [data-topic="${t}"]`).length === 1)), 'an About link under each other need');
   await confirm(); ok(/Choose at least one disability\./.test(await txt()), 'no disability: confirm blocked');
+  for (const n of ['seat', 'station', 'animal']) if (await p.locator(D_ + `input[data-f="needs"][value="${n}"]:checked`).count()) await pick('needs', n);
   for (const d of ['vision', 'hearing', 'other']) { await pick('dis', d); ok(await ev(() => [...document.querySelectorAll('#device input[data-f="needs"]')].every(i => !i.disabled)), `${d}: needs enabled, any combination`); await pick('dis', d); }
   await pick('dis', 'vision'); await pick('dis', 'hearing'); await pick('needs', 'seat'); await pick('needs', 'station'); await pick('needs', 'animal');
   ok(await p.locator(D_ + 'input[data-f="needs"]:checked').count() === 3, 'multiple disabilities, all three needs without wheelchair');
   // last disability removed clears needs and explains
   await pick('dis', 'vision'); await pick('dis', 'hearing');
-  ok(await p.locator(D_ + 'input[data-f="needs"]:checked').count() === 0 && /removed because no disability is selected/.test(await txt()), 'removing the last disability clears needs, explained');
+  ok(await p.locator(D_ + 'input[data-f="needs"]:checked').count() === 3, 'removing the last disability keeps the other needs (still required to confirm)');
+  await pick('needs', 'seat'); await pick('needs', 'station'); await pick('needs', 'animal');
   // mobility + wheelchair
   await pick('dis', 'mobility');
   ok(await p.locator(D_ + 'input[data-f="wc"]').count() === 2 && await p.locator(D_ + 'input[data-f="wc"]:checked').count() === 0, 'reduced mobility: wheelchair Yes/No, none preselected');
