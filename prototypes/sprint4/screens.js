@@ -548,10 +548,11 @@ function assistErrors(x, mode, who = 'Traveler 1') {
   if (assistConflict(x)) e.needs = AC.err.conflict;
   // NMA-29 (Profile and booking): the mobility questions must be answered once they apply. NMA-628 (Profile only).
   if (!v2() && mobQ(x) && !mobAnswered(x, mobQ(x))) e.mob = AC.err.mob;
+  if (!v2() && x.cat === 'disability' && x.needs.includes('animal') && !(x.saTask || '').trim()) e.saLarge = AC.err.saLarge;
   if (mode === 'profile' && !v2()) {
     const sq = saQ(x);
     if (sq === 'ask' && !x.sa) e.sa = AC.err.sa;
-    if ((sq === 'ask' && x.sa === 'yes') || sq === 'large') { if (!(x.saTask || '').trim()) e.saTask = AC.err.saTask; if (sq === 'ask' && !x.saSize) e.saSize = AC.err.saSize; }
+    if (sq === 'ask' && x.sa === 'yes') { if (!(x.saTask || '').trim()) e.saTask = AC.err.saTask; if (!x.saSize) e.saSize = AC.err.saSize; }
   }
   return e;
 }
@@ -570,7 +571,12 @@ HOOKS.assist = (r, t) => {
   else x.animal = 'large'; // the checkbox is Large service animal; small and medium animals are asked about separately (NMA-628, NMA-616)
   r.u.assistNote = notes.join(' ') || null;
   const before = r.u.snap ? JSON.parse(r.u.snap) : null, q = mobQ(x), fill = (t.type === 'checkbox' && t.checked) || t.type === 'radio';
-  if (!v2() && before && fill && ['needs', 'wc'].includes(t.dataset.f) && q && q !== mobQ(before)) {
+  if (!v2() && before && t.dataset.f === 'needs' && t.value === 'animal' && t.checked && x.needs.includes('animal')) {
+    const pri = +riOf(t), focus = '[data-f="needs"][value="animal"]';
+    r.u.mobPending = { after: JSON.parse(JSON.stringify(x)), q: 'large', label: AC.largeAnimal };
+    r.u.d = before; r.u.assistNote = null;
+    setTimeout(() => { push('assist-mob', { pri, q: 'large' }, pri); sheet().stack[sheet().stack.length - 1].opener = focus; }, 0);
+  } else if (!v2() && before && fill && ['needs', 'wc'].includes(t.dataset.f) && q && q !== mobQ(before)) {
     const pri = +riOf(t), focus = `[data-f="${t.dataset.f}"][value="${t.value}"]`;
     r.u.mobPending = { after: JSON.parse(JSON.stringify(x)), q, label: t.dataset.f === 'needs' ? needLabel(t.value) : `${AC.wcQuestion} ${t.value === 'yes' ? 'Yes' : 'No'}` };
     r.u.d = before; r.u.assistNote = null; // nothing changes until the questions are finished
@@ -611,21 +617,24 @@ const ABOUT = { seat: ['accessible-seats', 'About accessible seats'], station: [
 function radioSet(idp, f, legend, opts, val, err, inline) {
   return `<fieldset class="ads-fieldset${inline ? ' ads-fieldset--inline' : ''} assist-q" ${err ? `aria-describedby="${idp}-${f}-err"` : ''}><legend class="ads-field-label">${legend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${opts.map(([v, l, s]) => choice('radio', `${idp}-${f}`, f, v, val === v, l, s || '', 'data-hook="assist"')).join('')}</div>${err ? `<p class="ads-helper ads-helper--error" id="${idp}-${f}-err">${ic('alert-diamond')}<span>${err}</span></p>` : ''}</fieldset>`;
 }
+function saRow(x, idp, e) {
+  const done = !!(x.saTask || '').trim();
+  return `<div class="assist-mobrow${e.saLarge ? ' is-error' : ''}" id="${idp}-salarge">${ic('service-dog')}<div class="assist-mobrow__text"><p class="ads-field-label">${AC.largeAnimal} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span></p><p class="ads-body-small ${done ? '' : 'ads-text-secondary'}">${done ? esc(x.saTask.trim()) : 'Not answered yet'}</p>${e.saLarge ? `<p class="ads-helper ads-helper--error" id="${idp}-salarge-err">${ic('alert-diamond')}<span>${e.saLarge}</span></p>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-mob-open" data-q="large" aria-label="${done ? 'Change' : 'Answer'} large service animal skill or task" ${e.saLarge ? `aria-describedby="${idp}-salarge-err"` : ''}>${done ? 'Change' : 'Answer'}</button></div>`;
+}
 function mobRow(x, q, idp, e) {
   const done = mobAnswered(x, q);
   return `<div class="assist-mobrow${e.mob ? ' is-error' : ''}" id="${idp}-mob">${ic('wheelchair-space')}<div class="assist-mobrow__text"><p class="ads-field-label">${AC.mobTitle} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span></p><p class="ads-body-small ${done ? '' : 'ads-text-secondary'}">${done ? esc(mobSummary(x, q)) : 'Not answered yet'}</p>${e.mob ? `<p class="ads-helper ads-helper--error" id="${idp}-mob-err">${ic('alert-diamond')}<span>${e.mob}</span></p>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-mob-open" aria-label="${done ? 'Change' : 'Answer'} mobility needs" ${e.mob ? `aria-describedby="${idp}-mob-err"` : ''}>${done ? 'Change' : 'Answer'}</button></div>`;
 }
 function detailsBlock(r, x, idp, e) {
   if (v2()) return '';
-  const mq = mobQ(x), sq = r.u.mode === 'profile' ? saQ(x) : null; if (!mq && !sq) return '';
+  const mq = mobQ(x), big = x.cat === 'disability' && x.needs.includes('animal'), sq = r.u.mode === 'profile' && !big ? saQ(x) : null; if (!mq && !sq && !big) return '';
   ref(...[mq ? '29' : null, sq ? '628' : null].filter(Boolean));
-  let h = '', top = mq ? mobRow(x, mq, idp, e) : '';
+  let h = '', top = (mq ? mobRow(x, mq, idp, e) : '') + (big ? saRow(x, idp, e) : '');
   const task = lab => fieldHtml({ id: `${idp}-satask`, f: 'saTask', label: lab, value: x.saTask || '', req: true, max: 200, help: AC.saTaskHelp, err: e.saTask, cls: 'assist-q' });
   if (sq === 'ask') {
     h += radioSet(idp, 'sa', AC.saLegend, AC.saOpts, x.sa, e.sa);
     if (x.sa === 'yes') h += task(AC.saTask) + radioSet(idp, 'saSize', AC.saSizeLegend, AC.saSizes, x.saSize, e.saSize, true);
   }
-  if (sq === 'large') h += task(AC.saTaskLarge);
   q(18);
   return top + (h ? `<section class="assist-details" aria-labelledby="${idp}-det-h"><h3 class="ads-field-label assist-details__h" id="${idp}-det-h">${AC.detailsTitle}</h3>${h}</section>` : '');
 }

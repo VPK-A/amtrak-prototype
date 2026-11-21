@@ -90,11 +90,21 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await open({ cat: 'station', needs: ['station', 'seat'] }); q = await qs();
   ok(q.sa && q.mob, 'NMA-628 AC1: station assistance and an accessible seat asks about a service animal');
   await open({ cat: 'station', needs: ['seat'] }); ok((await qs()).sa, 'station type with a seat: service animal asked');
-  await open({ cat: 'disability', dis: ['vision'], needs: ['animal'] }); q = await qs();
-  ok(!q.sa && q.task && !q.size && /large service animal trained to do/.test(await txt()), 'NMA-628 AC3: large service animal asks only what it’s trained to do');
-  await save(); ok(/Tell us what your service animal is trained to do\./.test(await txt()), 'NMA-628 AC3: training is mandatory');
-  await p.fill(D_ + 'input[data-f="saTask"]', 'Guiding'); await p.locator(D_ + 'input[data-f="saTask"]').dispatchEvent('change'); await save();
-  ok(await ev(() => { const a = D().assist; return a.animal === 'large' && a.saTask === 'Guiding' && !a.sa && !a.saSize; }), 'NMA-628 AC3: saved as a large service animal with its training');
+  // NMA-628 AC3: checking Large service animal opens its one question on its own page (no step counter)
+  await open({ cat: 'disability', dis: ['vision'] }); await pick('needs', 'animal');
+  ok(await top() === 'assist-mob' && !(await par()).needs.includes('animal') && /What skill or task does your animal provide\?/.test(await txt()) && /I travel with a service animal\./.test(await txt()) && !/Step \d of/.test(await txt()), 'NMA-628 AC3: Large service animal opens the skill or task question, one step, no counter');
+  ok(await ev(() => document.querySelector('#mobq-satask').placeholder) === 'Enter the skill or task your animal provides…' && await ev(() => document.querySelector('#device [data-a="mob-next"]').getAttribute('aria-disabled')) === 'true', 'NMA-628 AC3: the answer is mandatory before Done');
+  await axe('large animal question');
+  await p.click(D_ + '[data-a="back"]'); await w(500);
+  ok(await top() === 'assist-profile' && !(await ev(() => sheet().stack.at(-1).u.d.needs.includes('animal'))) && await ev(() => document.activeElement.matches('input[data-f="needs"][value="animal"]')), 'abandoning leaves Large service animal unchecked, focus back on it');
+  await pick('needs', 'animal'); await p.fill(D_ + '#mobq-satask', 'Guiding'); await w(250);
+  ok(await ev(() => document.activeElement.id) === 'mobq-satask' && await ev(() => document.querySelector('#device [data-a="mob-next"]').getAttribute('aria-disabled')) === null, 'typing keeps focus and enables Done');
+  await p.click(D_ + '[data-a="mob-next"]'); await w(500);
+  ok(await top() === 'assist-profile' && (await ev(() => sheet().stack.at(-1).u.d.needs)).includes('animal') && /Guiding/.test(await txt()), 'finishing returns with Large service animal checked and the task shown');
+  await save();
+  ok(await ev(() => { const a = D().assist; return a.animal === 'large' && a.saTask === 'Guiding' && !a.sa && !a.saSize; }), 'NMA-628 AC3: saved as a large service animal with its skill or task');
+  await open({ cat: 'disability', dis: ['vision'], needs: ['animal'] }); await save();
+  ok(/Tell us the skill or task your service animal provides\./.test(await txt()), 'an unanswered large service animal blocks saving');
   await axe('large animal');
 
   // ---- combined, cleanup and summary ----

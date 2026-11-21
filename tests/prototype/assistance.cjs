@@ -13,7 +13,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   const scen = async (sc, adults = 1) => { await ev(([sc, n]) => { TB.v = 1; TB.dev = 'iphone'; TB.theme = 'light'; VS[1] = makeVS(sc); if (n > 1) D().booking.pax.adult = n; goLoc('travelers'); }, [sc, adults]); await w(); };
   const ask = async key => { await p.click(`${D_}#ask-${key}`, { force: true }); await w(1000); };
   // Checking Accessible seat or answering wheelchair space can open the NMA-29 mobility questions: finish them with the first option
-  const finishMob = async () => { for (let i = 0; i < 3 && await top() === 'assist-mob'; i++) { await p.click(`${D_}.mobq__card label`); await w(200); await p.click(D_ + '[data-a="mob-next"]'); await w(450); } };
+  const finishMob = async () => { for (let i = 0; i < 3 && await top() === 'assist-mob'; i++) { if (await p.locator(D_ + '#mobq-satask').count()) { await p.fill(D_ + '#mobq-satask', 'Guiding'); await w(200); } else await p.click(`${D_}.mobq__card label`); await w(200); await p.click(D_ + '[data-a="mob-next"]'); await w(450); } };
   const pick = async (name, v) => { await p.click(`${D_}label:has(input[name$="-${name}"][value="${v}"])`); await w(250); if (await top() === 'assist-mob') await finishMob(); };
   const top = () => ev(() => sheet().stack.at(-1).s);
   const confirm = async () => { await p.click(D_ + '[data-a="assist-confirm"]'); await w(450); };

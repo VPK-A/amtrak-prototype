@@ -152,11 +152,13 @@ const ASSIST_COPY = {
   devBringOpts: [['manual', 'I travel with a manual wheelchair.'], ['power', 'I travel with a power wheelchair.'], ['scooter', 'I travel with a scooter.']],
   devShort: { manual: 'Manual wheelchair', power: 'Power wheelchair', scooter: 'Scooter' },
   mobPick: 'Choose an option to continue.',
+  // NMA-628 AC3 (large service animal): one question on its own page (Amtrak.com Assistance Requests, step 2 of 2)
+  saLargeTitle: 'Service animal', saLargeOpt: 'I travel with a service animal.', saLargeQ: 'What skill or task does your animal provide?', saLargePh: 'Enter the skill or task your animal provides…', saLargePick: 'Enter the skill or task to continue.',
   saLegend: 'Do you travel with a service animal?', saOpts: [['no', 'I don’t travel with a service animal'], ['yes', 'I travel with a service animal']],
   saTask: 'What is your service animal trained to do?', saTaskLarge: 'What is your large service animal trained to do?', saTaskHelp: 'For example, guiding, alerting or retrieving items.',
   saSizeLegend: 'Size of your service animal', saSizes: [['small', 'Small'], ['medium', 'Medium']],
   detailsTitle: 'Service animal details',
-  err: { mob: 'Answer the mobility questions.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
+  err: { mob: 'Answer the mobility questions.', saLarge: 'Tell us the skill or task your service animal provides.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
     cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.' }
 };
 // People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
