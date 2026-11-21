@@ -1075,3 +1075,18 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-details { margin-top: var(--ads-space-6); padding-top: var(--ads-space-5); border-top: 1px solid var(--ads-border-subtle); }
 .assist-details__h { margin: 0 0 var(--ads-space-4); font-weight: 600; }
 .assist-details .assist-q { margin: 0 0 var(--ads-space-5); }
+
+/* NMA-29 mobility questions page (Amtrak.com Assistance Requests pattern) */
+.mobq { display: flex; flex-direction: column; gap: var(--ads-space-16); }
+.mobq__who { display: flex; justify-content: space-between; align-items: baseline; }
+.mobq__steps { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.mobq__bar { display: flex; height: 4px; background: var(--ads-border-subtle); }
+.mobq__bar i { flex: 1; } .mobq__bar i.is-done { background: var(--ads-content-text-secondary); }
+.mobq__intro, .mobq__call { margin: 0; color: var(--ads-content-text-secondary); }
+.mobq__opts { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.mobq__card { padding: var(--ads-space-12) var(--ads-space-16); background: var(--ads-background-status-info-subtle); border: 1px solid transparent; border-radius: var(--ads-radius-4); }
+.mobq__card.is-selected { border-color: var(--ads-border-brand); }
+.assist-mobrow { display: flex; align-items: flex-start; gap: var(--ads-space-12); margin-top: var(--ads-space-16); padding: var(--ads-space-12) var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); }
+.assist-mobrow.is-error { border-color: var(--ads-border-status-error); }
+.assist-mobrow > .ads-icon { color: var(--ads-content-icon-secondary); margin-top: 2px; }
+.assist-mobrow__text { flex: 1; min-width: 0; } .assist-mobrow__text p { margin: 0; }

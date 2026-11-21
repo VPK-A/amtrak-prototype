@@ -112,6 +112,7 @@ function openerSel(el) {
   if (!el || !el.isConnected || !el.closest('#device')) return null;
   if (el.id) return '#' + CSS.escape(el.id);
   if (el.dataset.k) return `[data-k="${el.dataset.k}"]`;
+  if (el.dataset.f && (el.type === 'radio' || el.type === 'checkbox') && el.name) return `input[name="${CSS.escape(el.name)}"][value="${CSS.escape(el.value)}"]`; // choices keep focus across redraws
   if (!el.dataset.a) return null;
   return `[data-a="${el.dataset.a}"]` + ['s', 't', 'field', 'topic', 'code'].filter(k => el.dataset[k]).map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('');
 }
