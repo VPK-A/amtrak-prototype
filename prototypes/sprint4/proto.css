@@ -1090,3 +1090,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-mobrow.is-error { border-color: var(--ads-border-status-error); }
 .assist-mobrow > .ads-icon { color: var(--ads-content-icon-secondary); margin-top: 2px; }
 .assist-mobrow__text { flex: 1; min-width: 0; } .assist-mobrow__text p { margin: 0; }
+.mobq__card--field { padding: 0; overflow: hidden; }
+.mobq__card--field > .ads-choice { padding: var(--ads-space-12) var(--ads-space-16); }
+.mobq__inner { padding: var(--ads-space-12) var(--ads-space-16) var(--ads-space-16); background: var(--ads-background-surface-default); }
+.mobq__inner .ads-field { margin: 0; }

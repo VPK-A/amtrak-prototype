@@ -274,8 +274,16 @@ A['assist-answer'] = (t, ri) => {
 const mobParent = r => sheet().stack[+r.p.pri];
 SCR['assist-mob'] = (r, ri) => {
   const par = mobParent(r), q = r.p.q, src = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after;
-  if (!r.u.d) r.u.d = { mob: src.mob || '', mobHelp: src.mobHelp || '', mobType: src.mobType || '', dev: src.dev || '' };
+  if (!r.u.d) r.u.d = { mob: src.mob || '', mobHelp: src.mobHelp || '', mobType: src.mobType || '', dev: src.dev || '', saTask: src.saTask || '' };
   r.u.guard = false; // leaving is abandoning: nothing to discard
+  const who0 = par.s === 'assist' ? assistWho(par) : null, whoRow = `<div class="mobq__who"><span class="ads-body-emphasis">${esc(who0 ? assistHeading(who0) : `${D().profile.first} ${D().profile.last}`)}</span><span class="ads-body-small">${esc(who0 ? PAX_LABEL[who0.type] || '' : 'Adult')}</span></div>`;
+  if (q === 'large') { // NMA-628 AC3: one question, so no step counter
+    ref('628'); const ok_ = !!(r.u.d.saTask || '').trim();
+    const field = fieldHtml({ id: 'mobq-satask', f: 'saTask', label: AC.saLargeQ, value: r.u.d.saTask || '', req: true, max: 200, placeholder: AC.saLargePh, live: true });
+    const body = `<div class="mobq">${whoRow}<fieldset class="ads-fieldset mobq__set"><legend class="ads-sr-only" tabindex="-1" id="mobq-legend">${AC.largeAnimal}</legend><div class="mobq__opts"><div class="mobq__card is-selected mobq__card--field">${choice('radio', 'mobq-sa', 'saHas', 'yes', true, AC.saLargeOpt)}<div class="mobq__inner">${field}</div></div></div></fieldset><p class="ads-body-small mobq__call">${AC.mobCall} ${infoLink('accessible-travel', 'specific assistance requests')}.</p></div>`;
+    const foot = `<p class="ads-sr-only" id="mobq-hint">${ok_ ? '' : AC.saLargePick}</p><button class="ads-btn ads-btn--block" type="button" data-a="mob-next" ${ok_ ? '' : 'aria-disabled="true" aria-describedby="mobq-hint"'}>Done</button>`;
+    return { title: AC.saLargeTitle, kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--mobq', body, foot, footCls: 'ads-actionfooter', banner: false };
+  }
   ref('29');
   const a = r.u.d, step = r.u.step || 1, needs = q === 'needs', total = needs && a.mob !== 'aid' ? 2 : 1;
   const set = needs ? (step === 1 ? ['mob', AC.mobLegend, AC.mobOpts] : a.mob === 'amtrak' ? ['mobHelp', AC.mobHelpLegend, AC.mobHelpOpts] : ['mobType', AC.mobTypeLegend, AC.mobTypes]) : ['dev', q === 'sit' ? AC.devSitLegend : AC.devBringLegend, q === 'sit' ? AC.devSitOpts : AC.devBringOpts];
@@ -293,13 +301,14 @@ A['mob-next'] = (t, ri) => {
   if (q === 'needs' && (r.u.step || 1) === 1 && (a.mob === 'amtrak' || a.mob === 'own')) { r.u.step = 2; pendingFocus = '#mobq-legend'; render(); return; }
   const par = mobParent(r), base = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after, label = par.u.mobPending && !r.p.edit ? par.u.mobPending.label : null;
   if (q === 'needs') Object.assign(base, { mob: a.mob, mobHelp: a.mob === 'amtrak' ? a.mobHelp : '', mobType: a.mob === 'own' ? a.mobType : '' });
+  else if (q === 'large') base.saTask = (a.saTask || '').trim();
   else base.dev = a.dev;
   par.u.d = base; par.u.mobPending = null; par.u.dirty = true;
-  par.u.assistNote = label ? `${label} selected. Mobility needs answered.` : 'Mobility needs updated.';
+  par.u.assistNote = q === 'large' ? (label ? `${label} selected.` : 'Service animal skill or task updated.') : label ? `${label} selected. Mobility needs answered.` : 'Mobility needs updated.';
   if (par.u.err) par.u.err = assistErrors(base, par.u.mode, assistWho(par).label);
   popTo(+r.p.pri);
 };
-A['assist-mob-open'] = (t, ri) => { const r = routeAt(ri), q = mobQ(r.u.d); if (!q) return; push('assist-mob', { pri: +ri, q, edit: true }, +ri); };
+A['assist-mob-open'] = (t, ri) => { const r = routeAt(ri), q = t.dataset.q || mobQ(r.u.d); if (!q) return; push('assist-mob', { pri: +ri, q, edit: true }, +ri); };
 // Back from step 2 returns to step 1; from step 1 it abandons (the opening control stays unfilled)
 const backBeforeMob = A.back;
 A.back = (t, ri) => { const r = routeAt(ri); if (r && r.s === 'assist-mob' && (r.u.step || 1) === 2) { r.u.step = 1; pendingFocus = '#mobq-legend'; render(); return; } if (r && r.s === 'assist-mob') { const par = mobParent(r); if (par) par.u.mobPending = null; } return backBeforeMob(t, ri); };
