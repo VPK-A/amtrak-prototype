@@ -2646,6 +2646,21 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .assist-details__h { margin: 0 0 var(--ads-space-4); font-weight: 600; }
 .assist-details .assist-q { margin: 0 0 var(--ads-space-5); }
 
+/* NMA-29 mobility questions page (Amtrak.com Assistance Requests pattern) */
+.mobq { display: flex; flex-direction: column; gap: var(--ads-space-16); }
+.mobq__who { display: flex; justify-content: space-between; align-items: baseline; }
+.mobq__steps { display: flex; flex-direction: column; gap: var(--ads-space-8); }
+.mobq__bar { display: flex; height: 4px; background: var(--ads-border-subtle); }
+.mobq__bar i { flex: 1; } .mobq__bar i.is-done { background: var(--ads-content-text-secondary); }
+.mobq__intro, .mobq__call { margin: 0; color: var(--ads-content-text-secondary); }
+.mobq__opts { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.mobq__card { padding: var(--ads-space-12) var(--ads-space-16); background: var(--ads-background-status-info-subtle); border: 1px solid transparent; border-radius: var(--ads-radius-4); }
+.mobq__card.is-selected { border-color: var(--ads-border-brand); }
+.assist-mobrow { display: flex; align-items: flex-start; gap: var(--ads-space-12); margin-top: var(--ads-space-16); padding: var(--ads-space-12) var(--ads-space-16); border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-8); background: var(--ads-background-surface-default); }
+.assist-mobrow.is-error { border-color: var(--ads-border-status-error); }
+.assist-mobrow > .ads-icon { color: var(--ads-content-icon-secondary); margin-top: 2px; }
+.assist-mobrow__text { flex: 1; min-width: 0; } .assist-mobrow__text p { margin: 0; }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -3724,16 +3739,26 @@ const ASSIST_COPY = {
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
   // NMA-29 (Profile): mobility needs and device type. NMA-628 (Profile): service animal. Draft wording, to be replaced
   // with the approved copy from the stories' question screens.
-  mobLegend: 'Do you need a wheelchair or mobility aid?',
-  mobOpts: [['amtrak', 'I need an Amtrak wheelchair', ''], ['own', 'I’ll bring my own collapsible wheelchair', ''], ['aid', 'I’ll bring a mobility aid', 'Like a cane, crutches or a walker.'], ['none', 'I don’t need either', '']],
-  mobHelpLegend: 'Do you need help moving in the wheelchair?', mobTypeLegend: 'What type of wheelchair is it?', mobTypes: [['manual', 'Manual'], ['power', 'Power (battery)']],
+  // NMA-29 mobility questions open on their own page (Amtrak.com "Assistance Requests" pattern): intro, one choice
+  // per step on cards, a call-us note, and Next. Device wording follows the Amtrak.com screens; the rest is a draft.
+  mobTitle: 'Mobility needs',
+  mobIntro: 'Amtrak trains accommodate most standard-sized wheeled mobility devices used today. If you travel with your own wheeled mobility device, review the wheeled mobility device specifications before making a reservation. If traveling without a wheelchair but need an accessible seat, contact us 1-800-USA-RAIL.',
+  mobCall: 'Call 1-800-USA-RAIL to share additional information, or discuss',
+  mobLegend: 'Which of these do you need?',
+  mobOpts: [['amtrak', 'I need an Amtrak wheelchair', ''], ['own', 'I travel with my own collapsible wheelchair', ''], ['aid', 'I travel with a mobility aid', 'Like a cane, crutches or a walker.']],
+  mobShort: { amtrak: 'Amtrak wheelchair', own: 'Own collapsible wheelchair', aid: 'Mobility aid' },
+  mobHelpLegend: 'Do you need help moving in the wheelchair?', mobHelpOpts: [['yes', 'Yes, I need help moving in the wheelchair'], ['no', 'No, I don’t need help']],
+  mobTypeLegend: 'What type of collapsible wheelchair is it?', mobTypes: [['manual', 'Manual collapsible wheelchair'], ['power', 'Power (battery) collapsible wheelchair']],
   devSitLegend: 'Which mobility device will you sit in during travel?', devBringLegend: 'Which mobility device will you bring?',
-  devOpts: [['manual', 'Manual wheelchair'], ['power', 'Power wheelchair'], ['scooter', 'Mobility scooter']],
+  devSitOpts: [['manual', 'I travel with a manual wheelchair and I will sit in it during travel.'], ['power', 'I travel with a power wheelchair and I will sit in it during travel.'], ['scooter', 'I travel with a scooter and I will sit in it during travel.']],
+  devBringOpts: [['manual', 'I travel with a manual wheelchair.'], ['power', 'I travel with a power wheelchair.'], ['scooter', 'I travel with a scooter.']],
+  devShort: { manual: 'Manual wheelchair', power: 'Power wheelchair', scooter: 'Scooter' },
+  mobPick: 'Choose an option to continue.',
   saLegend: 'Do you travel with a service animal?', saOpts: [['no', 'I don’t travel with a service animal'], ['yes', 'I travel with a service animal']],
   saTask: 'What is your service animal trained to do?', saTaskLarge: 'What is your large service animal trained to do?', saTaskHelp: 'For example, guiding, alerting or retrieving items.',
   saSizeLegend: 'Size of your service animal', saSizes: [['small', 'Small'], ['medium', 'Medium']],
-  detailsTitle: 'Mobility and service animal details',
-  err: { mob: 'Choose whether you need a wheelchair or mobility aid.', mobHelp: 'Tell us whether you need help moving in the wheelchair.', mobType: 'Choose the type of wheelchair.', dev: 'Choose your mobility device.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
+  detailsTitle: 'Service animal details',
+  err: { mob: 'Answer the mobility questions.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
     cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.' }
 };
 // People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
@@ -3819,7 +3844,7 @@ const QUESTIONS = {
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
   20: ['Fares on the calendar', 'Removed after stakeholder feedback: the calendar shows no prices or fare shading. A fare calendar has no Sprint 4 story or fare source; if it returns it needs a fares service and a decision on which fare to show.'],
   19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. Proposal awaiting team confirmation: assistance doesn’t ask who a companion accompanies; the one-each rule is checked by count (no more companions than travelers with a disability), and the pairing is collected in Traveler information.'],
-  18: ['Mobility and service animal details (NMA-29, NMA-628)', 'Built in Profile from the stories’ rules (both UX approved). Which questions appear follows the stories exactly; the question and option wording is a draft, because the stories show their questions as images in Jira that the prototype couldn’t read. Proposal: “I don’t need either” lets someone with only an accessible seat say they need no device. In booking these questions come later, in Traveler information (NMA-619, NMA-616), which isn’t built.'],
+  18: ['Mobility and service animal details (NMA-29, NMA-628)', 'Which questions appear follows the stories exactly (both UX approved). The mobility questions open on their own page when someone checks Accessible seat or answers the wheelchair-space question: finishing them fills that answer, going back leaves it unfilled. Device wording follows the Amtrak.com Assistance Requests screens; the rest is a draft, because the stories show their questions as images in Jira. Open: the Amtrak.com device screen says “Step 1 of 2”, but the stories don’t say what step 2 is, so the device questions end after one step here.'],
   10: ['Young adult with an infant', 'Conflict in NMA-611. BR7 lets an infant travel with an Adult, Senior or Young adult, and BR3 seats lap infants 1:1 with those three types. BR9 says a Young adult can’t bring a Youth, Child or Infant without an Adult or Senior. The prototype follows BR9 (blocked) and counts Young adults toward lap seats. This case isn’t counted as verified until it’s decided. Age bands follow the CORE rules listed in the story (Adult 18–64, Senior 65+, Young adult 16–17, Youth 13–15, Child 2–12, Infant under 2).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
   12: ['Corporate Auto Train and PWD in restricted modes', 'NMA-622 AC8 asks for an error after Find trains when a Corporate search includes Auto Train; the current app switches to Personal instead. The prototype shows the error with a Switch to Personal action. Pass Rider blocks Auto Train for Business travel only (NMA-1016 AC4). Whether the Passenger with disability discount applies to Corporate or Pass Rider travel is open; neither applies it.'],
@@ -3980,6 +4005,7 @@ function openerSel(el) {
   if (!el || !el.isConnected || !el.closest('#device')) return null;
   if (el.id) return '#' + CSS.escape(el.id);
   if (el.dataset.k) return `[data-k="${el.dataset.k}"]`;
+  if (el.dataset.f && (el.type === 'radio' || el.type === 'checkbox') && el.name) return `input[name="${CSS.escape(el.name)}"][value="${CSS.escape(el.value)}"]`; // choices keep focus across redraws
   if (!el.dataset.a) return null;
   return `[data-a="${el.dataset.a}"]` + ['s', 't', 'field', 'topic', 'code'].filter(k => el.dataset[k]).map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('');
 }
@@ -4945,6 +4971,8 @@ const mobQ = x => { const d = x.cat === 'disability', mob = d && (x.dis || []).i
 // NMA-628: a disability without a large service animal, or station assistance with an accessible seat → service animal
 // question (training and size); a large service animal → training only; station assistance without a seat → none.
 const saQ = x => x.cat === 'disability' ? ((x.needs || []).includes('animal') ? 'large' : 'ask') : x.cat === 'station' && (x.needs || []).includes('seat') ? 'ask' : null;
+const mobAnswered = (x, q) => q === 'needs' ? !!x.mob && (x.mob !== 'amtrak' || !!x.mobHelp) && (x.mob !== 'own' || !!x.mobType) : q ? !!x.dev : true;
+const mobSummary = (x, q) => q === 'needs' ? [AC.mobShort[x.mob], x.mob === 'amtrak' ? (x.mobHelp === 'yes' ? 'help moving in it' : 'no help needed') : '', x.mob === 'own' ? (x.mobType === 'power' ? 'power' : 'manual') : ''].filter(Boolean).join(', ') : `${AC.devShort[x.dev]}${q === 'sit' ? ', you’ll sit in it during travel' : ''}`;
 function detailsOf(x) {
   const o = { mob: null, mobHelp: null, mobType: null, dev: null, sa: null, saTask: null, saSize: null }, mq = mobQ(x), sq = saQ(x);
   if (mq === 'needs' && x.mob) { o.mob = x.mob; if (x.mob === 'amtrak') o.mobHelp = x.mobHelp || null; if (x.mob === 'own') o.mobType = x.mobType || null; }
@@ -4965,11 +4993,10 @@ function assistErrors(x, mode, who = 'Traveler 1') {
   if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = AC.err.wc;
   if (assistConflict(x)) e.needs = AC.err.conflict;
-  // Profile (one-page form): NMA-29 and NMA-628 answers are required once their question appears
+  // NMA-29 (Profile and booking): the mobility questions must be answered once they apply. NMA-628 (Profile only).
+  if (!v2() && mobQ(x) && !mobAnswered(x, mobQ(x))) e.mob = AC.err.mob;
   if (mode === 'profile' && !v2()) {
-    const mq = mobQ(x), sq = saQ(x);
-    if (mq === 'needs') { if (!x.mob) e.mob = AC.err.mob; else if (x.mob === 'amtrak' && !x.mobHelp) e.mobHelp = AC.err.mobHelp; else if (x.mob === 'own' && !x.mobType) e.mobType = AC.err.mobType; }
-    if ((mq === 'sit' || mq === 'bring') && !x.dev) e.dev = AC.err.dev;
+    const sq = saQ(x);
     if (sq === 'ask' && !x.sa) e.sa = AC.err.sa;
     if ((sq === 'ask' && x.sa === 'yes') || sq === 'large') { if (!(x.saTask || '').trim()) e.saTask = AC.err.saTask; if (sq === 'ask' && !x.saSize) e.saSize = AC.err.saSize; }
   }
@@ -4989,7 +5016,14 @@ HOOKS.assist = (r, t) => {
   if (!x.needs.includes('animal')) x.animal = '';
   else x.animal = 'large'; // the checkbox is Large service animal; small and medium animals are asked about separately (NMA-628, NMA-616)
   r.u.assistNote = notes.join(' ') || null;
-  if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
+  const before = r.u.snap ? JSON.parse(r.u.snap) : null, q = mobQ(x), fill = (t.type === 'checkbox' && t.checked) || t.type === 'radio';
+  if (!v2() && before && fill && ['needs', 'wc'].includes(t.dataset.f) && q && q !== mobQ(before)) {
+    const pri = +riOf(t), focus = `[data-f="${t.dataset.f}"][value="${t.value}"]`;
+    r.u.mobPending = { after: JSON.parse(JSON.stringify(x)), q, label: t.dataset.f === 'needs' ? needLabel(t.value) : `${AC.wcQuestion} ${t.value === 'yes' ? 'Yes' : 'No'}` };
+    r.u.d = before; r.u.assistNote = null; // nothing changes until the questions are finished
+    setTimeout(() => { push('assist-mob', { pri, q }, pri); sheet().stack[sheet().stack.length - 1].opener = focus; }, 0);
+  }
+  if (r.u.err) r.u.err = assistErrors(r.u.d, r.u.mode, assistWho(r).label);
 };
 // Inline choice when wheelchair space makes an accessible seat and a large service animal conflict
 A['assist-keep'] = (t, ri) => {
@@ -5024,24 +5058,23 @@ const ABOUT = { seat: ['accessible-seats', 'About accessible seats'], station: [
 function radioSet(idp, f, legend, opts, val, err, inline) {
   return `<fieldset class="ads-fieldset${inline ? ' ads-fieldset--inline' : ''} assist-q" ${err ? `aria-describedby="${idp}-${f}-err"` : ''}><legend class="ads-field-label">${legend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${opts.map(([v, l, s]) => choice('radio', `${idp}-${f}`, f, v, val === v, l, s || '', 'data-hook="assist"')).join('')}</div>${err ? `<p class="ads-helper ads-helper--error" id="${idp}-${f}-err">${ic('alert-diamond')}<span>${err}</span></p>` : ''}</fieldset>`;
 }
+function mobRow(x, q, idp, e) {
+  const done = mobAnswered(x, q);
+  return `<div class="assist-mobrow${e.mob ? ' is-error' : ''}" id="${idp}-mob">${ic('wheelchair-space')}<div class="assist-mobrow__text"><p class="ads-field-label">${AC.mobTitle} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span></p><p class="ads-body-small ${done ? '' : 'ads-text-secondary'}">${done ? esc(mobSummary(x, q)) : 'Not answered yet'}</p>${e.mob ? `<p class="ads-helper ads-helper--error" id="${idp}-mob-err">${ic('alert-diamond')}<span>${e.mob}</span></p>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-mob-open" aria-label="${done ? 'Change' : 'Answer'} mobility needs" ${e.mob ? `aria-describedby="${idp}-mob-err"` : ''}>${done ? 'Change' : 'Answer'}</button></div>`;
+}
 function detailsBlock(r, x, idp, e) {
-  if (r.u.mode !== 'profile' || v2()) return '';
-  const mq = mobQ(x), sq = saQ(x); if (!mq && !sq) return '';
+  if (v2()) return '';
+  const mq = mobQ(x), sq = r.u.mode === 'profile' ? saQ(x) : null; if (!mq && !sq) return '';
   ref(...[mq ? '29' : null, sq ? '628' : null].filter(Boolean));
-  let h = '';
-  if (mq === 'needs') {
-    h += radioSet(idp, 'mob', AC.mobLegend, AC.mobOpts, x.mob, e.mob);
-    if (x.mob === 'amtrak') h += radioSet(idp, 'mobHelp', AC.mobHelpLegend, [['yes', 'Yes'], ['no', 'No']], x.mobHelp, e.mobHelp, true);
-    if (x.mob === 'own') h += radioSet(idp, 'mobType', AC.mobTypeLegend, AC.mobTypes, x.mobType, e.mobType, true);
-  }
-  if (mq === 'sit' || mq === 'bring') h += radioSet(idp, 'dev', mq === 'sit' ? AC.devSitLegend : AC.devBringLegend, AC.devOpts, x.dev, e.dev);
+  let h = '', top = mq ? mobRow(x, mq, idp, e) : '';
   const task = lab => fieldHtml({ id: `${idp}-satask`, f: 'saTask', label: lab, value: x.saTask || '', req: true, max: 200, help: AC.saTaskHelp, err: e.saTask, cls: 'assist-q' });
   if (sq === 'ask') {
     h += radioSet(idp, 'sa', AC.saLegend, AC.saOpts, x.sa, e.sa);
     if (x.sa === 'yes') h += task(AC.saTask) + radioSet(idp, 'saSize', AC.saSizeLegend, AC.saSizes, x.saSize, e.saSize, true);
   }
   if (sq === 'large') h += task(AC.saTaskLarge);
-  return `<section class="assist-details" aria-labelledby="${idp}-det-h"><h3 class="ads-field-label assist-details__h" id="${idp}-det-h">${AC.detailsTitle} ${q(18)}</h3>${h}</section>`;
+  q(18);
+  return top + (h ? `<section class="assist-details" aria-labelledby="${idp}-det-h"><h3 class="ads-field-label assist-details__h" id="${idp}-det-h">${AC.detailsTitle}</h3>${h}</section>` : '');
 }
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
@@ -5077,7 +5110,7 @@ function wcBlock(r, x, idp, e) {
 function assistForm(r, ri, o) {
   const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, o.mode); r.u.mode = o.mode; }
-  const x = r.u.d, e = r.u.err || {}, idp = o.idp;
+  const x = r.u.d, e = r.u.err || {}, idp = o.idp; r.u.snap = JSON.stringify(x);
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let branch = '';
   if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e) + detailsBlock(r, x, idp, e);
@@ -5085,7 +5118,7 @@ function assistForm(r, ri, o) {
   if (x.cat === 'companion') branch = needsBlock(r, x, idp, false, e);
   if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. A personal companion isn’t paired with a traveler here; who they accompany is collected in Traveler information. Each traveler with a disability may still bring one.');
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
-  if (x.cat === 'disability' || x.cat === 'station') snote(o.mode === 'booking' ? 'Mobility device and service animal details are asked in Profile (NMA-29, NMA-628) and, for a booking, later in Traveler information (NMA-619, NMA-616, not built). Live station-assistance availability is NMA-620 (Sprint 7).' : 'NMA-29 and NMA-628: the mobility and service animal questions appear under the other needs, in the same questionnaire, as the stories ask. Question wording is a draft.');
+  if (x.cat === 'disability' || x.cat === 'station') snote(o.mode === 'booking' ? 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. Service animal details are asked in Profile (NMA-628) and later in Traveler information (NMA-616, not built). Live station-assistance availability is NMA-620 (Sprint 7).' : 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. NMA-628: the service animal questions appear under the other needs. Question wording is a draft.');
   // Conditional changes are announced from one live region at the top of the form
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
   return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
@@ -5101,8 +5134,8 @@ function assistSummaryItems(m) {
   else if (m.cat !== 'station') out.push('No other needs');
   if (m.animalLater) out.push(AC.animalLaterSummary(m.animalLater));
   const lab = (opts, v) => (opts.find(o => o[0] === v) || [])[1];
-  if (m.mob) out.push(lab(AC.mobOpts, m.mob) + (m.mobHelp ? (m.mobHelp === 'yes' ? ', with help moving in it' : ', no help moving in it') : '') + (m.mobType ? `, ${lab(AC.mobTypes, m.mobType).toLowerCase()}` : ''));
-  if (m.dev) out.push(`Mobility device: ${lab(AC.devOpts, m.dev).toLowerCase()}`);
+  if (m.mob) out.push('Mobility: ' + mobSummary(m, 'needs'));
+  if (m.dev) out.push('Mobility device: ' + mobSummary(m, m.needs.includes('seat') ? 'bring' : 'sit'));
   if (m.sa === 'no') out.push('No service animal');
   if (m.sa === 'yes') out.push(`Service animal (${m.saSize || 'size not given'})${m.saTask ? `: ${m.saTask}` : ''}`);
   if (!m.sa && m.saTask) out.push(`Large service animal trained to: ${m.saTask}`);
@@ -6473,6 +6506,44 @@ A['assist-answer'] = (t, ri) => {
   if (assistSeen(b, key)) return go(); // already opened for this traveler: no request, works offline (NMA-996, 997)
   runNet(r, () => null, go, { what: 'open the assistance questions' });
 };
+
+// =====================================================================
+// NMA-29 mobility questions on their own page (Amtrak.com "Assistance Requests" pattern). Opened by checking
+// Accessible seat or answering wheelchair space (r.p.q: needs, sit or bring), or by Answer/Change on the form.
+// Finishing fills the control that opened it; Back from the first step returns with it unfilled.
+// =====================================================================
+const mobParent = r => sheet().stack[+r.p.pri];
+SCR['assist-mob'] = (r, ri) => {
+  const par = mobParent(r), q = r.p.q, src = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after;
+  if (!r.u.d) r.u.d = { mob: src.mob || '', mobHelp: src.mobHelp || '', mobType: src.mobType || '', dev: src.dev || '' };
+  r.u.guard = false; // leaving is abandoning: nothing to discard
+  ref('29');
+  const a = r.u.d, step = r.u.step || 1, needs = q === 'needs', total = needs && a.mob !== 'aid' ? 2 : 1;
+  const set = needs ? (step === 1 ? ['mob', AC.mobLegend, AC.mobOpts] : a.mob === 'amtrak' ? ['mobHelp', AC.mobHelpLegend, AC.mobHelpOpts] : ['mobType', AC.mobTypeLegend, AC.mobTypes]) : ['dev', q === 'sit' ? AC.devSitLegend : AC.devBringLegend, q === 'sit' ? AC.devSitOpts : AC.devBringOpts];
+  const [f, legend, opts] = set, chosen = !!a[f], last = step === total;
+  const who = par.s === 'assist' ? assistWho(par) : null, name = who ? assistHeading(who) : `${D().profile.first} ${D().profile.last}`, type = who ? PAX_LABEL[who.type] || '' : 'Adult';
+  const cards = opts.map(([v, l, s]) => `<div class="mobq__card${a[f] === v ? ' is-selected' : ''}">${choice('radio', 'mobq-' + f, f, v, a[f] === v, l, s || '')}</div>`).join('');
+  const count = total > 1 ? `<div class="mobq__steps"><span class="ads-body-small">Step ${step} of ${total}</span><div class="mobq__bar" aria-hidden="true">${[1, 2].map(i => `<i class="${i <= step ? 'is-done' : ''}"></i>`).join('')}</div></div>` : '';
+  if (q !== 'needs') snote('Open question: the Amtrak.com device screen says “Step 1 of 2”, but the story doesn’t say what step 2 is, so this ends after the device type.');
+  const body = `<div class="mobq"><div class="mobq__who"><span class="ads-body-emphasis">${esc(name)}</span><span class="ads-body-small">${esc(type)}</span></div>${count}<p class="ads-body-small mobq__intro">${AC.mobIntro}</p><fieldset class="ads-fieldset mobq__set"><legend class="ads-field-label" tabindex="-1" id="mobq-legend">${legend}</legend><div class="mobq__opts">${cards}</div></fieldset><p class="ads-body-small mobq__call">${AC.mobCall} ${infoLink('accessible-travel', 'specific assistance requests')}.</p></div>`;
+  const foot = `<p class="ads-sr-only" id="mobq-hint">${chosen ? '' : AC.mobPick}</p><button class="ads-btn ads-btn--block" type="button" data-a="mob-next" ${chosen ? '' : 'aria-disabled="true" aria-describedby="mobq-hint"'}>${last ? 'Done' : 'Next'}</button>`;
+  return { title: AC.mobTitle, kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--mobq', body, foot, footCls: 'ads-actionfooter', banner: false };
+};
+A['mob-next'] = (t, ri) => {
+  const r = routeAt(ri), a = r.u.d, q = r.p.q;
+  if (q === 'needs' && (r.u.step || 1) === 1 && (a.mob === 'amtrak' || a.mob === 'own')) { r.u.step = 2; pendingFocus = '#mobq-legend'; render(); return; }
+  const par = mobParent(r), base = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after, label = par.u.mobPending && !r.p.edit ? par.u.mobPending.label : null;
+  if (q === 'needs') Object.assign(base, { mob: a.mob, mobHelp: a.mob === 'amtrak' ? a.mobHelp : '', mobType: a.mob === 'own' ? a.mobType : '' });
+  else base.dev = a.dev;
+  par.u.d = base; par.u.mobPending = null; par.u.dirty = true;
+  par.u.assistNote = label ? `${label} selected. Mobility needs answered.` : 'Mobility needs updated.';
+  if (par.u.err) par.u.err = assistErrors(base, par.u.mode, assistWho(par).label);
+  popTo(+r.p.pri);
+};
+A['assist-mob-open'] = (t, ri) => { const r = routeAt(ri), q = mobQ(r.u.d); if (!q) return; push('assist-mob', { pri: +ri, q, edit: true }, +ri); };
+// Back from step 2 returns to step 1; from step 1 it abandons (the opening control stays unfilled)
+const backBeforeMob = A.back;
+A.back = (t, ri) => { const r = routeAt(ri); if (r && r.s === 'assist-mob' && (r.u.step || 1) === 2) { r.u.step = 1; pendingFocus = '#mobq-legend'; render(); return; } if (r && r.s === 'assist-mob') { const par = mobParent(r); if (par) par.u.mobPending = null; } return backBeforeMob(t, ri); };
 
 /* Sprint 4 prototype: motion, following the Amtrak mobile motion system prompts.
    One small token scale (MT, EASE in core.js) used everywhere:

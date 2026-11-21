@@ -1,5 +1,5 @@
-// Profile assistance follow-up questions: NMA-29 (mobility needs and device type) and NMA-628 (service animal).
-// Checks which questions each combination of answers shows, that they're required, that they save, and the AS.2 design links.
+// Assistance follow-up questions: NMA-29 (mobility needs and device type, on their own page, Profile and booking) and
+// NMA-628 (service animal, Profile). Which questions appear, the fill-on-finish / unfilled-on-abandon rule, saving, AS.2 links.
 const { chromium } = require('playwright');
 const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const URL = require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href;
@@ -13,7 +13,11 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   const open = async (d, sc = 'returning') => { await ev(([d, sc]) => { TB.v = 1; TB.dev = 'iphone'; TB.theme = 'light'; VS[1] = makeVS(sc); goLoc('assist-profile'); if (d) { const r = sheet().stack.at(-1); r.u.d = Object.assign({ cat: '', dis: [], wc: '', needs: [], for: '' }, d); render(); } }, [d, sc]); await w(); };
   const pick = async (name, v) => { await p.click(`${D_}label:has(input[name$="-${name}"][value="${v}"])`); await w(250); };
   const has = f => p.locator(`${D_}[data-f="${f}"]`).count().then(n => n > 0);
-  const qs = async () => ({ mob: await has('mob'), dev: await has('dev'), sa: await has('sa'), task: await has('saTask'), size: await has('saSize') });
+  const row = () => p.locator(D_ + '.assist-mobrow').count().then(n => n > 0);
+  const top = () => ev(() => sheet().stack.at(-1).s), par = () => ev(() => sheet().stack.at(-2).u.d);
+  const card = async v => { await p.click(`${D_}.mobq__card label:has(input[value="${v}"])`); await w(200); };
+  const next = async () => { await p.click(D_ + '[data-a="mob-next"]'); await w(500); };
+  const qs = async () => ({ mob: await row(), dev: await has('dev'), sa: await has('sa'), task: await has('saTask'), size: await has('saSize') });
   const save = async () => { await p.click(D_ + '[data-a="assist-save"]'); await w(900); };
   const axe = async n => { const v = await ev(async () => (await axe.run('#device', { resultTypes: ['violations'] })).violations.filter(x => x.nodes.some(n => !n.target.join(' ').includes('dev-status'))).map(x => x.id)); ok(!v.length, `axe ${n} ${v.join(',')}`); };
 
@@ -25,22 +29,53 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await pick('dis', 'mobility'); ok(/About wheelchair space/.test(await txt()), 'PA.2: About wheelchair space link under the wheelchair question');
   await save(); ok(/Choose at least one disability|disability/.test(await txt()) && await ev(() => sheet().stack.at(-1).s) === 'assist-profile', 'a disability is still required to save');
 
-  // ---- NMA-29 ----
+  // ---- NMA-29: the questions open on their own page ----
   await open({ cat: 'station', needs: ['station'] }); let q = await qs();
   ok(!q.mob && !q.dev && !q.sa, 'NMA-29 AC1 / NMA-628 AC2: station assistance alone asks nothing');
-  await open({ cat: 'station', needs: ['seat'] }); q = await qs();
-  ok(q.mob && !q.dev, 'NMA-29 AC2: accessible seat asks mobility needs');
-  await open({ cat: 'disability', dis: ['mobility'], wc: 'no' }); q = await qs();
-  ok(q.mob && !q.dev, 'NMA-29 AC2: reduced mobility with no wheelchair space asks mobility needs');
-  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="mob"]')].every(i => i.type === 'radio')), 'NMA-29 BR2.1: one mobility option only');
-  await pick('mob', 'amtrak'); ok(await has('mobHelp') && !(await has('mobType')), 'NMA-29 BR2.2: Amtrak wheelchair asks whether help is needed');
-  await pick('mob', 'own'); ok(await has('mobType') && !(await has('mobHelp')), 'NMA-29 BR2.2: own collapsible wheelchair asks its type');
-  await pick('mob', 'aid'); ok(!(await has('mobType')) && !(await has('mobHelp')), 'mobility aid: no follow-up');
-  await open({ cat: 'disability', dis: ['mobility', 'vision'], wc: 'yes' }); q = await qs();
-  ok(q.dev && !q.mob && /sit in during travel/.test(await txt()), 'NMA-29 AC3: wheelchair space, no seat asks which device you’ll sit in (other disabilities don’t matter)');
-  await open({ cat: 'disability', dis: ['mobility'], wc: 'yes', needs: ['seat'] }); q = await qs();
-  ok(q.dev && !q.mob && /Which mobility device will you bring\?/.test(await txt()), 'NMA-29 AC4: wheelchair space and a seat asks which device you’ll bring');
-  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="dev"]')].every(i => i.type === 'radio')), 'NMA-29 AC3/4: one device only');
+  await open({ cat: 'station' }); await pick('needs', 'seat');
+  ok(await top() === 'assist-mob' && !(await par()).needs.includes('seat'), 'NMA-29 AC2: checking Accessible seat opens the mobility questions; the box isn’t filled yet');
+  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="mob"]')].map(i => i.type + i.value).join()) === 'radioamtrak,radioown,radioaid' && /Step 1 of 2/.test(await txt()) && /Amtrak trains accommodate most standard-sized wheeled mobility devices/.test(await txt()), 'NMA-29 AC2, BR2.1: Amtrak wheelchair, own collapsible or mobility aid, one only; Amtrak.com layout');
+  ok(await ev(() => document.querySelector('#device [data-a="mob-next"]').getAttribute('aria-disabled')) === 'true', 'Next stays unavailable until an option is chosen');
+  await axe('mobility questions');
+  await p.click(D_ + '[data-a="back"]'); await w(500);
+  ok(await top() === 'assist-profile' && !(await ev(() => sheet().stack.at(-1).u.d.needs.includes('seat'))) && !(await row()), 'abandoning returns with Accessible seat unfilled');
+  ok(await ev(() => document.activeElement.matches('input[data-f="needs"][value="seat"]')), 'focus returns to Accessible seat');
+  await pick('needs', 'seat'); await card('amtrak'); await next();
+  ok(/Step 2 of 2/.test(await txt()) && await has('mobHelp') && !(await has('mobType')), 'NMA-29 BR2.2: Amtrak wheelchair asks whether help is needed (step 2)');
+  await p.click(D_ + '[data-a="back"]'); await w(400);
+  ok(await top() === 'assist-mob' && /Step 1 of 2/.test(await txt()) && await ev(() => document.querySelector('#device input[value="amtrak"]').checked), 'Back from step 2 returns to step 1 with the answer kept');
+  await next(); await card('yes'); await next();
+  ok(await top() === 'assist-profile' && (await ev(() => sheet().stack.at(-1).u.d.needs)).includes('seat') && /Amtrak wheelchair, help moving in it/.test(await txt()), 'finishing returns with Accessible seat filled and the answers shown');
+  ok(/Accessible seat selected\. Mobility needs answered\./.test(await txt()), 'the change is announced');
+  await p.click(D_ + '[data-a="assist-mob-open"]'); await w(500); await card('own'); await next();
+  ok(await has('mobType') && !(await has('mobHelp')), 'NMA-29 BR2.2: own collapsible wheelchair asks its type');
+  await card('power'); await next();
+  ok(/Own collapsible wheelchair, power/.test(await txt()) && (await ev(() => sheet().stack.at(-1).u.d.mobHelp)) === '', 'Change updates the answers; the help answer is cleared');
+  await open({ cat: 'station' }); await pick('needs', 'seat'); await card('aid');
+  ok(!/Step 1 of/.test(await txt()) && await ev(() => document.querySelector('#device [data-a="mob-next"]').textContent) === 'Done', 'mobility aid: no follow-up, one step');
+  await next(); ok(/Mobility aid/.test(await txt()), 'mobility aid saved to the form');
+  await open({ cat: 'disability', dis: ['mobility'] }); await pick('wc', 'no');
+  ok(await top() === 'assist-mob' && await has('mob'), 'NMA-29 AC2: reduced mobility with no wheelchair space opens the mobility questions');
+  await p.click(D_ + '[data-a="back"]'); await w(500); ok((await ev(() => sheet().stack.at(-1).u.d.wc)) === '', 'abandoning leaves the wheelchair answer unfilled');
+  await open({ cat: 'disability', dis: ['mobility', 'vision'] }); await pick('wc', 'yes');
+  ok(await has('dev') && /Which mobility device will you sit in during travel\?/.test(await txt()) && /I travel with a scooter and I will sit in it during travel\./.test(await txt()), 'NMA-29 AC3, BR3.1: wheelchair space, no seat: device you’ll sit in (other disabilities don’t matter)');
+  ok(await ev(() => [...document.querySelectorAll('#device input[data-f="dev"]')].every(i => i.type === 'radio')), 'NMA-29 BR3.2: one device only');
+  await card('manual'); await next(); ok((await ev(() => sheet().stack.at(-1).u.d.wc)) === 'yes' && /Manual wheelchair, you’ll sit in it during travel/.test(await txt()), 'finishing fills wheelchair space Yes');
+  await pick('needs', 'seat');
+  ok(await top() === 'assist-mob' && /Which mobility device will you bring\?/.test(await txt()) && /I travel with a power wheelchair\./.test(await txt()) && await ev(() => document.querySelector('#device input[value="manual"]').checked), 'NMA-29 AC4, BR4.2: adding a seat asks which device you’ll bring, prefilled');
+  await next(); ok((await ev(() => sheet().stack.at(-1).u.d.needs)).includes('seat'), 'finishing fills Accessible seat');
+  await open({ cat: 'station', needs: ['seat'] }); ok(/Not answered yet/.test(await txt()), 'an unanswered set shows Answer on the form');
+  await save(); ok(/Answer the mobility questions\./.test(await txt()) && await top() === 'assist-profile', 'saving needs the mobility questions answered');
+
+  // ---- NMA-29 in the booking flow (traveler details) ----
+  await ev(() => { TB.v = 1; VS[1] = makeVS('returning'); goLoc('travelers'); }); await w(600);
+  await p.click(D_ + '#ask-adult-1', { force: true }); await w(900);
+  await pick('cat', 'disability'); await pick('dis', 'mobility'); await pick('wc', 'yes');
+  ok(await top() === 'assist-mob' && /Traveler 1|Adult/.test(await txt()), 'booking: wheelchair space opens the device questions for the traveler');
+  await p.click(D_ + '[data-a="back"]'); await w(500); ok(await top() === 'assist' && (await ev(() => sheet().stack.at(-1).u.d.wc)) === '', 'booking: abandoning leaves it unfilled');
+  await pick('wc', 'yes'); await card('scooter'); await next();
+  await p.click(D_ + '[data-a="assist-confirm"]'); await w(600);
+  ok(await ev(() => assistRec(D().booking, 'adult-1').m.dev === 'scooter'), 'booking: the device answer is saved with the traveler’s assistance');
 
   // ---- NMA-628 ----
   await open({ cat: 'disability', dis: ['hearing'] }); q = await qs();

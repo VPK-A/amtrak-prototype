@@ -524,6 +524,8 @@ const mobQ = x => { const d = x.cat === 'disability', mob = d && (x.dis || []).i
 // NMA-628: a disability without a large service animal, or station assistance with an accessible seat → service animal
 // question (training and size); a large service animal → training only; station assistance without a seat → none.
 const saQ = x => x.cat === 'disability' ? ((x.needs || []).includes('animal') ? 'large' : 'ask') : x.cat === 'station' && (x.needs || []).includes('seat') ? 'ask' : null;
+const mobAnswered = (x, q) => q === 'needs' ? !!x.mob && (x.mob !== 'amtrak' || !!x.mobHelp) && (x.mob !== 'own' || !!x.mobType) : q ? !!x.dev : true;
+const mobSummary = (x, q) => q === 'needs' ? [AC.mobShort[x.mob], x.mob === 'amtrak' ? (x.mobHelp === 'yes' ? 'help moving in it' : 'no help needed') : '', x.mob === 'own' ? (x.mobType === 'power' ? 'power' : 'manual') : ''].filter(Boolean).join(', ') : `${AC.devShort[x.dev]}${q === 'sit' ? ', you’ll sit in it during travel' : ''}`;
 function detailsOf(x) {
   const o = { mob: null, mobHelp: null, mobType: null, dev: null, sa: null, saTask: null, saSize: null }, mq = mobQ(x), sq = saQ(x);
   if (mq === 'needs' && x.mob) { o.mob = x.mob; if (x.mob === 'amtrak') o.mobHelp = x.mobHelp || null; if (x.mob === 'own') o.mobType = x.mobType || null; }
@@ -544,11 +546,10 @@ function assistErrors(x, mode, who = 'Traveler 1') {
   if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
   if (x.cat === 'disability' && x.dis.includes('mobility') && !x.wc) e.wc = AC.err.wc;
   if (assistConflict(x)) e.needs = AC.err.conflict;
-  // Profile (one-page form): NMA-29 and NMA-628 answers are required once their question appears
+  // NMA-29 (Profile and booking): the mobility questions must be answered once they apply. NMA-628 (Profile only).
+  if (!v2() && mobQ(x) && !mobAnswered(x, mobQ(x))) e.mob = AC.err.mob;
   if (mode === 'profile' && !v2()) {
-    const mq = mobQ(x), sq = saQ(x);
-    if (mq === 'needs') { if (!x.mob) e.mob = AC.err.mob; else if (x.mob === 'amtrak' && !x.mobHelp) e.mobHelp = AC.err.mobHelp; else if (x.mob === 'own' && !x.mobType) e.mobType = AC.err.mobType; }
-    if ((mq === 'sit' || mq === 'bring') && !x.dev) e.dev = AC.err.dev;
+    const sq = saQ(x);
     if (sq === 'ask' && !x.sa) e.sa = AC.err.sa;
     if ((sq === 'ask' && x.sa === 'yes') || sq === 'large') { if (!(x.saTask || '').trim()) e.saTask = AC.err.saTask; if (sq === 'ask' && !x.saSize) e.saSize = AC.err.saSize; }
   }
@@ -568,7 +569,14 @@ HOOKS.assist = (r, t) => {
   if (!x.needs.includes('animal')) x.animal = '';
   else x.animal = 'large'; // the checkbox is Large service animal; small and medium animals are asked about separately (NMA-628, NMA-616)
   r.u.assistNote = notes.join(' ') || null;
-  if (r.u.err) r.u.err = assistErrors(x, r.u.mode, assistWho(r).label);
+  const before = r.u.snap ? JSON.parse(r.u.snap) : null, q = mobQ(x), fill = (t.type === 'checkbox' && t.checked) || t.type === 'radio';
+  if (!v2() && before && fill && ['needs', 'wc'].includes(t.dataset.f) && q && q !== mobQ(before)) {
+    const pri = +riOf(t), focus = `[data-f="${t.dataset.f}"][value="${t.value}"]`;
+    r.u.mobPending = { after: JSON.parse(JSON.stringify(x)), q, label: t.dataset.f === 'needs' ? needLabel(t.value) : `${AC.wcQuestion} ${t.value === 'yes' ? 'Yes' : 'No'}` };
+    r.u.d = before; r.u.assistNote = null; // nothing changes until the questions are finished
+    setTimeout(() => { push('assist-mob', { pri, q }, pri); sheet().stack[sheet().stack.length - 1].opener = focus; }, 0);
+  }
+  if (r.u.err) r.u.err = assistErrors(r.u.d, r.u.mode, assistWho(r).label);
 };
 // Inline choice when wheelchair space makes an accessible seat and a large service animal conflict
 A['assist-keep'] = (t, ri) => {
@@ -603,24 +611,23 @@ const ABOUT = { seat: ['accessible-seats', 'About accessible seats'], station: [
 function radioSet(idp, f, legend, opts, val, err, inline) {
   return `<fieldset class="ads-fieldset${inline ? ' ads-fieldset--inline' : ''} assist-q" ${err ? `aria-describedby="${idp}-${f}-err"` : ''}><legend class="ads-field-label">${legend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${opts.map(([v, l, s]) => choice('radio', `${idp}-${f}`, f, v, val === v, l, s || '', 'data-hook="assist"')).join('')}</div>${err ? `<p class="ads-helper ads-helper--error" id="${idp}-${f}-err">${ic('alert-diamond')}<span>${err}</span></p>` : ''}</fieldset>`;
 }
+function mobRow(x, q, idp, e) {
+  const done = mobAnswered(x, q);
+  return `<div class="assist-mobrow${e.mob ? ' is-error' : ''}" id="${idp}-mob">${ic('wheelchair-space')}<div class="assist-mobrow__text"><p class="ads-field-label">${AC.mobTitle} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span></p><p class="ads-body-small ${done ? '' : 'ads-text-secondary'}">${done ? esc(mobSummary(x, q)) : 'Not answered yet'}</p>${e.mob ? `<p class="ads-helper ads-helper--error" id="${idp}-mob-err">${ic('alert-diamond')}<span>${e.mob}</span></p>` : ''}</div><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-mob-open" aria-label="${done ? 'Change' : 'Answer'} mobility needs" ${e.mob ? `aria-describedby="${idp}-mob-err"` : ''}>${done ? 'Change' : 'Answer'}</button></div>`;
+}
 function detailsBlock(r, x, idp, e) {
-  if (r.u.mode !== 'profile' || v2()) return '';
-  const mq = mobQ(x), sq = saQ(x); if (!mq && !sq) return '';
+  if (v2()) return '';
+  const mq = mobQ(x), sq = r.u.mode === 'profile' ? saQ(x) : null; if (!mq && !sq) return '';
   ref(...[mq ? '29' : null, sq ? '628' : null].filter(Boolean));
-  let h = '';
-  if (mq === 'needs') {
-    h += radioSet(idp, 'mob', AC.mobLegend, AC.mobOpts, x.mob, e.mob);
-    if (x.mob === 'amtrak') h += radioSet(idp, 'mobHelp', AC.mobHelpLegend, [['yes', 'Yes'], ['no', 'No']], x.mobHelp, e.mobHelp, true);
-    if (x.mob === 'own') h += radioSet(idp, 'mobType', AC.mobTypeLegend, AC.mobTypes, x.mobType, e.mobType, true);
-  }
-  if (mq === 'sit' || mq === 'bring') h += radioSet(idp, 'dev', mq === 'sit' ? AC.devSitLegend : AC.devBringLegend, AC.devOpts, x.dev, e.dev);
+  let h = '', top = mq ? mobRow(x, mq, idp, e) : '';
   const task = lab => fieldHtml({ id: `${idp}-satask`, f: 'saTask', label: lab, value: x.saTask || '', req: true, max: 200, help: AC.saTaskHelp, err: e.saTask, cls: 'assist-q' });
   if (sq === 'ask') {
     h += radioSet(idp, 'sa', AC.saLegend, AC.saOpts, x.sa, e.sa);
     if (x.sa === 'yes') h += task(AC.saTask) + radioSet(idp, 'saSize', AC.saSizeLegend, AC.saSizes, x.saSize, e.saSize, true);
   }
   if (sq === 'large') h += task(AC.saTaskLarge);
-  return `<section class="assist-details" aria-labelledby="${idp}-det-h"><h3 class="ads-field-label assist-details__h" id="${idp}-det-h">${AC.detailsTitle} ${q(18)}</h3>${h}</section>`;
+  q(18);
+  return top + (h ? `<section class="assist-details" aria-labelledby="${idp}-det-h"><h3 class="ads-field-label assist-details__h" id="${idp}-det-h">${AC.detailsTitle}</h3>${h}</section>` : '');
 }
 // Service animal size: small and medium are always accepted; large follows the wheelchair-space rule
 function animalSize(x, idp, e, largeOff) {
@@ -656,7 +663,7 @@ function wcBlock(r, x, idp, e) {
 function assistForm(r, ri, o) {
   const src = o.mode === 'booking' ? assistRec(D().booking, assistWho(r).key).m : D().assist;
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(src, o.mode); r.u.mode = o.mode; }
-  const x = r.u.d, e = r.u.err || {}, idp = o.idp;
+  const x = r.u.d, e = r.u.err || {}, idp = o.idp; r.u.snap = JSON.stringify(x);
   ref(o.mode === 'booking' ? '615' : '26', '27', '28', o.mode === 'booking' ? '995' : '995', '996');
   let branch = '';
   if (x.cat === 'disability') branch = disBlock(r, x, idp, e) + (x.dis.includes('mobility') ? wcBlock(r, x, idp, e) : '') + needsBlock(r, x, idp, false, e) + detailsBlock(r, x, idp, e);
@@ -664,7 +671,7 @@ function assistForm(r, ri, o) {
   if (x.cat === 'companion') branch = needsBlock(r, x, idp, false, e);
   if (o.mode === 'booking') snote('Proposal, needs team confirmation: there’s no “I do not need assistance” option. Confirm with nothing selected to request no assistance. A personal companion isn’t paired with a traveler here; who they accompany is collected in Traveler information. Each traveler with a disability may still bring one.');
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
-  if (x.cat === 'disability' || x.cat === 'station') snote(o.mode === 'booking' ? 'Mobility device and service animal details are asked in Profile (NMA-29, NMA-628) and, for a booking, later in Traveler information (NMA-619, NMA-616, not built). Live station-assistance availability is NMA-620 (Sprint 7).' : 'NMA-29 and NMA-628: the mobility and service animal questions appear under the other needs, in the same questionnaire, as the stories ask. Question wording is a draft.');
+  if (x.cat === 'disability' || x.cat === 'station') snote(o.mode === 'booking' ? 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. Service animal details are asked in Profile (NMA-628) and later in Traveler information (NMA-616, not built). Live station-assistance availability is NMA-620 (Sprint 7).' : 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. NMA-628: the service animal questions appear under the other needs. Question wording is a draft.');
   // Conditional changes are announced from one live region at the top of the form
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
   return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
@@ -680,8 +687,8 @@ function assistSummaryItems(m) {
   else if (m.cat !== 'station') out.push('No other needs');
   if (m.animalLater) out.push(AC.animalLaterSummary(m.animalLater));
   const lab = (opts, v) => (opts.find(o => o[0] === v) || [])[1];
-  if (m.mob) out.push(lab(AC.mobOpts, m.mob) + (m.mobHelp ? (m.mobHelp === 'yes' ? ', with help moving in it' : ', no help moving in it') : '') + (m.mobType ? `, ${lab(AC.mobTypes, m.mobType).toLowerCase()}` : ''));
-  if (m.dev) out.push(`Mobility device: ${lab(AC.devOpts, m.dev).toLowerCase()}`);
+  if (m.mob) out.push('Mobility: ' + mobSummary(m, 'needs'));
+  if (m.dev) out.push('Mobility device: ' + mobSummary(m, m.needs.includes('seat') ? 'bring' : 'sit'));
   if (m.sa === 'no') out.push('No service animal');
   if (m.sa === 'yes') out.push(`Service animal (${m.saSize || 'size not given'})${m.saTask ? `: ${m.saTask}` : ''}`);
   if (!m.sa && m.saTask) out.push(`Large service animal trained to: ${m.saTask}`);

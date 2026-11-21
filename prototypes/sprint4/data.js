@@ -137,16 +137,26 @@ const ASSIST_COPY = {
   why: { station: 'because it isn’t offered with station-only assistance', companion: 'because it isn’t offered to a personal companion', compSeat: 'because it needs Station assistance', none: 'because no assistance is requested', noDisability: 'because no disability is selected', wcChoice: 'so this traveler has wheelchair space with one of them' },
   // NMA-29 (Profile): mobility needs and device type. NMA-628 (Profile): service animal. Draft wording, to be replaced
   // with the approved copy from the stories' question screens.
-  mobLegend: 'Do you need a wheelchair or mobility aid?',
-  mobOpts: [['amtrak', 'I need an Amtrak wheelchair', ''], ['own', 'I’ll bring my own collapsible wheelchair', ''], ['aid', 'I’ll bring a mobility aid', 'Like a cane, crutches or a walker.'], ['none', 'I don’t need either', '']],
-  mobHelpLegend: 'Do you need help moving in the wheelchair?', mobTypeLegend: 'What type of wheelchair is it?', mobTypes: [['manual', 'Manual'], ['power', 'Power (battery)']],
+  // NMA-29 mobility questions open on their own page (Amtrak.com "Assistance Requests" pattern): intro, one choice
+  // per step on cards, a call-us note, and Next. Device wording follows the Amtrak.com screens; the rest is a draft.
+  mobTitle: 'Mobility needs',
+  mobIntro: 'Amtrak trains accommodate most standard-sized wheeled mobility devices used today. If you travel with your own wheeled mobility device, review the wheeled mobility device specifications before making a reservation. If traveling without a wheelchair but need an accessible seat, contact us 1-800-USA-RAIL.',
+  mobCall: 'Call 1-800-USA-RAIL to share additional information, or discuss',
+  mobLegend: 'Which of these do you need?',
+  mobOpts: [['amtrak', 'I need an Amtrak wheelchair', ''], ['own', 'I travel with my own collapsible wheelchair', ''], ['aid', 'I travel with a mobility aid', 'Like a cane, crutches or a walker.']],
+  mobShort: { amtrak: 'Amtrak wheelchair', own: 'Own collapsible wheelchair', aid: 'Mobility aid' },
+  mobHelpLegend: 'Do you need help moving in the wheelchair?', mobHelpOpts: [['yes', 'Yes, I need help moving in the wheelchair'], ['no', 'No, I don’t need help']],
+  mobTypeLegend: 'What type of collapsible wheelchair is it?', mobTypes: [['manual', 'Manual collapsible wheelchair'], ['power', 'Power (battery) collapsible wheelchair']],
   devSitLegend: 'Which mobility device will you sit in during travel?', devBringLegend: 'Which mobility device will you bring?',
-  devOpts: [['manual', 'Manual wheelchair'], ['power', 'Power wheelchair'], ['scooter', 'Mobility scooter']],
+  devSitOpts: [['manual', 'I travel with a manual wheelchair and I will sit in it during travel.'], ['power', 'I travel with a power wheelchair and I will sit in it during travel.'], ['scooter', 'I travel with a scooter and I will sit in it during travel.']],
+  devBringOpts: [['manual', 'I travel with a manual wheelchair.'], ['power', 'I travel with a power wheelchair.'], ['scooter', 'I travel with a scooter.']],
+  devShort: { manual: 'Manual wheelchair', power: 'Power wheelchair', scooter: 'Scooter' },
+  mobPick: 'Choose an option to continue.',
   saLegend: 'Do you travel with a service animal?', saOpts: [['no', 'I don’t travel with a service animal'], ['yes', 'I travel with a service animal']],
   saTask: 'What is your service animal trained to do?', saTaskLarge: 'What is your large service animal trained to do?', saTaskHelp: 'For example, guiding, alerting or retrieving items.',
   saSizeLegend: 'Size of your service animal', saSizes: [['small', 'Small'], ['medium', 'Medium']],
-  detailsTitle: 'Mobility and service animal details',
-  err: { mob: 'Choose whether you need a wheelchair or mobility aid.', mobHelp: 'Tell us whether you need help moving in the wheelchair.', mobType: 'Choose the type of wheelchair.', dev: 'Choose your mobility device.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
+  detailsTitle: 'Service animal details',
+  err: { mob: 'Answer the mobility questions.', sa: 'Tell us whether you travel with a service animal.', saTask: 'Tell us what your service animal is trained to do.', saSize: 'Choose the size of your service animal.',
     cat: who => `Choose a type of help for ${who}.`, dis: 'Choose at least one disability.', wc: 'Tell us whether you’ll bring a wheelchair.', conflict: 'Choose an accessible seat or a large service animal to keep.', size: 'Choose the size of your service animal.' }
 };
 // People on each Pass Rider's pass record (sample data). The relationship (rel) is kept for eligibility and business
@@ -232,7 +242,7 @@ const QUESTIONS = {
   17: ['Coupon retention and notices', 'NMA-697 BR5 keeps used and expired coupons for “X” days, and BR8’s notification channels (new coupon, expiring soon) aren’t defined. The prototype shows them without a time limit and marks coupons that expire within 30 days.'],
   20: ['Fares on the calendar', 'Removed after stakeholder feedback: the calendar shows no prices or fare shading. A fare calendar has no Sprint 4 story or fare source; if it returns it needs a fares service and a decision on which fare to show.'],
   19: ['Who can be a personal companion', 'NMA-615 says a personal companion needs a traveler with a disability, and each of them may bring one. It doesn’t say which passenger types can be a companion (for example a Child or Infant), or how the pairing is recorded. Proposal awaiting team confirmation: assistance doesn’t ask who a companion accompanies; the one-each rule is checked by count (no more companions than travelers with a disability), and the pairing is collected in Traveler information.'],
-  18: ['Mobility and service animal details (NMA-29, NMA-628)', 'Built in Profile from the stories’ rules (both UX approved). Which questions appear follows the stories exactly; the question and option wording is a draft, because the stories show their questions as images in Jira that the prototype couldn’t read. Proposal: “I don’t need either” lets someone with only an accessible seat say they need no device. In booking these questions come later, in Traveler information (NMA-619, NMA-616), which isn’t built.'],
+  18: ['Mobility and service animal details (NMA-29, NMA-628)', 'Which questions appear follows the stories exactly (both UX approved). The mobility questions open on their own page when someone checks Accessible seat or answers the wheelchair-space question: finishing them fills that answer, going back leaves it unfilled. Device wording follows the Amtrak.com Assistance Requests screens; the rest is a draft, because the stories show their questions as images in Jira. Open: the Amtrak.com device screen says “Step 1 of 2”, but the stories don’t say what step 2 is, so the device questions end after one step here.'],
   10: ['Young adult with an infant', 'Conflict in NMA-611. BR7 lets an infant travel with an Adult, Senior or Young adult, and BR3 seats lap infants 1:1 with those three types. BR9 says a Young adult can’t bring a Youth, Child or Infant without an Adult or Senior. The prototype follows BR9 (blocked) and counts Young adults toward lap seats. This case isn’t counted as verified until it’s decided. Age bands follow the CORE rules listed in the story (Adult 18–64, Senior 65+, Young adult 16–17, Youth 13–15, Child 2–12, Infant under 2).'],
   11: ['Discount codes before a train is chosen', 'Code eligibility depends on the train (NMA-613 scenarios 7–9). Fare Finder only checks the format and the rules it can know (companion coupons need two travelers); the rest is checked by the back end when you find trains.'],
   12: ['Corporate Auto Train and PWD in restricted modes', 'NMA-622 AC8 asks for an error after Find trains when a Corporate search includes Auto Train; the current app switches to Personal instead. The prototype shows the error with a Switch to Personal action. Pass Rider blocks Auto Train for Business travel only (NMA-1016 AC4). Whether the Passenger with disability discount applies to Corporate or Pass Rider travel is open; neither applies it.'],

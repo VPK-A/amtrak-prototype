@@ -265,3 +265,41 @@ A['assist-answer'] = (t, ri) => {
   if (assistSeen(b, key)) return go(); // already opened for this traveler: no request, works offline (NMA-996, 997)
   runNet(r, () => null, go, { what: 'open the assistance questions' });
 };
+
+// =====================================================================
+// NMA-29 mobility questions on their own page (Amtrak.com "Assistance Requests" pattern). Opened by checking
+// Accessible seat or answering wheelchair space (r.p.q: needs, sit or bring), or by Answer/Change on the form.
+// Finishing fills the control that opened it; Back from the first step returns with it unfilled.
+// =====================================================================
+const mobParent = r => sheet().stack[+r.p.pri];
+SCR['assist-mob'] = (r, ri) => {
+  const par = mobParent(r), q = r.p.q, src = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after;
+  if (!r.u.d) r.u.d = { mob: src.mob || '', mobHelp: src.mobHelp || '', mobType: src.mobType || '', dev: src.dev || '' };
+  r.u.guard = false; // leaving is abandoning: nothing to discard
+  ref('29');
+  const a = r.u.d, step = r.u.step || 1, needs = q === 'needs', total = needs && a.mob !== 'aid' ? 2 : 1;
+  const set = needs ? (step === 1 ? ['mob', AC.mobLegend, AC.mobOpts] : a.mob === 'amtrak' ? ['mobHelp', AC.mobHelpLegend, AC.mobHelpOpts] : ['mobType', AC.mobTypeLegend, AC.mobTypes]) : ['dev', q === 'sit' ? AC.devSitLegend : AC.devBringLegend, q === 'sit' ? AC.devSitOpts : AC.devBringOpts];
+  const [f, legend, opts] = set, chosen = !!a[f], last = step === total;
+  const who = par.s === 'assist' ? assistWho(par) : null, name = who ? assistHeading(who) : `${D().profile.first} ${D().profile.last}`, type = who ? PAX_LABEL[who.type] || '' : 'Adult';
+  const cards = opts.map(([v, l, s]) => `<div class="mobq__card${a[f] === v ? ' is-selected' : ''}">${choice('radio', 'mobq-' + f, f, v, a[f] === v, l, s || '')}</div>`).join('');
+  const count = total > 1 ? `<div class="mobq__steps"><span class="ads-body-small">Step ${step} of ${total}</span><div class="mobq__bar" aria-hidden="true">${[1, 2].map(i => `<i class="${i <= step ? 'is-done' : ''}"></i>`).join('')}</div></div>` : '';
+  if (q !== 'needs') snote('Open question: the Amtrak.com device screen says “Step 1 of 2”, but the story doesn’t say what step 2 is, so this ends after the device type.');
+  const body = `<div class="mobq"><div class="mobq__who"><span class="ads-body-emphasis">${esc(name)}</span><span class="ads-body-small">${esc(type)}</span></div>${count}<p class="ads-body-small mobq__intro">${AC.mobIntro}</p><fieldset class="ads-fieldset mobq__set"><legend class="ads-field-label" tabindex="-1" id="mobq-legend">${legend}</legend><div class="mobq__opts">${cards}</div></fieldset><p class="ads-body-small mobq__call">${AC.mobCall} ${infoLink('accessible-travel', 'specific assistance requests')}.</p></div>`;
+  const foot = `<p class="ads-sr-only" id="mobq-hint">${chosen ? '' : AC.mobPick}</p><button class="ads-btn ads-btn--block" type="button" data-a="mob-next" ${chosen ? '' : 'aria-disabled="true" aria-describedby="mobq-hint"'}>${last ? 'Done' : 'Next'}</button>`;
+  return { title: AC.mobTitle, kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--mobq', body, foot, footCls: 'ads-actionfooter', banner: false };
+};
+A['mob-next'] = (t, ri) => {
+  const r = routeAt(ri), a = r.u.d, q = r.p.q;
+  if (q === 'needs' && (r.u.step || 1) === 1 && (a.mob === 'amtrak' || a.mob === 'own')) { r.u.step = 2; pendingFocus = '#mobq-legend'; render(); return; }
+  const par = mobParent(r), base = r.p.edit || !par.u.mobPending ? par.u.d : par.u.mobPending.after, label = par.u.mobPending && !r.p.edit ? par.u.mobPending.label : null;
+  if (q === 'needs') Object.assign(base, { mob: a.mob, mobHelp: a.mob === 'amtrak' ? a.mobHelp : '', mobType: a.mob === 'own' ? a.mobType : '' });
+  else base.dev = a.dev;
+  par.u.d = base; par.u.mobPending = null; par.u.dirty = true;
+  par.u.assistNote = label ? `${label} selected. Mobility needs answered.` : 'Mobility needs updated.';
+  if (par.u.err) par.u.err = assistErrors(base, par.u.mode, assistWho(par).label);
+  popTo(+r.p.pri);
+};
+A['assist-mob-open'] = (t, ri) => { const r = routeAt(ri), q = mobQ(r.u.d); if (!q) return; push('assist-mob', { pri: +ri, q, edit: true }, +ri); };
+// Back from step 2 returns to step 1; from step 1 it abandons (the opening control stays unfilled)
+const backBeforeMob = A.back;
+A.back = (t, ri) => { const r = routeAt(ri); if (r && r.s === 'assist-mob' && (r.u.step || 1) === 2) { r.u.step = 1; pendingFocus = '#mobq-legend'; render(); return; } if (r && r.s === 'assist-mob') { const par = mobParent(r); if (par) par.u.mobPending = null; } return backBeforeMob(t, ri); };
