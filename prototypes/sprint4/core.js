@@ -502,7 +502,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); if ($('#tbSsl')) $('#tbSsl').value = ssl(); $('#tbToken').value = V().token;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
@@ -548,6 +548,5 @@ function wireToolbar() {
   $('#tbS5d').innerHTML = S5_DISC_MODES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbS5d').addEventListener('change', e => { TB.s5d = e.target.value; render(); });
   $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
-  if ($('#tbSsl')) { $('#tbSsl').innerHTML = SS_LAYOUTS.map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); $('#tbSsl').addEventListener('change', e => { TB.ssl = e.target.value; render(); }); }
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }
