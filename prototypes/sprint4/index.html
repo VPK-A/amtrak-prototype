@@ -4886,6 +4886,15 @@ const bigAnimal = x => x.needs.includes('animal') && x.animal === 'large';
 const assistConflict = x => x.cat === 'disability' && x.wc === 'yes' && x.needs.includes('seat') && bigAnimal(x);
 const needLabel = k => NEEDS.find(n => n[0] === k)[1];
 const listWords = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
+// A blocked save takes people to the first missing answer (its first control), scrolled into view
+function focusFirstError() {
+  setTimeout(() => {
+    const pane = [...document.querySelectorAll('#device section.pane')].pop(), err = pane && pane.querySelector('.assistform .ads-helper--error'); if (!err) return;
+    const box = err.closest('fieldset, .assist-mobrow, .ads-field') || err, ctl = box.querySelector('input:not([disabled]), select, textarea, button:not([disabled])');
+    const sc = pane.querySelector('.pane__scroll'), t = ((ctl && ctl.closest('label')) || ctl || err).getBoundingClientRect(), v = sc && sc.getBoundingClientRect(); // scroll only the form, never the sheet
+    if (sc) sc.scrollTop += (t.top - v.top) - (v.height - t.height) / 2; if (ctl) ctl.focus({ preventScroll: true });
+  }, 0);
+}
 function assistErrors(x, mode, who = 'Traveler 1') {
   const e = {};
   if (x.cat === 'disability' && !x.dis.length) e.dis = AC.err.dis;
@@ -5027,8 +5036,10 @@ function assistForm(r, ri, o) {
   if (o.mode === 'booking' && x.cat === 'companion') ref('997');
   if (x.cat === 'disability' || x.cat === 'station') snote(o.mode === 'booking' ? 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. Service animal details are asked in Profile (NMA-628) and later in Traveler information (NMA-616, not built). Live station-assistance availability is NMA-620 (Sprint 7).' : 'NMA-29: checking Accessible seat or answering the wheelchair-space question opens the mobility questions on their own page; the answer fills only when they’re finished. NMA-628: the service animal questions appear under the other needs. Question wording is a draft.');
   // Conditional changes are announced from one live region at the top of the form
+  const nErr = Object.keys(r.u.err || {}).length;
+  const errTop = nErr ? `<div class="ads-alert ads-alert--error assist-errsum" role="alert">${ic('alert-diamond', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${nErr === 1 ? '1 answer is missing' : `${nErr} answers are missing`}</p><p class="ads-alert__description ads-body-small">Answer the ${nErr === 1 ? 'question' : 'questions'} marked below to save.</p></div></div>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
-  return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
+  return `<div class="assistform">${errTop}<div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
   if (!m.cat || m.cat === 'none') return [AC.noneSummary];
@@ -5422,7 +5433,7 @@ A['assist-return'] = (t, ri) => { const sh = sheet(); sh.stack = [sh.stack[0], R
 A['assist-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, e = assistErrors(x, 'profile');
   if (v1() && JSON.stringify(fromDraft(x)) === JSON.stringify(fromDraft(toDraft(D().assist)))) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-assist"]'; render(); return; } // nothing to save
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.dis ? 'dis' : 'wc'; render(); focusFirstError(); return; }
   const m = fromDraft(x), d = D();
   runSave(r, () => {
     const before = d.discount.type; let msg = m.cat ? 'Your assistance is saved to your profile.' : 'Assistance cleared. Nothing is saved.';
@@ -6344,7 +6355,7 @@ A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
   const e = assistErrors(x, 'booking', who);
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability, and each of them may bring one.';
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; render(); focusFirstError(); return; }
   // Replacing a different discount with Passenger with disability asks first (design review). Only when a discount is
   // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
   // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).

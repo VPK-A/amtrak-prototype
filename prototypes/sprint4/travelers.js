@@ -196,7 +196,7 @@ A['assist-confirm'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, b = D().booking, key = r.p.t || firstKey(b), who = (travelerList(b).find(z => z.key === key) || { label: 'Traveler 1' }).label;
   const e = assistErrors(x, 'booking', who);
   if (x.cat === 'companion' && !companionOpen(b, key)) e.cat = 'A personal companion needs another traveler with a disability, and each of them may bring one.';
-  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; pendingFocus = '[aria-invalid="true"], .ads-helper--error'; render(); return; }
+  if (Object.keys(e).length) { r.u.err = e; if (v2()) r.u.step = e.cat ? 'cat' : e.dis ? 'dis' : 'wc'; render(); focusFirstError(); return; }
   // Replacing a different discount with Passenger with disability asks first (design review). Only when a discount is
   // actually replaced: not when none was selected, when PWD already applies, or for station help without a disability.
   // Existing eligibility and precedence rules are unchanged (assistDiscount decides what applies).
