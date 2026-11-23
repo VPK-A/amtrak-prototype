@@ -258,8 +258,6 @@
 .ss-collapse > div { min-height: 0; overflow: hidden; }
 .is-kb .ss-collapse { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows var(--kb-ms) var(--kb-ease), opacity 160ms ease, margin var(--kb-ms) var(--kb-ease), visibility 0s var(--kb-ms); }
 .ss-lay-a.is-kb .ss-collapse { margin-bottom: calc(-1 * var(--ads-space-16)); } /* the field glides up into the card's place */
-.ss-lay-b.is-kb .ss-collapse { margin-top: calc(-1 * var(--ads-space-16)); } /* the field stays; the card folds away beneath it */
-.ss-lay-b .ss-top .ss-group { margin: 0; }
 .is-kb .pane__body { padding-bottom: calc(var(--kb-h) + var(--ads-space-16)); }
 .is-kb .pane__foot { display: none; }
 .ios-kb { position: absolute; left: 0; right: 0; bottom: 0; height: var(--kb-h); z-index: 6; display: flex; flex-direction: column; padding-top: 24px; background: #e0e0e2; border-radius: 27px 27px 62px 62px; box-shadow: inset 0 0 8px rgba(0, 0, 0, .05); transform: translateY(100%); visibility: hidden; transition: transform var(--kb-ms) var(--kb-ease), visibility 0s var(--kb-ms); font-family: "SF Compact", "SF Compact Text", "SF Pro Text", -apple-system, system-ui, sans-serif; color: #000; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
@@ -286,12 +284,14 @@
 .kb-anim-out .ss-collapse { animation: kb-unfold var(--kb-ms) var(--kb-ease); }
 .kb-anim-in.ss-lay-a .ss-collapse { animation-name: kb-fold-a; }
 .kb-anim-out.ss-lay-a .ss-collapse { animation-name: kb-unfold-a; }
-.kb-anim-in.ss-lay-b .ss-collapse { animation-name: kb-fold-b; }
-.kb-anim-out.ss-lay-b .ss-collapse { animation-name: kb-unfold-b; }
 @keyframes kb-rise { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes kb-drop { from { transform: none; } to { transform: translateY(100%); visibility: hidden; } }
 @keyframes kb-fold-a { from { grid-template-rows: 1fr; opacity: 1; margin-bottom: 0; visibility: visible; } 60% { opacity: 0; } to { grid-template-rows: 0fr; opacity: 0; margin-bottom: calc(-1 * var(--ads-space-16)); } }
 @keyframes kb-unfold-a { from { grid-template-rows: 0fr; opacity: 0; margin-bottom: calc(-1 * var(--ads-space-16)); } 40% { opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; margin-bottom: 0; } }
-@keyframes kb-fold-b { from { grid-template-rows: 1fr; opacity: 1; margin-top: 0; visibility: visible; } 60% { opacity: 0; } to { grid-template-rows: 0fr; opacity: 0; margin-top: calc(-1 * var(--ads-space-16)); } }
-@keyframes kb-unfold-b { from { grid-template-rows: 0fr; opacity: 0; margin-top: calc(-1 * var(--ads-space-16)); } 40% { opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; margin-top: 0; } }
 @media (prefers-reduced-motion: reduce) { .ss-kbwrap { --kb-ms: 1ms; } }
+/* Cancel beside the search field while search is active (iOS search pattern) */
+.ss-upd .ss-search--sq:has(.ss-cancel) { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: var(--ads-space-12); }
+.ss-search--sq:has(.ss-cancel) > .ads-control { flex: 1; min-width: 0; }
+.ss-upd .ss-cancel { flex: none; width: auto; min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-4); background: none; border: 0; box-shadow: none; color: var(--ads-content-text-link); font: inherit; font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-body-size); letter-spacing: 0; }
+.kb-anim-in .ss-cancel { animation: ss-cancel-in var(--kb-ms) var(--kb-ease); }
+@keyframes ss-cancel-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }

@@ -1,40 +1,50 @@
-// Station search on iPhone: the iOS keyboard (Figma 4735:235119) rises while search is active, in two layouts
-// (Prototype controls › Station search layout): A, From / To above search (card folds, field glides up); B, search
-// above From / To (field stays, card folds beneath). Tap outside, the X or Return ends search and the card returns.
+// Station search on iPhone (layout A): the iOS keyboard (Figma 4735:235119) rises while search is active, the From / To
+// card folds away and the field glides up into its place, and Cancel shows beside the field. Search ends with Cancel, Esc,
+// Return, a tap outside or dragging the results; the X only clears. The field names the end being searched.
 const { chromium } = require('playwright');
+const AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const URL = require('url').pathToFileURL(require('path').resolve(__dirname, '../../prototypes/sprint4/index.html')).href;
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', m); };
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1500, height: 1000 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(URL);
+  await p.goto(URL); await p.addScriptTag({ content: AXE });
   const ev = (f, a) => p.evaluate(f, a), w = (ms = 450) => p.waitForTimeout(ms), D = '#device ';
   const kb = () => ev(() => !!document.querySelector('#device .ss-kbwrap.is-kb'));
   const top = s => ev(s => Math.round(document.querySelector(s).getBoundingClientRect().top), s);
   const cardH = () => ev(() => Math.round(document.querySelector('#device .ss-collapse').getBoundingClientRect().height));
-  ok(await ev(() => [...document.querySelectorAll('#tbSsl option')].map(o => o.value).join()) === 'a,b', 'Prototype controls offer layouts A and B');
-  for (const lay of ['a', 'b']) {
-    await ev(l => { TB.v = 1; TB.dev = 'iphone'; TB.ssl = l; VS[1] = makeVS('returning'); goLoc('stations:from'); }, lay); await w(800);
-    const order = await ev(() => { const s = document.querySelector('#device .ss-search'), c = document.querySelector('#device .ss-collapse'); return s.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING ? 'search-first' : 'card-first'; });
-    ok(order === (lay === 'a' ? 'card-first' : 'search-first'), `${lay}: ${lay === 'a' ? 'From / To above search' : 'search above From / To'}`);
-    ok(!(await kb()) && await cardH() > 100, `${lay}: at rest, no keyboard and the card shows`);
-    const y0 = await top(D + '#ss-q');
-    await p.click(D + '#ss-q'); await w();
-    ok(await kb() && await ev(() => document.activeElement.id === 'ss-q'), `${lay}: tapping search raises the keyboard, the field keeps focus`);
-    ok(await cardH() === 0 && await ev(() => document.querySelector('#device .ss-collapse').hasAttribute('inert')), `${lay}: the From / To card is hidden (and inert) while searching`);
-    const y1 = await top(D + '#ss-q');
-    ok(lay === 'a' ? y1 < y0 - 100 : y1 === y0, `${lay}: ${lay === 'a' ? 'the field moves up into the card’s place' : 'the field stays in place'}`);
-    ok(await ev(() => { const k = document.querySelector('#device .ios-kb'), d = document.querySelector('#device').getBoundingClientRect(), r = k.getBoundingClientRect(); return Math.abs(r.bottom - d.bottom) < 2 && k.getAttribute('aria-hidden') === 'true'; }), `${lay}: keyboard sits at the bottom of the screen, hidden from assistive tech`);
-    for (const k of ['P', 'E', 'N', 'N']) await p.click(`${D}[data-kb="${k}"]`);
-    await w(200); ok(await ev(() => document.querySelector('#ss-q').value) === 'Penn' && /Penn Station|New York/.test(await ev(() => document.querySelector('#device').innerText)), `${lay}: keys type into search (first letter capitalised) and results update`);
-    await p.click(D + '[data-kb="del"]'); await w(150); ok(await ev(() => document.querySelector('#ss-q').value) === 'Pen', `${lay}: delete removes a letter`);
-    await p.click(D + '.ss-head__title', { force: true }); await w();
-    ok(!(await kb()) && await cardH() > 100 && await top(D + '#ss-q') === y0, `${lay}: tapping outside drops the keyboard and the card returns`);
-    await p.click(D + '#ss-q'); await w(); await p.click(D + '[data-a="ss-clear"]'); await w();
-    ok(!(await kb()) && await ev(() => document.querySelector('#ss-q').value) === '' && await cardH() > 100, `${lay}: the X clears search, drops the keyboard and brings the card back`);
-    await p.click(D + '#ss-q'); await w(); ok(await kb(), `${lay}: tapping the focused field again raises the keyboard`);
-    await p.click(D + '[data-kb="ret"]'); await w(); ok(!(await kb()), `${lay}: Return ends search`);
-  }
+  const q = () => ev(() => document.querySelector('#ss-q').value);
+  const go = async f => { await ev(f => { TB.v = 1; TB.dev = 'iphone'; VS[1] = makeVS('returning'); goLoc('stations:' + f); }, f); await w(800); };
+  const axe = async n => { const v = await ev(async () => (await axe.run('#device', { resultTypes: ['violations'] })).violations.filter(x => x.nodes.some(n => !n.target.join(' ').includes('dev-status'))).map(x => x.id)); ok(!v.length, `axe ${n} ${v.join(',')}`); };
+  ok(!(await p.locator('#tbSsl').count()), 'one layout (A): the layout switch is gone from Prototype controls');
+  await go('from');
+  ok(await ev(() => { const s = document.querySelector('#device .ss-search'), c = document.querySelector('#device .ss-collapse'); return !!(c.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'From / To card above the search field');
+  ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search departure stations' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search departure stations', 'the field names the end being searched; visible text matches its name (WCAG 2.5.3)');
+  ok(!(await kb()) && await cardH() > 100 && !(await p.locator(D + '.ss-cancel').count()), 'at rest: no keyboard, card shown, no Cancel');
+  const y0 = await top(D + '#ss-q');
+  await p.click(D + '#ss-q'); await w();
+  ok(await kb() && await ev(() => document.activeElement.id === 'ss-q'), 'tapping search raises the keyboard; the field keeps focus');
+  ok(await cardH() === 0 && await ev(() => document.querySelector('#device .ss-collapse').hasAttribute('inert')), 'the card is hidden and inert while searching');
+  ok(await top(D + '#ss-q') < y0 - 100, 'the field glides up into the card’s place');
+  ok(await p.locator(D + '.ss-cancel').count() === 1 && await ev(() => { const c = document.querySelector('#device .ss-cancel').getBoundingClientRect(), s = document.querySelector('#device').getBoundingClientRect(); return c.height / (s.height / 844) >= 43.5; }), 'Cancel shows beside the field, 44 pt tall');
+  ok(await ev(() => { const k = document.querySelector('#device .ios-kb'); return k.getAttribute('aria-hidden') === 'true'; }), 'the drawn keyboard is hidden from assistive tech (the field takes real typing)');
+  await axe('searching');
+  for (const k of ['P', 'E', 'N', 'N']) await p.click(`${D}[data-kb="${k}"]`);
+  await w(200); ok(await q() === 'Penn', 'keys type into search');
+  await p.click(D + '[data-a="ss-clear"]'); await w();
+  ok(await q() === '' && await kb() && await ev(() => document.activeElement.id === 'ss-q'), 'the X only clears: search and the keyboard stay, focus stays in the field');
+  await p.keyboard.type('Bos'); await w(300);
+  await p.click(D + '.ss-cancel'); await w();
+  ok(!(await kb()) && await q() === '' && await cardH() > 100 && await top(D + '#ss-q') === y0 && await ev(() => document.activeElement.id === 'ss-q'), 'Cancel clears, ends search, brings the card back; focus stays on the field');
+  await p.click(D + '#ss-q'); await w(); await p.keyboard.type('Wash'); await w(300);
+  await p.keyboard.press('Escape'); await w();
+  ok(!(await kb()) && await ev(() => sheet() && sheet().stack.at(-1).s === 'stations') && await q() === 'Wash', 'Esc ends search (keeps the text) and stays on the station screen');
+  await p.click(D + '#ss-q'); await w(); ok(await kb() && await ev(() => document.activeElement.id === 'ss-q'), 'tapping the focused field again starts search, focus kept');
+  await p.mouse.move(700, 400); await ev(() => document.querySelector('#device .pane__scroll').dispatchEvent(new WheelEvent('wheel', { deltaY: 60, bubbles: true }))); await w();
+  ok(!(await kb()) && await q() === 'Wash', 'dragging the results dismisses the keyboard; text and results stay');
+  await p.click(D + '#ss-q'); await w(); await p.click(D + '[data-kb="ret"]'); await w(); ok(!(await kb()), 'Return ends search');
+  await p.click(D + '#ss-q'); await w(); await p.click(D + '.ss-head__title', { force: true }); await w(); ok(!(await kb()), 'a tap outside ends search');
+  await go('to'); ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search arrival stations', 'To: Search arrival stations');
   await ev(() => { TB.dev = 'ipad'; VS[1] = makeVS('returning'); goLoc('stations:from'); }); await w(800);
   ok(await p.locator(D + '.ios-kb').count() === 0, 'iPad: no simulated keyboard');
   ok(!errs.length, 'no page errors ' + errs.join(' | '));

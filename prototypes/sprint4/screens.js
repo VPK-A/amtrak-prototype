@@ -249,7 +249,7 @@ function stationSearch(r, ri, field, inline) {
   ref('600', '118', '984');
   const focus = stationFocus() && !inline;
   const root = +ri === 0, lead = focus ? (root ? `<button class="ss-back" type="button" data-a="close" aria-label="Close station search">${ic('arrow-left')}</button>` : `<button class="ss-back" type="button" data-a="back" aria-label="Back to ${esc(titleOf(sheet().stack[+ri - 1], +ri - 1))}">${ic('arrow-left')}</button>`) : ic('search');
-  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${r.p.ctx === 'ts' ? '' : field === 'from' ? 'departure ' : 'arrival '}stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
+  const search = `<div class="ss-search${focus ? ' ss-search--focus' : ''}"><label class="ads-sr-only" for="ss-q">Search ${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? 'departure ' : 'arrival '}stations</label><div class="ads-control ads-control--pill">${lead}<input id="ss-q" type="search" data-f="q" data-live data-nodirty value="${esc(qv)}" placeholder="${focus ? (r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations') : 'City, station, code or ZIP'}" autocomplete="off">${qv ? `<button class="ads-control__clear" type="button" data-a="ss-clear" aria-label="Clear search">${ic('close', 'ads-icon--sm')}</button>` : ''}</div>${q(1)}${q(2)}</div>`;
   // Heading with Back above the List / Map tabs (iPhone; iPad uses the navigation bar), then the search field in
   // List view only, then Nearby stations, Saved and recents. Map view: heading, tabs and the map.
   const upSearch = search.replace(' ss-search--focus', '').replace('class="ss-search', 'class="ss-search ss-search--upd').replace(lead, ic('search')).replace('placeholder="City, station, code or ZIP"', `placeholder="${r.p.ctx === 'ts' ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`);
@@ -259,11 +259,13 @@ function stationSearch(r, ri, field, inline) {
   const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1" data-title>${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
-  const sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, 'placeholder="Search station"').replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
+  let sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, `placeholder="${r.p.ctx === 'ts' || !selPair() ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`).replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
   // iPhone: the From / To card collapses while search is active (iOS keyboard up). Layout A: card above the field;
   // layout B: field above the card (Prototype controls › Station search layout).
   const grp = r.p.ctx === 'ts' || !selPair() ? '' : focus ? `<div class="ss-collapse"${r.u.kb ? ' inert' : ''}><div>${selGroup(r, field)}</div></div>` : selGroup(r, field);
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${focus && ssl() === 'b' ? sq + grp : grp + sq}`;
+  if (focus && r.u.kb) { const at = sq.lastIndexOf('</div>'); sq = sq.slice(0, at) + '<button class="ads-btn ads-btn--tertiary ss-cancel" type="button" data-a="ss-cancel">Cancel</button>' + sq.slice(at); }
+  if (focus) snote('iOS build: VoiceOver’s escape gesture (two-finger scrub) and Esc on a hardware keyboard end search, like Cancel. The card folds when the field has focus, so it also works with a hardware keyboard and no on-screen keyboard.');
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${grp + sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
@@ -304,7 +306,7 @@ SCR.stations = (r, ri) => {
   const why = (v1() || v2()) && D().booking.notice ? /* shown while station search continues to the other station */ `<div class="ads-alert ads-alert--info" role="status">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${D().booking.notice}</p></div></div>` : '';
   const kbOk = stationFocus() && r.u.view !== 'map'; if (!kbOk) r.u.kb = false;
   const anim = kbOk && r.u.kbAnim ? ' kb-anim-' + r.u.kbAnim : ''; r.u.kbAnim = null; // one-shot: typing redraws don't replay it
-  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : '') + (kbOk ? ` ss-kbwrap ss-lay-${ssl()}${r.u.kb ? ' is-kb' : ''}${anim}` : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why) + (kbOk ? iosKeyboard(!!r.u.kbShift) : '');
+  const cls = 'ss-upd' + (r.u.view === 'map' ? ' ss-upd--map' : '') + (kbOk ? ` ss-kbwrap ss-lay-a${r.u.kb ? ' is-kb' : ''}${anim}` : ''), heading = selHeading(f, r.p.ctx), body = stationSearch(r, ri, f, false).replace('<!--why-->', lead + why) + (kbOk ? iosKeyboard(!!r.u.kbShift) : '');
   const foot = (typeof mapFoot === 'function' ? mapFoot(r) : null) || (r.u.view !== 'map' && r.u.fullFoot ? `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="ss-full">View full list</button>` : null), fo = foot ? { foot, footCls: 'ads-actionfooter' } : {};
   return stationFocus() ? Object.assign({ title: heading, kind: 'focus', headInBody: true, cls: 'pane--focus ' + cls, body, banner: false }, fo) : Object.assign({ title: heading, kind: 'push', cls, body, banner: false }, fo);
 };
@@ -316,7 +318,8 @@ function selGroup(r, field) {
 }
 A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
 A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
-A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; if (r.u.kb) { r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); return; } /* X ends search: keyboard drops, card returns */ pendingFocus = '#ss-q'; render(); };
+A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; pendingFocus = '#ss-q'; render(); }; // clears only: search (and the keyboard) stay active
+A['ss-cancel'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); }; // iOS Cancel: clears and ends search
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {
   const d = D(), c = t.dataset.code;

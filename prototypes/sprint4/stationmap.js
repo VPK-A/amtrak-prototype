@@ -539,12 +539,10 @@ function iosKeyboard(upper) {
 <div class="ios-kb__row ios-kb__row--4"><button type="button" class="kb-key kb-key--123" tabindex="-1" data-kb="123">123</button><button type="button" class="kb-key kb-key--space" tabindex="-1" data-kb=" "></button><button type="button" class="kb-key kb-key--ret" tabindex="-1" data-kb="ret">${kbG('ret')}</button></div>
 </div><div class="ios-kb__bottom"><span class="kb-bb">${kbG('emoji')}</span><span class="kb-bb">${kbG('mic')}</span></div></div>`;
 }
-// Prototype controls › Station search layout (iPhone): A keeps the From / To card above the search field; while search
-// is active the card collapses and the field glides up into its place. B puts the field above the card; the field stays
-// put and the card collapses beneath it. Both: the keyboard rises with search and drops when it ends (tap outside,
-// the field's X, or Return), and the card comes back.
-const SS_LAYOUTS = [['a', 'A · From / To above search'], ['b', 'B · Search above From / To']];
-const ssl = () => (typeof TB !== 'undefined' && TB.ssl) || 'a';
+// Station search on iPhone (layout A, chosen): the From / To card sits above the search field. While search is active
+// (the field has focus) the card folds away, the field glides up into its place, the keyboard rises and Cancel shows
+// beside the field. Search ends with Cancel, Esc (hardware keyboard; VoiceOver's escape gesture in the build), Return,
+// a tap outside, or dragging the results (the keyboard dismisses on drag, as in iOS). The X only clears the text.
 let KB_MUTE = false; // programmatic focus (after X or Return) doesn't reopen the keyboard
 const kbPane = el => el && el.closest('.ss-kbwrap');
 const kbRouteOf = el => { const p = el && el.closest('[data-ri]'); return p ? routeAt(p.dataset.ri) : null; };
@@ -571,7 +569,7 @@ document.addEventListener('pointerdown', e => {
   const t = e.target; if (!t.closest || !t.closest('#device')) return;
   if (t.closest('[data-kb-root]')) { e.preventDefault(); return; } // keys never take focus from the field
   const pane = kbPane(t);
-  if (t.closest('#ss-q') && pane) { const r = kbRouteOf(t); if (r && !r.u.kb && document.activeElement === t.closest('#ss-q')) kbSet(r, true); return; }
+  if (t.closest('#ss-q') && pane) { const r = kbRouteOf(t); if (r && !r.u.kb && document.activeElement === t.closest('#ss-q')) setTimeout(() => kbSet(r, true), 0); return; } // after the tap lands, so focus stays in the field
   const open = document.querySelector('#device .ss-kbwrap.is-kb'); if (!open || t.closest('.ss-search')) return;
   const r = kbRouteOf(open); if (!r) return;
   // Tapping anything else ends search. A control (a station, a tab) still does its own job: its render closes the keyboard.
@@ -588,3 +586,13 @@ document.addEventListener('click', e => {
   if (v === ' ') { kbInsert(inp, ' '); return; }
   const up = !!r.u.kbShift; r.u.kbShift = false; kbInsert(inp, up ? v : v.toLowerCase());
 });
+
+// Esc ends search first (it no longer leaves the station screen while searching)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return; const open = document.querySelector('#device .ss-kbwrap.is-kb'); if (!open) return;
+  e.preventDefault(); e.stopImmediatePropagation(); kbSet(kbRouteOf(open), false, true, '#ss-q');
+}, true);
+// Dragging the results dismisses the keyboard (iOS interactive dismiss); the text and results stay
+const kbDrag = e => { const sc = e.target.closest && e.target.closest('#device .ss-kbwrap.is-kb .pane__scroll'); if (!sc || e.target.closest('[data-kb-root]')) return; kbSet(kbRouteOf(sc), false, true); };
+document.addEventListener('wheel', kbDrag, { passive: true });
+document.addEventListener('touchmove', kbDrag, { passive: true });
