@@ -3184,6 +3184,9 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-upd .ss-cancel { flex: none; width: auto; min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-4); background: none; border: 0; box-shadow: none; color: var(--ads-content-text-link); font: inherit; font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-body-size); letter-spacing: 0; }
 .kb-anim-in .ss-cancel { animation: ss-cancel-in var(--kb-ms) var(--kb-ease); }
 @keyframes ss-cancel-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+/* NMA-600 landmark results: a group per landmark, nearest stations first */
+.ss-landmark .ads-stationrow__header span { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+.ss-lm-off { margin: var(--ads-space-12) var(--ads-space-20); }
 
 /* Sprint 5 · Fare search results. Layout only: every surface, colour, radius and type size is an ADS token,
    and every control is an existing component (Card, Badge, Alert, Button, Link, Accordion, Radio). */
@@ -3832,7 +3835,7 @@ const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow c
 
 // Open questions shown as Q markers in the prototype and in the notes panel
 const QUESTIONS = {
-  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark.'],
+  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark. Landmarks list their nearest stations by distance (prototype data; the real list comes from the search service and needs a connection). ZIP matches still match a station’s own ZIP; ordering by distance from a typed ZIP needs ZIP location data.'],
   2: ['Pseudo-stations', 'Results should hide pseudo-stations, but the story doesn’t define them. None are in the mock data.'],
   3: ['Select or view details', 'NMA-600 S4 says a tapped result opens station details (NMA-604). In Fare Finder a tap has to select, so the prototype selects. A separate details control is proposed.'],
   4: ['Booking window (NMA-1060)', 'Unresolved: the 335-day limit and its reference date need confirmation. The prototype keeps 335 days as a setting (WINDOW_DAYS), disables dates beyond it and doesn’t state a limit to customers.'],
@@ -3895,6 +3898,20 @@ const PAST_CODES = [
   { code: '60123456789012', kind: 'Coupon code', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
   { code: '60555544443333', kind: 'Coupon code', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
 ];
+
+// NMA-600 Scenario 3: landmark search. A matched landmark lists the nearest stations by distance from it. Prototype data:
+// in the app this comes from the station search service (it needs a connection; see the Network rules in NMA-600).
+const LANDMARKS = [
+  ['Empire State Building', '', 40.7484, -73.9857], ['Times Square', '', 40.7580, -73.9855], ['Madison Square Garden', 'MSG', 40.7505, -73.9934],
+  ['Central Park', '', 40.7829, -73.9654], ['Statue of Liberty', 'Liberty Island', 40.6892, -74.0445], ['JFK Airport', 'John F. Kennedy International Airport', 40.6413, -73.7781],
+  ['Newark Airport', 'Newark Liberty International Airport, EWR', 40.6895, -74.1745], ['Independence Hall', '', 39.9489, -75.1500], ['Liberty Bell', '', 39.9496, -75.1503],
+  ['US Capitol', 'Capitol Building, United States Capitol', 38.8899, -77.0091], ['White House', '', 38.8977, -77.0365], ['National Mall', 'Lincoln Memorial, Washington Monument', 38.8895, -77.0353],
+  ['Inner Harbor', 'Baltimore Inner Harbor', 39.2858, -76.6081], ['BWI Airport', 'Baltimore/Washington International Airport', 39.1754, -76.6683],
+  ['Fenway Park', '', 42.3467, -71.0972], ['Faneuil Hall', 'Quincy Market', 42.3600, -71.0568], ['Yale University', '', 41.3163, -72.9223], ['Brown University', '', 41.8268, -71.4025],
+  ['Willis Tower', 'Sears Tower', 41.8789, -87.6359], ['Navy Pier', '', 41.8917, -87.6086], ['Wrigley Field', '', 41.9484, -87.6553],
+  ['Gateway Arch', '', 38.6247, -90.1848], ['French Quarter', 'Bourbon Street', 29.9584, -90.0644], ['Walt Disney World', 'Disney World', 28.3852, -81.5639],
+  ['Golden Gate Bridge', '', 37.8199, -122.4783], ['Disneyland', '', 33.8121, -117.9190], ['Hollywood Sign', 'Hollywood', 34.1341, -118.3215], ['Space Needle', 'Seattle Center', 47.6205, -122.3493]
+].map(([name, aka, lat, lon]) => ({ name, aka: aka ? aka.split(', ') : [], lat, lon }));
 
 /* Sprint 4 prototype: state, routing, rendering shell, network mock, toolbar. */
 const $ = (s, r = document) => r.querySelector(s);
@@ -4683,6 +4700,12 @@ function searchStations(qs) {
   };
   return STATIONS.map(s => [rank(s), s]).filter(x => x[0] < 99).sort((a, b) => a[0] - b[0] || a[1].city.localeCompare(b[1].city) || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
 }
+// Landmarks matching the typed text, each with its nearest stations (within 150 miles, closest first)
+function searchLandmarks(qs) {
+  const q = qs.trim().toLowerCase(); if (q.length < 2 || typeof LANDMARKS === 'undefined') return [];
+  const hit = t => t.toLowerCase().startsWith(q) || words(t).some(w => w.startsWith(q)) || t.toLowerCase().includes(' ' + q);
+  return LANDMARKS.filter(l => hit(l.name) || l.aka.some(hit)).slice(0, 3).map(l => ({ l, near: STATIONS.map(s => ({ s, mi: geoOf(s.code) ? miles(l, geoOf(s.code)) : Infinity })).filter(x => x.mi <= 150).sort((a, b) => a.mi - b.mi).slice(0, 4) })).filter(x => x.near.length);
+}
 function stationRow(s, field, sec, near) {
   const d = D(), ctx = curCtx(), tg = selTarget(ctx), fav = d.fav.includes(s.code), cur = tg[field] === s.code;
   const rec = d.rec.find(x => x.c === s.code);
@@ -4721,9 +4744,13 @@ function stationSearch(r, ri, field, inline) {
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
   if (qv.trim()) {
-    const res = searchStations(qv);
-    if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
-    else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
+    const res = searchStations(qv), offline = V().net === 'offline', lms = offline ? [] : searchLandmarks(qv);
+    // NMA-600: station matches first (code, city, state, station name, aliases, ZIP), then landmarks with their nearest stations
+    const lmH = lms.map(({ l, near }) => `<div class="stsection ss-landmark"><div class="ads-stationrow__header"><span>${ic('map-pin', 'ads-icon--sm')}Near ${esc(l.name)}</span></div><ul class="stlist" aria-label="Stations near ${esc(l.name)}, closest first">${near.map((x, i) => stationRow(x.s, field, 'lm' + i, { mi: x.mi, rank: i + 1 })).join('')}</ul></div>`).join('');
+    const n = res.length + lms.reduce((t, x) => t + x.near.length, 0);
+    const offNote = offline && qv.trim().length > 2 ? `<p class="ads-helper ss-lm-off" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>Searching by landmark needs a connection. You can still search by station, city, state, code or ZIP code.</span></p>` : '';
+    if (n) h += `<p class="ads-sr-only" role="status">${n} result${n > 1 ? 's' : ''}${lms.length ? `, including stations near ${lms.map(x => x.l.name).join(' and ')}` : ''}</p>${res.length ? `<ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>` : ''}${lmH}${offNote}`;
+    else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
     else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
     return h + q(3) + '</div>';
   }
@@ -4740,7 +4767,7 @@ function stationSearch(r, ri, field, inline) {
   }
   r.u.fullFoot = !showAll; // View full list is pinned in the footer (Figma 3295:51259)
   h += `<p class="ss-note">${q(3)} Bookmark a station to save it.</p></div>`;
-  tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
+  tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”, or a landmark: “Empire”, “Fenway”, “Space Needle”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder

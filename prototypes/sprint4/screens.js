@@ -232,6 +232,12 @@ function searchStations(qs) {
   };
   return STATIONS.map(s => [rank(s), s]).filter(x => x[0] < 99).sort((a, b) => a[0] - b[0] || a[1].city.localeCompare(b[1].city) || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
 }
+// Landmarks matching the typed text, each with its nearest stations (within 150 miles, closest first)
+function searchLandmarks(qs) {
+  const q = qs.trim().toLowerCase(); if (q.length < 2 || typeof LANDMARKS === 'undefined') return [];
+  const hit = t => t.toLowerCase().startsWith(q) || words(t).some(w => w.startsWith(q)) || t.toLowerCase().includes(' ' + q);
+  return LANDMARKS.filter(l => hit(l.name) || l.aka.some(hit)).slice(0, 3).map(l => ({ l, near: STATIONS.map(s => ({ s, mi: geoOf(s.code) ? miles(l, geoOf(s.code)) : Infinity })).filter(x => x.mi <= 150).sort((a, b) => a.mi - b.mi).slice(0, 4) })).filter(x => x.near.length);
+}
 function stationRow(s, field, sec, near) {
   const d = D(), ctx = curCtx(), tg = selTarget(ctx), fav = d.fav.includes(s.code), cur = tg[field] === s.code;
   const rec = d.rec.find(x => x.c === s.code);
@@ -270,9 +276,13 @@ function stationSearch(r, ri, field, inline) {
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
   if (qv.trim()) {
-    const res = searchStations(qv);
-    if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
-    else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
+    const res = searchStations(qv), offline = V().net === 'offline', lms = offline ? [] : searchLandmarks(qv);
+    // NMA-600: station matches first (code, city, state, station name, aliases, ZIP), then landmarks with their nearest stations
+    const lmH = lms.map(({ l, near }) => `<div class="stsection ss-landmark"><div class="ads-stationrow__header"><span>${ic('map-pin', 'ads-icon--sm')}Near ${esc(l.name)}</span></div><ul class="stlist" aria-label="Stations near ${esc(l.name)}, closest first">${near.map((x, i) => stationRow(x.s, field, 'lm' + i, { mi: x.mi, rank: i + 1 })).join('')}</ul></div>`).join('');
+    const n = res.length + lms.reduce((t, x) => t + x.near.length, 0);
+    const offNote = offline && qv.trim().length > 2 ? `<p class="ads-helper ss-lm-off" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>Searching by landmark needs a connection. You can still search by station, city, state, code or ZIP code.</span></p>` : '';
+    if (n) h += `<p class="ads-sr-only" role="status">${n} result${n > 1 ? 's' : ''}${lms.length ? `, including stations near ${lms.map(x => x.l.name).join(' and ')}` : ''}</p>${res.length ? `<ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>` : ''}${lmH}${offNote}`;
+    else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
     else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
     return h + q(3) + '</div>';
   }
@@ -289,7 +299,7 @@ function stationSearch(r, ri, field, inline) {
   }
   r.u.fullFoot = !showAll; // View full list is pinned in the footer (Figma 3295:51259)
   h += `<p class="ss-note">${q(3)} Bookmark a station to save it.</p></div>`;
-  tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”. Choose Lorton to see Auto Train pairing.');
+  tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”, or a landmark: “Empire”, “Fenway”, “Space Needle”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
 // Station search is a focused input state on iPhone; iPad keeps it beside the Fare Finder

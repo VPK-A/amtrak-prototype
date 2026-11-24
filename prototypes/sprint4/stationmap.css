@@ -295,3 +295,6 @@
 .ss-upd .ss-cancel { flex: none; width: auto; min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-4); background: none; border: 0; box-shadow: none; color: var(--ads-content-text-link); font: inherit; font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-body-size); letter-spacing: 0; }
 .kb-anim-in .ss-cancel { animation: ss-cancel-in var(--kb-ms) var(--kb-ease); }
 @keyframes ss-cancel-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+/* NMA-600 landmark results: a group per landmark, nearest stations first */
+.ss-landmark .ads-stationrow__header span { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
+.ss-lm-off { margin: var(--ads-space-12) var(--ads-space-20); }

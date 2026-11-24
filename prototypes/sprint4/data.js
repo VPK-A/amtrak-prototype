@@ -227,7 +227,7 @@ const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow c
 
 // Open questions shown as Q markers in the prototype and in the notes panel
 const QUESTIONS = {
-  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark.'],
+  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark. Landmarks list their nearest stations by distance (prototype data; the real list comes from the search service and needs a connection). ZIP matches still match a station’s own ZIP; ordering by distance from a typed ZIP needs ZIP location data.'],
   2: ['Pseudo-stations', 'Results should hide pseudo-stations, but the story doesn’t define them. None are in the mock data.'],
   3: ['Select or view details', 'NMA-600 S4 says a tapped result opens station details (NMA-604). In Fare Finder a tap has to select, so the prototype selects. A separate details control is proposed.'],
   4: ['Booking window (NMA-1060)', 'Unresolved: the 335-day limit and its reference date need confirmation. The prototype keeps 335 days as a setting (WINDOW_DAYS), disables dates beyond it and doesn’t state a limit to customers.'],
@@ -290,3 +290,17 @@ const PAST_CODES = [
   { code: '60123456789012', kind: 'Coupon code', name: 'Welcome credit', benefit: '$20 off one trip', issued: '2026-03-02', exp: '2026-12-31', uses: [{ pnr: 'A1B2C3', date: '2026-09-18' }, { pnr: 'Q9W8E7', date: '2026-06-02' }] },
   { code: '60555544443333', kind: 'Coupon code', name: 'Spring 15% off', benefit: '15% off one trip', issued: '2026-03-15', exp: '2026-06-30', uses: [] }
 ];
+
+// NMA-600 Scenario 3: landmark search. A matched landmark lists the nearest stations by distance from it. Prototype data:
+// in the app this comes from the station search service (it needs a connection; see the Network rules in NMA-600).
+const LANDMARKS = [
+  ['Empire State Building', '', 40.7484, -73.9857], ['Times Square', '', 40.7580, -73.9855], ['Madison Square Garden', 'MSG', 40.7505, -73.9934],
+  ['Central Park', '', 40.7829, -73.9654], ['Statue of Liberty', 'Liberty Island', 40.6892, -74.0445], ['JFK Airport', 'John F. Kennedy International Airport', 40.6413, -73.7781],
+  ['Newark Airport', 'Newark Liberty International Airport, EWR', 40.6895, -74.1745], ['Independence Hall', '', 39.9489, -75.1500], ['Liberty Bell', '', 39.9496, -75.1503],
+  ['US Capitol', 'Capitol Building, United States Capitol', 38.8899, -77.0091], ['White House', '', 38.8977, -77.0365], ['National Mall', 'Lincoln Memorial, Washington Monument', 38.8895, -77.0353],
+  ['Inner Harbor', 'Baltimore Inner Harbor', 39.2858, -76.6081], ['BWI Airport', 'Baltimore/Washington International Airport', 39.1754, -76.6683],
+  ['Fenway Park', '', 42.3467, -71.0972], ['Faneuil Hall', 'Quincy Market', 42.3600, -71.0568], ['Yale University', '', 41.3163, -72.9223], ['Brown University', '', 41.8268, -71.4025],
+  ['Willis Tower', 'Sears Tower', 41.8789, -87.6359], ['Navy Pier', '', 41.8917, -87.6086], ['Wrigley Field', '', 41.9484, -87.6553],
+  ['Gateway Arch', '', 38.6247, -90.1848], ['French Quarter', 'Bourbon Street', 29.9584, -90.0644], ['Walt Disney World', 'Disney World', 28.3852, -81.5639],
+  ['Golden Gate Bridge', '', 37.8199, -122.4783], ['Disneyland', '', 33.8121, -117.9190], ['Hollywood Sign', 'Hollywood', 34.1341, -118.3215], ['Space Needle', 'Seattle Center', 47.6205, -122.3493]
+].map(([name, aka, lat, lon]) => ({ name, aka: aka ? aka.split(', ') : [], lat, lon }));
