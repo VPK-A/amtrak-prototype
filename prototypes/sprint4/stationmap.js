@@ -68,6 +68,8 @@ const STATION_GEO = {
   WAS: [38.8973, -77.0063, 'building', '50 Massachusetts Ave NE, Washington, DC 20002', 'Garage at the station. Fees apply.'],
   WIL: [39.7368, -75.5513, 'building', '100 S French St, Wilmington, DE 19801', 'Garage across from the station. Fees apply.']
 };
+// Sprint 5 additions: location only; the details sheet shows the city and ZIP where no street address is on file
+Object.entries(MORE_STATION_GEO).forEach(([c, [lat, lon]]) => { if (!STATION_GEO[c]) { const s = ST[c]; STATION_GEO[c] = [lat, lon, 'building', `${s.city}, ${s.st} ${s.zip}`]; } });
 const validLatLon = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180 && !(lat === 0 && lon === 0);
 const geoOf = c => { const g = STATION_GEO[c]; return g && validLatLon(g[0], g[1]) ? { lat: g[0], lon: g[1], type: g[2] in STATION_TYPES ? g[2] : 'building', address: g[3], parking: g[4] || '' } : null; };
 // Stations that can't be placed on the map (missing or invalid coordinates). They stay in search and the list.

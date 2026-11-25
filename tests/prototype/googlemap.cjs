@@ -112,7 +112,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await p.evaluate(() => geoIssues().sort().join()) === 'ZBD,ZNO,ZZE', 'missing, out-of-range and 0,0 coordinates flagged');
   await p.evaluate(() => { TB.v = 1; VS[1] = makeVS('returning'); goLoc('stations:from'); }); await p.waitForTimeout(300); await p.click(D_ + '#ss-tab-map'); await p.waitForTimeout(300);
   await p.evaluate(() => { const r = selRoute(); Object.assign(r.u.map, { lat: 40.2, lon: -76.7, z: 8 }); render(); }); await p.waitForTimeout(200);
-  ok(await p.evaluate(() => !!document.querySelector('#device .gmap-host .map-pin[data-code="ZVA"]') && !document.querySelector('#device .gmap-host [data-code="ZNO"], #device .gmap-host [data-code="ZBD"], #device .gmap-host [data-code="ZZE"]')), 'valid mock station on the map; invalid ones left off');
+  ok(await p.evaluate(() => !!document.querySelector('#device .gmap-host .map-pin[data-code="ZVA"], #device .gmap-host .map-group[data-codes*="ZVA"]') && !document.querySelector('#device .gmap-host [data-code="ZNO"], #device .gmap-host [data-code="ZBD"], #device .gmap-host [data-code="ZZE"]')), 'valid mock station on the map; invalid ones left off');
   ok(/Not on the map \(missing or invalid coordinates\): ZNO, ZBD, ZZE|Not on the map \(missing or invalid coordinates\): .*ZNO/.test(await p.evaluate(() => document.querySelector('#notes').innerText)), 'reviewer note lists them');
   await p.click(D_ + '#ss-tab-list'); await p.fill(D_ + '#ss-q', 'Nowhere'); await p.waitForTimeout(250);
   ok(await p.locator(D_ + '[data-a="choose-station"][data-code="ZNO"]').count() === 1, 'a station without coordinates is still found in search');

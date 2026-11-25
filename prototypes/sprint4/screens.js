@@ -241,7 +241,7 @@ function allPlaces() {
   if (PLACES_CACHE) return PLACES_CACHE;
   const out = [], byCity = {}, byState = {};
   STATIONS.forEach(s => { (byCity[s.city + '|' + s.st] ||= []).push(s); (byState[s.state] ||= []).push(s); });
-  Object.entries(byCity).forEach(([k, list]) => { const [city, st] = k.split('|'), g = avgGeo(list); if (g) out.push({ kind: 'city', label: `${city}, ${st}`, sub: `City · ${list[0].state}`, match: [city], lat: g.lat, lon: g.lon }); });
+  Object.entries(byCity).forEach(([k, list]) => { const [city, st] = k.split('|'), cc = typeof CITY_CENTER !== 'undefined' && CITY_CENTER[k], g = cc ? { lat: cc[0], lon: cc[1] } : avgGeo(list); if (g) out.push({ kind: 'city', label: `${city}, ${st}`, sub: `City · ${list[0].state}`, match: [city], lat: g.lat, lon: g.lon }); });
   EXTRA_CITIES.forEach(([city, st, state, lat, lon]) => out.push({ kind: 'city', label: `${city}, ${st}`, sub: `City · ${state}`, match: [city], lat, lon }));
   Object.entries(byState).forEach(([state, list]) => { const g = avgGeo(list), prov = ['ON', 'QC', 'BC'].includes(list[0].st); if (g) out.push({ kind: 'state', label: state, sub: prov ? 'Province' : 'State', match: [state], lat: g.lat, lon: g.lon, st: list[0].st }); });
   if (typeof LANDMARKS !== 'undefined') LANDMARKS.forEach(l => out.push({ kind: 'landmark', label: l.name, sub: 'Landmark', match: [l.name, ...l.aka], lat: l.lat, lon: l.lon, online: true }));
