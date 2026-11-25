@@ -232,8 +232,8 @@ function searchStations(qs) {
   };
   return STATIONS.map(s => [rank(s), s]).filter(x => x[0] < 99).sort((a, b) => a[0] - b[0] || a[1].city.localeCompare(b[1].city) || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
 }
-// Amtrak.com search logic (NMA-600): up to 3 characters lists stations as before; 4 or more suggests places (cities,
-// states and provinces, landmarks, ZIP codes) to choose from, and choosing one lists stations closest first.
+// Amtrak.com search logic (NMA-600): up to 3 characters lists stations as before; 4 or more lists matching stations, then
+// Locations (cities, states and provinces, landmarks, ZIP codes, shown by name only); choosing one lists stations closest first.
 const SS_PLACE_MIN = 4;
 const avgGeo = list => { const g = list.map(s => geoOf(s.code)).filter(Boolean); return g.length ? { lat: g.reduce((t, x) => t + x.lat, 0) / g.length, lon: g.reduce((t, x) => t + x.lon, 0) / g.length } : null; };
 let PLACES_CACHE = null;
@@ -315,9 +315,9 @@ function stationSearch(r, ri, field, inline) {
       const ql = qt.toLowerCase(), nm = t => t.toLowerCase().startsWith(ql) || words(t).some(w => w.startsWith(ql));
       const named = STATIONS.filter(st => nm(st.name) || st.aliases.some(nm)).sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)); // stations whose own name matches (Moynihan, 30th Street, Penn)
       const n = places.length + named.length;
-      const placeH = places.length ? `<div class="stsection ss-places"><div class="ads-stationrow__header"><span>Places</span></div><ul class="ss-placelist" aria-label="Places. Choose one to see the closest stations">${places.map((p, k) => `<li><button class="ss-placerow" type="button" data-a="ss-place" data-i="${k}">${ic(PLACE_ICON[p.kind])}<span class="ss-placerow__text"><span class="ss-placerow__name">${esc(p.label)}</span><span class="ss-placerow__sub">${esc(p.sub)}</span></span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`).join('')}</ul></div>` : '';
+      const placeH = places.length ? `<div class="stsection ss-places"><div class="ads-stationrow__header"><span>Locations</span></div><ul class="ss-placelist" aria-label="Locations. Choose one to see the closest stations">${places.map((p, k) => `<li><button class="ss-placerow" type="button" data-a="ss-place" data-i="${k}">${ic(PLACE_ICON[p.kind])}<span class="ss-placerow__text"><span class="ss-placerow__name">${esc(p.label)}</span></span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`).join('')}</ul></div>` : '';
       const namedH = named.length ? `<div class="stsection"><div class="ads-stationrow__header"><span>Stations</span></div><ul class="stlist" aria-label="Stations">${named.slice(0, 10).map(s => stationRow(s, field, 'res')).join('')}</ul></div>` : '';
-      if (n) h += `<p class="ads-sr-only" role="status">${places.length ? `${places.length} place${places.length > 1 ? 's' : ''}` : ''}${places.length && named.length ? ' and ' : ''}${named.length ? `${named.length} station${named.length > 1 ? 's' : ''}` : ''}</p>${placeH}${namedH}${offNote}`;
+      if (n) h += `<p class="ads-sr-only" role="status">${named.length ? `${named.length} station${named.length > 1 ? 's' : ''}` : ''}${places.length && named.length ? ' and ' : ''}${places.length ? `${places.length} location${places.length > 1 ? 's' : ''}` : ''}</p>${namedH}${placeH}${offNote}`;
       else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, state, station, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
     }
     return h + q(3) + '</div>';
