@@ -227,7 +227,7 @@ const NETWORKS = [['online', 'Online'], ['offline', 'Offline'], ['slow', 'Slow c
 
 // Open questions shown as Q markers in the prototype and in the notes panel
 const QUESTIONS = {
-  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark. Landmarks list their nearest stations by distance (prototype data; the real list comes from the search service and needs a connection). ZIP matches still match a station’s own ZIP; ordering by distance from a typed ZIP needs ZIP location data.'],
+  1: ['Station ranking', 'NMA-600 lists two different priority orders. The prototype uses the first: code, city, state, station name, ZIP, landmark. Search follows Amtrak.com: up to 3 characters lists stations; 4 or more suggests places (cities, states and provinces, landmarks, ZIP codes) plus stations whose own name matches; choosing a place lists stations closest to it. Place data is a prototype sample; landmark and ZIP search need a connection.'],
   2: ['Pseudo-stations', 'Results should hide pseudo-stations, but the story doesn’t define them. None are in the mock data.'],
   3: ['Select or view details', 'NMA-600 S4 says a tapped result opens station details (NMA-604). In Fare Finder a tap has to select, so the prototype selects. A separate details control is proposed.'],
   4: ['Booking window (NMA-1060)', 'Unresolved: the 335-day limit and its reference date need confirmation. The prototype keeps 335 days as a setting (WINDOW_DAYS), disables dates beyond it and doesn’t state a limit to customers.'],
@@ -304,3 +304,14 @@ const LANDMARKS = [
   ['Gateway Arch', '', 38.6247, -90.1848], ['French Quarter', 'Bourbon Street', 29.9584, -90.0644], ['Walt Disney World', 'Disney World', 28.3852, -81.5639],
   ['Golden Gate Bridge', '', 37.8199, -122.4783], ['Disneyland', '', 33.8121, -117.9190], ['Hollywood Sign', 'Hollywood', 34.1341, -118.3215], ['Space Needle', 'Seattle Center', 47.6205, -122.3493]
 ].map(([name, aka, lat, lon]) => ({ name, aka: aka ? aka.split(', ') : [], lat, lon }));
+
+// Amtrak.com-style location search (4+ characters): cities and ZIP codes without their own station, with a location.
+// Prototype data; in the app these come from the location search service.
+const EXTRA_CITIES = [['Princeton', 'NJ', 'New Jersey', 40.3573, -74.6672], ['Jersey City', 'NJ', 'New Jersey', 40.7178, -74.0431], ['Brooklyn', 'NY', 'New York', 40.6782, -73.9442],
+  ['Cambridge', 'MA', 'Massachusetts', 42.3736, -71.1097], ['Worcester', 'MA', 'Massachusetts', 42.2626, -71.8023], ['Hartford', 'CT', 'Connecticut', 41.7658, -72.6734],
+  ['Camden', 'NJ', 'New Jersey', 39.9259, -75.1196], ['Arlington', 'VA', 'Virginia', 38.8816, -77.0910], ['Bethesda', 'MD', 'Maryland', 38.9847, -77.0947],
+  ['Raleigh', 'NC', 'North Carolina', 35.7796, -78.6382], ['Evanston', 'IL', 'Illinois', 42.0451, -87.6877], ['Oakland', 'CA', 'California', 37.8044, -122.2712],
+  ['San Jose', 'CA', 'California', 37.3382, -121.8863], ['Anaheim', 'CA', 'California', 33.8366, -117.9143], ['Tacoma', 'WA', 'Washington', 47.2529, -122.4443]];
+const EXTRA_ZIPS = [['10019', 'New York, NY', 40.7651, -73.9858], ['11201', 'Brooklyn, NY', 40.6940, -73.9903], ['19104', 'Philadelphia, PA', 39.9566, -75.1990],
+  ['20500', 'Washington, DC', 38.8977, -77.0365], ['02115', 'Boston, MA', 42.3428, -71.0920], ['60601', 'Chicago, IL', 41.8858, -87.6181], ['94103', 'San Francisco, CA', 37.7726, -122.4099],
+  ['98109', 'Seattle, WA', 47.6302, -122.3466], ['08544', 'Princeton, NJ', 40.3487, -74.6593], ['06511', 'New Haven, CT', 41.3155, -72.9238]];

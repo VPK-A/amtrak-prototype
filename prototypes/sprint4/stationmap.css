@@ -295,6 +295,16 @@
 .ss-upd .ss-cancel { flex: none; width: auto; min-height: var(--ads-size-interactive-md); padding: 0 var(--ads-space-4); background: none; border: 0; box-shadow: none; color: var(--ads-content-text-link); font: inherit; font-weight: var(--ads-font-weight-regular); font-size: var(--ads-type-body-size); letter-spacing: 0; }
 .kb-anim-in .ss-cancel { animation: ss-cancel-in var(--kb-ms) var(--kb-ease); }
 @keyframes ss-cancel-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
-/* NMA-600 landmark results: a group per landmark, nearest stations first */
-.ss-landmark .ads-stationrow__header span { display: inline-flex; align-items: center; gap: var(--ads-space-4); }
 .ss-lm-off { margin: var(--ads-space-12) var(--ads-space-20); }
+/* Amtrak.com-style place suggestions (4+ characters) and the stations near a chosen place */
+.ss-placelist { list-style: none; margin: 0; padding: 0; background: var(--ads-background-surface-default); }
+.ss-placerow { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: var(--ads-size-interactive-lg); padding: var(--ads-space-8) var(--ads-space-20); border: 0; border-bottom: 1px solid var(--ads-border-subtle); background: none; text-align: left; color: var(--ads-content-text-primary); font: inherit; cursor: pointer; }
+.ss-placerow:hover { background: var(--ads-background-surface-hover); }
+.ss-placerow > .ads-icon:first-child { color: var(--ads-content-icon-brand); }
+.ss-placerow > .ads-icon:last-child { color: var(--ads-content-icon-secondary); }
+.ss-placerow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ss-placerow__name { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ss-placerow__sub { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.ss-place { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-12); padding: var(--ads-space-12) var(--ads-space-20); background: var(--ads-background-surface-sunken); }
+.ss-place__t { margin: 0; display: flex; align-items: flex-start; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
+.ss-place__t > .ads-icon { margin-top: 2px; color: var(--ads-content-icon-brand); }

@@ -232,11 +232,35 @@ function searchStations(qs) {
   };
   return STATIONS.map(s => [rank(s), s]).filter(x => x[0] < 99).sort((a, b) => a[0] - b[0] || a[1].city.localeCompare(b[1].city) || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
 }
-// Landmarks matching the typed text, each with its nearest stations (within 150 miles, closest first)
-function searchLandmarks(qs) {
-  const q = qs.trim().toLowerCase(); if (q.length < 2 || typeof LANDMARKS === 'undefined') return [];
-  const hit = t => t.toLowerCase().startsWith(q) || words(t).some(w => w.startsWith(q)) || t.toLowerCase().includes(' ' + q);
-  return LANDMARKS.filter(l => hit(l.name) || l.aka.some(hit)).slice(0, 3).map(l => ({ l, near: STATIONS.map(s => ({ s, mi: geoOf(s.code) ? miles(l, geoOf(s.code)) : Infinity })).filter(x => x.mi <= 150).sort((a, b) => a.mi - b.mi).slice(0, 4) })).filter(x => x.near.length);
+// Amtrak.com search logic (NMA-600): up to 3 characters lists stations as before; 4 or more suggests places (cities,
+// states and provinces, landmarks, ZIP codes) to choose from, and choosing one lists stations closest first.
+const SS_PLACE_MIN = 4;
+const avgGeo = list => { const g = list.map(s => geoOf(s.code)).filter(Boolean); return g.length ? { lat: g.reduce((t, x) => t + x.lat, 0) / g.length, lon: g.reduce((t, x) => t + x.lon, 0) / g.length } : null; };
+let PLACES_CACHE = null;
+function allPlaces() {
+  if (PLACES_CACHE) return PLACES_CACHE;
+  const out = [], byCity = {}, byState = {};
+  STATIONS.forEach(s => { (byCity[s.city + '|' + s.st] ||= []).push(s); (byState[s.state] ||= []).push(s); });
+  Object.entries(byCity).forEach(([k, list]) => { const [city, st] = k.split('|'), g = avgGeo(list); if (g) out.push({ kind: 'city', label: `${city}, ${st}`, sub: `City · ${list[0].state}`, match: [city], lat: g.lat, lon: g.lon }); });
+  EXTRA_CITIES.forEach(([city, st, state, lat, lon]) => out.push({ kind: 'city', label: `${city}, ${st}`, sub: `City · ${state}`, match: [city], lat, lon }));
+  Object.entries(byState).forEach(([state, list]) => { const g = avgGeo(list), prov = ['ON', 'QC', 'BC'].includes(list[0].st); if (g) out.push({ kind: 'state', label: state, sub: prov ? 'Province' : 'State', match: [state], lat: g.lat, lon: g.lon, st: list[0].st }); });
+  if (typeof LANDMARKS !== 'undefined') LANDMARKS.forEach(l => out.push({ kind: 'landmark', label: l.name, sub: 'Landmark', match: [l.name, ...l.aka], lat: l.lat, lon: l.lon, online: true }));
+  STATIONS.forEach(s => { const g = geoOf(s.code); if (g && s.zip && !EXTRA_ZIPS.some(z => z[0] === s.zip)) out.push({ kind: 'zip', label: s.zip, sub: `ZIP code · ${s.city}, ${s.st}`, match: [s.zip], lat: g.lat, lon: g.lon, online: true }); });
+  EXTRA_ZIPS.forEach(([zip, where, lat, lon]) => out.push({ kind: 'zip', label: zip, sub: `ZIP code · ${where}`, match: [zip], lat, lon, online: true }));
+  return (PLACES_CACHE = out.filter((p, i) => out.findIndex(o => o.kind === p.kind && o.label === p.label) === i));
+}
+const PLACE_ORDER = { city: 0, state: 1, landmark: 2, zip: 3 }, PLACE_ICON = { city: 'map-pin', state: 'map', landmark: 'map-pin', zip: 'map-pin' };
+function searchPlaces(qs, offline) {
+  const q = qs.trim().toLowerCase(), hit = t => t.toLowerCase().startsWith(q) || words(t).some(w => w.startsWith(q)) || t.toLowerCase().includes(' ' + q);
+  return allPlaces().filter(p => !(offline && p.online) && p.match.some(hit)).sort((a, b) => PLACE_ORDER[a.kind] - PLACE_ORDER[b.kind] || a.label.localeCompare(b.label)).slice(0, 12);
+}
+// Stations closest to a chosen place: in that state or province for a state; otherwise within 100 miles (or the 5 nearest)
+function stationsNear(p) {
+  let list = STATIONS.map(s => ({ s, mi: geoOf(s.code) ? miles(p, geoOf(s.code)) : Infinity })).filter(x => x.mi < Infinity);
+  if (p.kind === 'state') list = list.filter(x => x.s.st === p.st);
+  list.sort((a, b) => a.mi - b.mi);
+  const close = p.kind === 'state' ? list : list.filter(x => x.mi <= 100);
+  return { list: (close.length ? close : list.slice(0, 5)).slice(0, 12), far: !close.length };
 }
 function stationRow(s, field, sec, near) {
   const d = D(), ctx = curCtx(), tg = selTarget(ctx), fav = d.fav.includes(s.code), cur = tg[field] === s.code;
@@ -276,14 +300,26 @@ function stationSearch(r, ri, field, inline) {
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
   if (qv.trim()) {
-    const res = searchStations(qv), offline = V().net === 'offline', lms = offline ? [] : searchLandmarks(qv);
-    // NMA-600: station matches first (code, city, state, station name, aliases, ZIP), then landmarks with their nearest stations
-    const lmH = lms.map(({ l, near }) => `<div class="stsection ss-landmark"><div class="ads-stationrow__header"><span>${ic('map-pin', 'ads-icon--sm')}Near ${esc(l.name)}</span></div><ul class="stlist" aria-label="Stations near ${esc(l.name)}, closest first">${near.map((x, i) => stationRow(x.s, field, 'lm' + i, { mi: x.mi, rank: i + 1 })).join('')}</ul></div>`).join('');
-    const n = res.length + lms.reduce((t, x) => t + x.near.length, 0);
-    const offNote = offline && qv.trim().length > 2 ? `<p class="ads-helper ss-lm-off" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>Searching by landmark needs a connection. You can still search by station, city, state, code or ZIP code.</span></p>` : '';
-    if (n) h += `<p class="ads-sr-only" role="status">${n} result${n > 1 ? 's' : ''}${lms.length ? `, including stations near ${lms.map(x => x.l.name).join(' and ')}` : ''}</p>${res.length ? `<ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>` : ''}${lmH}${offNote}`;
-    else if (qv.trim().length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qv.trim())}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
-    else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
+    const offline = V().net === 'offline', qt = qv.trim(), place = r.u.place && r.u.placeQ === qt ? r.u.place : null;
+    const offNote = offline && qt.length >= SS_PLACE_MIN ? `<p class="ads-helper ss-lm-off" role="status">${ic('alert-triangle', 'ads-icon--sm')}<span>Searching by landmark or ZIP code needs a connection. You can still search by station, city, state or province.</span></p>` : '';
+    if (place) { // a place was chosen: stations closest to it
+      const { list, far } = stationsNear(place);
+      h += `<div class="ss-place" role="status"><p class="ss-place__t" tabindex="-1">${ic(PLACE_ICON[place.kind], 'ads-icon--sm')}<span>Stations ${place.kind === 'state' ? 'in' : 'near'} <b>${esc(place.label)}</b>${place.kind === 'zip' ? ` <span class="ads-text-secondary">(${esc(place.sub.replace('ZIP code · ', ''))})</span>` : ''}, closest first</span></p><button class="ads-link ads-link--sm" type="button" data-a="ss-place-clear">Change</button></div>${far ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>No stations within 100 miles. These are the closest.</span></p>` : ''}<ul class="stlist" aria-label="Stations ${place.kind === 'state' ? 'in' : 'near'} ${esc(place.label)}, closest first">${list.map((x, k) => stationRow(x.s, field, 'pl' + k, { mi: x.mi, rank: k + 1 })).join('')}</ul>`;
+    } else if (qt.length < SS_PLACE_MIN) { // up to 3 characters: stations, as before
+      const res = searchStations(qv);
+      if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
+      else if (qt.length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>`;
+      else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
+    } else { // 4 or more: places to choose from, then stations whose own name matches
+      const places = searchPlaces(qv, offline); r.u.sugg = places;
+      const ql = qt.toLowerCase(), nm = t => t.toLowerCase().startsWith(ql) || words(t).some(w => w.startsWith(ql));
+      const named = STATIONS.filter(st => nm(st.name) || st.aliases.some(nm)).sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)); // stations whose own name matches (Moynihan, 30th Street, Penn)
+      const n = places.length + named.length;
+      const placeH = places.length ? `<div class="stsection ss-places"><div class="ads-stationrow__header"><span>Places</span></div><ul class="ss-placelist" aria-label="Places. Choose one to see the closest stations">${places.map((p, k) => `<li><button class="ss-placerow" type="button" data-a="ss-place" data-i="${k}">${ic(PLACE_ICON[p.kind])}<span class="ss-placerow__text"><span class="ss-placerow__name">${esc(p.label)}</span><span class="ss-placerow__sub">${esc(p.sub)}</span></span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`).join('')}</ul></div>` : '';
+      const namedH = named.length ? `<div class="stsection"><div class="ads-stationrow__header"><span>Stations</span></div><ul class="stlist" aria-label="Stations">${named.slice(0, 10).map(s => stationRow(s, field, 'res')).join('')}</ul></div>` : '';
+      if (n) h += `<p class="ads-sr-only" role="status">${places.length ? `${places.length} place${places.length > 1 ? 's' : ''}` : ''}${places.length && named.length ? ' and ' : ''}${named.length ? `${named.length} station${named.length > 1 ? 's' : ''}` : ''}</p>${placeH}${namedH}${offNote}`;
+      else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, state, station, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
+    }
     return h + q(3) + '</div>';
   }
   selNotes(r.p.ctx || 'ff');
@@ -330,6 +366,8 @@ A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.fie
 A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; pendingFocus = '#ss-q'; render(); }; // clears only: search (and the keyboard) stay active
 A['ss-cancel'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); }; // iOS Cancel: clears and ends search
+A['ss-place'] = (t, ri) => { const r = routeAt(ri), p = (r.u.sugg || [])[+t.dataset.i]; if (!p) return; r.u.place = p; r.u.placeQ = (r.u.d.q || '').trim(); track('station_search_place_chosen', { kind: p.kind }); if (r.u.kb && typeof kbSet === 'function') kbSet(r, false, false); pendingFocus = '.ss-place__t'; render(); };
+A['ss-place-clear'] = (t, ri) => { const r = routeAt(ri); r.u.place = null; pendingFocus = '#ss-q'; render(); };
 A['ss-full'] = (t, ri) => { routeAt(ri).u.full = true; pendingFocus = '.ss-allhead + .ads-stationrow__header + .stlist button'; render(); };
 A.fav = t => {
   const d = D(), c = t.dataset.code;
