@@ -44,7 +44,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     // closely spaced stations: Boston South Station and Back Bay become a group at a wide zoom
     await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 42.35, lon: -71.06, z: 8 }; r.u.mapSel = null; render(); }); await w(200);
     const grp = p.locator(D_ + '.map-group'); ok(await grp.count() >= 1 && /stations close together/.test(await grp.first().getAttribute('aria-label')), `${T} closely spaced stations form a named group`);
-    await grp.first().click(); await w(250);
+    // open the group holding Back Bay (with more stations, a wide group can open into smaller ones)
+    for (let i = 0; i < 4 && !(await p.locator(D_ + '#map-card [data-a="map-pin"][data-code="BBY"]').count()); i++) { await ev(() => { const g = [...document.querySelectorAll('#device .map-group, #device #map-card [data-a="map-group"]')].find(x => (x.dataset.codes || '').split(',').includes('BBY')); if (g) g.click(); }); await w(250); }
     ok(/stations here/.test(await txt()) && await p.locator(D_ + '#map-card [data-a="map-pin"]').count() >= 2, `${T} the group zooms in and lists each station`);
     await click('#map-card [data-a="map-pin"][data-code="BBY"]'); ok(await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} a station in the group can be chosen`);
     // Details and back: position, zoom and selection kept
@@ -83,7 +84,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await go(v, 'returning', 'stations:from', { perm: 'once' }); await w(1700); ok(/Near you/.test(await txt()), `${T} allowed once: nearby stations show`);
     // expansion rule
     await go(v, 'returning', 'stations:from', { perm: 'precise', place: 'statecollege' }); await w(1700);
-    ok(/within 80 mi/.test(await txt()) && await ev(() => sheet().stack.at(-1).u.near.radius) === 80, `${T} widens by 20 miles until a station is found (80 mi)`);
+    ok(/within 40 mi/.test(await txt()) && await ev(() => sheet().stack.at(-1).u.near.radius) === 40, `${T} widens by 20 miles until a station is found (40 mi: Altoona from State College)`);
     // denied: a dismissible alert with Open settings
     const rec = async (L, key) => { await go(v, 'returning', 'stations:from', L); await w(1700); return ev(k => !!document.querySelector(`#device #near-msg[data-k="${k}"]`), key); };
     ok(await rec({ perm: 'denied' }, 'denied') && await ev(() => !nav().native) && /Location isn’t allowed/.test(await txt()) && /You can still search by name or browse the map/.test(await txt()), `${T} denied: “Location isn’t allowed” alert on opening, no prompt`);

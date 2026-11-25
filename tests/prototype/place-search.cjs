@@ -19,7 +19,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await go('online');
   await type('Bos'); ok((await places()).length === 0 && (await codes()).includes('BOS'), '3 characters or fewer: the station list, as before');
   await type('PHL'); ok((await codes())[0] === 'PHL', 'station codes still work');
-  await type('Phil'); ok((await places())[0] === 'Philadelphia, PA | City · Pennsylvania' && (await codes()).length === 0, '4+ characters: places to choose from (a city)');
+  await type('Phil'); ok((await places())[0] === 'Philadelphia, PA | City · Pennsylvania' && (await codes()).every(c => c === 'PHN'), '4+ characters: places to choose from (a city), plus stations named for it');
   await axe('place suggestions');
   await choose(0);
   const c = await codes(), d = await dists();
@@ -31,8 +31,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   await type('Calif'); ok((await places())[0] === 'California | State', 'a state is a place'); await choose(0);
   ok((await codes()).length > 0 && /Stations in California/.test(await ev(() => document.querySelector('#device .ss-place').innerText)), 'choosing a state lists its stations');
   await type('Empire'); ok((await places()).some(x => x.startsWith('Empire State Building | Landmark')), 'a landmark is a place'); await choose(0); ok((await codes())[0] === 'NYP', 'Empire State Building: New York Penn first');
-  await type('1910'); ok((await places())[0] === '19104 | ZIP code · Philadelphia, PA', 'a ZIP code is a place'); await choose(0); ok((await codes())[0] === 'PHL', 'ZIP 19104: Philadelphia first');
-  await type('Princ'); ok((await places())[0] === 'Princeton, NJ | City · New Jersey', 'a city without its own station is a place'); await choose(0); ok((await codes())[0] === 'TRE', 'Princeton: Trenton first');
+  await type('1910'); const zi = (await places()).indexOf('19104 | ZIP code · Philadelphia, PA'); ok(zi >= 0, 'a ZIP code is a place'); await choose(zi); ok((await codes())[0] === 'PHL', 'ZIP 19104: Philadelphia first');
+  await type('Princ'); const pi = (await places()).indexOf('Princeton, NJ | City · New Jersey'); ok(pi >= 0, 'a city without its own station is a place'); await choose(pi); ok((await codes())[0] === 'PJC', 'Princeton: Princeton Junction first');
   await type('Moynihan'); ok((await places()).length === 0 && (await codes())[0] === 'NYP', 'a station’s own name still finds it (Moynihan → New York Penn)');
   await type('Penn'); ok((await codes()).includes('NYP') && (await places()).some(x => x.startsWith('Pennsylvania')), 'station names and places together (Penn)');
   await type('Nowhere'); ok(/No results for “Nowhere”/.test(await ev(() => document.querySelector('#device .ss-listpanel').innerText)), 'no match: No results');

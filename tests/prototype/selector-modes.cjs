@@ -11,7 +11,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const click = async (s, ms = 450) => { await p.locator(D_ + s).first().click(); await w(ms); };
   const stack = () => ev(() => sheet() ? sheet().stack.map(r => r.s).join('>') : 'none');
   const open = () => ev(() => { TB.v = 1; TB.dev = 'iphone'; VS[1] = makeVS('new'); goLoc('ff'); }).then(() => w(400));
-  const pin = c => ev(c => document.querySelector('#device .map-pin[data-code="' + c + '"]').click(), c).then(() => w(450));
+  const pin = async c => { for (let i = 0; i < 4; i++) { const hit = await ev(c => { const d = document.querySelector('#device .map-pin[data-code="' + c + '"]'); if (d) { d.click(); return 'pin'; } const g = [...document.querySelectorAll('#device .map-group')].find(x => x.dataset.codes.split(',').includes(c)); if (g) { g.click(); return 'group'; } return ''; }, c); await w(450); if (hit !== 'group') return; } }; // close stations share a group pin: tap it to zoom in first
   const toMap = async () => { await click('#ss-tab-map', 600); await ev(() => { const r = sheet().stack.at(-1); r.u.map = { lat: 40.0, lon: -75.0, z: 8 }; render(); }); await w(300); };
 
   ok(await ev(() => !document.querySelector('#tbCmpSel') && !document.querySelector('#tbCmpAssist') && !document.querySelector('#tbCmpBp') && !document.querySelector('#tbCmpPrSel')), 'retired comparison options are gone from Prototype controls');
