@@ -31,7 +31,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(ti.x === 20 && await cs('.ads-sheet-header__title', 'fontSize') === '20px' && +(await cs('.ads-sheet-header__title', 'fontWeight')) >= 600 && /New booking/.test(await ev(() => document.querySelector('#device .ads-sheet-header__title').textContent)), `title: H3 20px semibold on the leading edge (${ti.x})`);
   ok(await ev(() => { const b = document.querySelector('#device .ads-sheet-header__brand'); return !b || getComputedStyle(b).display === 'none'; }), 'no brand arrows in the sheet header (Figma .sheetHeader is plain)');
   const tb = await box('.trip-tabs');
-  ok(tb.y === hd.b + 12 && tb.h === 44 && tb.x === 20 && tb.w === 350, `trip tabs: 12px below the header, 44px, 20px margins (${JSON.stringify(tb)})`);
+  ok(tb.y === hd.b && tb.h === 44 && tb.x === 20 && tb.w === 350, `trip tabs: directly under the header (Figma Tabs y=134), 44px, 20px margins (${JSON.stringify(tb)})`);
   ok(await ev(() => { const s = [...document.querySelectorAll('#device .trip-tabs .ads-tab')]; return s.length === 2 && Math.abs(s[0].offsetWidth - s[1].offsetWidth) < 2; }) && await ev(() => getComputedStyle(document.querySelector('#device .trip-tabs [aria-selected="true"]'), '::after').backgroundColor) === await tok('--ads-border-brand', 'backgroundColor'), 'tabs: equal widths, active indicator border/brand');
   const sg = await box('.ads-stationgroup'), sw = await box('.ads-swap-btn'), dg = await box('.ads-dategroup');
   ok(sg.y === tb.b + 24 && near(sg.h, 145, 4), `station group: 24px below the tabs, ~145px (${JSON.stringify(sg)})`);
@@ -41,7 +41,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(dg.y === sg.b + 24 && near(dg.h, 79, 4) && await ev(() => document.querySelectorAll('#device .ads-dategroup .ads-fieldgroup__field').length) === 2, `date group: two columns, ~79px (${JSON.stringify(dg)})`);
   ok(await cs('.ads-fieldgroup', 'borderTopColor') === await tok('--ads-border-default') && await cs('.ads-fieldgroup', 'borderTopLeftRadius') === '4px' && await cs('.ads-fieldgroup', 'backgroundColor') === await tok('--ads-background-surface-default', 'backgroundColor'), 'field groups: 1px border/default, radius/4, surface-default');
   const trl = await box('.ffc-travfield .ads-selectrow__label'), trb = await box('#ff-trav'), crb = await box('#ff-coderow');
-  ok(trl.y >= dg.b + 20 && trb.h === 53 && crb.h === 53 && trb.x === 20 && trb.w === 350, `selector rows: 53px, full width (${trb.h}, ${crb.h})`);
+  ok(trl.y >= dg.b + 20 && trb.h === 50 && crb.h === 50 && trb.x === 20 && trb.w === 350, `selector rows: 50px (Figma List Button container), full width (${trb.h}, ${crb.h})`);
   ok(await ev(() => !!document.querySelector('#device #ff-trav .ads-icon--person') && !!document.querySelector('#device #ff-trav .ads-icon--chevron-right') && !document.querySelector('#device #ff-coderow .ads-icon--person')), 'Travelers row: person icon and chevron; code row: chevron only');
   ok(/Travelers\s*1 adult/.test(await txt()) && /Coupon or promotional code\s*Apply code/.test(await txt()), 'row labels and values as designed');
   const ft = await box('.ads-actionfooter'), pr = await box('.ads-pointsrow'), fb = await box('.ads-actionfooter [data-a="find-trains"]');

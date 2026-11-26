@@ -969,8 +969,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 :is(.ds-next, .device) .pane--profile .ads-group__foot { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.5; }
 :is(.ds-next, .device) .pane--profile .ads-group__foot .ads-link { font-size: var(--ads-type-body-small-size); }
 /* Header: icon-only Back and a plain close (Icon Button), centred title */
-:is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
-.ds-next .device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
 :is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
 /* Dark: the List caption uses text-secondary, since text-tertiary falls under 4.5:1 on surface-raised (see ads-next.css) */
 [data-theme="dark"] .pane--profile .ads-group__label { color: var(--ads-content-text-secondary) !important; }
@@ -995,9 +993,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* ---------- Profile editors and My coupons (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513,
    3430:133325, 3430:137973, 3430:140680, 3430:147004) ---------- */
 :is(.ds-next, .device) .pane--ed .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-12); }
-:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
 :is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
-.ds-next .device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
 :is(.ds-next, .device) .pane--ed .ads-field .ads-control, :is(.ds-next, .device) .pane--ed .ads-field .ads-control--select { max-width: none; width: 100%; }
 :is(.ds-next, .device) .pane--ed .ads-field { width: 100%; }
 /* A card that groups related fields (Phone) or the add-a-code form (My coupons) */
