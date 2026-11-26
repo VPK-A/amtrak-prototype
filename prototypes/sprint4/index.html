@@ -2996,20 +2996,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .pane--profile .ads-group__row { padding-block: 8px; }
 .ds-next .pane--profile .ads-group__foot { margin-bottom: -5px; }
 .ds-next .pane--profile .pane__body { gap: 19px; }
-/* Traveler counts (Figma TR.11 .list/row): 69px rows, name and age range 17px apart, heading 12px above the list */
-.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count { min-height: 69px; padding: 12px; align-items: center; }
-.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__text { align-self: flex-start; }
-.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__label { line-height: 20px; }
-.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__sub { margin-top: -4px; }
-.ds-next .ffc-h { margin-bottom: 5px; }
-/* Traveler details (Figma TR.1 / TR.11): heading close to the card; the card's field labels 8px above their fields */
-.ds-next .fam-travelers > .ffc-h { margin-bottom: 0; }
-.ds-next .fam-row { padding-top: 9px; }
-.ds-next .fam-row > .fam-row__label { margin-bottom: -2px; }
-.ds-next .fam-travelers:not(:first-child) { margin-top: -23px; }
-.ds-next .pr-tabs__help { margin-top: 10px; }
-.ds-next .pr-onpass { margin-top: 6px; }
-.ds-next .ffc-counts--riders .ffc-count { padding-block: 12px; }
 /* Radio Group, Passenger discounts (Figma DS.1): options 53px apart, helper 4px under its label, legend 8px above */
 .ds-next .ads-fieldset > .ads-field-label { margin-bottom: 4px; }
 .ds-next .pane--ed .ads-fieldset__options > .ads-choice .ads-choice__supporting { margin-top: 3px; }
@@ -3042,6 +3028,74 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .ads-selectrow + .ads-selectrow { margin-top: -6px; }
 .ds-next .cpn-avail + .cpn-acc { margin-top: -9px; }
 .ds-next .ads-selectrow.dcode .ads-selectrow__label { margin-bottom: -2px; }
+
+
+/* ===== Travelers, rebuilt from the Figma auto-layout (TR.1, TR.8, TR.11–TR.27) =====
+   Method for new work: text is trimmed to cap height and baseline (as every Figma text style is), so padding
+   and gap values are copied 1:1 from Figma and are always spacing tokens. No per-element offsets. */
+.ds-next .travsel :is(.ffc-h, .ffc-count__label, .ffc-count__sub, .fam-card__title, .fam-row__label, .tassist__field, .tassist__label, .tassist__help, .pr-tabs__help, .ffc-riders__legend), .ds-next .travsel .fam-row > .ads-helper:not(.ads-helper--error) { display: block; margin: 0; text-box: trim-both cap alphabetic; }
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:has(> .travsel) { padding-top: var(--ads-space-12); }
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:has(> .travsel .pr-tabs) { padding-top: 0; }
+.ds-next .travsel { gap: var(--ads-space-24); padding-top: 0; }
+.ds-next .travsel > section, .ds-next .travsel .fam-travelers { gap: var(--ads-space-12); margin: 0; }
+.ds-next .travsel > section:has(.pr-tabs__help) { gap: var(--ads-space-24); }
+.ds-next .travsel > section:has(.pr-tabs__help) > div:not([class]) { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.ds-next .travsel .pr-tabs { margin: 0; }
+.ds-next .travsel .pr-tabs__help { font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+.ds-next .travsel .ffc-h { line-height: 1.5; }
+/* List rows (.list/row): space/16 × space/12, name and age range space/8 apart; the Counter is 108 × 36 */
+.ds-next .travsel .ffc-counts .ffc-count { min-height: 0; padding: var(--ads-space-16) var(--ads-space-12); gap: var(--ads-space-8); align-items: center; }
+.ds-next .travsel .ffc-count__text { gap: var(--ads-space-8); align-self: center; }
+.ds-next .travsel .ffc-count__label { line-height: 1.5; }
+.ds-next .travsel .ffc-count__sub { font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-tertiary); }
+.ds-next .travsel .ffc-count .ads-counter { box-sizing: border-box; width: 108px; height: var(--ads-size-interactive-sm); }
+.ds-next .travsel .ffc-count .ads-counter__step, .ds-next .travsel .ffc-count .ads-counter__value { flex: 1 1 0; width: auto; }
+/* Business: the one rider row is the same List card */
+.ds-next .travsel fieldset.ffc-riders:not(.pr-card *) > .ffc-riders__legend { margin-bottom: var(--ads-space-12); line-height: 1.5; }
+.ds-next .travsel fieldset.ffc-riders:not(.pr-card *) > .ads-choice { min-height: 45px; padding: 0 var(--ads-space-12); align-items: center; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.ds-next .travsel .ads-choice:has(input:disabled) .ads-choice__label { font-weight: var(--ads-font-weight-regular); }
+/* Link (Default): Body, underlined; the 44px target is kept without adding to the layout */
+.ds-next .travsel .info-entry { margin: 0; line-height: 0; }
+.ds-next .travsel .info-entry .ads-link { position: relative; display: inline-block; min-height: 0; height: auto; padding: 0; margin: 0; line-height: 1.5; text-box: trim-both cap alphabetic; }
+.ds-next .travsel .info-entry .ads-link::after { content: ""; position: absolute; inset: -16px 0; }
+/* travelerDetails card: header space/16 (44px), content space/16 with space/20 between blocks; the Select block
+   ends with space/12 and a border/subtle rule inset to the content */
+.ds-next .travsel .fam-cards { gap: var(--ads-space-12); }
+.ds-next .travsel .fam-card__title { padding: var(--ads-space-16); line-height: 1.2; }
+.ds-next .travsel .fam-row { margin: var(--ads-space-16) var(--ads-space-16) 0; padding: 0 0 var(--ads-space-12); gap: var(--ads-space-8); border-top: 0; border-bottom: 1px solid var(--ads-border-subtle); }
+.ds-next .travsel .fam-row + .fam-row { margin-top: var(--ads-space-20); }
+.ds-next .travsel .fam-row.fam-row--assist { margin-bottom: var(--ads-space-16); padding: 0; border: 0; }
+.ds-next .travsel .fam-row > .ads-helper:not(.ads-helper--error) { font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-secondary); }
+.ds-next .travsel .fam-row select:has(option[value="none"]:checked) { color: var(--ads-content-text-tertiary); }
+/* Assistance block: Field Label, space/20, question (Body) and helper (Body Small, text-tertiary) space/12 apart, space/20, Button */
+.ds-next .travsel .tassist { gap: 0; }
+.ds-next .travsel .tassist__label { margin-top: var(--ads-space-20); line-height: 1.5; color: var(--ads-content-text-primary); }
+.ds-next .travsel .tassist__help { margin-top: var(--ads-space-12); font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-tertiary); }
+.ds-next .travsel .tassist__saved, .ds-next .travsel .tassist__acts { margin-top: var(--ads-space-20); }
+
+/* Text color and size corrections from the element-by-element audit against Figma */
+.ds-next .ads-stationgroup__city { color: var(--ads-content-text-primary); }
+.ds-next .apc-h { color: var(--ads-content-text-secondary); }
+.ds-next .apc-benefit { color: var(--ads-content-text-tertiary); }
+.ds-next .is-selected .apc-benefit, .ds-next [aria-pressed="true"] .apc-benefit { color: var(--ads-content-text-secondary); }
+.ds-next .cpl__benefit { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-tertiary); }
+/* .sheetHeader (secondary) is 77px in Figma: 76 plus its 1px rule */
+.ds-next .psheet .ads-navbar { min-height: 77px; }
+.ds-next .travsel .ffc-kids[aria-expanded="false"] { border-bottom: 0; }
+.ds-next .travsel .ffc-kids { padding-bottom: 15px; }
+.ds-next .travsel .ffc-kids .ads-icon { width: var(--ads-size-icon-sm); height: var(--ads-size-icon-sm); margin-right: var(--ads-space-4); }
+.ds-next .ads-control--select.is-disabled { --_border: var(--ads-border-disabled); }
+/* Saved assistance (Figma TR.8 / TR.17): label with the "From profile" tag, a List Button that opens the answers, Remove assistance */
+.ds-next .travsel .tassist__head { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-8); min-height: 20px; }
+.ds-next .travsel .tassist__card { display: flex; align-items: center; gap: var(--ads-space-8); width: 100%; margin-top: var(--ads-space-8); padding: var(--ads-space-16) var(--ads-space-12); border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); color: var(--ads-content-icon-brand); font: inherit; text-align: left; cursor: pointer; }
+.ds-next .travsel .tassist__card:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+.ds-next .travsel .tassist__cardlines { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.ds-next .travsel .tassist__cardtitle { display: block; font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-primary); text-box: trim-both cap alphabetic; }
+.ds-next .travsel .tassist__cardsub { display: block; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-tertiary); text-box: trim-both cap alphabetic; }
+.ds-next .travsel .ffc-rider :is(.ads-choice__label, .ads-choice__label *) { font-weight: var(--ads-font-weight-regular); }
+/* the 77px header moves content down 1px; non-trimmed screens start 1px (Profile 4px) higher to stay on Figma's positions */
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:not(:has(> .travsel)) { padding-top: 7px; }
+.ds-next .psheet .pane.pane--profile:has(> .ads-navbar) > .pane__scroll > .pane__body { padding-top: var(--ads-space-4); }
 
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
@@ -7364,7 +7418,7 @@ A['assist-confirm'] = (t, ri) => {
 // trip but stops them counting. The Fare Finder's Travelers summary shows the state.
 const ASSIST_TEXT = ASSIST_COPY.entryHelp; // placeholder for AEM text (NMA-973 BR1)
 const assistMissing = b => travelerList(b).filter(t => asks(b, t.key) && !assistRec(b, t.key).done);
-function assistAsk(b, t, r, summary = '') {
+function assistAsk(b, t, r, summary = '', card = null) {
   ref('973', '615', '614'); q(7);
   const C = ASSIST_COPY, a = assistRec(b, t.key), saved = asks(b, t.key) && a.done, id = `ask-${t.key}`;
   const busy = r && r.u.busyWhat === 'assist' && r.u.busyKey === t.key && r.u.busy;
@@ -7375,6 +7429,7 @@ function assistAsk(b, t, r, summary = '') {
     : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
   // Content above traveler details (comparison setting): the copy is shown once above the section, not in each card
   if (assistAbove()) return `<div class="tassist tassist--bare">${saved ? summary : ''}<div class="tassist__acts">${acts.replace(/aria-describedby="[^"]*"/g, 'aria-describedby="tassist-intro"')}</div></div>`;
+  if (saved && card && !busy) return `<div class="tassist tassist--saved"><div class="tassist__head"><p class="tassist__field">Assistance</p>${card.tag}</div>${card.html}<div class="tassist__acts"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-remove" data-t="${t.key}">${ic('minus', 'ads-icon--sm')}Remove assistance<span class="ads-sr-only"> for ${esc(t.label)}</span></button></div></div>`;
   return `<div class="tassist"><p class="tassist__field" aria-hidden="true">Assistance</p><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
 }
 // Network problems opening a traveler's questions show once, above the travelers
@@ -8154,7 +8209,7 @@ function discountRow(b, t, fromProfile) {
   const was = b.discReplaced && b.discReplaced[t.key];
   const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
   const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
-  if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
+  if (fixed) return `<div class="fam-row"><label class="fam-row__label" for="fd-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select is-disabled"><select id="fd-${t.key}" disabled${why ? ` aria-describedby="fd-${t.key}-h"` : ''}><option selected>${TDISC_LABEL[x]}</option></select>${ic('chevron-down')}</div>${why ? `<p class="ads-helper" id="fd-${t.key}-h">${why}</p>` : ''}</div>`; // Figma TR.13 / TR.17: a fixed discount is a disabled Select with its reason below
   return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
 // Actions sit under the summary they act on
@@ -8166,7 +8221,9 @@ function assistanceRow(b, t, r) {
   const tag = t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   const summary = items.length ? `<div class="tassist__saved"><span class="fam-row__label">Assistance${tag}</span><span class="fam-row__value">${esc(items[0])}</span>${details ? `<span class="ads-helper">${details}</span>` : ''}</div>` : '';
   ref('615', '973');
-  return `<div class="fam-row fam-row--assist">${assistAsk(b, t, r, summary)}</div>`;
+  // Figma TR.8 / TR.17: saved assistance is a List Button (type, details, edit icon); "From profile" sits beside the label
+  const card = items.length ? { tag, html: `<button class="tassist__card" type="button" data-a="assist-edit" data-t="${t.key}"><span class="tassist__cardlines"><span class="tassist__cardtitle">${esc(items[0])}</span>${details ? `<span class="tassist__cardsub">${details}</span>` : ''}</span>${ic('edit')}<span class="ads-sr-only">Edit assistance for ${esc(t.label)}</span></button>` } : null;
+  return `<div class="fam-row fam-row--assist">${assistAsk(b, t, r, summary, card)}</div>`;
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
