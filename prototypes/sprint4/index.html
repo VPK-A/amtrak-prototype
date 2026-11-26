@@ -2537,8 +2537,6 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 :is(.ds-next, .device) .pane--profile .ads-group__foot { margin: 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-body-small-size); line-height: 1.5; }
 :is(.ds-next, .device) .pane--profile .ads-group__foot .ads-link { font-size: var(--ads-type-body-small-size); }
 /* Header: icon-only Back and a plain close (Icon Button), centred title */
-:is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
-.ds-next .device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--profile .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
 :is(.ds-next, .device) .pane--profile .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
 /* Dark: the List caption uses text-secondary, since text-tertiary falls under 4.5:1 on surface-raised (see ads-next.css) */
 [data-theme="dark"] .pane--profile .ads-group__label { color: var(--ads-content-text-secondary) !important; }
@@ -2563,9 +2561,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 /* ---------- Profile editors and My coupons (Figma Sprint 4 nodes 3418:113979, 3427:120590, 3427:124991, 3430:129513,
    3430:133325, 3430:137973, 3430:140680, 3430:147004) ---------- */
 :is(.ds-next, .device) .pane--ed .pane__body { gap: var(--ads-space-24); padding: var(--ads-space-20) var(--ads-space-20) var(--ads-space-12); }
-:is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round { background: none; border: 0; }
 :is(.ds-next, .device) .pane--ed .ads-navbar__trail .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
-.ds-next .device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before, .ds-next.device .pane--ed .ads-navbar__trail .ads-icon-btn--round::before { content: none; }
 :is(.ds-next, .device) .pane--ed .ads-field .ads-control, :is(.ds-next, .device) .pane--ed .ads-field .ads-control--select { max-width: none; width: 100%; }
 :is(.ds-next, .device) .pane--ed .ads-field { width: 100%; }
 /* A card that groups related fields (Phone) or the add-a-code form (My coupons) */
@@ -2884,6 +2880,51 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .pr-card .ffc-count { padding: var(--ads-space-16) var(--ads-space-12); border-bottom: 0; }
 /* Profile rows: label Caption, value Body Small, tighter leading (Figma PF.1 rows ~57px) */
 .ds-next .pane--profile .ads-group__label, .ds-next .pane--profile .ads-group__value { line-height: 1.3; }
+
+/* ===== Design QA pass (Sprint 4 Figma, iOS · Mobile · Portrait) =====
+   1. iOS type scale on every iPhone screen. The device carries data-platform="ios" (core.js), and the Figma iOS
+      text styles use 150% line height (120% for headlines), no tracking, and +4% on the Button style. */
+.ds-next[data-platform="ios"], .ds-next [data-platform="ios"] {
+  font-family: var(--ads-font-family);
+  --ads-type-h3-headline-line-height: 1.2; --ads-type-h3-headline-letter-spacing: 0; --ads-type-h3-headline-weight: var(--ads-font-weight-semibold);
+  --ads-type-h4-headline-line-height: 1.2; --ads-type-h4-headline-letter-spacing: 0;
+  --ads-type-body-line-height: 1.5; --ads-type-body-letter-spacing: 0;
+  --ads-type-body-emphasis-line-height: 1.5; --ads-type-body-emphasis-letter-spacing: 0;
+  --ads-type-body-small-line-height: 1.5; --ads-type-body-small-letter-spacing: 0;
+  --ads-type-body-small-emphasis-line-height: 1.5; --ads-type-body-small-emphasis-letter-spacing: 0;
+  --ads-type-field-label-line-height: 1.5; --ads-type-field-label-letter-spacing: 0; --ads-type-field-label-weight: var(--ads-font-weight-semibold);
+  --ads-type-button-line-height: 1.5; --ads-type-button-letter-spacing: 0.04em;
+  --ads-type-button-small-line-height: 1.5; --ads-type-button-small-letter-spacing: 0.04em;
+  --ads-type-caption-line-height: 1.5; --ads-type-caption-letter-spacing: 0;
+}
+/* 2. Sheet header (.sheetHeader): 76px, space/20 inset, a border/subtle rule underneath, and Back / Close as the
+      Small Icon Button: a 36px round surface with a light shadow, kept inside a 44px touch target. */
+.ds-next .psheet .ads-navbar { min-height: 76px; padding: var(--ads-space-16) var(--ads-space-16); box-shadow: inset 0 -1px 0 var(--ads-border-subtle); }
+.ds-next .psheet .ads-navbar__title { font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
+.ds-next .psheet .ads-navbar .ads-icon-btn, .ds-next.device .psheet .ads-navbar .ads-icon-btn--round { position: relative; border: 0; isolation: isolate; margin: 0; background: none; color: var(--ads-content-icon-primary); }
+.ds-next .psheet .ads-navbar .ads-icon-btn::before, .ds-next.device .psheet .ads-navbar .ads-icon-btn.ads-icon-btn--round::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-secondary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .psheet .ads-navbar .ads-icon-btn:hover::before { background: var(--ads-background-surface-hover); }
+.ds-next .psheet .ads-navbar .ads-icon-btn:active::before { background: var(--ads-background-surface-active); }
+/* 3. Content sits on the 20px Template margin, starting space/12 under the header rule. */
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl) > .pane__scroll > .pane__body { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body { padding-top: var(--ads-space-12); }
+.ds-next .travsel { padding-top: 0; }
+.ds-next :is(.pane--profile) .pane__body { padding-top: var(--ads-space-12); }
+/* 4. Row heights: List Button container 50px, Checkbox rows 45px, Profile List Button rows 57px, Radio rows 44px. */
+.ds-next .ads-selectrow__btn { min-height: 50px; padding-block: 11px; }
+.ds-next .pr-card .ads-choice { min-height: 45px; padding-block: 0; align-items: center; }
+.ds-next .pane--profile .ads-group__row { min-height: 57px; padding-block: 10px; }
+.ds-next .pane--profile .ads-group__label + .ads-group__value, .ds-next .pane--profile .ads-group__label { line-height: 1.5; }
+/* Select station uses the same .sheetHeader: 76px, the round Back, a full-width rule, then the List/Map tabs 16px below */
+.ds-next .ss-upd .ss-head--c { margin: -8px calc(-1 * var(--ads-space-20)) var(--ads-space-16); padding: var(--ads-space-16); min-height: 76px; box-sizing: border-box; box-shadow: inset 0 -1px 0 var(--ads-border-subtle); }
+.ds-next .ss-upd .ss-head--c .ss-head__back { position: relative; isolation: isolate; margin: 0; background: none; color: var(--ads-content-icon-primary); }
+.ds-next .ss-upd .ss-head--c .ss-head__back::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-secondary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .pane--profile .ads-group__row { padding-block: 9px; }
+/* Tabs sit directly under the header rule (Figma: Tabs at y=134 on New booking, Select station and Select travelers) */
+.ds-next .psheet .pane__body:has(> .ads-bookingsheet__form:first-child > .ads-tabs:first-child),
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl) > .pane__scroll > .pane__body:has(> .travsel .pr-tabs) { padding-top: 0; }
+.ds-next .pr-tabs { margin-top: 0; }
+.ds-next .ss-upd .ss-head--c { margin-bottom: 0; }
 
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
@@ -4822,6 +4863,7 @@ var render = function () {
   $$('[data-scroll]', dev).forEach(e => { if (!e.closest('.navstage__under')) SCROLL_MEM[e.dataset.scroll] = e.scrollTop; });
   dev.className = `device device--${TB.dev} device--${TB.orient} ver-${TB.v}${TB.text > 100 ? ' text-large' : ''} ds-next notes-off`; // ADS Next is this branch's only design system
   dev.dataset.theme = TB.theme;
+  if (TB.dev === 'iphone') dev.dataset.platform = 'ios'; else delete dev.dataset.platform; // Figma's iPhone screens use the iOS type scale throughout
   // Booking is a modal flow: the app's bottom navigation is hidden while it's open
   if (nav().sheet && nav().sheet.id === 'booking') dev.classList.add('has-booking');
   dev.innerHTML = renderDevice();
@@ -7533,7 +7575,7 @@ function openInfo(topic, returnFocus, silent) {
 function renderInfo(o, covered) {
   const topic = o.stack[o.stack.length - 1], t = infoTopic(topic), depth = o.stack.length;
   const back = depth > 1 ? `<button class="ads-navbar__btn" type="button" data-a="info-back" aria-label="Back to ${esc(infoTopic(o.stack[depth - 2]).title)}">${ic('chevron-left')}<span>Back</span></button>` : '';
-  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" data-scroll="info-${topic.replace(':', '-')}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
+  return `<div class="info-layer" ${covered ? 'inert' : ''}><div class="info-scrim" data-a="info-close" aria-hidden="true"></div><div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-t">${IPAD() ? '' : '<span class="ads-sheet__grabber" aria-hidden="true"></span>'}<div class="info-head"><div class="info-head__lead">${back}</div><h2 class="info-title" id="info-t" tabindex="-1" data-title>${esc(t.title)}</h2><div class="info-head__trail"><button class="ads-icon-btn ads-icon-btn--sm ads-icon-btn--round" type="button" data-a="info-close" aria-label="Close ${esc(t.title)}">${ic('close', 'ads-icon--sm')}</button></div></div><div class="info-body" tabindex="0" role="region" aria-labelledby="info-t" data-scroll="info-${topic.replace(':', '-')}" data-info-depth="${depth}">${t.body()}</div></div></div>`;
 }
 A.info = t => openInfo(t.dataset.topic, t.dataset.k ? `[data-k="${t.dataset.k}"]` : `[data-a="${t.dataset.a}"][data-topic="${t.dataset.topic}"]`);
 A['info-push'] = t => { nav().info.stack.push(t.dataset.topic); pendingFocus = 'title'; render(); };

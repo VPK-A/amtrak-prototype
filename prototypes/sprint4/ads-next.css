@@ -219,3 +219,48 @@
 .ds-next .pr-card .ffc-count { padding: var(--ads-space-16) var(--ads-space-12); border-bottom: 0; }
 /* Profile rows: label Caption, value Body Small, tighter leading (Figma PF.1 rows ~57px) */
 .ds-next .pane--profile .ads-group__label, .ds-next .pane--profile .ads-group__value { line-height: 1.3; }
+
+/* ===== Design QA pass (Sprint 4 Figma, iOS · Mobile · Portrait) =====
+   1. iOS type scale on every iPhone screen. The device carries data-platform="ios" (core.js), and the Figma iOS
+      text styles use 150% line height (120% for headlines), no tracking, and +4% on the Button style. */
+.ds-next[data-platform="ios"], .ds-next [data-platform="ios"] {
+  font-family: var(--ads-font-family);
+  --ads-type-h3-headline-line-height: 1.2; --ads-type-h3-headline-letter-spacing: 0; --ads-type-h3-headline-weight: var(--ads-font-weight-semibold);
+  --ads-type-h4-headline-line-height: 1.2; --ads-type-h4-headline-letter-spacing: 0;
+  --ads-type-body-line-height: 1.5; --ads-type-body-letter-spacing: 0;
+  --ads-type-body-emphasis-line-height: 1.5; --ads-type-body-emphasis-letter-spacing: 0;
+  --ads-type-body-small-line-height: 1.5; --ads-type-body-small-letter-spacing: 0;
+  --ads-type-body-small-emphasis-line-height: 1.5; --ads-type-body-small-emphasis-letter-spacing: 0;
+  --ads-type-field-label-line-height: 1.5; --ads-type-field-label-letter-spacing: 0; --ads-type-field-label-weight: var(--ads-font-weight-semibold);
+  --ads-type-button-line-height: 1.5; --ads-type-button-letter-spacing: 0.04em;
+  --ads-type-button-small-line-height: 1.5; --ads-type-button-small-letter-spacing: 0.04em;
+  --ads-type-caption-line-height: 1.5; --ads-type-caption-letter-spacing: 0;
+}
+/* 2. Sheet header (.sheetHeader): 76px, space/20 inset, a border/subtle rule underneath, and Back / Close as the
+      Small Icon Button: a 36px round surface with a light shadow, kept inside a 44px touch target. */
+.ds-next .psheet .ads-navbar { min-height: 76px; padding: var(--ads-space-16) var(--ads-space-16); box-shadow: inset 0 -1px 0 var(--ads-border-subtle); }
+.ds-next .psheet .ads-navbar__title { font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
+.ds-next .psheet .ads-navbar .ads-icon-btn, .ds-next.device .psheet .ads-navbar .ads-icon-btn--round { position: relative; border: 0; isolation: isolate; margin: 0; background: none; color: var(--ads-content-icon-primary); }
+.ds-next .psheet .ads-navbar .ads-icon-btn::before, .ds-next.device .psheet .ads-navbar .ads-icon-btn.ads-icon-btn--round::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-secondary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .psheet .ads-navbar .ads-icon-btn:hover::before { background: var(--ads-background-surface-hover); }
+.ds-next .psheet .ads-navbar .ads-icon-btn:active::before { background: var(--ads-background-surface-active); }
+/* 3. Content sits on the 20px Template margin, starting space/12 under the header rule. */
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl) > .pane__scroll > .pane__body { padding-left: var(--ads-space-20); padding-right: var(--ads-space-20); }
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body { padding-top: var(--ads-space-12); }
+.ds-next .travsel { padding-top: 0; }
+.ds-next :is(.pane--profile) .pane__body { padding-top: var(--ads-space-12); }
+/* 4. Row heights: List Button container 50px, Checkbox rows 45px, Profile List Button rows 57px, Radio rows 44px. */
+.ds-next .ads-selectrow__btn { min-height: 50px; padding-block: 11px; }
+.ds-next .pr-card .ads-choice { min-height: 45px; padding-block: 0; align-items: center; }
+.ds-next .pane--profile .ads-group__row { min-height: 57px; padding-block: 10px; }
+.ds-next .pane--profile .ads-group__label + .ads-group__value, .ds-next .pane--profile .ads-group__label { line-height: 1.5; }
+/* Select station uses the same .sheetHeader: 76px, the round Back, a full-width rule, then the List/Map tabs 16px below */
+.ds-next .ss-upd .ss-head--c { margin: -8px calc(-1 * var(--ads-space-20)) var(--ads-space-16); padding: var(--ads-space-16); min-height: 76px; box-sizing: border-box; box-shadow: inset 0 -1px 0 var(--ads-border-subtle); }
+.ds-next .ss-upd .ss-head--c .ss-head__back { position: relative; isolation: isolate; margin: 0; background: none; color: var(--ads-content-icon-primary); }
+.ds-next .ss-upd .ss-head--c .ss-head__back::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-secondary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .pane--profile .ads-group__row { padding-block: 9px; }
+/* Tabs sit directly under the header rule (Figma: Tabs at y=134 on New booking, Select station and Select travelers) */
+.ds-next .psheet .pane__body:has(> .ads-bookingsheet__form:first-child > .ads-tabs:first-child),
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl) > .pane__scroll > .pane__body:has(> .travsel .pr-tabs) { padding-top: 0; }
+.ds-next .pr-tabs { margin-top: 0; }
+.ds-next .ss-upd .ss-head--c { margin-bottom: 0; }
