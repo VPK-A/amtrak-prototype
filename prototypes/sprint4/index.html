@@ -2983,6 +2983,68 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .pane:has(.rules) .ads-accordion--sm > summary { min-height: 60px; padding: 0 var(--ads-space-12); font-size: var(--ads-type-body-size); font-weight: var(--ads-type-body-emphasis-weight); }
 .ds-next .pane:has(.rules) .ads-group__title { font-size: var(--ads-type-body-size); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-secondary); }
 
+
+/* ===== Design QA pass 4: spacing measured against Figma text positions =====
+   Figma's text styles trim to cap height and baseline, so its gaps are measured from the letters. These
+   offsets bring the prototype's letters to the same positions while keeping full line boxes. */
+.ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body { padding-top: var(--ads-space-8); }
+.ds-next :is(.pane--profile) .pane__body { padding-top: var(--ads-space-8); }
+/* Text Input / Select: Field Label 8px above the field (letters to field), helper 8px below, inputs 24px apart */
+.ds-next .ads-field > .ads-field__label, .ds-next .ads-field > .apc-label { margin-bottom: -6px; }
+.ds-next .ads-field + .ads-field { margin-top: -4px; }
+/* Profile groups: title to list 12px, label to value 4px, helper under the list, groups 24px apart (letters) */
+.ds-next .pane--profile .ads-group { gap: 7px; }
+.ds-next .pane--profile .ads-group__value { margin-top: 2px; }
+.ds-next .pane--profile .ads-group__row { padding-block: 8px; }
+.ds-next .pane--profile .ads-group__foot { margin-bottom: -5px; }
+.ds-next .pane--profile .pane__body { gap: 19px; }
+/* Traveler counts (Figma TR.11 .list/row): 69px rows, name and age range 17px apart, heading 12px above the list */
+.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count { min-height: 69px; padding: 12px; align-items: center; }
+.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__text { align-self: flex-start; }
+.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__label { line-height: 20px; }
+.ds-next .ffc-counts:not(.ffc-counts--riders) .ffc-count__sub { margin-top: -4px; }
+.ds-next .ffc-h { margin-bottom: 5px; }
+/* Traveler details (Figma TR.1 / TR.11): heading close to the card; the card's field labels 8px above their fields */
+.ds-next .fam-travelers > .ffc-h { margin-bottom: 0; }
+.ds-next .fam-row { padding-top: 9px; }
+.ds-next .fam-row > .fam-row__label { margin-bottom: -2px; }
+.ds-next .fam-travelers:not(:first-child) { margin-top: -23px; }
+.ds-next .pr-tabs__help { margin-top: 10px; }
+.ds-next .pr-onpass { margin-top: 6px; }
+.ds-next .ffc-counts--riders .ffc-count { padding-block: 12px; }
+/* Radio Group, Passenger discounts (Figma DS.1): options 53px apart, helper 4px under its label, legend 8px above */
+.ds-next .ads-fieldset > .ads-field-label { margin-bottom: 4px; }
+.ds-next .pane--ed .ads-fieldset__options > .ads-choice .ads-choice__supporting { margin-top: 3px; }
+.ds-next .pane--ed .ads-fieldset__options > .ads-choice:has(.ads-choice__supporting) { margin-bottom: -5px; }
+.ds-next .pane--ed .ads-fieldset + .ads-link, .ds-next .pane--ed .ads-fieldset ~ [data-topic="rules"] { margin-top: -9px; }
+/* Assistance (Figma AS.10, PA.1): "Type of assistance" 24px under the traveler; options with a helper keep 16px below it */
+.ds-next .assist-who { margin-bottom: -12px; }
+.ds-next .assist-opt:not(.is-selected):has(.ads-choice__supporting) { padding-bottom: 10px; }
+/* Coupon List Item (Figma AP.1 / CP.1): 107px items; title, code, expiry and benefit 22 / 21 / 21px apart; heading 12px above the list */
+.ds-next .apc-h, .ds-next .cpn-h { margin-bottom: -7px; }
+.ds-next .apc-pick { padding-top: 11px; padding-bottom: 13px; }
+.ds-next :is(.apc-code, .cpl__code) { margin-top: -2px; }
+.ds-next :is(.apc-line, .cpl__exp) { margin-top: -3px; }
+.ds-next .cpl { padding: 11px 16px 13px 20px; }
+/* Phone editor card (Figma ED.5): title, Number type and the number 32 / 48px apart; the type helper 8px under the radios */
+.ds-next .ed-card { gap: 10px; }
+.ds-next .ed-card .ads-fieldset > .ads-helper { margin-top: -5px; }
+/* New booking selector rows (Figma FF.1 List Button): Field Label 8px above the row */
+.ds-next .ads-selectrow__label { margin-bottom: -4px; }
+/* Select dates (Figma DT.1): month titles 24px under the weekday row */
+.ds-next .pane--calx .calx .ads-calendar__month:first-of-type h3 { margin-top: 12px; }
+/* Select station (Figma ST.1): List / Map tabs on the 20px margin */
+.ds-next .ss-upd .ss-views .ads-tabs, .ds-next .ss-upd .ads-tabs { margin-left: 0; margin-right: 0; }
+/* Discount rules (Figma RL.1): group titles on the margin, rows 60px with 20px text inset */
+.ds-next .pane:has(.rules) .ads-group__title { padding-left: 0; padding-right: 0; }
+.ds-next .pane:has(.rules) .ads-accordion--sm > summary { min-height: 59px; padding: 0 var(--ads-space-12) 0 var(--ads-space-20); }
+/* Change email: Cancel sits in the logo row, so the page starts like Figma VF.1 */
+.ds-next .pane--b2c .ads-navbar { position: absolute; z-index: 2; top: 0; left: 0; }
+.ds-next .pane--b2c .pane__body { padding-top: var(--ads-space-12); }
+.ds-next .ads-selectrow + .ads-selectrow { margin-top: -6px; }
+.ds-next .cpn-avail + .cpn-acc { margin-top: -9px; }
+.ds-next .ads-selectrow.dcode .ads-selectrow__label { margin-bottom: -2px; }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
