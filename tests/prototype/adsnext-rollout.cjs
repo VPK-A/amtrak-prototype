@@ -45,7 +45,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(await p.evaluate(() => document.querySelector('#device [data-k="day-2026-10-27"]').disabled), `${T} past days disabled`);
     // Travelers: cards, counter at-min, segmented selection (Pass Rider travel type)
     await go(v, 'returning', 'travelers', th, 'iphone', 'D().booking.pax.adult=2'); await w(250);
-    ok((await css(v === 1 ? '.fam-card' : '.ov-list')).r === '8px', `${T} traveler card: radius/8`);
+    ok((await css(v === 1 ? '.fam-card' : '.ov-list')).r === '4px', `${T} traveler card: radius/4 (Figma TR.1)`);
     ok(await p.evaluate(() => document.querySelector('#device [data-a="pax"][data-k="senior"][data-d="-1"]').disabled), `${T} counter at-min: minus disabled`);
     await go(v, 'passrider', 'travelers', th, 'iphone', "D().booking.prType='leisure'"); await w(250);
     ok(await p.evaluate(() => { const t = document.querySelector('#device #prt-leisure'), b = document.querySelector('#device #prt-business'); return t && t.closest('.ads-tabs') && t.getAttribute('aria-selected') === 'true' && b.getAttribute('aria-selected') === 'false'; }), `${T} travel type: ADS tabs in Traveler selection, Leisure selected`);

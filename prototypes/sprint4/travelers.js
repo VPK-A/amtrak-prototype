@@ -244,7 +244,7 @@ function assistAsk(b, t, r, summary = '') {
     : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
   // Content above traveler details (comparison setting): the copy is shown once above the section, not in each card
   if (assistAbove()) return `<div class="tassist tassist--bare">${saved ? summary : ''}<div class="tassist__acts">${acts.replace(/aria-describedby="[^"]*"/g, 'aria-describedby="tassist-intro"')}</div></div>`;
-  return `<div class="tassist"><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
+  return `<div class="tassist"><p class="tassist__field" aria-hidden="true">Assistance</p><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
 }
 // Network problems opening a traveler's questions show once, above the travelers
 const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';

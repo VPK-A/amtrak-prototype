@@ -14,13 +14,13 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await p.locator(D_ + '[data-a="pick-travelers"]').click(); await w(400);
     const head = p.locator(D_ + '#ffc-kids-h');
     ok(await vis('[data-a="pax"][data-k="adult"]') && await vis('[data-a="pax"][data-k="senior"]') && await vis('[data-a="pax"][data-k="ya"]'), `${T} Adult, Senior and Young adult visible`);
-    ok(await head.count() === 1 && await head.getAttribute('aria-expanded') === 'false' && await p.locator(D_ + '#ffc-kids-h .ads-icon--chevron-down').count() === 1 && /Children and infants/.test(await head.innerText()), `${T} "Children and infants" row with a chevron, collapsed`);
+    ok(await head.count() === 1 && await head.getAttribute('aria-expanded') === 'false' && await p.locator(D_ + '#ffc-kids-h .ads-icon--chevron-down').count() === 1 && /Children & infants/.test(await head.innerText()), `${T} "Children & infants" row (Figma) with a chevron, collapsed`);
     ok(!(await vis('[data-a="pax"][data-k="youth"]')) && !(await vis('[data-a="pax"][data-k="child"]')) && !(await vis('[data-a="pax"][data-k="infant"]')), `${T} Youth, Child and Infant hidden by default`);
     const bb = await head.boundingBox(); ok(bb && bb.height >= 40, `${T} whole header is the tap target`);
     await head.click(); await w(250);
     ok(await head.getAttribute('aria-expanded') === 'true' && await vis('[data-a="pax"][data-k="youth"]') && await vis('[data-a="pax"][data-k="infant"]'), `${T} tapping reveals the three rows`);
     const t = await ev(() => document.querySelector('#device #ffc-kids-rows').innerText);
-    ok(/Ages 13 to 15/.test(t) && /Ages 2 to 12/.test(t) && /Under 2/.test(t) && await p.locator(D_ + '#ffc-kids-rows [data-a="youth-alone"]').count() === 1, `${T} ages and "Traveling alone?" kept`);
+    ok(/Ages 13-15/.test(t) && /Ages 2-12/.test(t) && /Under 2/.test(t) && await p.locator(D_ + '#ffc-kids-rows [data-a="youth-alone"]').count() === 1, `${T} ages and "Traveling alone?" kept`);
     await p.locator(D_ + '[data-a="pax"][data-k="child"][data-d="1"]').click(); await w(150); await p.locator(D_ + '[data-a="pax"][data-k="infant"][data-d="1"]').click(); await w(150);
     const pax = await ev(() => JSON.stringify(D().booking.pax));
     ok(await ev(() => document.activeElement && document.activeElement.dataset.k) === 'infant', `${T} focus stays on the counter`);

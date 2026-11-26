@@ -86,7 +86,8 @@ function couponRow(c) {
 SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
-  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
+  const cur = TB.cpn !== 'future'; // Reviewer control › My coupons: Current state (Figma CP.1, F22) or Future state (F23)
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: !cur, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
   if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
   if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
@@ -101,7 +102,7 @@ SCR.coupons = (r, ri) => {
   const pastH = `<div class="cpn-acc${open ? ' is-open' : ''}"><button class="cpn-acc__head" type="button" data-a="cpn-past" aria-expanded="${open}" aria-controls="cpn-past-panel" id="cpn-past-h"><span>Used and expired</span>${ic('chevron-down', 'cpn-acc__chev')}</button><div class="cpn-acc__panel" id="cpn-past-panel" role="region" aria-labelledby="cpn-past-h"${open ? '' : ' hidden'}>${past.length ? `<ul class="cpl-list" aria-label="Used and expired coupons">${past.map(couponRow).join('')}</ul>` : '<p class="ads-body-small ads-text-secondary">No used or expired coupons.</p>'}</div></div>`;
   tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other code (not found).');
   snote('Coupon reminders and added-coupon notices depend on a notification channel that isn’t decided; used and expired coupons are kept for a time that isn’t defined (Q17). Save keeps a code you typed (it’s added) and returns to Profile.');
-  return shell(`${netAlert(r)}<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
+  return shell(`${netAlert(r)}${cur ? '' : `<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}`}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
 };
 A['cpn-past'] = (t, ri) => { const r = routeAt(ri); r.u.pastOpen = !r.u.pastOpen; pendingFocus = '#cpn-past-h'; render(); };
 A['cpn-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = ''; r.u.err = ''; pendingFocus = '#cpn-in'; render(); };

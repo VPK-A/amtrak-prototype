@@ -264,3 +264,47 @@
 .ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl) > .pane__scroll > .pane__body:has(> .travsel .pr-tabs) { padding-top: 0; }
 .ds-next .pr-tabs { margin-top: 0; }
 .ds-next .ss-upd .ss-head--c { margin-bottom: 0; }
+
+/* ===== Design QA pass 2 (second table) ===== */
+/* Traveler card (Figma TR.1 / TR.11): radius/4; an "Assistance" Field Label above the question; a full-width
+   secondary Button (44px, Button style) */
+.ds-next .fam-card { border-radius: var(--ads-radius-4); }
+.ds-next .fam-card > .fam-card__title { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
+.tassist__field { margin: 0; font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); color: var(--ads-content-text-secondary); }
+.ds-next .tassist__acts { flex-direction: column; align-items: stretch; }
+.ds-next .tassist__acts .ads-btn { width: 100%; min-height: var(--ads-size-interactive-md); font-size: var(--ads-type-button-size); line-height: var(--ads-type-button-line-height); letter-spacing: var(--ads-type-button-letter-spacing); }
+.ds-next .tassist__acts .ads-btn .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+.ds-next .ads-control--select.is-disabled { --_bg: var(--ads-background-interactive-secondary-disabled); }
+.ds-next .ads-control--select.is-disabled select { color: var(--ads-content-text-disabled); background: var(--ads-background-interactive-secondary-disabled); cursor: not-allowed; }
+.ds-next .ads-control--select.is-disabled .ads-icon { color: var(--ads-content-icon-disabled); }
+/* Swap: Button · Secondary · Icon only (44px, radius/4, 1px border); brand border and icon when it can swap */
+.ds-next .ads-swap-btn { border-radius: var(--ads-radius-4); background: var(--ads-background-interactive-secondary); border: 1px solid var(--ads-border-brand); color: var(--ads-content-icon-brand); box-shadow: none; }
+.ds-next .ads-swap-btn:hover { background: var(--ads-background-surface-hover); }
+.ds-next .ads-swap-btn:active { background: var(--ads-background-surface-active); }
+.ds-next .ads-swap-btn:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); color: var(--ads-content-icon-disabled); }
+/* Coupon list items (Figma AP.1 / CP.1): code in Body Small Emphasis, expiry in Body Small; info icons in icon-secondary */
+.ds-next :is(.apc-code, .apc-line, .cpl__code, .cpl__exp) { font-size: var(--ads-type-body-small-size); line-height: 1.5; }
+.ds-next :is(.apc-code, .cpl__code) { font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ds-next .cpl__exp { color: var(--ads-content-text-primary); }
+.ds-next :is(.cpl__info, [data-a="apc-details"], .apc-labelinfo) { color: var(--ads-content-icon-secondary); }
+/* Radio Group (Assistance, Profile assistance): options stack at 44px; only the chosen option opens its questions */
+.ds-next .assist-opt:not(.is-selected) { padding-bottom: 0; }
+/* Links on their own line use the Link default (Body) */
+.ds-next .info-entry .ads-link, .ds-next .linkbtn.ads-link--sm[data-topic="rules"] { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+/* Change email (Figma VF.1–VF.7): Amtrak's web sign-in pages, in the web type scale and Early Sans */
+.ds-next .pane--b2c { --ads-font-family: "Early Sans Variable", Arial, sans-serif; font-family: var(--ads-font-family);
+  --ads-type-body-size: 16px; --ads-type-body-line-height: 1.5; --ads-type-body-small-size: 14px; --ads-type-body-small-line-height: 1.5;
+  --ads-type-field-label-size: 14px; --ads-type-caption-size: 12px; --ads-type-button-size: 16px; background: var(--ads-background-surface-page); }
+.ds-next .psheet .pane--b2c .ads-navbar, .ds-next .pane--b2c .ads-navbar { min-height: 44px; padding: var(--ads-space-8) var(--ads-space-12) 0; box-shadow: none; background: transparent; }
+.ds-next .pane--b2c .pane__body { padding: 0 var(--ads-space-12) 28px; }
+.b2c { display: flex; flex-direction: column; gap: var(--ads-space-20); }
+.b2c__logo { display: flex; justify-content: center; margin-bottom: var(--ads-space-8); color: var(--ads-content-icon-brand); }
+.b2c__logo svg { width: 180px; height: auto; }
+.b2c__h { margin: 0; font-size: 32px; line-height: 1.2; font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+.b2c__h:focus { outline: none; }
+.b2c__intro { margin: -8px 0 0; font-size: 16px; line-height: 1.5; color: var(--ads-content-text-secondary); }
+.b2c__ro { gap: var(--ads-space-12); padding-left: var(--ads-space-12); background: var(--ads-background-surface-sunken); border-color: transparent; color: var(--ads-content-icon-secondary); }
+.b2c__ro input { background: transparent; color: var(--ads-content-text-secondary); padding-left: 0; }
+.b2c__acts { display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-16); }
+.b2c__resend { align-self: center; font-size: 16px; }
+.b2c__wait { margin: 0; font-size: 16px; color: var(--ads-content-text-secondary); }
