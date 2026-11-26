@@ -334,7 +334,7 @@ function stationSearch(r, ri, field, inline) {
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   }
   r.u.fullFoot = !showAll; // View full list is pinned in the footer (Figma 3295:51259)
-  h += `<p class="ss-note">${q(3)} Bookmark a station to save it.</p></div>`;
+  q(3); h += `</div>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”, or a landmark: “Empire”, “Fenway”, “Space Needle”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -527,7 +527,7 @@ render = function () {
   const sh = sheet(), r = sh && sh.stack[sh.stack.length - 1];
   if (r && r.s === 'calendar' && r.u.cal && r.u.cal.jump) {
     const c = r.u.cal; c.jump = false;
-    const target = (c.edit === 'ret' && c.ret ? c.ret : c.dep || TODAY_S).slice(0, 7), sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
+    const target = TODAY_S.slice(0, 7) /* Figma DT: the current month first */, sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
     if (sc && m) { const head = sc.querySelector('.calx-head'); sc.scrollTop = Math.max(0, m.offsetTop - (head ? head.offsetHeight : 0) - 4); sc.dispatchEvent(new Event('scroll')); }
   }
   return out;
@@ -996,12 +996,12 @@ EDITORS.phone = (r, ri, inline) => {
   const p = D().profile.phone; if (!r.u.d) r.u.d = clone(p); const x = r.u.d, e = r.u.err || {};
   ref('22');
   const changed = JSON.stringify(x) !== JSON.stringify(p);
-  // Figma 3427:120590: a card with the number first, then Number type (stacked radios) and its helper
+  // Figma ED.5: a card with Number type (stacked radios) and its helper first, then the number
   const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
   const num = x.region === 'us'
     ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
     : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
-  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${num}${regionQ}</section>`;
+  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${regionQ}${num}</section>`;
   // Add phone number: a second card for home and business numbers (US/Canada)
   const more = x.region === 'us' && (r.u.more || x.home || x.business);
   const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
@@ -1129,7 +1129,7 @@ SCR['assist-profile'] = (r, ri) => {
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(saved); r.u.mode = 'profile'; }
   const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : ''}${pwdPreview(fromDraft(r.u.d))}`;
   if (v3() && IPAD()) return { title: 'Assistance', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${assistSummaryCard(saved, { title: 'Saved now' })}</div><div class="split2__side"><div class="edpane">${form}</div></div></div>`, foot: `<div class="wizfoot"><button class="ads-btn ads-btn--secondary" type="button" data-a="assist-p-cancel">Cancel</button>${busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"')}</div>` };
-  if (v1()) return edShell(r, 'Assistance requests', form, 'assist-save'); // the same editor as every Profile edit (Figma 3430:137973)
+  if (v1()) { const sh = edShell(r, 'Assistance requests', `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${pwdPreview(fromDraft(r.u.d))}`, 'assist-save'); sh.foot += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft">Clear</button>`; return sh; } // Figma PA.1: Save, then a secondary Clear
   return { title: 'Assistance', kind: saved.cat ? 'editor' : 'push', cancelA: 'assist-p-cancel', save: saved.cat ? { a: 'assist-save', busy: !!r.u.busy } : null, body: form, foot: busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"') };
 };
 A['assist-p-edit'] = (t, ri) => { const r = routeAt(ri); r.u.editing = true; r.u.d = undefined; r.u.step = null; r.u.savedMsg = null; pendingFocus = 'title'; render(); };
@@ -1150,6 +1150,33 @@ A['assist-save'] = (t, ri) => {
   }, msg => { r.u.dirty = false; if (v1()) { r.u.d = undefined; popTo(+ri - 1); pendingFocus = '[data-k="row-assist"]'; toast(msg); return; } r.u.editing = false; r.u.d = undefined; r.u.step = null; r.u.savedMsg = msg; r.u.returnTo = r.p.returnTo; pendingFocus = 'title'; render(); });
 };
 
+
+// Change email (NMA-21), Figma VF.1–VF.7: the Amtrak sign-in web pages, not an app sheet. Amtrak logo, a 32px
+// heading, an intro, a status Alert, read-only fields with the mail icon, and the button in the page.
+const B2C_LOGO = `<svg width="151" height="16" viewBox="0 0 151 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amtrak" focusable="false"><path d="M47.4 0.2C36.9 4.8 31.2 9.7 28.1 16C25.8 15.3 23.2 14.4 20.5 13.3L19.4 12.9C25.5 6.3 34 3.7 47.4 0V0.2ZM56 14H51.8L51 12.6H45.1L44.3 14H40.5L46.1 5.7H50.4L56 14ZM68.5 11.4L71.8 5.7H76L78.5 14H74.7L73.4 8.7L70.4 14H66.7L63.6 8.7L62.4 14H58.5L61.1 5.7H65.3L68.5 11.4ZM93.8 7.6H89.2V14H85.3V7.6H80.2L80.7 5.7H94.2L93.8 7.6ZM103.6 5.7C105.3 5.7 107.1 5.7 108.4 6.1C109.7 6.5 110.6 7.2 110.6 8.4C110.6 9.5 109.9 10.5 108.3 10.9L111.2 14H106.8L104.8 11.5H101.5V14H97.7V5.7H103.6ZM129.4 14H125.3L124.4 12.6H118.5L117.7 14H113.9L119.5 5.7H123.8L129.4 14ZM136.6 9.4L141.1 5.7H145.8L140.6 9.7L146.2 14H141.1L136.6 10.1V14H132.7V5.7H136.6V9.4ZM40.1 1.7C31.3 3.5 22.7 5.9 16.2 11.5C13.8 10.4 11.5 9.3 9.2 8.2C15.4 4.3 26.3 2.6 32.4 1.9C34.5 2 37.9 1.8 40.1 1.5V1.7ZM46.1 11H50L48.1 7.6L46.1 11ZM119.5 11H123.5L121.5 7.6L119.5 11ZM101.5 10H103.8C104.6 10 105 9.9 105.5 9.8C106.2 9.7 106.7 9.3 106.7 8.6C106.7 7.8 105.9 7.4 104 7.4H101.5V10ZM148.9 5.7C149.4 5.7 149.9 5.9 150.3 6.3C150.7 6.7 150.9 7.2 150.9 7.8C150.9 8.4 150.7 8.8 150.3 9.2C149.9 9.6 149.4 9.8 148.9 9.8C148.3 9.8 147.8 9.6 147.4 9.2C147 8.8 146.8 8.4 146.8 7.8C146.8 7.2 147 6.7 147.4 6.3C147.8 5.9 148.3 5.7 148.9 5.7ZM148.8 6C148.3 6 147.9 6.2 147.6 6.5C147.2 6.9 147.1 7.3 147.1 7.8C147.1 8.3 147.2 8.7 147.6 9.1C147.9 9.4 148.3 9.6 148.8 9.6C149.3 9.6 149.8 9.4 150.1 9.1C150.5 8.7 150.6 8.3 150.6 7.8C150.6 7.3 150.5 6.9 150.1 6.5C149.8 6.2 149.3 6 148.8 6ZM148 6.7H148.8C149.1 6.7 149.3 6.7 149.4 6.7C149.7 6.8 149.8 7 149.8 7.3C149.8 7.5 149.7 7.7 149.6 7.8C149.5 7.8 149.4 7.8 149.2 7.9C149.4 7.9 149.5 8 149.6 8.1C149.7 8.2 149.8 8.3 149.8 8.4V8.8C149.8 8.8 149.8 8.9 149.8 8.9V8.9H149.4V8.9C149.4 8.9 149.4 8.9 149.4 8.9V8.6C149.4 8.4 149.3 8.2 149.2 8.1C149.1 8 148.9 8 148.7 8H148.4V8.9H148V6.7ZM148.4 6.9V7.7H148.8C148.9 7.7 149.1 7.7 149.2 7.7C149.3 7.6 149.4 7.5 149.4 7.4L149.4 7.3C149.4 7.2 149.3 7.1 149.2 7C149.1 7 149 6.9 148.7 6.9H148.4ZM0 3.1C6.9 0.2 22.5 0.5 25.4 0.7C26.8 1.1 28.6 1.4 30.2 1.6V1.8C22 2.3 13.1 3.4 6.2 6.6C3.9 5.4 1.9 4.3 0 3.1Z" fill="currentColor"/></svg>`;
+const starEmail = e => { const [u, dom] = String(e || '').split('@'); return '*'.repeat(Math.max(u.length, 11)) + '@' + (dom || ''); };
+function b2cPage(c, step) {
+  const d = D(), x = c.u.d, e = c.u.err || {};
+  const ro = (id, label, value) => `<div class="ads-field"><label class="ads-field__label" for="${id}">${label}</label><div class="ads-control b2c__ro">${ic('email')}<input id="${id}" type="text" value="${esc(value)}" readonly></div></div>`;
+  const head = (h, intro) => `<div class="b2c__logo">${B2C_LOGO}</div><h1 class="b2c__h" tabindex="-1" data-title>${h}</h1><p class="b2c__intro">${intro}</p>`;
+  const err = (t) => alertBox('error', '', t), fail = c.u.alert ? err('Something went wrong. Please try again.') : '';
+  if (step === 'newemail') {
+    const bad = !!e.newEmail;
+    return `<div class="b2c">${head('Change your email', 'We’ll send a code to your new email address. Your email won’t change until you submit it.')}${fail || (bad ? err('Some details need correcting. Check the highlighted fields below.') : '')}
+      ${ro('vf-cur', 'Current email', starEmail(d.profile.email))}
+      ${fieldHtml({ id: 'vf-new', f: 'newEmail', label: 'New email', type: 'email', value: x.newEmail, autocomplete: 'email', inputmode: 'email', err: e.newEmail })}
+      ${busyBtn(c, 'Send code', 'Sending', 'data-a="vf-newemail"')}</div>`;
+  }
+  const st = c.status, wrong = st === 'invalid' || st === 'expired';
+  const sent = !fail && !wrong && c.sends > 1 ? alertBox('success', 'New code requested', `A new code is on its way to ${esc(maskEmail(x.newEmail))}. Earlier codes no longer work.`) : '';
+  const verify = st === 'verifying' ? `<button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Verifying</button>` : `<button class="ads-btn ads-btn--block" type="button" data-a="vf-verify">Verify</button>`;
+  const resend = c.cooldown && c.sends > 1 ? `<p class="b2c__wait" role="status">Send new code in ${c.cooldown} seconds</p>` : `<button class="ads-link b2c__resend" type="button" data-a="vf-resend">Send new code</button>`;
+  const acts = st === 'expired' || fail ? `<button class="ads-btn ads-btn--block" type="button" data-a="vf-resend" ${c.cooldown ? 'disabled' : ''}>Send new code</button>${c.cooldown ? `<p class="b2c__wait" role="status">Send new code in ${c.cooldown} seconds</p>` : ''}` : `${verify}${resend}`;
+  return `<div class="b2c">${head('Check your email', 'Enter the 6-digit code. Codes expire after 10 minutes.')}${fail || (wrong ? err('That verification code is incorrect. Check the code and try again.') : sent)}
+    ${ro('vf-sent', 'New email', x.newEmail)}
+    ${fieldHtml({ id: 'vf-code', f: 'code', label: 'Verification code', type: 'tel', value: x.code, digits: 6, max: 6, placeholder: 'XXXXXX', autocomplete: 'one-time-code', err: wrong ? 'Enter a valid verification code. If needed, request a new code.' : '' })}
+    <div class="b2c__acts">${acts}</div></div>`;
+}
 // =====================================================================
 // E. Verification (one reusable view, NMA-980 / NMA-21)
 // =====================================================================
@@ -1194,6 +1221,7 @@ SCR.verify = (r) => {
       foot = st === 'verifying' ? `<button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Verifying</button>` : `<button class="ads-btn ads-btn--block" type="button" data-a="vf-verify" ${code.length === 6 ? '' : 'disabled aria-describedby="vf-code-h"'}>Verify</button>`;
     }
   }
+  if (c.trigger === 'change-email' && (step === 'newemail' || (step === 'code' && c.status !== 'success'))) return { title: step === 'code' ? 'Check your email' : 'Change your email', kind: 'push', srTitle: true, cls: 'pane--b2c', body: b2cPage(c, step), foot: '', banner: false };
   return { title, kind: 'push', body: demo + (c.u.alert ? netAlert(c) : '') + body, foot, banner: false };
 };
 const coverNext = () => { const c = nav().cover; c.i++; c.status = 'idle'; c.u.err = {}; c.u.alert = null; pendingFocus = 'title'; render(); };
@@ -1212,8 +1240,9 @@ A['vf-resend'] = () => { const c = nav().cover; runNet(c, () => {}, () => { send
 A['vf-channel'] = () => { const c = nav().cover; c.i = c.steps.indexOf('channel'); c.status = 'idle'; pendingFocus = 'title'; render(); };
 A['vf-verify'] = () => {
   const c = nav().cover, code = c.u.d.code;
+  if (c.trigger === 'change-email' && String(code || '').length !== 6) { c.status = 'invalid'; pendingFocus = '#vf-code'; render(); return; }
   if (V().net === 'offline') { c.u.alert = { kind: 'offline', what: 'verify your code' }; render(); return; }
   c.status = 'verifying'; c.u.alert = null; render();
-  setTimeout(() => { if (nav().cover !== c) return; c.status = code === '123456' ? 'success' : code === '000000' ? 'expired' : 'invalid'; if (c.status === 'success') clearInterval(cooldownT); pendingFocus = c.status === 'success' ? '.vf-success + *, [data-a="vf-finish"]' : '#vf-code'; render(); }, 900);
+  setTimeout(() => { if (nav().cover !== c) return; c.status = code === '123456' ? 'success' : code === '000000' ? 'expired' : 'invalid'; if (c.status === 'success') clearInterval(cooldownT); if (c.status === 'success' && c.trigger === 'change-email') { endVerify(true); return; } pendingFocus = c.status === 'success' ? '.vf-success + *, [data-a="vf-finish"]' : '#vf-code'; render(); }, 900);
 };
 A['vf-finish'] = () => endVerify(true);

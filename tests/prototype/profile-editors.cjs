@@ -18,7 +18,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   const axe = async n => { const v = await ev(async () => (await axe.run('#device .psheet', { resultTypes: ['violations'] })).violations.map(x => x.id + ':' + x.nodes.length)); ok(!v.length, `axe ${n} (${v})`); };
   const shell = () => ev(() => { const pn = [...document.querySelectorAll('#device .pane')].pop(); const b = pn.querySelector('.ads-navbar [data-a="back"]'); return { title: pn.querySelector('.ads-navbar__title').textContent, iconBack: !!b && b.classList.contains('ads-navbar__iconback') && !b.textContent.trim(), close: !!pn.querySelector('.ads-navbar__trail [data-a="close"]'), save: (pn.querySelector('.pane__foot .ads-btn--block') || {}).textContent, cancel: !!pn.querySelector('.ads-navbar__btn'), grabber: !!document.querySelector('#device .psheet .ads-sheet__grabber') }; });
 
-  for (const [k, title, sc, close] of [['row-mi', 'Middle initial'], ['row-phone', 'Phone'], ['row-address', 'Billing address'], ['row-dob', 'Date of birth'], ['row-disc', 'Passenger discounts'], ['row-assist', 'Assistance requests'], ['row-employee', 'Employee pass', 'passrider'], ['row-coupons', 'My coupons', 'returning', false]]) {
+  for (const [k, title, sc, close] of [['row-mi', 'Middle initial'], ['row-phone', 'Phone'], ['row-address', 'Billing address'], ['row-dob', 'Date of birth'], ['row-disc', 'Passenger discounts'], ['row-assist', 'Assistance requests'], ['row-employee', 'Employee pass', 'passrider'], ['row-coupons', 'My coupons', 'returning']]) { // My coupons current state (Figma CP.1) has a Close
     await open(k, sc);
     const s = await shell();
     ok(s.title === title && s.iconBack && s.close === (close !== false) && s.save === (title === 'My coupons' ? 'Apply' : 'Save') && !s.cancel && !s.grabber, `${title}: chevron Back, title, ${close === false ? 'no close' : 'close'}, ${title === 'My coupons' ? 'Apply' : 'Save'} in the footer (Figma CP.1), no grabber (${JSON.stringify(s)})`);
@@ -30,7 +30,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // Phone card
   await open('row-phone');
   ok(await ev(() => { const c = document.querySelector('#device .ed-card'); return c && /Mobile phone number/.test(c.querySelector('.ed-card__title').textContent) && c.querySelector('#ph-mobile') && c.querySelector('input[name="ph-region"]'); }) && /Must be 10 digits; numbers only\./.test(await pane()) && /Switching the type keeps the number you entered for each type\./.test(await pane()), 'Phone: one card with the number, Number type and helpers');
-  ok(await ev(() => document.querySelector('#device #ph-mobile').compareDocumentPosition(document.querySelector('#device input[name="ph-region"]')) & Node.DOCUMENT_POSITION_FOLLOWING), 'Phone: the number comes before Number type');
+  ok(await ev(() => document.querySelector('#device input[name="ph-region"]').compareDocumentPosition(document.querySelector('#device #ph-mobile')) & Node.DOCUMENT_POSITION_FOLLOWING), 'Phone: Number type comes before the number (Figma ED.5)');
   await p.click(D_ + '[data-a="ph-more"]'); await w(300);
   ok(await p.locator(D_ + '.ed-card').count() === 2 && await p.locator(D_ + '#ph-home').count() === 1 && await p.locator(D_ + '[data-a="ph-more"]').count() === 0, 'Add phone number adds a card for other numbers');
   await p.fill(D_ + '#ph-mobile', '2154445358'); await w(200); await p.click(D_ + '.pane__foot [data-a="edit-save"]'); await w(1200);
@@ -57,7 +57,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open('row-employee', 'passrider');
   ok(await ev(() => ['ee-rel', 'ee-pass', 'ee-index'].every(id => document.querySelector(`#device label[for="${id}"] .ads-field__marker--required`))) && /Must be 9 digits\./.test(await pane()) && /Must be 3 digits\./.test(await pane()), 'Employee pass: required markers kept; helpers');
   await axe('Employee pass');
-  // My coupons
+  // My coupons: Current state (Figma CP.1) by default: no intro or add card
+  await open('row-coupons');
+  ok(!/Coupons sent to you by email/.test(await pane()) && await p.locator(D_ + '#cpn-in').count() === 0 && /Available/.test(await pane()) && /Used and expired/.test(await pane()), 'My coupons current state: no intro or add card; Available and Used and expired');
+  // Future state (reviewer control): intro and the add card
+  await ev(() => { TB.cpn = 'future'; });
   await open('row-coupons');
   ok(/Coupons sent to you by email can be added here and used by anyone you share them with\./.test(await pane()) && await ev(() => document.querySelector('#device #cpn-in').placeholder) === 'Apply code' && await p.locator(D_ + '.cpn-addcard [data-a="code-info"]').count() === 1 && /Coupon codes should be 14 characters long\./.test(await pane()), 'My coupons: intro, add card with info, field and helper');
   const rows = await ev(() => [...document.querySelectorAll('#device .cpl-list[aria-label="Available coupons"] .cpl')].map(r => r.innerText.replace(/\n/g, ' | ')));

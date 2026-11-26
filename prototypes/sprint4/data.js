@@ -890,7 +890,7 @@ const FLOWS = [
 ];
 
 // Traveler types (NMA-611). Age bands aren't final (Q10).
-const PAX = [['adult', 'Adult', 'Ages 18 to 64'], ['senior', 'Senior', 'Ages 65 and over'], ['ya', 'Young adult', 'Ages 16 and 17'], ['youth', 'Youth', 'Ages 13 to 15'], ['child', 'Child', 'Ages 2 to 12'], ['infant', 'Infant', 'Under 2']];
+const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under 2']];
 const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
 // Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
 const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };

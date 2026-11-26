@@ -2928,6 +2928,50 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .pr-tabs { margin-top: 0; }
 .ds-next .ss-upd .ss-head--c { margin-bottom: 0; }
 
+/* ===== Design QA pass 2 (second table) ===== */
+/* Traveler card (Figma TR.1 / TR.11): radius/4; an "Assistance" Field Label above the question; a full-width
+   secondary Button (44px, Button style) */
+.ds-next .fam-card { border-radius: var(--ads-radius-4); }
+.ds-next .fam-card > .fam-card__title { border-radius: var(--ads-radius-4) var(--ads-radius-4) 0 0; }
+.tassist__field { margin: 0; font-size: var(--ads-type-field-label-size); line-height: var(--ads-type-field-label-line-height); font-weight: var(--ads-type-field-label-weight); color: var(--ads-content-text-secondary); }
+.ds-next .tassist__acts { flex-direction: column; align-items: stretch; }
+.ds-next .tassist__acts .ads-btn { width: 100%; min-height: var(--ads-size-interactive-md); font-size: var(--ads-type-button-size); line-height: var(--ads-type-button-line-height); letter-spacing: var(--ads-type-button-letter-spacing); }
+.ds-next .tassist__acts .ads-btn .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+.ds-next .ads-control--select.is-disabled { --_bg: var(--ads-background-interactive-secondary-disabled); }
+.ds-next .ads-control--select.is-disabled select { color: var(--ads-content-text-disabled); background: var(--ads-background-interactive-secondary-disabled); cursor: not-allowed; }
+.ds-next .ads-control--select.is-disabled .ads-icon { color: var(--ads-content-icon-disabled); }
+/* Swap: Button · Secondary · Icon only (44px, radius/4, 1px border); brand border and icon when it can swap */
+.ds-next .ads-swap-btn { border-radius: var(--ads-radius-4); background: var(--ads-background-interactive-secondary); border: 1px solid var(--ads-border-brand); color: var(--ads-content-icon-brand); box-shadow: none; }
+.ds-next .ads-swap-btn:hover { background: var(--ads-background-surface-hover); }
+.ds-next .ads-swap-btn:active { background: var(--ads-background-surface-active); }
+.ds-next .ads-swap-btn:disabled { background: var(--ads-background-interactive-secondary-disabled); border-color: var(--ads-border-disabled); color: var(--ads-content-icon-disabled); }
+/* Coupon list items (Figma AP.1 / CP.1): code in Body Small Emphasis, expiry in Body Small; info icons in icon-secondary */
+.ds-next :is(.apc-code, .apc-line, .cpl__code, .cpl__exp) { font-size: var(--ads-type-body-small-size); line-height: 1.5; }
+.ds-next :is(.apc-code, .cpl__code) { font-weight: var(--ads-font-weight-semibold); color: var(--ads-content-text-primary); }
+.ds-next .cpl__exp { color: var(--ads-content-text-primary); }
+.ds-next :is(.cpl__info, [data-a="apc-details"], .apc-labelinfo) { color: var(--ads-content-icon-secondary); }
+/* Radio Group (Assistance, Profile assistance): options stack at 44px; only the chosen option opens its questions */
+.ds-next .assist-opt:not(.is-selected) { padding-bottom: 0; }
+/* Links on their own line use the Link default (Body) */
+.ds-next .info-entry .ads-link, .ds-next .linkbtn.ads-link--sm[data-topic="rules"] { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+/* Change email (Figma VF.1–VF.7): Amtrak's web sign-in pages, in the web type scale and Early Sans */
+.ds-next .pane--b2c { --ads-font-family: "Early Sans Variable", Arial, sans-serif; font-family: var(--ads-font-family);
+  --ads-type-body-size: 16px; --ads-type-body-line-height: 1.5; --ads-type-body-small-size: 14px; --ads-type-body-small-line-height: 1.5;
+  --ads-type-field-label-size: 14px; --ads-type-caption-size: 12px; --ads-type-button-size: 16px; background: var(--ads-background-surface-page); }
+.ds-next .psheet .pane--b2c .ads-navbar, .ds-next .pane--b2c .ads-navbar { min-height: 44px; padding: var(--ads-space-8) var(--ads-space-12) 0; box-shadow: none; background: transparent; }
+.ds-next .pane--b2c .pane__body { padding: 0 var(--ads-space-12) 28px; }
+.b2c { display: flex; flex-direction: column; gap: var(--ads-space-20); }
+.b2c__logo { display: flex; justify-content: center; margin-bottom: var(--ads-space-8); color: var(--ads-content-icon-brand); }
+.b2c__logo svg { width: 180px; height: auto; }
+.b2c__h { margin: 0; font-size: 32px; line-height: 1.2; font-weight: var(--ads-font-weight-regular); color: var(--ads-content-text-primary); }
+.b2c__h:focus { outline: none; }
+.b2c__intro { margin: -8px 0 0; font-size: 16px; line-height: 1.5; color: var(--ads-content-text-secondary); }
+.b2c__ro { gap: var(--ads-space-12); padding-left: var(--ads-space-12); background: var(--ads-background-surface-sunken); border-color: transparent; color: var(--ads-content-icon-secondary); }
+.b2c__ro input { background: transparent; color: var(--ads-content-text-secondary); padding-left: 0; }
+.b2c__acts { display: flex; flex-direction: column; align-items: stretch; gap: var(--ads-space-16); }
+.b2c__resend { align-self: center; font-size: 16px; }
+.b2c__wait { margin: 0; font-size: 16px; color: var(--ads-content-text-secondary); }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
@@ -3588,6 +3632,7 @@ body, .ads-root, .device, .device * { font-family: "Patrick Hand", "Comic Neue",
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5d">Discount pricing (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5d"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbNet">Network</label><div class="ads-control ads-control--select"><select id="tbNet"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbToken">Session token</label><div class="ads-control ads-control--select"><select id="tbToken"><option value="valid">Valid</option><option value="expired">Expired (asks “Verify it’s you” before Change email)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
+      <div class="ads-field ctl__group"><label class="ads-field__label" for="tbCpn">My coupons</label><div class="ads-control ads-control--select"><select id="tbCpn"><option value="current">Current state (CP.1)</option><option value="future">Future state (add a coupon)</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <p class="nlabel ctl__sub">Location (simulated)</p>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbPlatform">Platform</label><div class="ads-control ads-control--select"><select id="tbPlatform"><option value="ios">iOS</option><option value="android">Android</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbPerm">Location permission</label><div class="ads-control ads-control--select"><select id="tbPerm"><option value="ask">Not asked yet</option><option value="precise">Allowed while using · precise</option><option value="approx">Allowed while using · approximate</option><option value="once">Allowed once (this session)</option><option value="denied">Denied before</option></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -4549,7 +4594,7 @@ const FLOWS = [
 ];
 
 // Traveler types (NMA-611). Age bands aren't final (Q10).
-const PAX = [['adult', 'Adult', 'Ages 18 to 64'], ['senior', 'Senior', 'Ages 65 and over'], ['ya', 'Young adult', 'Ages 16 and 17'], ['youth', 'Youth', 'Ages 13 to 15'], ['child', 'Child', 'Ages 2 to 12'], ['infant', 'Infant', 'Under 2']];
+const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under 2']];
 const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
 // Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
 const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };
@@ -4697,7 +4742,7 @@ const fmtWeekday = s => parse(s).toLocaleDateString('en-US', { weekday: 'long' }
 const TODAY_S = iso(TODAY);
 
 // ---------- Toolbar state (shared) and per-version state ----------
-const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto' };
+const TB = { v: 1, dev: 'iphone', orient: 'portrait', text: 100, notes: false, theme: 'light', tab: 'proto', cpn: 'current' };
 const blankAssist = () => ({ cat: null, dis: [], wc: null, needs: [] });
 const PR_ROLE = { 'passrider-spouse': 'spouse', 'passrider-dependent': 'dependent', 'passrider-minor': 'dependent', 'passrider-retiree': 'retiree' };
 function seed(sc) {
@@ -5176,7 +5221,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token; if ($('#tbCpn')) $('#tbCpn').value = TB.cpn;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
@@ -5222,6 +5267,7 @@ function wireToolbar() {
   $('#tbS5d').innerHTML = S5_DISC_MODES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbS5d').addEventListener('change', e => { TB.s5d = e.target.value; render(); });
   $('#tbToken').addEventListener('change', e => { V().token = e.target.value; render(); });
+  if ($('#tbCpn')) $('#tbCpn').addEventListener('change', e => { TB.cpn = e.target.value; render(); });
   $('#tbScenario').innerHTML = SCENARIOS.filter(([k]) => !['mi', 'intl', 'unverified'].includes(k)).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('');
 }
 
@@ -5561,7 +5607,7 @@ function stationSearch(r, ri, field, inline) {
     h += `<div class="stsection"><p class="ss-allhead">All stations, by state</p>${Object.keys(byState).sort().map(stn => `<div class="ads-stationrow__header"><span>${stn}</span></div><ul class="stlist" aria-label="${stn}">${byState[stn].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name)).map(s => stationRow(s, field, 'all')).join('')}</ul>`).join('')}</div>`;
   }
   r.u.fullFoot = !showAll; // View full list is pinned in the footer (Figma 3295:51259)
-  h += `<p class="ss-note">${q(3)} Bookmark a station to save it.</p></div>`;
+  q(3); h += `</div>`;
   tip('Search “30th”, “Penn”, “Capitol”, “021” or “VA”, or a landmark: “Empire”, “Fenway”, “Space Needle”. Choose Lorton to see Auto Train pairing.');
   return h;
 }
@@ -5754,7 +5800,7 @@ render = function () {
   const sh = sheet(), r = sh && sh.stack[sh.stack.length - 1];
   if (r && r.s === 'calendar' && r.u.cal && r.u.cal.jump) {
     const c = r.u.cal; c.jump = false;
-    const target = (c.edit === 'ret' && c.ret ? c.ret : c.dep || TODAY_S).slice(0, 7), sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
+    const target = TODAY_S.slice(0, 7) /* Figma DT: the current month first */, sc = document.querySelector('#device .pane--calx .pane__scroll'), m = document.querySelector(`#device .calx-month[data-month="${target}"]`);
     if (sc && m) { const head = sc.querySelector('.calx-head'); sc.scrollTop = Math.max(0, m.offsetTop - (head ? head.offsetHeight : 0) - 4); sc.dispatchEvent(new Event('scroll')); }
   }
   return out;
@@ -6223,12 +6269,12 @@ EDITORS.phone = (r, ri, inline) => {
   const p = D().profile.phone; if (!r.u.d) r.u.d = clone(p); const x = r.u.d, e = r.u.err || {};
   ref('22');
   const changed = JSON.stringify(x) !== JSON.stringify(p);
-  // Figma 3427:120590: a card with the number first, then Number type (stacked radios) and its helper
+  // Figma ED.5: a card with Number type (stacked radios) and its helper first, then the number
   const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
   const num = x.region === 'us'
     ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
     : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
-  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${num}${regionQ}</section>`;
+  const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${regionQ}${num}</section>`;
   // Add phone number: a second card for home and business numbers (US/Canada)
   const more = x.region === 'us' && (r.u.more || x.home || x.business);
   const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
@@ -6356,7 +6402,7 @@ SCR['assist-profile'] = (r, ri) => {
   if (!r.u.d || r.u.d.cat === undefined) { r.u.d = toDraft(saved); r.u.mode = 'profile'; }
   const form = `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${r.u.d.cat ? `<button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="assist-clear-draft">Clear selection</button>` : ''}${pwdPreview(fromDraft(r.u.d))}`;
   if (v3() && IPAD()) return { title: 'Assistance', kind: 'push', wide: true, body: `<div class="split2"><div class="split2__main">${assistSummaryCard(saved, { title: 'Saved now' })}</div><div class="split2__side"><div class="edpane">${form}</div></div></div>`, foot: `<div class="wizfoot"><button class="ads-btn ads-btn--secondary" type="button" data-a="assist-p-cancel">Cancel</button>${busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"')}</div>` };
-  if (v1()) return edShell(r, 'Assistance requests', form, 'assist-save'); // the same editor as every Profile edit (Figma 3430:137973)
+  if (v1()) { const sh = edShell(r, 'Assistance requests', `${netAlert(r)}${assistForm(r, ri, { mode: 'profile', idp: 'pa' })}${pwdPreview(fromDraft(r.u.d))}`, 'assist-save'); sh.foot += `<button class="ads-btn ads-btn--secondary ads-btn--block" type="button" data-a="assist-clear-draft">Clear</button>`; return sh; } // Figma PA.1: Save, then a secondary Clear
   return { title: 'Assistance', kind: saved.cat ? 'editor' : 'push', cancelA: 'assist-p-cancel', save: saved.cat ? { a: 'assist-save', busy: !!r.u.busy } : null, body: form, foot: busyBtn(r, 'Save', 'Saving', 'data-a="assist-save"') };
 };
 A['assist-p-edit'] = (t, ri) => { const r = routeAt(ri); r.u.editing = true; r.u.d = undefined; r.u.step = null; r.u.savedMsg = null; pendingFocus = 'title'; render(); };
@@ -6377,6 +6423,33 @@ A['assist-save'] = (t, ri) => {
   }, msg => { r.u.dirty = false; if (v1()) { r.u.d = undefined; popTo(+ri - 1); pendingFocus = '[data-k="row-assist"]'; toast(msg); return; } r.u.editing = false; r.u.d = undefined; r.u.step = null; r.u.savedMsg = msg; r.u.returnTo = r.p.returnTo; pendingFocus = 'title'; render(); });
 };
 
+
+// Change email (NMA-21), Figma VF.1–VF.7: the Amtrak sign-in web pages, not an app sheet. Amtrak logo, a 32px
+// heading, an intro, a status Alert, read-only fields with the mail icon, and the button in the page.
+const B2C_LOGO = `<svg width="151" height="16" viewBox="0 0 151 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Amtrak" focusable="false"><path d="M47.4 0.2C36.9 4.8 31.2 9.7 28.1 16C25.8 15.3 23.2 14.4 20.5 13.3L19.4 12.9C25.5 6.3 34 3.7 47.4 0V0.2ZM56 14H51.8L51 12.6H45.1L44.3 14H40.5L46.1 5.7H50.4L56 14ZM68.5 11.4L71.8 5.7H76L78.5 14H74.7L73.4 8.7L70.4 14H66.7L63.6 8.7L62.4 14H58.5L61.1 5.7H65.3L68.5 11.4ZM93.8 7.6H89.2V14H85.3V7.6H80.2L80.7 5.7H94.2L93.8 7.6ZM103.6 5.7C105.3 5.7 107.1 5.7 108.4 6.1C109.7 6.5 110.6 7.2 110.6 8.4C110.6 9.5 109.9 10.5 108.3 10.9L111.2 14H106.8L104.8 11.5H101.5V14H97.7V5.7H103.6ZM129.4 14H125.3L124.4 12.6H118.5L117.7 14H113.9L119.5 5.7H123.8L129.4 14ZM136.6 9.4L141.1 5.7H145.8L140.6 9.7L146.2 14H141.1L136.6 10.1V14H132.7V5.7H136.6V9.4ZM40.1 1.7C31.3 3.5 22.7 5.9 16.2 11.5C13.8 10.4 11.5 9.3 9.2 8.2C15.4 4.3 26.3 2.6 32.4 1.9C34.5 2 37.9 1.8 40.1 1.5V1.7ZM46.1 11H50L48.1 7.6L46.1 11ZM119.5 11H123.5L121.5 7.6L119.5 11ZM101.5 10H103.8C104.6 10 105 9.9 105.5 9.8C106.2 9.7 106.7 9.3 106.7 8.6C106.7 7.8 105.9 7.4 104 7.4H101.5V10ZM148.9 5.7C149.4 5.7 149.9 5.9 150.3 6.3C150.7 6.7 150.9 7.2 150.9 7.8C150.9 8.4 150.7 8.8 150.3 9.2C149.9 9.6 149.4 9.8 148.9 9.8C148.3 9.8 147.8 9.6 147.4 9.2C147 8.8 146.8 8.4 146.8 7.8C146.8 7.2 147 6.7 147.4 6.3C147.8 5.9 148.3 5.7 148.9 5.7ZM148.8 6C148.3 6 147.9 6.2 147.6 6.5C147.2 6.9 147.1 7.3 147.1 7.8C147.1 8.3 147.2 8.7 147.6 9.1C147.9 9.4 148.3 9.6 148.8 9.6C149.3 9.6 149.8 9.4 150.1 9.1C150.5 8.7 150.6 8.3 150.6 7.8C150.6 7.3 150.5 6.9 150.1 6.5C149.8 6.2 149.3 6 148.8 6ZM148 6.7H148.8C149.1 6.7 149.3 6.7 149.4 6.7C149.7 6.8 149.8 7 149.8 7.3C149.8 7.5 149.7 7.7 149.6 7.8C149.5 7.8 149.4 7.8 149.2 7.9C149.4 7.9 149.5 8 149.6 8.1C149.7 8.2 149.8 8.3 149.8 8.4V8.8C149.8 8.8 149.8 8.9 149.8 8.9V8.9H149.4V8.9C149.4 8.9 149.4 8.9 149.4 8.9V8.6C149.4 8.4 149.3 8.2 149.2 8.1C149.1 8 148.9 8 148.7 8H148.4V8.9H148V6.7ZM148.4 6.9V7.7H148.8C148.9 7.7 149.1 7.7 149.2 7.7C149.3 7.6 149.4 7.5 149.4 7.4L149.4 7.3C149.4 7.2 149.3 7.1 149.2 7C149.1 7 149 6.9 148.7 6.9H148.4ZM0 3.1C6.9 0.2 22.5 0.5 25.4 0.7C26.8 1.1 28.6 1.4 30.2 1.6V1.8C22 2.3 13.1 3.4 6.2 6.6C3.9 5.4 1.9 4.3 0 3.1Z" fill="currentColor"/></svg>`;
+const starEmail = e => { const [u, dom] = String(e || '').split('@'); return '*'.repeat(Math.max(u.length, 11)) + '@' + (dom || ''); };
+function b2cPage(c, step) {
+  const d = D(), x = c.u.d, e = c.u.err || {};
+  const ro = (id, label, value) => `<div class="ads-field"><label class="ads-field__label" for="${id}">${label}</label><div class="ads-control b2c__ro">${ic('email')}<input id="${id}" type="text" value="${esc(value)}" readonly></div></div>`;
+  const head = (h, intro) => `<div class="b2c__logo">${B2C_LOGO}</div><h1 class="b2c__h" tabindex="-1" data-title>${h}</h1><p class="b2c__intro">${intro}</p>`;
+  const err = (t) => alertBox('error', '', t), fail = c.u.alert ? err('Something went wrong. Please try again.') : '';
+  if (step === 'newemail') {
+    const bad = !!e.newEmail;
+    return `<div class="b2c">${head('Change your email', 'We’ll send a code to your new email address. Your email won’t change until you submit it.')}${fail || (bad ? err('Some details need correcting. Check the highlighted fields below.') : '')}
+      ${ro('vf-cur', 'Current email', starEmail(d.profile.email))}
+      ${fieldHtml({ id: 'vf-new', f: 'newEmail', label: 'New email', type: 'email', value: x.newEmail, autocomplete: 'email', inputmode: 'email', err: e.newEmail })}
+      ${busyBtn(c, 'Send code', 'Sending', 'data-a="vf-newemail"')}</div>`;
+  }
+  const st = c.status, wrong = st === 'invalid' || st === 'expired';
+  const sent = !fail && !wrong && c.sends > 1 ? alertBox('success', 'New code requested', `A new code is on its way to ${esc(maskEmail(x.newEmail))}. Earlier codes no longer work.`) : '';
+  const verify = st === 'verifying' ? `<button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Verifying</button>` : `<button class="ads-btn ads-btn--block" type="button" data-a="vf-verify">Verify</button>`;
+  const resend = c.cooldown && c.sends > 1 ? `<p class="b2c__wait" role="status">Send new code in ${c.cooldown} seconds</p>` : `<button class="ads-link b2c__resend" type="button" data-a="vf-resend">Send new code</button>`;
+  const acts = st === 'expired' || fail ? `<button class="ads-btn ads-btn--block" type="button" data-a="vf-resend" ${c.cooldown ? 'disabled' : ''}>Send new code</button>${c.cooldown ? `<p class="b2c__wait" role="status">Send new code in ${c.cooldown} seconds</p>` : ''}` : `${verify}${resend}`;
+  return `<div class="b2c">${head('Check your email', 'Enter the 6-digit code. Codes expire after 10 minutes.')}${fail || (wrong ? err('That verification code is incorrect. Check the code and try again.') : sent)}
+    ${ro('vf-sent', 'New email', x.newEmail)}
+    ${fieldHtml({ id: 'vf-code', f: 'code', label: 'Verification code', type: 'tel', value: x.code, digits: 6, max: 6, placeholder: 'XXXXXX', autocomplete: 'one-time-code', err: wrong ? 'Enter a valid verification code. If needed, request a new code.' : '' })}
+    <div class="b2c__acts">${acts}</div></div>`;
+}
 // =====================================================================
 // E. Verification (one reusable view, NMA-980 / NMA-21)
 // =====================================================================
@@ -6421,6 +6494,7 @@ SCR.verify = (r) => {
       foot = st === 'verifying' ? `<button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}Verifying</button>` : `<button class="ads-btn ads-btn--block" type="button" data-a="vf-verify" ${code.length === 6 ? '' : 'disabled aria-describedby="vf-code-h"'}>Verify</button>`;
     }
   }
+  if (c.trigger === 'change-email' && (step === 'newemail' || (step === 'code' && c.status !== 'success'))) return { title: step === 'code' ? 'Check your email' : 'Change your email', kind: 'push', srTitle: true, cls: 'pane--b2c', body: b2cPage(c, step), foot: '', banner: false };
   return { title, kind: 'push', body: demo + (c.u.alert ? netAlert(c) : '') + body, foot, banner: false };
 };
 const coverNext = () => { const c = nav().cover; c.i++; c.status = 'idle'; c.u.err = {}; c.u.alert = null; pendingFocus = 'title'; render(); };
@@ -6439,9 +6513,10 @@ A['vf-resend'] = () => { const c = nav().cover; runNet(c, () => {}, () => { send
 A['vf-channel'] = () => { const c = nav().cover; c.i = c.steps.indexOf('channel'); c.status = 'idle'; pendingFocus = 'title'; render(); };
 A['vf-verify'] = () => {
   const c = nav().cover, code = c.u.d.code;
+  if (c.trigger === 'change-email' && String(code || '').length !== 6) { c.status = 'invalid'; pendingFocus = '#vf-code'; render(); return; }
   if (V().net === 'offline') { c.u.alert = { kind: 'offline', what: 'verify your code' }; render(); return; }
   c.status = 'verifying'; c.u.alert = null; render();
-  setTimeout(() => { if (nav().cover !== c) return; c.status = code === '123456' ? 'success' : code === '000000' ? 'expired' : 'invalid'; if (c.status === 'success') clearInterval(cooldownT); pendingFocus = c.status === 'success' ? '.vf-success + *, [data-a="vf-finish"]' : '#vf-code'; render(); }, 900);
+  setTimeout(() => { if (nav().cover !== c) return; c.status = code === '123456' ? 'success' : code === '000000' ? 'expired' : 'invalid'; if (c.status === 'success') clearInterval(cooldownT); if (c.status === 'success' && c.trigger === 'change-email') { endVerify(true); return; } pendingFocus = c.status === 'success' ? '.vf-success + *, [data-a="vf-finish"]' : '#vf-code'; render(); }, 900);
 };
 A['vf-finish'] = () => endVerify(true);
 
@@ -6726,8 +6801,8 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     // Expanding or collapsing only shows or hides the counters; counts are kept and summarised in the header.
     const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen;
     const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
-    const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children and infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 and under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
-    const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children and infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
+    const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
+    const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children &amp; infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
     const limit = paxOccupied(p) >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 seats in the app. Call 1-800-USA-RAIL to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on Amtrak.com.</span></p>` : '';
     const ratio = p.infant > lapCap(p) && !probs.length ? '<p class="ss-note">Each infant beyond the number of adults, seniors and young adults takes a seat and pays the child fare.</p>' : '';
     why = probs.join(' ');
@@ -6735,7 +6810,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const discs = paxList(b).map(t => {
       const x = tdiscOf(b, t), opts = discOpts(b, t), label = `Traveler ${t.n} · ${PAX_LABEL[t.type]}`;
       const info = x === 'pwd' ? `Applied because ${esc(t.label || `Traveler ${t.n}`)} has a disability in assistance. ${q(9)}` : x === 'companion' ? `Applied because Traveler ${t.n} is a personal companion in assistance. It replaces other passenger discounts. ${q(9)}` : x === 'senior' ? 'Seniors get the senior discount automatically when eligible.' : x === 'infant' ? 'Infants travel on an adult’s lap.' : x === 'infantchild' ? 'More infants than adults: this infant pays the child fare.' : x === 'childfare' ? 'Children pay the child fare.' : x === 'none' ? (t.type === 'adult' || t.type === 'ya' ? 'Adults and young adults don’t get a passenger-type discount.' : 'No discount.') : DISCOUNTS[x] ? DISCOUNTS[x].info : '';
-      const ctl = opts && !['pwd', 'companion'].includes(x) ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
+      const ctl = opts && !['pwd', 'companion'].includes(x) ? `<div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}${ic('chevron-down')}</div>` : `<p class="ffc-fixedval">${TDISC_LABEL[x]}</p>`;
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
@@ -7336,7 +7411,7 @@ function assistAsk(b, t, r, summary = '') {
     : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
   // Content above traveler details (comparison setting): the copy is shown once above the section, not in each card
   if (assistAbove()) return `<div class="tassist tassist--bare">${saved ? summary : ''}<div class="tassist__acts">${acts.replace(/aria-describedby="[^"]*"/g, 'aria-describedby="tassist-intro"')}</div></div>`;
-  return `<div class="tassist"><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
+  return `<div class="tassist"><p class="tassist__field" aria-hidden="true">Assistance</p><p class="tassist__label">${C.entryLabel}</p><p class="tassist__help" id="${id}-h">${C.entryHelp}</p>${saved ? summary : ''}<div class="tassist__acts">${acts}</div></div>`;
 }
 // Network problems opening a traveler's questions show once, above the travelers
 const assistNetAlert = r => r && r.u.busyWhat === 'assist' ? netAlert(r) : '';
@@ -7882,7 +7957,8 @@ function couponRow(c) {
 SCR.coupons = (r, ri) => {
   const d = D(); r.u.d = r.u.d || { add: '' }; const e = r.u.err || '', val = r.u.d.add || '';
   ref('697');
-  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: true, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
+  const cur = TB.cpn !== 'future'; // Reviewer control › My coupons: Current state (Figma CP.1, F22) or Future state (F23)
+  const shell = body => ({ title: 'My coupons', kind: 'push', backIcon: true, noClose: !cur, cls: 'pane--ed pane--cpn', banner: false, body, foot: busyBtn(r, 'Apply', 'Applying', 'data-a="coupons-save"'), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your saved coupons. Adding a coupon needs a connection.' });
   const load = couponLoad(r);
   if (load === 'loading') return shell(`<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`);
   if (load === 'error') return shell(alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>'));
@@ -7897,7 +7973,7 @@ SCR.coupons = (r, ri) => {
   const pastH = `<div class="cpn-acc${open ? ' is-open' : ''}"><button class="cpn-acc__head" type="button" data-a="cpn-past" aria-expanded="${open}" aria-controls="cpn-past-panel" id="cpn-past-h"><span>Used and expired</span>${ic('chevron-down', 'cpn-acc__chev')}</button><div class="cpn-acc__panel" id="cpn-past-panel" role="region" aria-labelledby="cpn-past-h"${open ? '' : ' hidden'}>${past.length ? `<ul class="cpl-list" aria-label="Used and expired coupons">${past.map(couponRow).join('')}</ul>` : '<p class="ads-body-small ads-text-secondary">No used or expired coupons.</p>'}</div></div>`;
   tip('My coupons: add 60111122223333 (valid), EXP12345678901 (expired) or any other code (not found).');
   snote('Coupon reminders and added-coupon notices depend on a notification channel that isn’t decided; used and expired coupons are kept for a time that isn’t defined (Q17). Save keeps a code you typed (it’s added) and returns to Profile.');
-  return shell(`${netAlert(r)}<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
+  return shell(`${netAlert(r)}${cur ? '' : `<p class="cpn-intro">Coupons sent to you by email can be added here and used by anyone you share them with.</p>${add}`}<section class="cpn-avail" aria-labelledby="cpn-av"><h3 class="cpn-h" id="cpn-av">Available</h3>${availH}</section>${pastH}`);
 };
 A['cpn-past'] = (t, ri) => { const r = routeAt(ri); r.u.pastOpen = !r.u.pastOpen; pendingFocus = '#cpn-past-h'; render(); };
 A['cpn-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.add = ''; r.u.err = ''; pendingFocus = '#cpn-in'; render(); };
@@ -8102,12 +8178,12 @@ const famTitle = t => `Traveler ${t.n}: ${t.type && t.type !== 'pr' && t.short =
 function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
-    if (t.key === 'pr-you') return ''; // the pass holder always travels on the Pass Rider fare: no fare row (Figma TR.1, Traveler 1)
+    if (t.key === 'pr-you') return `<div class="fam-row"><label class="fam-row__label" for="pk-pr-you">Traveler type</label><div class="ads-control ads-control--select is-disabled"><select id="pk-pr-you" disabled aria-describedby="pk-pr-you-h"><option selected>Adult</option></select>${ic('chevron-down')}</div><span class="ads-sr-only" id="pk-pr-you-h">The pass holder travels as an adult.</span></div>`; // Figma TR.1: disabled Select
     const k = prKind(b, t.key), who = prPerson(D(), t.key);
     // Saved details from the pass record prefill Traveler information (the relationship itself is never shown)
     // Saved details from the pass record still prefill Traveler information; no line is shown for them (no story asks for one)
     const saved = '';
-    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select></div>${saved}</div>`;
+    return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select>${ic('chevron-down')}</div>${saved}</div>`;
   }
   if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
@@ -8115,7 +8191,7 @@ function discountRow(b, t, fromProfile) {
   const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
   const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
   if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
-  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select></div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
+  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
 // Actions sit under the summary they act on
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
@@ -8136,7 +8212,7 @@ function companionRow(b, t) {
   if (c !== 'disability') return '';
   const cur = companionOf(b, t.key), opts = companionCandidates(b, t.key);
   ref('615', '997');
-  return `<div class="fam-row"><label class="fam-row__label" for="cmp-${t.key}">Personal companion <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ads-control ads-control--select"><select id="cmp-${t.key}" data-f="cmp" data-nodirty data-hook="famcomp" data-for="${t.key}" aria-describedby="cmp-${t.key}-h"><option value="">No personal companion</option>${opts.map(o => `<option value="${o.key}" ${cur && cur.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div><p class="ads-helper" id="cmp-${t.key}-h">${opts.length ? 'A traveler with a disability may bring one personal companion. Their discount becomes Companion.' : 'Add another traveler without an assistance request to choose a personal companion.'} ${q(19)}</p></div>`;
+  return `<div class="fam-row"><label class="fam-row__label" for="cmp-${t.key}">Personal companion <span class="ads-field__marker ads-field__marker--optional">Optional</span></label><div class="ads-control ads-control--select"><select id="cmp-${t.key}" data-f="cmp" data-nodirty data-hook="famcomp" data-for="${t.key}" aria-describedby="cmp-${t.key}-h"><option value="">No personal companion</option>${opts.map(o => `<option value="${o.key}" ${cur && cur.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="cmp-${t.key}-h">${opts.length ? 'A traveler with a disability may bring one personal companion. Their discount becomes Companion.' : 'Add another traveler without an assistance request to choose a personal companion.'} ${q(19)}</p></div>`;
 }
 function travelerCards(b, r) {
   const d = D(), list = travelerList(b), fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;

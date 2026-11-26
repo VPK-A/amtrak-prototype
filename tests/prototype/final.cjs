@@ -118,7 +118,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(await ev(() => !!D().employee) && /Pass details added/.test(await txt()), `${T} 20 add with save feedback`);
     // NMA-21 email change + notifications
     await go(v, 'returning', 'verify:change-email'); await p.fill(D + '#vf-new', 'alex.new@example.com'); await p.locator(D + '#vf-new').dispatchEvent('change'); await dclick('[data-a="vf-newemail"]'); await w(900);
-    await p.fill(D + '#vf-code', '123456').catch(() => {}); await ev(() => { const c = nav().cover; if (c) { c.u.d.code = '123456'; render(); } }); await dclick('[data-a="vf-verify"]'); await w(900); await dclick('[data-a="vf-finish"]'); await w(400);
+    await p.fill(D + '#vf-code', '123456').catch(() => {}); await ev(() => { const c = nav().cover; if (c) { c.u.d.code = '123456'; render(); } }); await dclick('[data-a="vf-verify"]'); await w(1300); if (await p.locator(D + '[data-a="vf-finish"]').count()) { await dclick('[data-a="vf-finish"]'); await w(400); } // Figma VF: Verify finishes the change
     const out = await ev(() => (V().outbox || []).map(e => e.kind + '>' + e.to).join('|'));
     ok(await ev(() => D().profile.email) === 'alex.new@example.com' && /email-changed-new>alex\.new@example\.com/.test(out) && /email-changed-old>alex\.rivera@example\.com/.test(out), `${T} 21 email changed; mock notifications to old and new (${out})`);
     // NMA-22 phone intl
