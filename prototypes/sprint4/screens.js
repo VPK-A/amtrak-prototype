@@ -898,7 +898,7 @@ function profileRows(r, ri, opts = {}) {
   const miRow = p.mi ? `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Middle initial</span><span class="ads-group__value">${esc(p.mi)}</span></span>${lockChip}</div>`
     : grow({ a: 'edit', data: 'data-field="mi"', label: 'Middle initial', value: v2() ? 'Not added · can be added once' : 'Not added', empty: true, current: cur === 'mi', k: 'row-mi' });
   return `${group('Name', [
-    `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</span></span>${lockChip}</div>`,
+    `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${esc(p.last)}</span></span>${lockChip}</div>`,
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
     ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone).replace(/^Mobile /, '')), empty: fmtPhone(p.phone) === 'Not added', current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Not added', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Not added'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
@@ -954,7 +954,7 @@ function editorInline(r, ri, field) {
 const edShell = (r, title, body, saveA = 'edit-save') => ({ title, kind: 'push', backIcon: true, cls: 'pane--ed', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="${saveA}"`), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' });
 SCR.edit = (r, ri) => {
   const o = EDITORS[r.p.field](r, ri, false);
-  return edShell(r, PFIELDS[r.p.field], o.body);
+  const sh = edShell(r, PFIELDS[r.p.field], o.body); if (o.footExtra) sh.foot += o.footExtra; return sh;
 };
 // Which route an editor action targets: a pushed editor, or V3's inline editor inside Profile
 function edRoute(ri) { const r = routeAt(ri); return r && r.s === 'profile' ? r.u.edit : r; }
@@ -1038,8 +1038,8 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
     ${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip })}
-    ${a.street ? `<button class="ads-btn ads-btn--destructive ads-btn--block addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
-  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
+`;
+  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add', footExtra: a.street ? `<button class="ads-btn ads-btn--secondary ads-btn--block addr-remove" type="button" data-a="addr-remove">Clear</button>` : '' };
 };
 // NMA-23: delete, with confirmation; the row then offers Add
 A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
@@ -1088,7 +1088,7 @@ SCR.discounts = (r, ri) => {
   if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your assistance says “I have a disability”. ${v2() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to assistance</button></div></div></div>`;
   const body = `${intro('Choose one discount. It will be pre-selected when you book. Senior and Youth discounts are chosen when you book.')}${netAlert(r)}
     <fieldset class="ads-fieldset"><legend class="ads-field-label">Discount preference</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa', 'pwd'].map(k => opt(k) + (x.type === k && cond ? `<div class="condfield">${cond}</div>` : '')).join('')}</div></fieldset>
-    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
+    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="rules" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return Object.assign(edShell(r, 'Passenger discounts', body, 'disc-save'), { offlineText: 'You’re seeing your saved preference. Saving needs a connection.' });

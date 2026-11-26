@@ -196,7 +196,7 @@ function goLoc(loc) {
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
-    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
+    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break; // Figma RL.1: a pushed screen
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v1': case 'v2': case 'v4': {
       // Demo entries (New booking, archived Concepts 2 and 4): "v4:<scenario>:<place>"

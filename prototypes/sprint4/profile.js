@@ -80,7 +80,7 @@ A['coupon-retry'] = (t, ri) => { const r = routeAt(ri); r.u.load = null; pending
 const fmtNum = s => { const [y, m, d] = s.split('-'); return `${m}/${d}/${y}`; };
 function couponRow(c) {
   const st = couponState(c), name = c.name || c.kind;
-  const exp = st === 'used' ? `Used · Expires: ${fmtNum(c.exp)}` : st === 'expired' ? `Expired: ${fmtNum(c.exp)}` : `Expires: ${fmtNum(c.exp)}`;
+  const exp = `${c.exp < TODAY_S ? 'Expired' : 'Expires'}: ${fmtNum(c.exp)}${st === 'used' ? `</span><span class="cpl__exp">Used: ${fmtNum([...c.uses].sort((x, y) => y.date.localeCompare(x.date))[0].date)}` : ''}`; // Figma CP.5: each date on its own line
   return `<li class="cpl"><div class="cpl__lines"><span class="cpl__name">${esc(name)}</span><span class="cpl__code">Code: ${c.code}</span><span class="cpl__exp">${exp}</span><span class="cpl__benefit">${esc(c.benefit)}.</span></div><button class="ads-icon-btn ads-icon-btn--sm cpl__info" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(name)}">${ic('info-circle')}</button></li>`;
 }
 SCR.coupons = (r, ri) => {

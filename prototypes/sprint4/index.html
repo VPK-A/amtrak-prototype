@@ -2970,6 +2970,17 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .b2c__resend { align-self: center; font-size: 16px; }
 .b2c__wait { margin: 0; font-size: 16px; color: var(--ads-content-text-secondary); }
 
+/* ===== Design QA pass 3 ===== */
+/* A field in error keeps its error border while focused (Figma AP.3, DS.2); the 2px width still shows focus */
+.ds-next .ads-control--error:focus-within { --_border: var(--ads-border-status-error); --_border-w: 2px; }
+/* Clear inside a field: the plain 24px close icon in icon-primary */
+.ds-next [data-a="apc-clear"] { color: var(--ads-content-icon-primary); }
+/* Business tab: "Travelers on your pass" matches the Leisure heading (Body Emphasis, text-secondary) */
+.ds-next .ffc-riders__legend { margin: 0 0 var(--ads-space-12); padding: 0; font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-secondary); text-transform: none; letter-spacing: 0; }
+/* Discount rules (Figma RL.1): group titles in Body Emphasis text-secondary; each type a 60px Accordion (Default) row in Body Emphasis */
+.ds-next .pane:has(.rules) .ads-accordion--sm > summary { min-height: 60px; padding: 0 var(--ads-space-12); font-size: var(--ads-type-body-size); font-weight: var(--ads-type-body-emphasis-weight); }
+.ds-next .pane:has(.rules) .ads-group__title { font-size: var(--ads-type-body-size); font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-secondary); }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
@@ -4805,7 +4816,7 @@ function goLoc(loc) {
     case 'edit': if (guestBlocked()) break; if (v3) { account([R('profile')]); v.nav.sheet.stack[1].u.inline = arg; } else account([R('profile'), R('edit', { field: arg })]); break;
     case 'discounts': if (guestBlocked()) break; account([R('profile'), R('discounts')]); break;
     case 'coupons': if (guestBlocked()) break; account([R('profile'), R('coupons')]); break;
-    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts')]); v.nav.info = { stack: ['rules'], returnFocus: '[data-topic="rules"]' }; break;
+    case 'rules': if (guestBlocked()) break; account([R('profile'), R('discounts'), R('rules')]); break; // Figma RL.1: a pushed screen
     case 'assist-profile': if (guestBlocked()) break; account([R('assist-profile')]); break;
     case 'v1': case 'v2': case 'v4': {
       // Demo entries (New booking, archived Concepts 2 and 4): "v4:<scenario>:<place>"
@@ -6062,7 +6073,7 @@ function profileRows(r, ri, opts = {}) {
   const miRow = p.mi ? `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Middle initial</span><span class="ads-group__value">${esc(p.mi)}</span></span>${lockChip}</div>`
     : grow({ a: 'edit', data: 'data-field="mi"', label: 'Middle initial', value: v2() ? 'Not added · can be added once' : 'Not added', empty: true, current: cur === 'mi', k: 'row-mi' });
   return `${group('Name', [
-    `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${p.mi ? esc(p.mi) + '. ' : ''}${esc(p.last)}</span></span>${lockChip}</div>`,
+    `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Name</span><span class="ads-group__value">${esc(p.first)} ${esc(p.last)}</span></span>${lockChip}</div>`,
     `<div class="ads-group__row"><span class="ads-group__text"><span class="ads-group__label">Guest Rewards number</span><span class="ads-group__value">7012 3456 78</span></span>${lockChip}</div>`, miRow],
     'Need to change your name? Call us at <a class="ads-link ads-link--sm" href="tel:18003075000">1-800-307-5000</a>')}
     ${group('Contact', [grow({ a: 'change-email', label: 'Email', value: esc(p.email), k: 'row-email' }), grow({ a: 'edit', data: 'data-field="phone"', label: 'Phone', value: esc(fmtPhone(p.phone).replace(/^Mobile /, '')), empty: fmtPhone(p.phone) === 'Not added', current: cur === 'phone', k: 'row-phone' }), grow({ a: 'edit', data: 'data-field="address"', label: 'Billing address', value: p.address.street ? fmtAddress(p.address) : 'Not added', empty: !p.address.street, current: cur === 'address', k: 'row-address' }), grow({ a: 'edit', data: 'data-field="dob"', label: 'Date of birth', value: p.dob || (v2() ? 'Optional · not added' : 'Not added'), empty: !p.dob, current: cur === 'dob', k: 'row-dob' })])}
@@ -6118,7 +6129,7 @@ function editorInline(r, ri, field) {
 const edShell = (r, title, body, saveA = 'edit-save') => ({ title, kind: 'push', backIcon: true, cls: 'pane--ed', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="${saveA}"`), footCls: 'ads-actionfooter', offlineText: 'You’re seeing your last saved details. Saving changes needs a connection.' });
 SCR.edit = (r, ri) => {
   const o = EDITORS[r.p.field](r, ri, false);
-  return edShell(r, PFIELDS[r.p.field], o.body);
+  const sh = edShell(r, PFIELDS[r.p.field], o.body); if (o.footExtra) sh.foot += o.footExtra; return sh;
 };
 // Which route an editor action targets: a pushed editor, or V3's inline editor inside Profile
 function edRoute(ri) { const r = routeAt(ri); return r && r.s === 'profile' ? r.u.edit : r; }
@@ -6202,8 +6213,8 @@ EDITORS.address = (r, ri, inline) => {
     ${fieldHtml({ id: 'ad-apt', f: 'apt', label: 'Apt, suite or unit', value: x.apt, opt: true, autocomplete: 'address-line2' })}
     ${fieldHtml({ id: 'ad-city', f: 'city', label: 'City', value: x.city, req: true, autocomplete: 'address-level2', err: e.city })}
     ${stateSel}${fieldHtml({ id: 'ad-zip', f: 'zip', label: zipLabel, value: x.zip, req: true, autocomplete: 'postal-code', inputmode: cty === 'US' ? 'numeric' : 'text', help: cty === 'CA' ? 'For example, K1A 0B1.' : '', err: e.zip })}
-    ${a.street ? `<button class="ads-btn ads-btn--destructive ads-btn--block addr-remove" type="button" data-a="addr-remove">Remove billing address</button>` : ''}`;
-  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add' };
+`;
+  return { body, unchanged: JSON.stringify(x) === JSON.stringify(a), saveDisabled: JSON.stringify(x) === JSON.stringify(a), noSaveWhy: a.street ? 'Make a change to save.' : 'Enter an address to add it.', saveLabel: a.street ? 'Save' : 'Add', footExtra: a.street ? `<button class="ads-btn ads-btn--secondary ads-btn--block addr-remove" type="button" data-a="addr-remove">Clear</button>` : '' };
 };
 // NMA-23: delete, with confirmation; the row then offers Add
 A['addr-remove'] = (t, ri) => dialog({ title: 'Remove billing address?', body: 'It will be removed from your profile. You can add one again at any time.', returnFocus: '[data-a="addr-remove"]',
@@ -6252,7 +6263,7 @@ SCR.discounts = (r, ri) => {
   if (x.type === 'pwd' && !hasDis) cond = `<div class="ads-alert ads-alert--warning" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">Complete assistance first</p><p class="ads-alert__description ads-body-small">This discount is saved when your assistance says “I have a disability”. ${v2() ? 'We’ll bring you back here when you’re done.' : ''}</p><div><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="go-assist">Go to assistance</button></div></div></div>`;
   const body = `${intro('Choose one discount. It will be pre-selected when you book. Senior and Youth discounts are chosen when you book.')}${netAlert(r)}
     <fieldset class="ads-fieldset"><legend class="ads-field-label">Discount preference</legend><div class="ads-fieldset__options">${['none', 'military', 'rpa', 'pwd'].map(k => opt(k) + (x.type === k && cond ? `<div class="condfield">${cond}</div>` : '')).join('')}</div></fieldset>
-    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="info" data-topic="rules">Passenger types and discount rules</button>`;
+    ${q(9)}<button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="rules" data-topic="rules">Passenger types and discount rules</button>`;
   const changed = x.type !== d.discount.type || (x.type === 'rpa' && x.rpa !== d.discount.rpa);
   if (v3()) return { title: 'Passenger discounts', kind: 'push', body, foot: busyBtn(r, 'Save', 'Saving', `data-a="disc-save" ${changed ? '' : 'disabled'}`), offlineText: 'You’re seeing your saved preference. Saving needs a connection.' };
   return Object.assign(edShell(r, 'Passenger discounts', body, 'disc-save'), { offlineText: 'You’re seeing your saved preference. Saving needs a connection.' });
@@ -7070,7 +7081,7 @@ Object.assign(V3_PLACES, {
 
 function travelerList(b) {
   const d = D(), it = intentOf(b), out = [];
-  if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
+  if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'Adult' }); // Figma TR.21: "Traveler 1: adult"
   else if (it === 'pr' && d.passrider) {
     if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: prMeName(d) });
     if (b.prType !== 'business') {
@@ -7842,7 +7853,7 @@ A['coupon-retry'] = (t, ri) => { const r = routeAt(ri); r.u.load = null; pending
 const fmtNum = s => { const [y, m, d] = s.split('-'); return `${m}/${d}/${y}`; };
 function couponRow(c) {
   const st = couponState(c), name = c.name || c.kind;
-  const exp = st === 'used' ? `Used · Expires: ${fmtNum(c.exp)}` : st === 'expired' ? `Expired: ${fmtNum(c.exp)}` : `Expires: ${fmtNum(c.exp)}`;
+  const exp = `${c.exp < TODAY_S ? 'Expired' : 'Expires'}: ${fmtNum(c.exp)}${st === 'used' ? `</span><span class="cpl__exp">Used: ${fmtNum([...c.uses].sort((x, y) => y.date.localeCompare(x.date))[0].date)}` : ''}`; // Figma CP.5: each date on its own line
   return `<li class="cpl"><div class="cpl__lines"><span class="cpl__name">${esc(name)}</span><span class="cpl__code">Code: ${c.code}</span><span class="cpl__exp">${exp}</span><span class="cpl__benefit">${esc(c.benefit)}.</span></div><button class="ads-icon-btn ads-icon-btn--sm cpl__info" type="button" data-a="info" data-topic="coupon:${c.code}" aria-label="Details for ${esc(name)}">${ic('info-circle')}</button></li>`;
 }
 SCR.coupons = (r, ri) => {
@@ -8010,7 +8021,7 @@ SCR.dcode = (r, ri) => {
     : bad ? `<p class="ads-helper ads-helper--error" id="apc-in-h">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`
     : `<p class="ads-helper" id="apc-in-h">Codes should be 4 or 14 characters long.</p>`;
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
-    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close-circle')}</button>` : ''}</div>${help}</div>`;
+    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button>` : ''}</div>${help}</div>`;
   const load = couponLoad(r);
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
@@ -8076,7 +8087,7 @@ function discountRow(b, t, fromProfile) {
     const saved = '';
     return `<div class="fam-row"><label class="fam-row__label" for="pk-${t.key}">Traveler type</label><div class="ads-control ads-control--select"><select id="pk-${t.key}" data-f="pk" data-nodirty data-hook="prkind" data-key="${t.key}"><option value="adult" ${k === 'adult' ? 'selected' : ''}>Adult</option><option value="child" ${k === 'child' ? 'selected' : ''}>Child</option></select>${ic('chevron-down')}</div>${saved}</div>`;
   }
-  if (it === 'corporate') return famRow('Discount', 'Not used for corporate bookings', '');
+  if (it === 'corporate') return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount</label><div class="ads-control ads-control--select is-disabled"><select id="td-${t.key}" disabled aria-describedby="td-${t.key}-h"><option selected>None</option></select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">Discounts cannot be used for TripLink corporate bookings.</p></div>`; // Figma TR.21
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
   const was = b.discReplaced && b.discReplaced[t.key];
   const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
