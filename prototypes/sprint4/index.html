@@ -3097,6 +3097,46 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .psheet .pane:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:not(:has(> .travsel)) { padding-top: 7px; }
 .ds-next .psheet .pane.pane--profile:has(> .ads-navbar) > .pane__scroll > .pane__body { padding-top: var(--ads-space-4); }
 
+/* ===== Full-prototype review against Figma: shared components ===== */
+/* Modal (Figma ST.8, ED.2, ED.9, AS.9, FF.26): radius/12, 24px inset, title H4 with a close button, body in Body
+   text-secondary, actions 12px apart with the main action first */
+.ds-next .pdialog { width: min(350px, 100%); padding: 0 0 var(--ads-space-16); gap: var(--ads-space-16); border-radius: var(--ads-radius-12); }
+.ds-next .pdialog__text { padding: var(--ads-space-8) var(--ads-space-24) 0; }
+.ds-next .pdialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ads-space-16); margin-right: calc(-1 * var(--ads-space-16)); }
+.ds-next .pdialog__head h2 { margin: var(--ads-space-12) 0 var(--ads-space-12); font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
+.ds-next .pdialog__close { flex: none; color: var(--ads-content-icon-primary); background: none; }
+.ds-next .pdialog p { font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-secondary); }
+.ds-next .pdialog__actions { flex-direction: column; gap: var(--ads-space-12); padding: 0 var(--ads-space-24); }
+.ds-next .pdialog__actions .ads-btn--secondary, .ds-next .pdialog__actions .ads-btn--tertiary { order: 1; }
+/* Info sheet (Figma ST.21, TR.15, AP.4, AP.6, CP.4): the same .sheetHeader, no grabber, round close */
+.ds-next .info-sheet > .ads-sheet__grabber { display: none; }
+.ds-next.device:not(.device--ipad) .info-head, .ds-next .info-head { min-height: 77px; padding: var(--ads-space-16); box-shadow: inset 0 -1px 0 var(--ads-border-subtle); border-bottom: 0; }
+.ds-next .info-title { font-size: var(--ads-type-h4-headline-size); line-height: 1.2; }
+.ds-next.device .info-head .ads-icon-btn--round { position: relative; isolation: isolate; background: none; color: var(--ads-content-icon-primary); }
+.ds-next.device .info-head .ads-icon-btn--round::before { content: ""; position: absolute; inset: 4px; z-index: -1; border-radius: var(--ads-radius-full); background: var(--ads-background-interactive-secondary); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next.device .info-head .ads-icon-btn--round .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+/* Data Row (horizontal): label and value in Body Small, two equal columns, rows 16px apart */
+.ds-next .cpn-dl { grid-template-columns: 1fr 1fr; gap: var(--ads-space-12) var(--ads-space-8); }
+.ds-next .cpn-dl dt, .ds-next .cpn-dl dd { font-size: var(--ads-type-body-small-size); line-height: 1.5; }
+.ds-next .cpn-dl dt { color: var(--ads-content-text-secondary); }
+.ds-next .cpn-dl dd { color: var(--ads-content-text-primary); }
+.ds-next .cpn-dl--end dd { text-align: right; }
+.cpn-dl__name { margin: 0 0 var(--ads-space-16); font-size: var(--ads-type-body-size); line-height: 1.2; font-weight: var(--ads-type-body-emphasis-weight); color: var(--ads-content-text-primary); }
+/* Selected List Item (Figma AP.5): surface-selected across the row, no side bar */
+.ds-next .apc-row.is-selected { box-shadow: none; }
+/* Wheelchair question (Figma AS.3): a Field Label with its required marker beside it, no icon */
+.ds-next .wcq legend { display: block; float: none; }
+.ds-next .wcq legend .ads-icon { display: none; }
+/* A group in error is outlined (Figma AS.4) without moving the layout */
+.ds-next .assistform fieldset:has(> .ads-helper--error) { outline: 1px solid var(--ads-border-status-error); outline-offset: var(--ads-space-8); border-radius: var(--ads-radius-2); }
+/* Station and date field labels keep their color when the group is in error (Figma FF.5) */
+.ds-next .ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__label { color: var(--ads-content-text-secondary); }
+/* Mobility needs and service animal questions (Figma AS.15, AS.16): plain Radio Group options, no tinted cards */
+.ds-next .mobq__opts { gap: 0; }
+.ds-next .mobq__card:not(.mobq__card--field) { padding: 0; background: none; border: 0; }
+.ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 55px; }
+.ds-next .stinfo-dl dd { text-align: left; }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
@@ -5154,7 +5194,7 @@ function renderCover(c, covered) {
   return `<div class="cover-layer" ${covered ? 'inert' : ''}><div class="pcover" role="dialog" aria-modal="true" aria-labelledby="t-c">${paneHtml({ s: 'verify', p: {}, u: c.u }, 'c', { cover: true })}</div></div>`;
 }
 function renderDialog(o) {
-  return `<div class="dialog-layer"><div class="pdialog ads-modal" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-b"><div class="pdialog__text"><h2 class="ads-h4" id="dlg-t">${esc(o.title)}</h2><p class="ads-body-small" id="dlg-b">${o.body}</p></div><div class="pdialog__actions">${o.actions.map(([l, k], i) => `<button class="ads-btn ads-btn--${k === 'primary' ? '' : k} ads-btn--block" type="button" data-dlg="${i}">${esc(l)}</button>`).join('')}</div></div></div>`;
+  return `<div class="dialog-layer"><div class="pdialog ads-modal" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-b"><div class="pdialog__text"><div class="pdialog__head"><h2 class="ads-h4" id="dlg-t">${esc(o.title)}</h2>${(i => i < 0 ? '' : `<button class="ads-icon-btn pdialog__close" type="button" data-dlgx="${i}" aria-label="Close">${ic('close')}</button>`)(o.actions.findIndex(([l, k, f]) => !f))}</div><p class="ads-body-small" id="dlg-b">${o.body}</p></div><div class="pdialog__actions">${o.actions.map(([l, k], i) => `<button class="ads-btn ads-btn--${k === 'primary' ? '' : k} ads-btn--block" type="button" data-dlg="${i}">${esc(l)}</button>`).join('')}</div></div></div>`;
 }
 
 // ---------- Events ----------
@@ -5165,6 +5205,7 @@ function riOf(el) { const p = el.closest('[data-ri]'); return p ? p.dataset.ri :
 function wireDevice() {
   const dev = $('#device');
   dev.addEventListener('click', e => {
+    const dx = e.target.closest('[data-dlgx]'); if (dx) { closeDialog(nav().dialog.actions[+dx.dataset.dlgx][2]); return; } // the Modal's close button cancels
     const dl = e.target.closest('[data-dlg]');
     if (dl) { const o = nav().dialog, act = o.actions[+dl.dataset.dlg][2]; closeDialog(act); return; }
     const t = e.target.closest('[data-a]'); if (!t) return;
@@ -8026,7 +8067,7 @@ A['coupon-apply'] = t => {
 function couponInfo(code) {
   const d = D(), c = [...d.coupons, ...(d.couponsPast || [])].find(x => x.code === code); if (!c) return { title: 'Coupon', body: () => '<p>This coupon isn’t in your account any more.</p>' };
   const st = couponState(c);
-  return { title: c.name || c.kind, body: () => `<dl class="cpn-dl"><dt>Benefit</dt><dd>${esc(c.benefit)}</dd><dt>Type</dt><dd>${esc(c.kind)}</dd><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd><dt>Status</dt><dd>${st === 'used' ? 'Used' : st === 'expired' ? 'Expired' : 'Available'}</dd></dl>${st === 'used' ? `<h3 class="ads-h5">Uses</h3><ul class="cpn-uses">${[...c.uses].sort((x, y) => y.date.localeCompare(x.date)).map(u => `<li>Reservation ${u.pnr} · ${fmtDate(u.date)}</li>`).join('')}</ul>` : ''}<p class="info-draft">Eligibility and restrictions come with each coupon and are checked when you find trains. ${c.companion ? 'A companion coupon needs at least two travelers.' : ''}</p>` };
+  return { title: 'Details', body: () => `<h3 class="cpn-dl__name">${esc(c.name || c.kind)}</h3><dl class="cpn-dl cpn-dl--end"><dt>Benefit</dt><dd>${esc(c.benefit)}</dd><dt>Type</dt><dd>${esc(c.kind)}</dd><dt>Code</dt><dd>${c.code}</dd><dt>Issued</dt><dd>${fmtDate(c.issued)}</dd><dt>${st === 'expired' ? 'Expired' : 'Expires'}</dt><dd>${fmtDate(c.exp)}</dd><dt>Status</dt><dd>${st === 'used' ? 'Used' : st === 'expired' ? 'Expired' : 'Available'}</dd></dl>${st === 'used' ? `<h3 class="ads-h5">Uses</h3><ul class="cpn-uses">${[...c.uses].sort((x, y) => y.date.localeCompare(x.date)).map(u => `<li>Reservation ${u.pnr} · ${fmtDate(u.date)}</li>`).join('')}</ul>` : ''}<p class="info-draft">Eligibility and restrictions come with each coupon and are checked when you find trains. ${c.companion ? 'A companion coupon needs at least two travelers.' : ''}</p>` };
 }
 
 /* Sprint 4 prototype: mock email artifacts (reviewer-only, never sent).

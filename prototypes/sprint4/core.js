@@ -418,7 +418,7 @@ function renderCover(c, covered) {
   return `<div class="cover-layer" ${covered ? 'inert' : ''}><div class="pcover" role="dialog" aria-modal="true" aria-labelledby="t-c">${paneHtml({ s: 'verify', p: {}, u: c.u }, 'c', { cover: true })}</div></div>`;
 }
 function renderDialog(o) {
-  return `<div class="dialog-layer"><div class="pdialog ads-modal" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-b"><div class="pdialog__text"><h2 class="ads-h4" id="dlg-t">${esc(o.title)}</h2><p class="ads-body-small" id="dlg-b">${o.body}</p></div><div class="pdialog__actions">${o.actions.map(([l, k], i) => `<button class="ads-btn ads-btn--${k === 'primary' ? '' : k} ads-btn--block" type="button" data-dlg="${i}">${esc(l)}</button>`).join('')}</div></div></div>`;
+  return `<div class="dialog-layer"><div class="pdialog ads-modal" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-b"><div class="pdialog__text"><div class="pdialog__head"><h2 class="ads-h4" id="dlg-t">${esc(o.title)}</h2>${(i => i < 0 ? '' : `<button class="ads-icon-btn pdialog__close" type="button" data-dlgx="${i}" aria-label="Close">${ic('close')}</button>`)(o.actions.findIndex(([l, k, f]) => !f))}</div><p class="ads-body-small" id="dlg-b">${o.body}</p></div><div class="pdialog__actions">${o.actions.map(([l, k], i) => `<button class="ads-btn ads-btn--${k === 'primary' ? '' : k} ads-btn--block" type="button" data-dlg="${i}">${esc(l)}</button>`).join('')}</div></div></div>`;
 }
 
 // ---------- Events ----------
@@ -429,6 +429,7 @@ function riOf(el) { const p = el.closest('[data-ri]'); return p ? p.dataset.ri :
 function wireDevice() {
   const dev = $('#device');
   dev.addEventListener('click', e => {
+    const dx = e.target.closest('[data-dlgx]'); if (dx) { closeDialog(nav().dialog.actions[+dx.dataset.dlgx][2]); return; } // the Modal's close button cancels
     const dl = e.target.closest('[data-dlg]');
     if (dl) { const o = nav().dialog, act = o.actions[+dl.dataset.dlg][2]; closeDialog(act); return; }
     const t = e.target.closest('[data-a]'); if (!t) return;
