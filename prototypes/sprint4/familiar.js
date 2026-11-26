@@ -31,7 +31,7 @@ function discountRow(b, t, fromProfile) {
   const was = b.discReplaced && b.discReplaced[t.key];
   const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
   const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
-  if (fixed) return famRow('Discount', `${TDISC_LABEL[x]}${lock}`, why, `fd-${t.key}`);
+  if (fixed) return `<div class="fam-row"><label class="fam-row__label" for="fd-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select is-disabled"><select id="fd-${t.key}" disabled${why ? ` aria-describedby="fd-${t.key}-h"` : ''}><option selected>${TDISC_LABEL[x]}</option></select>${ic('chevron-down')}</div>${why ? `<p class="ads-helper" id="fd-${t.key}-h">${why}</p>` : ''}</div>`; // Figma TR.13 / TR.17: a fixed discount is a disabled Select with its reason below
   return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
 // Actions sit under the summary they act on
@@ -43,7 +43,9 @@ function assistanceRow(b, t, r) {
   const tag = t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
   const summary = items.length ? `<div class="tassist__saved"><span class="fam-row__label">Assistance${tag}</span><span class="fam-row__value">${esc(items[0])}</span>${details ? `<span class="ads-helper">${details}</span>` : ''}</div>` : '';
   ref('615', '973');
-  return `<div class="fam-row fam-row--assist">${assistAsk(b, t, r, summary)}</div>`;
+  // Figma TR.8 / TR.17: saved assistance is a List Button (type, details, edit icon); "From profile" sits beside the label
+  const card = items.length ? { tag, html: `<button class="tassist__card" type="button" data-a="assist-edit" data-t="${t.key}"><span class="tassist__cardlines"><span class="tassist__cardtitle">${esc(items[0])}</span>${details ? `<span class="tassist__cardsub">${details}</span>` : ''}</span>${ic('edit')}<span class="ads-sr-only">Edit assistance for ${esc(t.label)}</span></button>` } : null;
+  return `<div class="fam-row fam-row--assist">${assistAsk(b, t, r, summary, card)}</div>`;
 }
 function companionRow(b, t) {
   const c = assistCat(b, t.key);
