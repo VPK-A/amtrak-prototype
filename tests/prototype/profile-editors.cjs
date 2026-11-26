@@ -41,7 +41,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(req, 'Billing address: required markers kept; Apt optional');
   ok(await ev(() => [...document.querySelectorAll('#device .pane--ed .ads-field__marker--required')].every(m => m.textContent === '*' && m.getAttribute('aria-hidden') === 'true') && ['ad-country', 'ad-street', 'ad-city', 'ad-state', 'ad-zip'].every(id => document.querySelector('#device #' + id).getAttribute('aria-required') === 'true')) && !/Required/.test(await pane()), 'required fields: the ADS asterisk (hidden from screen readers, aria-required on the control); no Required text');
   ok(await ev(() => { const s = document.querySelector('#device #ad-state').getBoundingClientRect(), z = document.querySelector('#device #ad-zip').getBoundingClientRect(); return z.top > s.bottom && Math.abs(s.width - z.width) < 2; }) && await p.locator(D_ + '.tworow').count() === 0, 'Billing address: State, then ZIP code, one column');
-  ok(await p.locator(D_ + '.ads-btn--destructive[data-a="addr-remove"]').count() === 1, 'Billing address: Remove billing address is a destructive button');
+  ok(await p.locator(D_ + '.pane__foot .ads-btn--secondary[data-a="addr-remove"]').count() === 1, 'Billing address: Clear in the footer opens the remove confirmation (Figma ED.8/ED.9)');
   await axe('Billing address');
   await p.click(D_ + '.pane .ads-navbar [data-a="back"]'); await w(400);
   // Date of birth

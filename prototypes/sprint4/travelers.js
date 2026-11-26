@@ -12,7 +12,7 @@
 
 function travelerList(b) {
   const d = D(), it = intentOf(b), out = [];
-  if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'You' });
+  if (it === 'corporate') out.push({ key: 'adult-1', type: 'adult', short: 'Adult' }); // Figma TR.21: "Traveler 1: adult"
   else if (it === 'pr' && d.passrider) {
     if (prMe(b)) out.push({ key: 'pr-you', type: 'pr', short: prMeName(d) });
     if (b.prType !== 'business') {
