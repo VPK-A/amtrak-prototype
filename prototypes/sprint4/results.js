@@ -302,8 +302,8 @@ function s5FigCard(t, r, b, ctx) {
   const inds = [...x.tags.matchAll(/>([^<]+)<\/span>/g)].map(m => m[1]).filter(l => l !== 'Sale'), tags = '';
   const classes = x.classes.replace(/>Sale fare available</g, '>Sale<').replace(/>Only \d+ (seat|room)s? left at this price</g, '>Few $1s left<');
   const lay = multi ? s5Segs(t, r).filter(s => s.layover).length : 0;
-  const flags = x.flags.replace(/<span class="s5-flag">(?:(?!<\/span>).)*Overnight<\/span>/, ''); // the moon on the arrow says overnight (Figma)
-  const mid = `<span class="s5f__mid"><span class="s5f__arrow" aria-hidden="true">${t.days ? ic('overnight', 'ads-icon--sm') : ''}</span><span class="s5f__dur">${s5dur(t.dur)}</span><span class="s5f__lay">${multi ? `${lay} layover${lay === 1 ? '' : 's'}` : 'Direct'}${t.days ? '<span class="ads-sr-only">, overnight</span>' : ''}</span>${inds.map(l => `<span class="s5f__ind">${l}</span>`).join('')}</span>`;
+  const flags = x.flags.replace(/<span class="s5-flag"><span class="ads-icon[^>]*overnight[^>]*><\/span>Overnight<\/span>/, ''); // the moon on the arrow says overnight (Figma)
+  const mid = `<span class="s5f__mid"><span class="s5f__arrow" aria-hidden="true">${t.days ? `<span class="s5f__moon">${ic('overnight', 'ads-icon--sm')}</span>` : ''}</span><span class="s5f__dur">${s5dur(t.dur)}</span><span class="s5f__lay">${multi ? `${lay} layover${lay === 1 ? '' : 's'}` : 'Direct'}${t.days ? '<span class="ads-sr-only">, overnight</span>' : ''}</span>${inds.map(l => `<span class="s5f__ind">${l}</span>`).join('')}</span>`;
   const times = `<div class="s5f__times">${tcol(t.dep, ST[r.from], 'a')}${mid}${tcol(t.arr, ST[r.to], 'z')}</div>`;
   const bar = x.canceled ? (v === 'f1' ? '<p class="s5f__bar s5f__bar--error">Canceled</p>' : '') : delayed ? (v === 'f1' ? `<p class="s5f__bar s5f__bar--warn">Delayed ${t.delay} min</p>` : `<p class="s5f__delay">Delayed by ${t.delay} min</p>`) : '';
   // Concept 1 opened: the service summary, then amenities and route details in tabs, with the fares last (Figma 271:15789)
