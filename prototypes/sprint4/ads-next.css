@@ -581,6 +581,39 @@
 
 /* ===== Gallery QA PF: Profile, editors, change email (Sprint 4 gallery, 2026-11) ===== */
 /* PF-begin */
+/* Profile (Figma PF.1–PF.6): thin grey row chevrons, 57px rows, headings 21px above their card */
+.ds-next .pane--profile .ads-group__row > .ads-icon--chevron-right { width: 20px; height: 20px; color: var(--ads-content-icon-secondary); }
+.ds-next .pane--profile .ads-group__row { min-height: 56px; padding-block: 8px 7px; }
+.ds-next .pane--profile .ads-group__row + .ads-group__row { min-height: 57px; padding-block: 8px; }
+.ds-next .pane--profile .pane__body > .ads-group:first-child { margin-top: -2px; }
+/* Editors with a card first (Figma ED.5–ED.7, ED.12): the card starts 13px under the header */
+.ds-next .pane--ed .pane__body > :is(.ed-card, .emp-status):first-child { margin-top: 5px; }
+.ds-next .pane--ed .ed-card { padding-top: 11px; padding-bottom: 15px; }
+.ds-next .pane--ed .ed-card .ads-fieldset { margin-bottom: 1px; }
+.ds-next .pane--ed .ed-card .ads-fieldset__options { margin-top: -2px; }
+/* Phone, International (Figma ED.7): a plain field where the country code reads as part of the number */
+.ds-next .pane--ed .ph-ccfield { margin-bottom: var(--ads-space-8); }
+.ds-next .pane--ed .ph-intlfield .ctl-prefix { padding-right: 0; margin-right: var(--ads-space-4); border-right: 0; color: var(--ads-content-text-primary); }
+/* Billing address and Employee pass (Figma ED.8–ED.12): labels carry no required asterisk; optional fields are marked instead */
+.ds-next .pane--ed .ads-field__label:is([for^="ad-"], [for^="ee-"]) .ads-field__marker--required { display: none; }
+/* Saved pass (Figma ED.12): label left, value right-aligned to the card edge, 25px rows, 12px inset */
+.ds-next .pane--ed .emp-status { gap: var(--ads-space-20); margin-bottom: 2px; padding: var(--ads-space-8) var(--ads-space-12) 7px; border-radius: var(--ads-radius-4); }
+.ds-next .pane--ed .emp-status .cpn-dl { grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 5px var(--ads-space-16); }
+.ds-next .pane--ed .emp-status .cpn-dl :is(dt, dd) { line-height: 20px; }
+/* Change email (Figma VF.1–VF.7): 16px side margins, 32px between blocks, navy logo, flat 48px read-only field */
+.ds-next .pane--b2c .pane__body { padding: var(--ads-space-24) var(--ads-space-16) var(--ads-space-32); }
+.ds-next .pane--b2c .ads-navbar { padding-left: var(--ads-space-16); }
+.ds-next .b2c { gap: var(--ads-space-32); }
+.ds-next .b2c__logo { margin-bottom: 0; color: var(--ads-color-blue-900); }
+[data-theme="dark"] .ds-next .b2c__logo, .ds-next[data-theme="dark"] .b2c__logo { color: var(--ads-content-text-primary); }
+.ds-next .b2c__intro { margin-block: calc(-1 * var(--ads-space-16)) calc(-1 * var(--ads-space-12)); }
+.ds-next .b2c__intro + .ads-alert { margin-top: 6px; }
+.ds-next .b2c > .ads-alert { margin-bottom: calc(-1 * var(--ads-space-8)); }
+.ds-next .b2c .b2c__ro { min-height: 48px; height: 48px; border: 0; box-shadow: none; }
+.ds-next .b2c__acts { gap: var(--ads-space-32); }
+.ds-next .b2c__resend { margin-top: calc(-1 * var(--ads-space-4)); }
+.ds-next .b2c__wait { margin-top: calc(-1 * var(--ads-space-20)); }
+.ds-next .b2c .ads-alert__title:empty { display: none; }
 /* PF-end */
 
 /* . */
