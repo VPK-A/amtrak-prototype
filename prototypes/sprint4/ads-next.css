@@ -571,6 +571,44 @@
 
 /* ===== Gallery QA AS: Assistance (Sprint 4 gallery, 2026-11) ===== */
 /* AS-begin */
+/* Branch card (Figma AS.2): first legend 8px under the chosen type, groups 14px apart, the card ends 24px under the last link's centre */
+.ds-next .assist-opt > .assist-branch { margin-top: var(--ads-space-8); gap: 14px; }
+.ds-next .assist-opt.is-selected { padding-bottom: 14px; }
+.ds-next .assist-opt.is-selected + .assist-opt { margin-top: 0; }
+.ds-next .assist-branch .ads-fieldset > .ads-field-label { margin-bottom: 1px; }
+/* Other needs (Figma AS.2): the About link sits close under the hint; need rows repeat about every 97px */
+.ds-next .assist-about { margin: 7px 0 0 10px; line-height: 0; }
+.ds-next .assist-about .ads-link { position: relative; display: inline-block; min-height: 0; height: auto; padding: 0; margin: 0; font-size: 13px; line-height: 18px; }
+.ds-next .assist-about .ads-link::after { content: ""; position: absolute; inset: -6px 0; }
+.ds-next .wcq .assist-about { margin: 0; }
+.ds-next .wcq > .ads-field-label { margin-bottom: 3px; }
+/* Station note (Figma AS.7): plain Caption text at the bottom of the card */
+.ds-next .assist-note { margin: var(--ads-space-8) 0 0; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+/* Disabled type (Figma AS.1): its hint is greyed with the label */
+.ds-next .assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__supporting { color: var(--ads-content-text-disabled); }
+/* Group in error (Figma AS.4, AS.5): a 1px border/status-error box flush with the card, drawn as the group's own border.
+   The legend floats so it sits inside the border like any other line. */
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) { outline: 0; margin: -2px calc(-1 * var(--ads-space-16) - 1px) 0 calc(-1 * var(--ads-space-20) - 1px); padding: 14px var(--ads-space-16) 15px var(--ads-space-20); border: 1px solid var(--ads-border-status-error); border-radius: 0; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error):first-child { margin-top: -7px; padding-top: 6px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend { float: left; width: 100%; margin-bottom: -7px; }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) > legend { margin-bottom: -4px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend + * { clear: both; }
+.ds-next .assistform .assist-branch > fieldset > .ads-helper--error { margin-top: var(--ads-space-12); }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) { padding-bottom: 11px; }
+.ds-next .assistform .assist-branch > fieldset.wcq > .ads-helper--error { margin-top: var(--ads-space-4); }
+/* Mobility needs (Figma AS.15): resting radios in content/icon-secondary, options about 54px apart, 20px line spacing in the closing paragraph */
+.ds-next .mobq .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
+.ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 0; }
+.ds-next .mobq__card:not(.mobq__card--field) + .mobq__card { margin-top: -6px; }
+.ds-next .mobq__who + .mobq__intro { margin-top: -5px; }
+.ds-next .mobq__call { margin-top: -4px; }
+.ds-next .mobq__call .ads-link { display: inline; min-height: 0; height: auto; padding: 0; line-height: inherit; }
+.ds-next .mobq__who > span:last-child { display: none; }
+/* Profile (Figma PA.2): "I have a disability" sits above the card; the card holds its questions */
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) { border-color: transparent; background: none; padding-bottom: 0; }
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) > .assist-branch { margin: 0 -1px; padding-top: var(--ads-space-8); padding-bottom: 14px; border: 1px solid var(--ads-border-subtle); background: var(--ads-background-interactive-secondary); }
+/* Profile (Figma PA.1): the first type sits 3px closer to "Assistance type" */
+.ds-next .assistform > .ads-fieldset:has(input[name="pa-cat"]) > .ads-field-label { margin-bottom: 1px; }
 /* AS-end */
 
 /* . */
