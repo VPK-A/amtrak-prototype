@@ -440,8 +440,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await ev(v => { TB.s5vNext = v; }, v); await open('returning', "b.disc = 'military'"); await find();
     const c = await cards(), t3 = c.find(x => x.id === 't3'), t5 = c.find(x => x.id === 't5');
     ok(c.length === 11 && c.every(x => x.id) && await p.locator(D_ + '.s5f--' + v).count() === 11, v + ': every trip is listed in the Figma card');
-    ok(/Delayed/.test(t3.text) && /Sale/.test(t3.text) && /Military applies/.test(t3.text) && t3.cls.length === 2 && /Canceled/.test(t5.text) && t5.cls.length === 0, v + ': delay, sale, discount and classes are kept; a canceled trip offers no fares');
-    ok(/Lowest fare/.test(c.map(x => x.text).join(' ')) && /Fastest trip/.test(c.map(x => x.text).join(' ')) && /Only 2 seats left at this price/.test(c.find(x => x.id === 't1').text), v + ': NMA-755 badges and the NMA-762 urgency message are kept');
+    ok(/Delayed/.test(t3.text) && /Sale/.test(t3.cls.map(x => x[2]).join() + t3.text) && /Military applies/.test(t3.text) && t3.cls.length === 2 && /Canceled/.test(t5.text) && t5.cls.length === 0, v + ': delay, sale, discount and classes are kept; a canceled trip offers no fares');
+    ok(/Lowest fare/.test(c.map(x => x.text).join(' ')) && /Fastest trip/.test(c.map(x => x.text).join(' ')) && /Few seats left/.test(c.find(x => x.id === 't1').text) && await p.locator(D_ + '[data-trip="t1"] .s5-class[aria-label*="only 2 seats left at this price"]').count() === 1, v + ': NMA-755 indicators under the duration and the NMA-762 urgency signal per class (count in the accessible name)');
     await axe('Figma ' + v);
   }
   await ev(() => { TB.s5vNext = 'f2'; }); await open('returning'); await find();
@@ -449,7 +449,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '.s5f-bar__f').click(); await w(400); ok(/Sort by/.test(await txt()) && /Time of day/.test(await txt()), 'Concept 2: Filter opens sort and filter (NMA-758)');
   await ev(() => { nav().info = null; TB.s5vNext = 'f1'; }); await open('returning'); await find();
   await p.locator(D_ + '[data-a="s5f-open"][data-trip="t9"]').click(); await w(400);
-  ok(await p.locator(D_ + '[data-trip="t9"] .s5f__sum li').count() === 3 && /Service summary/.test(await txt()) && /Amenities & Add-ons/.test(await txt()) && /Route Details/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5-class').count() === 2, 'Concept 1: a card opens in place to the service summary, amenities, route and fares');
+  ok(await p.locator(D_ + '[data-trip="t9"] .s5f__sum li').count() === 3 && /Service summary/.test(await txt()) && /Reserved seats/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5fa__sel select option').count() === 2 && await p.locator(D_ + '#s5d-route').click().then(() => w(400)).then(() => p.locator(D_ + '[data-trip="t9"] .s5fr').count()) === 2 && /Departs/.test(await txt()) && /Layover/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5-class').count() === 2, 'Concept 1: a card opens in place to the service summary, amenities, route and fares');
   await p.locator(D_ + '[data-trip="t9"] [data-a="s5-fare"]').first().click(); await w(600);
   ok(/s5combo|s5fare/.test(await stack()), 'Concept 1: choosing a class still goes on to fares');
   await ev(() => { delete TB.s5vNext; TB.s5v = 'legacy'; });

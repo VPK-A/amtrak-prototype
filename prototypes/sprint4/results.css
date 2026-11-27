@@ -304,3 +304,34 @@
 .s5f__more .ads-tabs { display: flex; }
 .s5f__more .ads-tab { font-size: 15px; white-space: nowrap; padding-inline: var(--ads-space-4); }
 .s5f__more #s5d-services { order: -1; }
+/* Figma indicators: text under the duration; opened Concept 1 panels (271:15789) */
+.s5f__ind { font-size: var(--ads-type-caption-size); line-height: 1.4; color: var(--ads-content-text-link, #064cb0); }
+.s5f__panel { padding-top: var(--ads-space-16); }
+.s5fa { border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); }
+.s5fa__h { margin: 0; padding: var(--ads-space-12) var(--ads-space-12) var(--ads-space-4); font-size: 15px; font-weight: 600; }
+.s5fa__sel { margin: 0 var(--ads-space-12) var(--ads-space-8); width: auto; max-width: 240px; }
+.s5fa__one { margin: 0; padding: 0 var(--ads-space-12) var(--ads-space-8); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5fa__item { border: 0; border-top: 1px solid var(--ads-border-default); border-radius: 0; }
+.s5fa__item:first-of-type { border-top: 0; }
+.s5fa__item summary { font-size: var(--ads-type-body-small-size); font-weight: 600; }
+.s5fa__item .ads-accordion__panel p { margin: 0; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-secondary); }
+.s5fr__svc { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ads-space-8); margin: 0 0 var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
+.s5fr__tl { list-style: none; margin: 0 0 var(--ads-space-12); padding: 0 0 0 var(--ads-space-24); position: relative; }
+.s5fr__tl::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 26px; border-left: 2px solid var(--ads-content-text-secondary, #534b45); }
+.s5fr__stop { position: relative; display: grid; grid-template-columns: 1fr auto; column-gap: var(--ads-space-8); padding-block: var(--ads-space-4); font-size: var(--ads-type-body-small-size); line-height: 1.5; }
+.s5fr__stop::before { content: ''; position: absolute; left: -20px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--ads-content-text-secondary, #534b45); }
+.s5fr__stop:last-child::before { top: auto; bottom: 22px; }
+.s5fr__stop--mid::before { width: 6px; height: 6px; left: -19px; top: 12px; background: var(--ads-background-surface-default); border: 1px solid var(--ads-content-text-secondary, #534b45); }
+.s5fr__lab { grid-column: 1 / -1; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5fr__n { color: var(--ads-content-text-primary); }
+.s5fr__t { font-size: var(--ads-type-caption-size); color: var(--ads-content-text-primary); white-space: nowrap; text-align: end; padding-top: 2px; }
+.s5fr__gap { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding-block: var(--ads-space-8); font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5fr__lay { position: relative; display: grid; grid-template-columns: 1fr auto; column-gap: var(--ads-space-8); margin: 0 0 var(--ads-space-12); padding-left: var(--ads-space-24); font-size: var(--ads-type-body-small-size); }
+.s5fr__lay::before { content: ''; position: absolute; left: 4px; top: 22px; width: 8px; height: 8px; border-radius: 50%; background: var(--ads-content-text-link, #064cb0); }
+.s5fr__lay::after { content: ''; position: absolute; left: 7px; top: 6px; bottom: 0; border-left: 2px dotted var(--ads-content-text-link, #064cb0); }
+.s5fr__self { grid-column: 1 / -1; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5fr__tot { margin: 0; font-size: var(--ads-type-caption-size); color: var(--ads-content-text-secondary); }
+.s5f__arrow .ads-icon { flex: none; width: 16px; height: 16px; }
+.s5f--f1 .s5f__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s5fa__sel select, .ds-next .s5fa__sel select { font-size: var(--ads-type-body-small-size); min-height: 36px; height: 36px; padding-block: 0; }
+.s5fr__gap .ads-link, .ds-next .s5fr__gap .ads-link { font-size: var(--ads-type-caption-size); min-height: 0; padding: 0; text-decoration: none; }
