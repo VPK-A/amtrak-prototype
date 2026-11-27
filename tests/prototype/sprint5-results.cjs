@@ -10,7 +10,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.waitForFunction(() => typeof TB !== 'undefined' && document.querySelector('#device .app'));
   await p.addScriptTag({ content: AXE });
   const w = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a), D_ = '#device ';
-  const open = async (sc = 'returning', js = '', th = 'light') => { await ev(([sc, js, th]) => { TB.v = 1; TB.dev = 'iphone'; TB.orient = 'portrait'; TB.theme = th; VS[1] = makeVS(sc); V().toast = null; goLoc('ff'); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.dep = '2026-11-05'; if (js) eval(js); render(); }, [sc, js, th]); await w(300); };
+  const open = async (sc = 'returning', js = '', th = 'light') => { await ev(([sc, js, th]) => { TB.v = 1; TB.dev = 'iphone'; TB.orient = 'portrait'; TB.theme = th; TB.s5v = TB.s5vNext || 'legacy'; VS[1] = makeVS(sc); V().toast = null; goLoc('ff'); const b = D().booking; b.from = 'NYP'; b.to = 'WAS'; b.dep = '2026-11-05'; if (js) eval(js); render(); }, [sc, js, th]); await w(300); };
   const find = async () => { await p.locator(D_ + '[data-a="find-trains"]').click(); await w(1200); };
   const txt = () => ev(() => document.querySelector('#device').innerText.replace(/\s+/g, ' '));
   // Proposed tags can be hidden by a skin (wireframe branch), so they're checked in the markup, not on screen
@@ -434,6 +434,25 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => !nav().cover) && /offline/i.test(await txt()), 'NMA-975: offline, sign-in says a connection is needed and doesn’t open');
   await ev(() => { V().net = 'online'; V().toast = null; D().booking.pax.adult = 2; render(); startVerify('sign-in'); endVerify(true); }); await w(500);
   ok(await ev(() => D().signedIn && D().booking.from === 'NYP' && D().booking.pax.adult === 2 && nav().sheet && nav().sheet.stack.some(r => r.s === 'handoff')), 'NMA-975 AC3: after sign-in the results, search and travelers are still there');
+  // ---- Figma search results concepts (switcher) ----
+  ok(await ev(() => { delete TB.s5v; return s5v() === 'f1' && S5_VIEWS.length === 4 && !!document.querySelector('#tbS5v'); }), 'Concept 1 is the default design; the switcher lists three concepts and the earlier design');
+  for (const v of ['f1', 'f2', 'f3']) {
+    await ev(v => { TB.s5vNext = v; }, v); await open('returning', "b.disc = 'military'"); await find();
+    const c = await cards(), t3 = c.find(x => x.id === 't3'), t5 = c.find(x => x.id === 't5');
+    ok(c.length === 11 && c.every(x => x.id) && await p.locator(D_ + '.s5f--' + v).count() === 11, v + ': every trip is listed in the Figma card');
+    ok(/Delayed/.test(t3.text) && /Sale/.test(t3.text) && /Military applies/.test(t3.text) && t3.cls.length === 2 && /Canceled/.test(t5.text) && t5.cls.length === 0, v + ': delay, sale, discount and classes are kept; a canceled trip offers no fares');
+    ok(/Lowest fare/.test(c.map(x => x.text).join(' ')) && /Fastest trip/.test(c.map(x => x.text).join(' ')) && /Only 2 seats left at this price/.test(c.find(x => x.id === 't1').text), v + ': NMA-755 badges and the NMA-762 urgency message are kept');
+    await axe('Figma ' + v);
+  }
+  await ev(() => { TB.s5vNext = 'f2'; }); await open('returning'); await find();
+  ok(/11 results/.test(await txt()) && /Sort by: Most direct/.test(await txt()) && await p.locator(D_ + '.s5f-bar__f').count() === 1, 'Concept 2: results count, sort link and Filter button');
+  await p.locator(D_ + '.s5f-bar__f').click(); await w(400); ok(/Sort by/.test(await txt()) && /Time of day/.test(await txt()), 'Concept 2: Filter opens sort and filter (NMA-758)');
+  await ev(() => { nav().info = null; TB.s5vNext = 'f1'; }); await open('returning'); await find();
+  await p.locator(D_ + '[data-a="s5f-open"][data-trip="t9"]').click(); await w(400);
+  ok(await p.locator(D_ + '[data-trip="t9"] .s5f__sum li').count() === 3 && /Service summary/.test(await txt()) && /Amenities & Add-ons/.test(await txt()) && /Route Details/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5-class').count() === 2, 'Concept 1: a card opens in place to the service summary, amenities, route and fares');
+  await p.locator(D_ + '[data-trip="t9"] [data-a="s5-fare"]').first().click(); await w(600);
+  ok(/s5combo|s5fare/.test(await stack()), 'Concept 1: choosing a class still goes on to fares');
+  await ev(() => { delete TB.s5vNext; TB.s5v = 'legacy'; });
   ok(!errs.length, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   await br.close(); process.exit(res.every(r => r[0]) ? 0 : 1);

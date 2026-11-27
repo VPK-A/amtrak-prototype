@@ -21,6 +21,10 @@ const s5NoFilt = () => ({ tod: [], route: [], cls: [], add: [] });
 // (seat type, amenities) on results, instead of leading with fare types.
 // Moving forward with Concept Updates 1, 3 and 4 (decided 2026-11-20); Current and Concept Update 2 are retired.
 const S5_CONCEPTS = [['c1', 'Concept Update 1: compare classes'], ['c3', 'Concept Update 3: rails by type of trip'], ['c4', 'Concept Update 4: departure board']];
+// Search results designs from Figma (Sprint 5 file): three concepts to explore, plus the earlier prototype card.
+// They restyle the list of trips only; every rule from the stories (badges, status, discounts, urgency, classes) is kept.
+const S5_VIEWS = [['f1', 'Concept 1: condensed cards that expand'], ['f2', 'Concept 2: results count, sort and filter bar'], ['f3', 'Concept 3: card with trip attributes'], ['legacy', 'Earlier prototype design']];
+const s5v = () => { const v = typeof TB !== 'undefined' && TB.s5v; return S5_VIEWS.some(c => c[0] === v) ? v : 'f1'; };
 const s5c = () => { const v = typeof TB !== 'undefined' && TB.s5c; return S5_CONCEPTS.some(c => c[0] === v) ? v : 'c1'; };
 // Discount pricing concept (Sprint 5 exploration): for a single traveler, seat prices show the discounted price with
 // the full price struck through. The discount is the applied promo code or coupon (not in points, NMA-761 AC#3) or,
@@ -278,6 +282,39 @@ function s5Parts(t, r, b, ctx) {
   const classes = `<div class="s5-classes" role="group" aria-label="Classes of service on ${esc(t.name)} ${t.num}">${cls}</div>`;
   return { canceled, tags, badge, times, meta, flags, disc, name, details, from, classes };
 }
+// Figma trip card (Concepts 1 to 3). One markup, three looks: Concept 1 is condensed with a tinted service header and
+// opens in place to the service summary, amenities and route; Concepts 2 and 3 add the trip attributes box.
+const s5t = m => s5time(m).replace(' AM', 'am').replace(' PM', 'pm');
+A['s5f-open'] = t => { const st = s5(); st.fopen = st.fopen === t.dataset.trip ? null : t.dataset.trip; if (st.fopen) st.dtab = 'services'; pendingFocus = `[data-a="s5f-open"][data-trip="${t.dataset.trip}"]`; render(); };
+function s5FigCard(t, r, b, ctx) {
+  const x = s5Parts(t, r, b, ctx), v = s5v(), svc = S5_SVC[t.svc], multi = t.segs > 1, delayed = t.status === 'delayed', open = v === 'f1' && s5().fopen === t.id;
+  const n0 = String(t.num).split(' + ')[0], nm0 = (t.segNames || [t.name.replace(/, \d trains$/, '')])[0];
+  const label = v === 'f1' ? `<b>${n0} ${esc(nm0)}</b>${multi ? ' <span class="s5f__plus">+ additional service</span>' : ''}` : `<b>${esc(nm0)} ${n0}${multi ? ' +' : ''}</b>`;
+  const sr = `<span class="ads-sr-only">, ${svc[1]}${multi ? `, ${esc(t.name)} ${t.num}` : ''}</span>`;
+  const info = `<button class="ads-icon-btn ads-icon-btn--sm s5-details s5f__info" type="button" data-a="info" data-topic="s5-trip:${t.id}" data-k="s5t-${t.id}" aria-label="Details for ${esc(t.name)} ${t.num}">${ic('info-circle', 'ads-icon--sm')}</button>`;
+  const status = x.canceled ? '<span class="s5f__canceled">Canceled</span>' : '';
+  const head = v === 'f1'
+    ? `<button class="s5f__head s5f__head--btn" type="button" data-a="s5f-open" data-trip="${t.id}" aria-expanded="${open}" aria-controls="s5f-more-${t.id}">${ic(svc[0])}<span class="s5f__name">${label}${sr}</span>${ic(open ? 'chevron-up' : 'chevron-down', 'ads-icon--sm s5f__chev')}</button>`
+    : `<div class="s5f__head">${ic(svc[0], 'ads-icon--sm')}<span class="s5f__name">${label}${sr}</span>${info}${status}</div>`;
+  const attrs = v === 'f1' ? '' : `<p class="s5f__attrs"><span>${ic(svc[0], 'ads-icon--sm')}${svc[1] === 'Train' ? 'Train service' : svc[1] === 'Bus' ? 'Bus service' : svc[1]}</span><span>${ic('arrow-right', 'ads-icon--sm')}${multi ? 'Multi-segment trip' : 'Direct trip'}</span></p>`;
+  const tcol = (m, st, side) => `<span class="s5f__col s5f__col--${side}"><span class="s5f__date">${fmtShort(addDays(r.date, Math.floor((m + t.delay) / 1440)))}</span><b class="s5f__time"><span class="ads-sr-only">${side === 'a' ? 'Departs' : 'Arrives'} </span>${s5t(m + t.delay)}</b>${delayed ? `<s class="s5f__was"><span class="ads-sr-only">Scheduled </span>${s5t(m)}</s>` : ''}<span class="s5f__stn">${esc(st.name.length > 22 ? st.city + ', ' + st.st : st.name)}</span></span>`;
+  const lay = multi ? s5Segs(t, r).filter(s => s.layover).length : 0;
+  const mid = `<span class="s5f__mid"><span class="s5f__arrow" aria-hidden="true">${t.days ? ic('overnight', 'ads-icon--sm') : ''}</span><span class="s5f__dur">${s5dur(t.dur)}</span><span class="s5f__lay">${multi ? `${lay} layover${lay === 1 ? '' : 's'}` : 'Direct'}${t.days ? '<span class="ads-sr-only">, overnight</span>' : ''}</span></span>`;
+  const times = `<div class="s5f__times">${tcol(t.dep, ST[r.from], 'a')}${mid}${tcol(t.arr, ST[r.to], 'z')}</div>`;
+  const bar = x.canceled ? (v === 'f1' ? '<p class="s5f__bar s5f__bar--error">Canceled</p>' : '') : delayed ? (v === 'f1' ? `<p class="s5f__bar s5f__bar--warn">Delayed ${t.delay} min</p>` : `<p class="s5f__delay">Delayed by ${t.delay} min</p>`) : '';
+  const tags = x.tags ? `<span class="s5-trip__badges s5f__tags">${x.tags}</span>` : '';
+  // Concept 1 opened: the service summary, then amenities and route details in tabs, with the fares last (Figma 271:15789)
+  let more = '';
+  if (open) {
+    const segs = multi ? s5Segs(t, r) : [{ name: t.name, num: t.num, svc: t.svc === 'bus' ? 'bus' : 'train', to: ST[r.to], layover: 0 }];
+    const sum = segs.map((s, i) => `<li>${ic(s.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<span>${s.num} ${esc(s.name)}</span><span class="s5f__sumr">Service ${i + 1}</span></li>${s.layover ? `<li>${ic('clock', 'ads-icon--sm')}<span>${esc(s.to.city)}, ${s.to.st}</span><span class="s5f__sumr">Layover · ${s5dur(s.layover)}</span></li>` : ''}`).join('');
+    const body = s5Details(t.id).body().replace('>Route</button>', '>Route Details</button>').replace('>Services</button>', '>Amenities &amp; Add-ons</button>');
+    more = `<div class="s5f__more" id="s5f-more-${t.id}"><h4 class="s5f__sumh">Service summary</h4><ul class="s5f__sum">${sum}</ul>${body}</div>`;
+  }
+  const cap = (v === 'f2' || open) && !x.canceled ? `<p class="s5f__cap">Starting fares, per traveler</p>` : '';
+  return `<li class="ads-card s5-trip s5f s5f--${v}${x.canceled ? ' is-canceled' : ''}${/Acela/.test(t.name) ? ' is-acela' : ''}${open ? ' is-open' : ''}" data-trip="${t.id}">
+    ${head}<div class="s5f__body">${tags}${attrs}${times}${x.flags ? `<span class="s5-trip__flags">${x.flags}</span>` : ''}${bar}${x.disc}</div>${more}${x.canceled ? '' : `${cap}${x.classes}`}</li>`;
+}
 // Trip card. Hierarchy: the price leads (top right, largest), then the times, then trip facts, then the classes.
 function s5Card(t, r, b, ctx) {
   const x = s5Parts(t, r, b, ctx);
@@ -366,6 +403,10 @@ SCR.handoff = (r, ri) => {
     const chip = (t, l) => t ? `<button class="ads-btn ads-btn--secondary ads-btn--sm s5-jump" type="button" data-a="s5-jump" data-trip="${t.id}">${l} · ${s5time(t.dep + t.delay)}</button>` : '';
     const chips = [chip(lowT, 'Lowest fare'), chip(fastT, 'Fastest trip'), chip(earliest, 'Earliest')].join('');
     trips = `${chips ? `<div class="s5-jumps" role="group" aria-label="Jump to a trip"><span class="s5-jumps__l">Jump to</span>${chips}</div>` : ''}<ul class="s5-list s5-board" aria-labelledby="s5-count">${list.map(t => s5Row(t, res, b, ctx)).join('')}</ul>`;
+  } else if (s5v() !== 'legacy') {
+    snote('Search results design from Figma (Sprint 5 file). Concept 1: condensed cards with a tinted service header; a card opens in place to its service summary, amenities and route. Concept 2: a results count with sort and filter controls above cards that carry the trip attributes and joined fare buttons. Concept 3: cards with the trip attributes box, the Acela header tint and separate fare buttons. Kept from the stories where Figma is silent or differs: Lowest fare, Fastest trip, Sale and New train badges (NMA-755), the urgency message as worded (NMA-762), named discounts (NMA-764), self-transfer and border flags (NMA-1094, 1095), and prices per traveler (NMA-1098).');
+    const bar = s5v() === 'f2' ? `<div class="s5f-bar"><span class="s5f-bar__n">${list.length} result${list.length === 1 ? '' : 's'}</span>${all.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-sf-open" data-k="s5f-sort">Sort by: ${S5_SORTS[s5().sort][0]}</button><button class="ads-btn ads-btn--secondary ads-btn--sm s5f-bar__f" type="button" data-a="s5-sf-open" data-k="s5f-filter">Filter${nf ? ` (${nf})` : ''}</button>` : ''}</div>` : '';
+    trips = `<div class="s5v s5v--${s5v()}">${bar}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5FigCard(t, res, b, ctx)).join('')}</ul></div>`;
   } else trips = `<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>`;
   // NMA-758: filters that match nothing say so, with a way back
   if (!list.length && all.length) trips = `<div class="s5-nofilt" role="status"><p class="ads-body"><b>No trains match your filters</b></p><p class="ads-body-small">Try fewer filters to see more trains.</p><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="s5-sf-reset">Clear filters</button></div>`;

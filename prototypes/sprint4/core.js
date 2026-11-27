@@ -505,7 +505,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
   setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
-  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token; if ($('#tbCpn')) $('#tbCpn').value = TB.cpn;
+  $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5v')) $('#tbS5v').value = s5v(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token; if ($('#tbCpn')) $('#tbCpn').value = TB.cpn;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
   const qs = [...NOTES.qs].sort((a, b) => a - b), notes = $('#notes');
@@ -546,6 +546,7 @@ function wireToolbar() {
   $('#tbNet').addEventListener('change', e => { V().net = e.target.value; render(); });
   $('#tbS5').innerHTML = S5_OUTCOMES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbS5').addEventListener('change', e => { s5().outcome = e.target.value; render(); });
+  if ($('#tbS5v')) { $('#tbS5v').innerHTML = S5_VIEWS.map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); $('#tbS5v').addEventListener('change', e => { TB.s5v = e.target.value; render(); }); }
   $('#tbS5c').innerHTML = S5_CONCEPTS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   $('#tbS5c').addEventListener('change', e => { TB.s5c = e.target.value; render(); });
   $('#tbS5d').innerHTML = S5_DISC_MODES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
