@@ -3168,7 +3168,7 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .pane--calx .pane__foot .ads-btn.ads-btn--block:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary) !important; color: var(--ads-content-text-on-brand) !important; border-color: transparent !important; opacity: 1 !important; }
 /* TR.14: the row error runs full width under the label and counter */
 .ds-next .travsel .ffc-count:has(.fam-counterr) { position: relative; padding-bottom: calc(var(--ads-space-12) + 34px); }
-.ds-next .travsel .ffc-count .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
+.ds-next .travsel .ffc-count:has(.fam-counterr) .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
 .ds-next .travsel .ffc-count .fam-counterr { margin: 0; }
 /* TR.5 / TR.14: the reason is shown beside the list, so the footer copy is for assistive tech only */
 .ds-next .travsel .pane__foot > #trav-why, .ds-next .pane:has(.travsel) .pane__foot > #trav-why { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
@@ -3178,6 +3178,309 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__icon { margin-top: 0; }
 .ds-next .ads-bookingsheet__form > .ads-alert { align-items: flex-start; }
 .ds-next .travsel .ffc-count:has(.fam-counterr) { padding-bottom: calc(var(--ads-space-12) + 40px); }
+
+
+/* ===== Gallery QA SHARED: shared components: toasts, sheets, alerts, select rows, error borders (Sprint 4 gallery, 2026-11) ===== */
+/* SHARED-begin */
+/* SHARED-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA FF: Fare Finder (Sprint 4 gallery, 2026-11) ===== */
+/* FF-begin */
+/* New booking (.pane--nb) only. Positions measured against the Figma exports FF.1–FF.32 (390 x 844). */
+/* Station card: both halves 72px whether empty or filled; label 3px higher, value 8px under the label; the city and
+   station-name lines sit 4px apart and no longer make a filled card taller */
+.ds-next .pane--nb .ads-stationgroup .ads-fieldgroup__field { box-sizing: border-box; min-height: 72px; padding-top: 9px; gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-stationgroup__value { height: 25px; min-height: 0; }
+.ds-next .pane--nb .ads-stationgroup__lines { gap: var(--ads-space-4); }
+/* A station that's missing: the prompt turns primary; error lines sit 28px apart */
+.ds-next .pane--nb .ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__placeholder { color: var(--ads-content-text-primary); }
+.ds-next .pane--nb .ads-fieldwrap > .ads-stationgroup + .ads-helper--error { margin-top: -2px; }
+.ds-next .pane--nb .ads-fieldwrap > .ads-helper--error + .ads-helper--error { margin-top: 3px; }
+/* Date card: 81px; label and date 3px higher, the weekday line 4px further from the date */
+.ds-next .pane--nb .ads-dategroup .ads-fieldgroup__field { padding-top: 9px; padding-bottom: 9px; }
+.ds-next .pane--nb .ads-dategroup__sub { margin-top: 2px; }
+/* Travelers label 25px under the date card; code label 25px under the Travelers row */
+.ds-next .pane--nb .ads-fieldwrap + .ads-selectrow { margin-top: -3px; }
+.ds-next .pane--nb .ads-selectrow + .ads-selectrow { margin-top: -2px; }
+.ds-next .pane--nb .ads-selectrow.dcode .ads-selectrow__label { margin-bottom: -3px; }
+/* Booking-mode switch (Pass Rider, TripLink): 56px row, description on a 20px line, 5px closer to the tabs and
+   6px closer to the stations; the text column ends 8px before the switch (here and in the footer) */
+.ds-next .pane--nb .v1modes--switch { margin-top: -5px; margin-bottom: -6px; }
+.ds-next .pane--nb .v1modes--switch .ads-pointsrow { min-height: 56px; }
+.ds-next .pane--nb .ads-pointsrow { gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-pointsrow__sub { line-height: 20px; }
+/* Note under Travelers when points, discounts and codes aren't used */
+.ds-next .pane--nb .ss-note.v1modes__none { margin-top: -6px; line-height: 20px; }
+/* FF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA ST: Station search (Sprint 4 gallery, 2026-11) ===== */
+/* ST-begin */
+/* Station search list (Figma ST.1–ST.24): 17px above the search field, 62px rows, From / To group proportions */
+.ds-next .ss-upd:not(.ss-upd--map) .ss-views { margin-bottom: 26px; }
+.ds-next .ss-upd .ss-top { padding-bottom: 23px; }
+.ds-next .ss-upd.is-kb .ss-top { padding-bottom: 22px; }
+.ds-next .ss-upd .ss-top .ss-group { margin-bottom: 1px; } /* with the 16px stack gap: 17px to the search field */
+.ds-next .ss-upd .ss-group .ads-fieldgroup__field { padding-top: var(--ads-space-8); padding-bottom: var(--ads-space-8); min-height: 71px; box-sizing: border-box; justify-content: flex-start; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__label + * { margin-top: 1px; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__placeholder { position: relative; top: 2px; }
+.ds-next .ss-upd .ss-group .ads-stationgroup__facility { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ss-head--c .ss-head__title { position: relative; top: -2px; }
+/* Same station in From and To (ST.6): the group turns red, with the message under it; no field keeps the blue outline */
+.ds-next .ss-upd .ss-group--error { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error::before { background: var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error .ads-fieldgroup__field[aria-current="true"] { outline: 0; }
+.ds-next .ss-sameerr { display: flex; align-items: center; gap: var(--ads-space-4); margin: -9px 0 0; padding-left: 2px; min-height: 15px; color: var(--ads-content-text-error); font-size: var(--ads-type-caption-size); line-height: 15px; }
+.ds-next .ss-sameerr .ads-icon { flex: none; width: 20px; height: 20px; margin: -3px 0; color: var(--ads-content-icon-error); }
+/* Search field: label-coloured prompt, 12px after the icon; dark Clear icon */
+.ds-next .ss-upd .ss-search--sq #ss-q { margin-left: var(--ads-space-4); }
+.ds-next .ss-upd .ss-search--sq #ss-q::placeholder { color: var(--ads-content-text-primary); opacity: 1; }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear { color: var(--ads-content-icon-primary); }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear .ads-icon { width: 24px; height: 24px; }
+/* Typing (ST.23, ST.24): wider field, neutral search icon, small Cancel link */
+.ds-next .ss-upd.is-kb .ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-secondary); }
+.ds-next .ss-upd .ss-search--sq:has(.ss-cancel) { gap: var(--ads-space-12); }
+.ds-next .ss-upd .ss-search--sq .ss-cancel { padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); text-decoration: underline; }
+/* Rows: 62px pitch, city and station 21px apart, icons 40px apart */
+.ds-next .ss-upd .ads-stationrow__select, .ds-next .map-card__list .ads-stationrow__select { min-height: 61px; padding-top: var(--ads-space-12); padding-bottom: var(--ads-space-12); gap: 10px; box-sizing: border-box; }
+.ds-next .ss-upd .ads-stationrow__text, .ds-next .map-card__list .ads-stationrow__text { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.ds-next .ss-upd .ads-stationrow__tag.ads-badge { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ads-stationrow__select:has(.ads-stationrow__tag) { padding-bottom: 15px; }
+.ds-next .ss-upd .ads-stationrow__select:has(.ss-dist) { padding-bottom: 14px; }
+.ds-next .ss-upd .ss-dist { color: var(--ads-content-text-secondary); font-weight: var(--ads-font-weight-regular); }
+.ds-next .ss-upd .ads-stationrow__star, .ds-next .map-card__list .ads-stationrow__star { width: 40px; min-width: 40px; padding-inline: 0; }
+.ds-next .ss-upd .ads-stationrow__star:last-child { margin-right: var(--ads-space-12); }
+/* A station that can't be chosen (ST.20): on the page surface, dimmed code and Details */
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled), .ds-next .ss-upd .ads-stationrow__select:disabled { background: transparent; }
+.ds-next .ss-upd .ads-stationrow__select:disabled :is(.ads-stationrow__code, .ads-stationrow__name) { opacity: 1; color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow__select:disabled .ads-stationrow__detail { color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled) .ss-details { color: var(--ads-color-neutral-500); }
+/* Full list (ST.7), helper under Saved (ST.9), no results (ST.3) */
+.ds-next .ss-upd .ss-allhead { margin-inline: var(--ads-space-20); color: var(--ads-content-text-secondary); }
+.ds-next .ss-upd .ss-allhead ~ .stlist .ads-stationrow__star[aria-pressed="false"] { color: var(--ads-content-icon-brand); }
+.ds-next .ss-savehint { margin: var(--ads-space-12) 0 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.5; }
+.ds-next .ss-upd .ss-empty { gap: 0; padding: var(--ads-space-16) var(--ads-space-8); }
+.ds-next .ss-upd .ss-empty b { font-weight: var(--ads-font-weight-semibold); }
+.ds-next .ss-upd .ss-empty span { max-width: 290px; margin-inline: auto; line-height: 20px; }
+/* ST-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA DT: Dates, Apply code, My coupons, Passenger discounts (Sprint 4 gallery, 2026-11) ===== */
+/* DT-begin */
+/* --- Dates (DT.1–DT.8): date card, weekday row, months, footer helper --- */
+/* Date card: 79px tall; the active field carries its 2px outline inside the layout (83px when it also has a weekday line) */
+.ds-next .calx-group .ads-fieldgroup__field { min-height: 77px; padding: 8px var(--ads-space-12) 9px; gap: 5px; }
+.ds-next .calx-group .ads-fieldgroup__field[aria-current="true"],
+.ds-next .calx-group:has(.ads-fieldgroup__field[aria-current="true"] .ads-dategroup__sub) .ads-fieldgroup__field { padding: 10px 14px 11px; }
+.ds-next .calx-group .ads-dategroup__sub { margin-top: 1px; }
+.ds-next .pane--calx .calx-head { gap: 13px; }
+/* Day columns are 4px wider on each side than the 350px card; the weekday rule keeps the card's width */
+.ds-next .pane--calx .calx-head .ads-calendar__weekdays { margin-inline: -4px; border-bottom: 0; background: linear-gradient(var(--ads-border-subtle), var(--ads-border-subtle)) no-repeat 4px 100% / calc(100% - 8px) 1px, var(--ads-background-surface-page); }
+.ds-next .pane--calx .calx .ads-calendar__grid { margin-inline: -4px; }
+.ds-next .pane--calx .calx { gap: 19px; }
+.ds-next .pane--calx .calx .ads-calendar__month h3 { margin-bottom: 9px; }
+.ds-next .pane--calx .calx .ads-calendar__month:first-of-type h3 { margin-top: 8px; }
+/* Footer with the "Choose a … date." helper (DT.3/DT.5/DT.6): 44px from the top rule to the button */
+.ds-next .pane--calx .pane__foot.ads-actionfooter:has(> .ads-helper) { padding-top: 13px; }
+.ds-next .pane--calx .pane__foot.ads-actionfooter > .ads-helper { margin-bottom: -3px; }
+
+/* --- Apply code (AP.1–AP.8) --- */
+.ds-next .pane--apc .pane__body { gap: 19px; }
+.ds-next .psheet .pane.pane--apc:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:not(:has(> .travsel)) { padding-top: 9px; }
+.ds-next .pane--apc .apc-field > .apc-label { margin-bottom: -3px; }
+.ds-next .pane--apc .apc-field > .ads-helper { margin-top: -1px; }
+.ds-next .pane--apc .apc-labelinfo { margin-right: 0; }
+.ds-next .pane--apc .apc-info { margin-right: 10px; }
+.ds-next .pane--apc .apc-h { margin-bottom: -8px; }
+/* AP.2: the clear button is there as soon as the field has text (hidden only while the placeholder shows) */
+.ds-next .pane--apc .apc-field input:placeholder-shown ~ .apc-clear { display: none; }
+.ds-next .pane--apc [data-a="apc-clear"] { color: var(--ads-content-icon-secondary); }
+/* AP.5: the picked coupon's row (blue-100) */
+.ds-next .apc-row.is-selected { background: var(--ads-background-interactive-secondary-active); }
+.ds-next :is(.apc-list, .cpl-list) { box-shadow: var(--ads-shadow-elevation-xs); }
+/* AP.8: "None saved" fills the space down to the footer, centred */
+.ds-next .pane--apc .pane__scroll:has(.apc-empty) { display: flex; flex-direction: column; }
+.ds-next .pane--apc .pane__body:has(.apc-empty) { flex: 1 0 auto; }
+.ds-next .pane--apc .pane__body:has(.apc-empty) > .apc-yours { flex: 1 0 auto; }
+.ds-next .apc-empty { flex: 1 0 auto; min-height: 160px; justify-content: center; align-items: center; gap: var(--ads-space-2, 2px); border-style: solid; border-color: var(--ads-border-subtle); background: transparent; text-align: center; }
+.ds-next .apc-empty .ads-summary__title { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.ds-next .apc-empty .ads-body-small { margin: 0; color: var(--ads-content-text-secondary); }
+/* AP.4 / CP.4 coupon details: tighter rows, footnote in the primary text colour */
+.ds-next .cpn-dl--end { row-gap: 6px; }
+.ds-next :not(.apc-detail) > .cpn-dl__name { margin-bottom: 3px; }
+.ds-next .cpn-dl ~ .info-draft { color: var(--ads-content-text-primary); }
+
+/* --- My coupons (CP.1, CP.5) --- */
+.ds-next .pane--cpn .cpn-h { margin-bottom: -5px; }
+.ds-next .pane--cpn .cpl { padding: 11px 10px 12px var(--ads-space-20); }
+.ds-next .pane--cpn .cpn-avail + .cpn-acc { margin-top: 2px; }
+.ds-next .pane--cpn .cpn-acc__head { min-height: 56px; }
+.ds-next .pane--cpn .cpn-acc__panel { padding-top: 1px; }
+
+/* --- Passenger discounts (DS.1, DS.2) --- */
+.ds-next .ads-fieldset:has(input[name="disc"]) > .ads-field-label { margin-bottom: 1px; }
+.ds-next .pane--ed .ads-fieldset:has(input[name="disc"]) .ads-fieldset__options > .ads-choice .ads-choice__supporting { margin-top: 4px; }
+.ds-next .pane--ed .ads-fieldset:has(input[name="disc"]) .ads-fieldset__options > .ads-choice:has(.ads-choice__supporting) { margin-bottom: -6px; }
+.ds-next .ads-fieldset:has(input[name="disc"]) { margin-bottom: 2px; }
+/* DS.2: Membership ID sits a full step below the option's helper; the required asterisk reads as part of the label */
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield { margin-top: var(--ads-space-12); margin-bottom: var(--ads-space-4); }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-helper--error { margin-top: -4px; }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-field__label { gap: 0; }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-field__marker--required { margin: 0; padding: 0; color: inherit; font-size: inherit; font-weight: inherit; }
+/* DT-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA TR: Travelers (Sprint 4 gallery, 2026-11) ===== */
+/* TR-begin */
+/* TR.22: a counter's plain reason ("No companion passes left this year.") stays in its row, under the sub-line
+   (only a row error is laid out across the row: see the TR.14 rule above) */
+.ds-next .travsel .ffc-count__why:not(:has(.fam-counterr)) { display: block; font-size: var(--ads-type-caption-size); line-height: 1.5; text-box: trim-both cap alphabetic; }
+/* TR.16 / TR.22: a counter that can't change is disabled as a whole (border/disabled, disabled fill, grey value) */
+.ds-next .travsel .ffc-count.is-disabled .ads-counter { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); }
+.ds-next .travsel .ffc-count.is-disabled .ads-counter__value { color: var(--ads-content-text-disabled); }
+/* TR.9: "Opening questions" takes the place of Add assistance as a secondary button, Cancel 20px below it */
+.ds-next .travsel .tassist__acts:has(> .ffassist__busy) { gap: var(--ads-space-20); }
+.ds-next .travsel .tassist__acts > .ffassist__busy { gap: var(--ads-space-8); pointer-events: none; cursor: default; }
+/* TR.12 / TR.14: Children & infants open: no rule under the header, rows separated by rules inset to the content */
+.ds-next .travsel .ffc-kids[aria-expanded="true"] { border-bottom: 0; }
+.ds-next .travsel .ffc-kids .ffc-kids__chev { color: var(--ads-content-icon-primary); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count { position: relative; border-bottom: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count + .ffc-count::before { content: ""; position: absolute; top: 0; left: var(--ads-space-12); right: var(--ads-space-12); border-top: 1px solid var(--ads-border-subtle); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:first-child { padding-top: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr)::before, .ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr) + .ffc-count::before { content: none; }
+.ds-next .travsel .ffc-kids__rows { padding-bottom: var(--ads-space-16); }
+.ds-next .travsel .ffc-count__sub .ffc-inlinelink { margin-left: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+/* R6: saved assistance is the 56px List Button; the "From profile" tag is Body Small Emphasis */
+.ds-next .travsel .tassist__card { box-sizing: border-box; min-height: 56px; padding: var(--ads-space-12); }
+.ds-next .travsel .tassist__cardlines { gap: var(--ads-space-8); }
+.ds-next .travsel .tassist__head .ads-lock { font-size: var(--ads-type-body-small-size); line-height: 1.2; }
+/* R3: a disabled Select keeps readable grey-brown text and an even 1px border */
+.ds-next .travsel .ads-control--select.is-disabled { box-shadow: none; border: 1px solid var(--ads-border-disabled); }
+.ds-next .travsel .ads-control--select.is-disabled select { color: var(--ads-content-text-disabled); opacity: 1; -webkit-text-fill-color: currentColor; }
+/* TR.5–TR.7: the list error sits space/8 under the outlined card */
+.ds-next .travsel .ffc-problems { margin-top: calc(-1 * var(--ads-space-4)); }
+/* R7: a one-line helper under a Select is trimmed like the rest (no 16px minimum), so the rule sits space/12 below it */
+.ds-next .travsel .fam-row > .ads-helper:not(.ads-helper--error) { min-height: 0; }
+/* TR.10: policy text starts 20px under the header */
+.ds-next .pane__body > .prpolicy { padding-top: var(--ads-space-4); }
+/* TR-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA AS: Assistance (Sprint 4 gallery, 2026-11) ===== */
+/* AS-begin */
+/* Branch card (Figma AS.2): first legend 8px under the chosen type, groups 14px apart, the card ends 24px under the last link's centre */
+.ds-next .assist-opt > .assist-branch { margin-top: var(--ads-space-8); gap: 14px; }
+.ds-next .assist-opt.is-selected { padding-bottom: 14px; }
+.ds-next .assist-opt.is-selected + .assist-opt { margin-top: 0; }
+.ds-next .assist-branch .ads-fieldset > .ads-field-label { margin-bottom: 1px; }
+/* Other needs (Figma AS.2): the About link sits close under the hint; need rows repeat about every 97px */
+.ds-next .assist-about { margin: 7px 0 0 10px; line-height: 0; }
+.ds-next .assist-about .ads-link { position: relative; display: inline-block; min-height: 0; height: auto; padding: 0; margin: 0; font-size: 13px; line-height: 18px; }
+.ds-next .assist-about .ads-link::after { content: ""; position: absolute; inset: -6px 0; }
+.ds-next .wcq .assist-about { margin: 0; }
+.ds-next .wcq > .ads-field-label { margin-bottom: 3px; }
+/* Station note (Figma AS.7): plain Caption text at the bottom of the card */
+.ds-next .assist-note { margin: var(--ads-space-8) 0 0; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+/* Disabled type (Figma AS.1): its hint is greyed with the label */
+.ds-next .assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__supporting { color: var(--ads-content-text-disabled); }
+/* Group in error (Figma AS.4, AS.5): a 1px border/status-error box flush with the card, drawn as the group's own border.
+   The legend floats so it sits inside the border like any other line. */
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) { outline: 0; margin: -2px calc(-1 * var(--ads-space-16) - 1px) 0 calc(-1 * var(--ads-space-20) - 1px); padding: 14px var(--ads-space-16) 15px var(--ads-space-20); border: 1px solid var(--ads-border-status-error); border-radius: 0; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error):first-child { margin-top: -7px; padding-top: 6px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend { float: left; width: 100%; margin-bottom: -7px; }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) > legend { margin-bottom: -4px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend + * { clear: both; }
+.ds-next .assistform .assist-branch > fieldset > .ads-helper--error { margin-top: var(--ads-space-12); }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) { padding-bottom: 11px; }
+.ds-next .assistform .assist-branch > fieldset.wcq > .ads-helper--error { margin-top: var(--ads-space-4); }
+/* Mobility needs (Figma AS.15): resting radios in content/icon-secondary, options about 54px apart, 20px line spacing in the closing paragraph */
+.ds-next .mobq .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
+.ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 0; }
+.ds-next .mobq__card:not(.mobq__card--field) + .mobq__card { margin-top: -6px; }
+.ds-next .mobq__who + .mobq__intro { margin-top: -5px; }
+.ds-next .mobq__call { margin-top: -4px; }
+.ds-next .mobq__call .ads-link { display: inline; min-height: 0; height: auto; padding: 0; line-height: inherit; }
+.ds-next .mobq__who > span:last-child { display: none; }
+/* Profile (Figma PA.2): "I have a disability" sits above the card; the card holds its questions */
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) { border-color: transparent; background: none; padding-bottom: 0; }
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) > .assist-branch { margin: 0 -1px; padding-top: var(--ads-space-8); padding-bottom: 14px; border: 1px solid var(--ads-border-subtle); background: var(--ads-background-interactive-secondary); }
+/* Profile (Figma PA.1): the first type sits 3px closer to "Assistance type" */
+.ds-next .assistform > .ads-fieldset:has(input[name="pa-cat"]) > .ads-field-label { margin-bottom: 1px; }
+/* AS-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA PF: Profile, editors, change email (Sprint 4 gallery, 2026-11) ===== */
+/* PF-begin */
+/* Profile (Figma PF.1–PF.6): thin grey row chevrons, 57px rows, headings 21px above their card */
+.ds-next .pane--profile .ads-group__row > .ads-icon--chevron-right { width: 20px; height: 20px; color: var(--ads-content-icon-secondary); }
+.ds-next .pane--profile .ads-group__row { min-height: 56px; padding-block: 8px 7px; }
+.ds-next .pane--profile .ads-group__row + .ads-group__row { min-height: 57px; padding-block: 8px; }
+.ds-next .pane--profile .pane__body > .ads-group:first-child { margin-top: -2px; }
+/* Editors with a card first (Figma ED.5–ED.7, ED.12): the card starts 13px under the header */
+.ds-next .pane--ed .pane__body > :is(.ed-card, .emp-status):first-child { margin-top: 5px; }
+.ds-next .pane--ed .ed-card { padding-top: 11px; padding-bottom: 15px; }
+.ds-next .pane--ed .ed-card .ads-fieldset { margin-bottom: 1px; }
+.ds-next .pane--ed .ed-card .ads-fieldset__options { margin-top: -2px; }
+/* Phone, International (Figma ED.7): a plain field where the country code reads as part of the number */
+.ds-next .pane--ed .ph-ccfield { margin-bottom: var(--ads-space-8); }
+.ds-next .pane--ed .ph-intlfield .ctl-prefix { padding-right: 0; margin-right: var(--ads-space-4); border-right: 0; color: var(--ads-content-text-primary); }
+/* Billing address and Employee pass (Figma ED.8–ED.12): labels carry no required asterisk; optional fields are marked instead */
+.ds-next .pane--ed .ads-field__label:is([for^="ad-"], [for^="ee-"]) .ads-field__marker--required { display: none; }
+/* Saved pass (Figma ED.12): label left, value right-aligned to the card edge, 25px rows, 12px inset */
+.ds-next .pane--ed .emp-status { gap: var(--ads-space-20); margin-bottom: 2px; padding: var(--ads-space-8) var(--ads-space-12) 7px; border-radius: var(--ads-radius-4); }
+.ds-next .pane--ed .emp-status .cpn-dl { grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 5px var(--ads-space-16); }
+.ds-next .pane--ed .emp-status .cpn-dl :is(dt, dd) { line-height: 20px; }
+/* Change email (Figma VF.1–VF.7): 16px side margins, 32px between blocks, navy logo, flat 48px read-only field */
+.ds-next .pane--b2c .pane__body { padding: var(--ads-space-24) var(--ads-space-16) var(--ads-space-32); }
+.ds-next .pane--b2c .ads-navbar { padding-left: var(--ads-space-16); }
+.ds-next .b2c { gap: var(--ads-space-32); }
+.ds-next .b2c__logo { margin-bottom: 0; color: var(--ads-color-blue-900); }
+[data-theme="dark"] .ds-next .b2c__logo, .ds-next[data-theme="dark"] .b2c__logo { color: var(--ads-content-text-primary); }
+.ds-next .b2c__intro { margin-block: calc(-1 * var(--ads-space-16)) calc(-1 * var(--ads-space-12)); }
+.ds-next .b2c__intro + .ads-alert { margin-top: 6px; }
+.ds-next .b2c > .ads-alert { margin-bottom: calc(-1 * var(--ads-space-8)); }
+.ds-next .b2c .b2c__ro { min-height: 48px; height: 48px; border: 0; box-shadow: none; }
+.ds-next .b2c__acts { gap: var(--ads-space-32); }
+.ds-next .b2c__resend { margin-top: calc(-1 * var(--ads-space-4)); }
+.ds-next .b2c__wait { margin-top: calc(-1 * var(--ads-space-20)); }
+.ds-next .b2c .ads-alert__title:empty { display: none; }
+/* PF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
 
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
@@ -3489,6 +3792,38 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ss-place { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-12); padding: var(--ads-space-12) var(--ads-space-20); background: var(--ads-background-surface-sunken); }
 .ss-place__t { margin: 0; display: flex; align-items: flex-start; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
 .ss-place__t > .ads-icon { margin-top: 2px; color: var(--ads-content-icon-brand); }
+
+/* ---------- Gallery QA (Figma ST.16–ST.22) ---------- */
+/* Map view: List / Map tabs run edge to edge */
+.ds-next .ss-upd--map .ss-views { margin-inline: calc(-1 * var(--ads-space-20)); }
+/* Zoom: one box with a hairline between the two buttons */
+.ss-map-wrap--upd .map-ctl { gap: 14px; }
+.map-ctl__zoom .map-ctl__btn, .map-ctl__zoom .map-ctl__btn:hover { box-shadow: none; }
+.map-ctl__zoom .map-ctl__btn + .map-ctl__btn { border-top: 0; box-shadow: inset 0 1px 0 var(--ads-border-subtle); }
+/* Your location (ST.19): red dot with a translucent halo */
+.map-me { width: 20px; height: 20px; background: var(--ads-color-red-700); box-shadow: 0 0 0 1px var(--ads-background-surface-default); }
+.map-me::before { width: max(48px, var(--acc)); height: max(48px, var(--acc)); background: var(--ads-color-red-700); border: 0; opacity: 0.25; }
+/* Station listing on the map (ST.17): 61px, 20px inset, neutral Details icon */
+.ds-next .ss-upd .map-listing { min-height: 61px; box-sizing: border-box; padding: var(--ads-space-8) var(--ads-space-12) var(--ads-space-8) var(--ads-space-20); gap: 10px; }
+.ds-next .ss-upd .map-listing__acts { gap: 0; margin-right: 0; }
+.ds-next .ss-upd .map-listing__acts .ads-icon-btn { width: 40px; min-width: 40px; color: var(--ads-content-icon-secondary); }
+/* Several stations at one point (ST.18): standard station rows above the footer's disabled Select */
+.ds-next .ss-upd .ss-mapcard:not(.ss-mapcard--listing) { border-radius: var(--ads-radius-4); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .ss-upd .ss-mapcard .map-card { gap: 0; padding: 0; border-radius: var(--ads-radius-4); }
+.ds-next .ss-upd .map-card .map-card__head { align-items: center; padding: var(--ads-space-12) var(--ads-space-12) var(--ads-space-12) var(--ads-space-16); }
+.ds-next .ss-upd .map-card .map-card__name { margin-top: var(--ads-space-4); }
+.map-card__list { margin: 0; padding: 0; list-style: none; }
+.ds-next .map-card__list .ads-stationrow { border-top: 1px solid var(--ads-border-subtle); border-bottom: 0; }
+.ds-next .map-card__list .ads-stationrow__select { padding-left: var(--ads-space-16); }
+.ds-next .map-card__list .ads-stationrow__star:last-child { margin-right: var(--ads-space-8); }
+/* Station details (ST.21): compact rows */
+.ds-next .stinfo-dl { gap: 5px var(--ads-space-8); }
+.ds-next .stinfo-dl dt, .ds-next .stinfo-dl dd { line-height: 20px; }
+.ds-next .ss-upd .map-card .map-card__list { margin: 0; }
+/* Simulated iOS location preferences sheet (ST.11, ST.15): frosted material, semibold options */
+.native--prefs .native__sheet { background: rgb(250 250 252 / 0.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.native--prefs button { font-weight: 600; }
+[data-theme="dark"] .native--prefs .native__sheet { background: rgb(44 44 46 / 0.8); }
 
 /* Sprint 5 · Fare search results. Layout only: every surface, colour, radius and type size is an ADS token,
    and every control is an existing component (Card, Badge, Alert, Button, Link, Accordion, Radio). */
@@ -4726,7 +5061,7 @@ const CATS = {
 // Assistance questionnaire copy (stands in for AEM-managed content: product and content can change any of it
 // here). Option labels and descriptions are CATS, DISABILITIES and NEEDS above.
 const ASSIST_COPY = {
-  entryLabel: 'Traveler with disability or need help?', entryHelp: 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.',
+  entryLabel: 'Are you a traveler with a disability, need to add help, or are a companion?', entryHelp: 'Request wheelchair spaces, accessible seats, station assistance, or identify as a companion.',
   addCta: 'Add assistance', editCta: 'Edit assistance', removeCta: 'Remove',
   animalSizeLegend: 'Size of your service animal',
   animalSizes: [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']],
@@ -4895,7 +5230,7 @@ const FLOWS = [
 ];
 
 // Traveler types (NMA-611). Age bands aren't final (Q10).
-const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under 2']];
+const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under age 2']];
 const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
 // Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
 const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };
@@ -5304,7 +5639,7 @@ function startCooldown() {
 // ---------- Clear recent stations (NMA-1004) ----------
 function clearDialog() {
   return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed from this device. Your favorites stay.', returnFocus: '[data-a="clear-recents"]',
-    actions: [['Cancel', 'secondary', null], ['Confirm', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
+    actions: [['Cancel', 'secondary', null], ['Clear recents', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
 }
 
 // ---------- Rendering shell ----------
@@ -5668,7 +6003,7 @@ const SPLIT_SELF = r => TB.v !== 1 && ((v3() && ['profile', 'assist-profile'].in
 // =====================================================================
 // A. Fare Finder
 // =====================================================================
-function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
+function ffErrors(b) { return { from: !b.from ? 'Choose a departure station.' : '', to: !b.to ? 'Choose an arrival station.' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date.' : '' }; }
 // ---------- New booking fields, normalized against ADS Next and Mobile ADS ----------
 // From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
 // triggers: the label sits outside the field; the accessible name stays on the button.
@@ -5696,8 +6031,18 @@ function dateFields(r, opts = {}) {
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
   const d = D(), it = intentOf(b);
-  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : paxSummary(b);
-  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  // Figma FF.17 / FF.23 / FF.24 / FF.32: a regular booking shows assistance on the value line ("2 adults · Assistance for 2")
+  // and each traveler's discount on the supporting line; Pass Rider keeps the names on the value line and adds
+  // "Assistance" to the supporting line; a corporate booking is a single line ("1 adult").
+  const std = ['standard', 'personal'].includes(it), list = travelerList(b), all = paxList(b);
+  const helped = list.filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const asked = list.filter(t => asks(b, t.key)).length, miss = assistMissing(b).length;
+  const assist = miss ? '' : helped ? (list.length > 1 ? `Assistance for ${helped}` : 'Assistance') : '';
+  const discs = std ? all.map(t => [t, tdiscOf(b, t)]).filter(([t, x]) => !['none', 'childfare', 'infant', 'senior'].includes(x)).map(([t, x]) => `${x === 'pwd' ? 'Disability' : TDISC_LABEL[x]}${all.length > 1 ? ` (Traveler ${t.n})` : ''}`) : [];
+  const kids = it === 'pr' && b.prType !== 'business' ? list.filter(t => prKind(b, t.key) === 'child').length : 0;
+  const val = it === 'corporate' ? '1 adult' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : [paxSummary(b), assist].filter(Boolean).join(' · ');
+  const sub = [it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', ...discs, kids ? `${kids} child${kids > 1 ? 'ren' : ''}` : '', std ? '' : assist,
+    miss ? `Assistance answered for ${asked - miss} of ${asked}` : '', assistProblems(b).length ? 'Assistance needs a change' : ''].filter(Boolean).join(' · ');
   const err = travErr(r, b);
   return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
@@ -5736,7 +6081,7 @@ function modesV1(r, b) {
   if (!can.ok) { snote('A dependent 15 or younger can’t book Pass Rider travel on their own (NMA-1017), so New booking shows no Pass Rider switch and books regular fares.'); return ''; }
   const on = b.intent === sp;
   if (on && tl) q(12);
-  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : 'Employee pass travel for you and eligible family. Points, passenger discounts and codes aren’t used.') : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
+  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only.' : 'Employee pass travel is for you and eligible family only.') : tl ? 'Off: regular fares, with codes and points.' : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
   return `<div class="v1modes v1modes--switch">${row}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 A['mode-toggle'] = t => {
@@ -5779,7 +6124,7 @@ SCR.ff = (r, ri) => {
   // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
   // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts, coupons, and promotion codes cannot be used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider bookings'}.</p>`}${netAlert(r)}</div>`;
   return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -5846,8 +6191,8 @@ function stationRow(s, field, sec, near) {
   const when = ''; // recents show the station only, as in the designs (Figma 3295:51259); NMA-984 doesn't ask for when it was used
   const blocked = ctx === 'ff' && s.tag && autoTrainBlocked();
   const b = tg, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
-  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'Departure station' : 'Arrival station'}</span>` : ''; // the other end of the trip
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Save ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  const roleTag = role && !cur ? `<span class="ads-sr-only">, ${role === 'Departure' ? 'departure station' : 'arrival station'}</span>` : ''; // the other end of the trip: a standard row (Figma ST.5), named for screen readers
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag}${blocked ? ' only' : ''}</span>` : ''}${blocked ? '<span class="ads-sr-only">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Save ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
@@ -5867,13 +6212,16 @@ function stationSearch(r, ri, field, inline) {
   const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1" data-title>${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
-  let sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, `placeholder="${r.p.ctx === 'ts' || !selPair() ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`).replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
+  const pairSearch = !(r.p.ctx === 'ts' || !selPair()), restPh = pairSearch && !(focus && r.u.kb); // Figma: "Search station" at rest, the end being searched while typing
+  let sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, `placeholder="${!pairSearch ? 'Search stations' : restPh ? 'Search station' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`).replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
   // iPhone: the From / To card collapses while search is active (iOS keyboard up). Layout A: card above the field;
   // layout B: field above the card (Prototype controls › Station search layout).
   const grp = r.p.ctx === 'ts' || !selPair() ? '' : focus ? `<div class="ss-collapse"${r.u.kb ? ' inert' : ''}><div>${selGroup(r, field)}</div></div>` : selGroup(r, field);
+  if (restPh) sq = sq.replace(/(<label class="ads-sr-only" for="ss-q">)[^<]*(<\/label>)/, `$1Search station, ${field === 'from' ? 'departure' : 'arrival'}$2`); // the name starts with the visible text (WCAG 2.5.3)
+  const sameErr = r.u.sameErr && grp ? `<p class="ss-sameerr" id="ss-sameerr" role="alert">${ic('alert-diamond', 'ads-icon--sm')}<span>Departure and arrival stations must be different.</span></p>` : '';
   if (focus && r.u.kb) { const at = sq.lastIndexOf('</div>'); sq = sq.slice(0, at) + '<button class="ads-btn ads-btn--tertiary ss-cancel" type="button" data-a="ss-cancel">Cancel</button>' + sq.slice(at); }
   if (focus) snote('iOS build: VoiceOver’s escape gesture (two-finger scrub) and Esc on a hardware keyboard end search, like Cancel. The card folds when the field has focus, so it also works with a hardware keyboard and no on-screen keyboard.');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${grp + sq}`;
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${(sameErr ? grp.replace('ads-stationgroup ss-group', 'ads-stationgroup ss-group ss-group--error') : grp) + sameErr + sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
@@ -5886,7 +6234,7 @@ function stationSearch(r, ri, field, inline) {
     } else if (qt.length < SS_PLACE_MIN) { // up to 3 characters: stations, as before
       const res = searchStations(qv);
       if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
-      else if (qt.length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>`;
+      else if (qt.length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
       else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
     } else { // 4 or more: places to choose from, then stations whose own name matches
       const places = searchPlaces(qv, offline); r.u.sugg = places;
@@ -5896,7 +6244,7 @@ function stationSearch(r, ri, field, inline) {
       const placeH = places.length ? `<div class="stsection ss-places"><div class="ads-stationrow__header"><span>Locations</span></div><ul class="ss-placelist" aria-label="Locations. Choose one to see the closest stations">${places.map((p, k) => `<li><button class="ss-placerow" type="button" data-a="ss-place" data-i="${k}">${ic(PLACE_ICON[p.kind])}<span class="ss-placerow__text"><span class="ss-placerow__name">${esc(p.label)}</span></span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`).join('')}</ul></div>` : '';
       const namedH = named.length ? `<div class="stsection"><div class="ads-stationrow__header"><span>Stations</span></div><ul class="stlist" aria-label="Stations">${named.slice(0, 10).map(s => stationRow(s, field, 'res')).join('')}</ul></div>` : '';
       if (n) h += `<p class="ads-sr-only" role="status">${named.length ? `${named.length} station${named.length > 1 ? 's' : ''}` : ''}${places.length && named.length ? ' and ' : ''}${places.length ? `${places.length} location${places.length > 1 ? 's' : ''}` : ''}</p>${namedH}${placeH}${offNote}`;
-      else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, state, station, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
+      else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>${offNote}`;
     }
     return h + q(3) + '</div>';
   }
@@ -5905,6 +6253,7 @@ function stationSearch(r, ri, field, inline) {
   h += nearTop + '</div>' + PANEL + nearList; // top block: group, search, Nearby stations; then the lists
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Saved</span></div><ul class="stlist" aria-label="Saved stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
+  if (favs.length && !recs.length) h += `<p class="ss-savehint">Bookmark a station to save it.</p>`; // Figma ST.9
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
   const showAll = (!favs.length && !recs.length) || r.u.full;
   if (showAll) {
@@ -5940,8 +6289,8 @@ function selGroup(r, field) {
   const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Select departure station' : 'Select arrival station', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
   return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
 }
-A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
-A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
+A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; r.u.sameErr = false; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
+A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); r.u.sameErr = false; [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; pendingFocus = '#ss-q'; render(); }; // clears only: search (and the keyboard) stay active
 A['ss-cancel'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); }; // iOS Cancel: clears and ends search
 A['ss-place'] = (t, ri) => { const r = routeAt(ri), p = (r.u.sugg || [])[+t.dataset.i]; if (!p) return; r.u.place = p; r.u.placeQ = (r.u.d.q || '').trim(); track('station_search_place_chosen', { kind: p.kind }); if (r.u.kb && typeof kbSet === 'function') kbSet(r, false, false); pendingFocus = '.ss-place__t'; render(); };
@@ -5957,7 +6306,13 @@ A['choose-station'] = (t, ri) => {
   const d = D(), si = selIndex(), sr = si >= 0 ? sheet().stack[si] : null, ctx = (sr && sr.p.ctx) || 'ff', b = selTarget(ctx);
   const f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
   if (ctx === 'ff' && autoTrainBlocked() && AUTO_TRAIN[c]) return;
-  if (b[other] === c) { dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
+  if (b[other] === c) {
+    // Figma ST.6: with the From / To group on screen (station list), the group turns red with a message under it.
+    // Elsewhere (map, Details, single-field selector) the dialog still explains it. The rule itself is unchanged.
+    if (sr && sr === sheet().stack.at(-1) && sr.u.view !== 'map' && ctx !== 'ts' && selPair()) { sr.u.sameErr = true; if (sr.u.kb && typeof kbSet === 'function') kbSet(sr, false, false); pendingFocus = `[data-k="${t.dataset.k}"]`; render(); return; }
+    dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return;
+  }
+  if (sr) sr.u.sameErr = false;
   b[f] = c;
   if (ctx === 'ff') {
     b.notice = null;
@@ -6038,9 +6393,11 @@ function calendarBody(r, ri, field) {
 // being filled is outlined (as in station search). Round trip: each tap fills the active field and activates the other.
 // A new departure after the return moves the return to that day and keeps Return active.
 function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
-// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
+// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current.
+// Presentation only (Figma DT.6/DT.8): a return the traveler hasn't picked yet (added from one-way, or moved along
+// with a later departure: c.retAuto) keeps the "add" plus icon and has no weekday line until a day is chosen.
 function calCard(c) {
-  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: !v && k === 'ret' ? 'plus-circle' : 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: k === 'ret' && (!v || c.retAuto) ? 'plus-circle' : 'calendar', sub: v && !(k === 'ret' && c.retAuto) ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
   const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
   return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
 }
@@ -6082,17 +6439,17 @@ SCR.calendar = (r, ri) => {
 // Tapping a field in the date card makes it active (and brings its month into view)
 A['calx-edit'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r), v = t.dataset.v; if (c.edit !== v) { c.edit = v; c.jump = true; } pendingFocus = `#calx-f-${v}`; render(); };
 // One-way: "Add return" in the card adds a return to the draft (same day, as on New booking) and activates it
-A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
+A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.retAuto = true; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
 A['calx-day'] = (t, ri) => {
   const r = routeAt(ri), c = calDraft(r), s = t.dataset.d;
   if (c.trip !== 'rt') c.dep = s; // one-way: only the departure changes
-  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) c.ret = s; c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
-  else { c.ret = s; c.edit = 'dep'; }
+  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) { c.ret = s; c.retAuto = true; } c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
+  else { c.ret = s; c.retAuto = false; c.edit = 'dep'; }
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
 // Clear: no dates chosen; Save selection waits for them
 // Clear returns the dates to their defaults (NMA-1060 AC#2): departure today, and on a round trip return today
-A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.retAuto = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
   if (!c.dep || (c.trip === 'rt' && (!c.ret || c.ret < c.dep))) return;
@@ -6248,9 +6605,9 @@ function needsBlock(r, x, idp, explain, e = {}) {
   }).join('');
   const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
   const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
-  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional assist-opt-mark">(optional)</span></legend>${help ? `<p class="${locked ? 'ads-sr-only' : 'ads-helper'}" id="${idp}-needs-why">${locked ? '' : ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional assist-opt-mark">(optional)</span></legend>${help && !st ? `<p class="${locked ? 'ads-sr-only' : 'ads-helper'}" id="${idp}-needs-why">${locked ? '' : ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${help && st ? `<p class="ads-helper assist-note" id="${idp}-needs-why"><span>${help}</span></p>` : ''}${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}</fieldset>`;
 }
-// Figma 4734:249198: an About link under each other need (content: NMA-621)
+// Figma 4734:249198: an About link under each other need (content: NMA-621). Figma AS.7: the station note is plain text at the bottom of the card.
 const ABOUT = { seat: ['accessible-seats', 'About accessible seats'], station: ['station-assistance', 'About station assistance'], animal: ['service-animals', 'About service animals'] };
 // NMA-29 and NMA-628 (Profile): follow-up questions, each required once it appears
 function radioSet(idp, f, legend, opts, val, err, inline) {
@@ -6579,20 +6936,22 @@ EDITORS.phone = (r, ri, inline) => {
   const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
   const num = x.region === 'us'
     ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
-    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
+    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c]) => [k, `${n} (${c})`]), value: x.cc, cls: 'ph-ccfield' })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', err: e.intl, cls: 'ph-intlfield' })}`; // Figma ED.7: text-only country names, the code reads as part of the number, no helper line
   const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${regionQ}${num}</section>`;
   // Add phone number: a second card for home and business numbers (US/Canada)
-  const more = x.region === 'us' && (r.u.more || x.home || x.business);
+  const more = x.region === 'us' ? (r.u.more || x.home || x.business) : r.u.more; // Figma ED.7: Add phone number is offered for International too
   const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
-    : x.region === 'us' ? `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>` : '';
+    : `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>`;
   const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${card}${other}`;
   return { body, unchanged: !changed, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
 };
 A['ph-more'] = (t, ri) => { const r = edRoute(ri); r.u.more = true; pendingFocus = '#ph-home'; render(); };
 SAVE.phone = (r, ri) => {
   const x = r.u.d, e = {};
-  if (x.region === 'us') { if (!/^\d{10}$/.test(x.mobile)) e.mobile = 'Enter a valid phone number'; if (x.home && !/^\d{10}$/.test(x.home)) e.home = 'Enter a valid phone number'; if (x.business && !/^\d{10}$/.test(x.business)) e.business = 'Enter a valid phone number'; if (x.ext && !/^\d{1,3}$/.test(x.ext)) e.ext = 'Enter up to 3 digits'; }
+  if (x.region === 'us') { if (!/^\d{10}$/.test(x.mobile)) e.mobile = 'Enter a valid phone number'; }
   else if (!/^\d{5,15}$/.test(x.intl)) e.intl = 'Enter a valid phone number';
+  // The other numbers keep their checks wherever their card is showing (US/Canada, or International after Add phone number)
+  if (x.region === 'us' || r.u.more) { if (x.home && !/^\d{10}$/.test(x.home)) e.home = 'Enter a valid phone number'; if (x.business && !/^\d{10}$/.test(x.business)) e.business = 'Enter a valid phone number'; if (x.ext && !/^\d{1,3}$/.test(x.ext)) e.ext = 'Enter up to 3 digits'; }
   r.u.err = e; if (Object.keys(e).length) { pendingFocus = '[aria-invalid="true"]'; render(); return; }
   runSave(r, () => { D().profile.phone = clone(x); }, () => afterSave(ri, 'Profile has been updated', 'phone'));
 };
@@ -6676,7 +7035,7 @@ A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
   if (x.type === d.discount.type && (x.type !== 'rpa' || x.rpa === d.discount.rpa)) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; render(); return; } // nothing to save
-  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
+  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces.' }; pendingFocus = '#rpa-id'; render(); return; }
   if (x.type === 'pwd' && d.assist.cat !== 'disability') { r.u.alert = { kind: 'custom', tone: 'error', title: 'Passenger with disability can’t be saved yet', text: 'Save assistance with “I have a disability” first.' }; pendingFocus = '[data-a="go-assist"]'; render(); return; }
   r.u.err = {};
   runSave(r, () => { d.discount = { type: x.type, rpa: x.type === 'rpa' ? x.rpa : '' }; d.booking.disc = ['military', 'rpa'].includes(x.type) ? x.type : 'none'; }, () => { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; toast('Discount preference saved'); });
@@ -6926,7 +7285,7 @@ const fmtExp = s => parse(s).toLocaleDateString('en-US', { month: 'short', day: 
 // Shared Fare Finder rules
 // Reviewer flags for unresolved rules that affect the Fare Finder (shown in Screen notes, never in the app)
 function ffFlags(b) { const d = D(); if (b.trip === 'rt') q(25); if (intentOf(b) === 'pr') q(13); }
-const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you alone. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
+const prTypeHelp = b => b.prType === 'business' ? 'Business travel is for you only. Auto Train isn’t available for Business travel.' : b.prType === 'leisure' ? 'You can bring family and, if you have enough passes, companions.' : 'Business travel is for you alone. Leisure lets you bring family and companions.';
 const prLeisureWhy = d => d.passrider.role === 'employee' ? 'Business travel needs an active Business Pass.' : 'Business travel is for employees with a Business Pass.';
 function travErr(r, b) {
   const tp = travelerProblems(b), ap = assistProblems(b), am = assistMissing(b);
@@ -6979,7 +7338,7 @@ A['find-trains'] = (t, ri) => {
     if (intentOf(b) === 'corporate' && (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to])) { // NMA-622 AC8: an error after Find trains
       r.u.showErr = false;
       return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, turn off TripLink corporate booking.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Turn off corporate booking', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
+        actions: [['Turn off TripLink', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
     }
     r.u.showErr = false;
     if (codeFormatError(b)) { pendingFocus = '#ff-code-h, #ff-code'; render(); return; }
@@ -7086,29 +7445,28 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const tab = (k, l) => `<button class="ads-tab" type="button" role="tab" id="prt-${k}" aria-selected="${t0 === k}" aria-controls="pr-panel" tabindex="${t0 === k || (!t0 && k === 'leisure') ? 0 : -1}" data-a="pr-type" data-v="${k}">${l}</button>`;
     const tabs = elig && !inDd ? `<div class="ads-tabs ads-tabs--fill pr-tabs" role="tablist" aria-label="Pass Rider travel type">${tab('leisure', 'Leisure')}${tab('business', 'Business')}</div>` : '';
     const help = elig && inDd ? `<p class="ads-helper pr-tabs__help" id="prt-h">${t0 ? `${t0 === 'business' ? 'Business' : 'Leisure'} travel. ` : ''}${prTypeHelp(b)} To change it, use Booking type on New booking.</p>`
-      : elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`;
+      : elig ? `<p class="ads-helper pr-tabs__help" id="prt-h">${prTypeHelp(b)}</p>` : `<p class="ads-helper pr-tabs__help ads-sr-only" id="prt-h">Leisure travel. ${prLeisureWhy(d)}</p>`; // Figma TR.22–TR.27: no tabs, the screen starts at "Travelers on your pass" (the line stays for assistive tech)
     let panel;
     if (!t0) { ok = false; why = 'Choose Business or Leisure travel.'; panel = `<p class="pr-choose">${inDd ? 'Choose Business or Leisure in Booking type on New booking to see who can travel.' : 'Choose Business or Leisure travel to see who can travel.'}</p>`; }
     else if (t0 === 'business') panel = `<fieldset class="ffc-riders"><legend class="ffc-riders__legend">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', true, false, 'prt-h')}</fieldset>`; // Business: you alone
     else {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
-      const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 companion passes left this year`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
+      const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 passes left this year.`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
       panel = `<h4 class="ffc-h pr-onpass" aria-hidden="true">Travelers on your pass</h4><div class="ffc-counts ffc-counts--riders pr-card"><fieldset class="ffc-riders"><legend class="ads-sr-only">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
         ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
-        ${f.comp ? '<p class="ss-note">Companions travel with you or someone else on your pass.</p>' : ''}
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}`;
     }
-    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h${elig && !inDd ? ' ads-sr-only' : ''}" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
+    body = `<section aria-labelledby="pr-who"><h3 class="ffc-h${!elig || !inDd ? ' ads-sr-only' : ''}" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
+    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
     // Youth, Child and Infant sit under one "Children and infants" row, collapsed each time Traveler selection opens.
     // Expanding or collapsing only shows or hides the counters; counts are kept and summarised in the header.
     const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen || KIDS.some(k => paxErrorFor(p, k)); // a row with an error is never hidden
     const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
-    const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
+    const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum && !kidsOpen ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
     const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children &amp; infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
     const limit = paxOccupied(p) >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 seats in the app. Call 1-800-USA-RAIL to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on Amtrak.com.</span></p>` : '';
     const ratio = p.infant > lapCap(p) && !probs.length ? '<p class="ss-note">Each infant beyond the number of adults, seniors and young adults takes a seat and pays the child fare.</p>' : '';
@@ -7714,7 +8072,7 @@ function assistAsk(b, t, r, summary = '', card = null) {
   // One call to action: Add assistance opens this traveler's questionnaire; once answers are confirmed it becomes
   // Edit assistance, with Remove beside it
   const btn = (act, label, kind, icon) => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}"${act === 'assist-answer' ? ` id="${id}"` : ''} aria-describedby="${id}-h">${icon ? ic(icon, 'ads-icon--sm') : ''}${label}<span class="ads-sr-only"> for ${esc(t.label)}</span></button>`;
-  const acts = busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>`
+  const acts = busy ? `<span class="ads-btn ads-btn--secondary ads-btn--sm ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>`
     : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
   // Content above traveler details (comparison setting): the copy is shown once above the section, not in each card
   if (assistAbove()) return `<div class="tassist tassist--bare">${saved ? summary : ''}<div class="tassist__acts">${acts.replace(/aria-describedby="[^"]*"/g, 'aria-describedby="tassist-intro"')}</div></div>`;
@@ -8052,7 +8410,7 @@ function infoTopic(topic) {
 // page itself is NMA-604, outside Sprint 4, so only the data the app already has is shown (Q3).
 function stationInfo(code) {
   const s = ST[code]; if (!s) return { title: 'Station', body: () => '' };
-  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl stinfo-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><p class="stinfo-pending">Hours, accessibility, parking and amenities is pending.</p>${snote('The station details page isn’t part of Sprint 4.')}${q(3)}` };
+  return { title: `${s.city}, ${s.st}`, body: () => { const g = typeof geoOf === 'function' ? geoOf(code) : null; /* Facility, Street address, Parking: sample data kept with the map (Figma ST.21) */ return `<dl class="cpn-dl stinfo-dl"><dt>Station</dt><dd>${esc(s.name)}</dd>${g ? `<dt>Facility</dt><dd>${esc(STATION_TYPES[g.type].label)}</dd>` : ''}<dt>Code</dt><dd>${s.code}</dd>${g && g.address ? `<dt>Street address</dt><dd>${esc(g.address.split(',')[0])}</dd>` : ''}<dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}${g && g.parking ? `<dt>Parking</dt><dd>${esc(g.parking)}</dd>` : ''}</dl>${snote('The station details page isn’t part of Sprint 4. Hours, accessibility and amenities content is pending; facility, street address and parking are sample data.')}${q(3)}`; } };
 }
 // A link that opens supporting information (or, inside the sheet, goes one level deeper)
 function infoLink(topic, label, mode = 'open') {
@@ -8188,7 +8546,7 @@ A['mode-pick'] = t => {
 PFIELDS.employee = 'Employee pass'; // Figma 3430:140680
 const EMP_REL = { employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
-const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
+const empSummary = e => e ? `${EMP_REL[e.rel]} Pass ${e.pass.slice(0, 3)}•••${e.pass.slice(-2)}` : 'Not added'; // Figma PF.3: one line; the Pass Rider status is in the editor's Saved pass card
 // Status of the saved pass: what the pass record allows (NMA-1016, 1018) and, for dependents, the age rule (NMA-1017 AC4)
 function empStatus(d) {
   const e = d.employee, p = d.passrider; if (!e || !p) return '';
@@ -8196,7 +8554,7 @@ function empStatus(d) {
   if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Remaining passes', `${p.compLeft} of 16 one-way passes`]); rows.push(['Renewal', `New passes are issued ${fmtExp(p.renews || PASS_RENEWS)}`]); }
   else rows.push(['Travel type', 'Leisure only']);
   if (p.role === 'dependent' && !can.ok) rows.push(['Booking on your own', can.text]);
-  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
+  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl cpn-dl--end">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
 }
 // Add or update only: there's no user-facing way to delete pass details (NMA-20 AC6, decision closed).
 // The backend can remove them when the customer is no longer eligible (BR4 AC4): see the "pass removed" scenario.
@@ -8401,6 +8759,7 @@ document.addEventListener('change', ev => { if (ev.target.id === 'tbMail') windo
 /* Sprint 4 prototype: "Apply code" (New booking › Coupon or promotional code), matched to Figma Sprint 4 node 3346:47066.
    - Header: icon-only Back (chevron) and the title; Back returns to Fare Finder with the booking unchanged. No X.
    - "Coupon or promotional code" field with the codes information beside the label, a clear button inside the field
+     (shown as soon as the field has text: always in the markup, hidden by CSS while the field is empty)
      and "Codes should be 4 or 14 characters long."
    - "Your coupons": one bordered list of the account's active, unused codes (no upgrade coupons, which are used from
      Profile and Modify). Choosing a row puts its code in the field; the row's info button opens its details.
@@ -8427,7 +8786,7 @@ SCR.dcode = (r, ri) => {
     : bad ? `<p class="ads-helper ads-helper--error" id="apc-in-h">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`
     : `<p class="ads-helper" id="apc-in-h">Codes should be 4 or 14 characters long.</p>`;
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
-    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button>` : ''}</div>${help}</div>`;
+    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}><button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button></div>${help}</div>`;
   const load = couponLoad(r);
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
@@ -8435,7 +8794,7 @@ SCR.dcode = (r, ri) => {
   else {
     const codes = bookingCodes();
     list = codes.length ? `<ul class="apc-list" aria-label="Your coupons">${codes.map(c => apcRow(c, (val || '').toUpperCase())).join('')}</ul>`
-      : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">${d.signedIn ? 'Coupons saved to your account show up here. You can still enter a code above.' : 'Sign in to see coupons saved to your account. You can still enter a code above.'}</p></div>`;
+      : `<div class="ads-summary ads-summary--empty apc-empty"><p class="ads-summary__title">None saved</p><p class="ads-body-small">${d.signedIn ? 'Codes you add in My coupons will show here.' : 'Sign in to see codes saved in My coupons.'}</p></div>`;
   }
   tip('Choose a coupon or type a code, then Apply. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
   const body = `${netAlert(r)}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
@@ -8461,9 +8820,9 @@ A['apc-save'] = (t, ri) => {
 };
 A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; push('apc-detail', { code: t.dataset.code }, +ri); };
 // Details: the coupon's full details (as in My coupons)
-SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail"><h3 class="ads-h4">${esc(info.title)}</h3>${info.body()}</div>` }; };
-// The information beside "Add a coupon or promotion code": the established codes copy, plus where codes are kept
-INFO.codes.body = (base => () => base() + '<p>Coupons saved to your account are in Account › My coupons, and they’re listed here.</p>')(INFO.codes.body);
+SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail">${info.body()}</div>` }; };
+// The information beside "Coupon or promotional code": the established codes copy under the Figma "Info" title (AP.6)
+INFO.codes.title = 'Info';
 
 /* Sprint 4 prototype: Version 1 (Familiar) traveler details.
    A conventional, explicit structure: one card per traveler with labeled rows for Discount, Assistance and,
@@ -8482,7 +8841,7 @@ function companionCandidates(b, forKey) {
   });
 }
 // Card title as in Figma TR.1 / TR.11: "Traveler 1: adult", "Traveler 1: Alex Rivera"
-const famTitle = t => `Traveler ${t.n}: ${t.type && t.type !== 'pr' && t.short === PAX_LABEL[t.type] ? t.short.toLowerCase() : t.short}`;
+const famTitle = t => `Traveler ${t.n}: ${t.type && t.type !== 'pr' && t.short === PAX_LABEL[t.type] ? t.short.toLowerCase() : /^pr-comp-/.test(t.key) ? t.short.replace('Companion Pass', 'Companion') : t.short}`; // Figma TR.6: "Traveler 1: Companion 1"
 function discountRow(b, t, fromProfile) {
   const it = intentOf(b);
   if (it === 'pr') { // Pass Rider: traveler type instead of a discount (NMA-1017 AC6, NMA-1018 AC7)
@@ -8497,9 +8856,9 @@ function discountRow(b, t, fromProfile) {
   const x = tdiscOf(b, t), opts = discOpts(b, t), fixed = !opts || ['pwd', 'companion'].includes(x);
   const was = b.discReplaced && b.discReplaced[t.key];
   const why = x === 'pwd' ? (profilePwd() && t.key === 'adult-1' && !assistRec(b, t.key).done ? 'Your profile says you have a disability.' : `Applied based on this traveler’s assistance information.${was ? ` It replaced the ${TDISC_LABEL[was] || was} discount.` : ''}`) : x === 'companion' ? 'Set by assistance: personal companion. It replaces other passenger discounts.' : x === 'senior' ? 'Applied automatically for seniors.' : x === 'infant' ? 'Rides on an adult’s, senior’s or young adult’s lap.' : ['infantchild', 'military'].includes(x) && t.type === 'infant' ? 'More infants than adults, seniors and young adults, so this infant takes a seat.' : 'One discount per traveler. Proof may be needed when you travel.';
-  const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From your profile</span>' : '';
+  const lock = t.n === 1 && ((fromProfile && x === b.disc) || (x === 'pwd' && profilePwd() && !assistRec(b, t.key).done)) ? ' <span class="ads-lock">From profile</span>' : '';
   if (fixed) return `<div class="fam-row"><label class="fam-row__label" for="fd-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select is-disabled"><select id="fd-${t.key}" disabled${why ? ` aria-describedby="fd-${t.key}-h"` : ''}><option selected>${TDISC_LABEL[x]}</option></select>${ic('chevron-down')}</div>${why ? `<p class="ads-helper" id="fd-${t.key}-h">${why}</p>` : ''}</div>`; // Figma TR.13 / TR.17: a fixed discount is a disabled Select with its reason below
-  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Select a discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
+  return `<div class="fam-row"><label class="fam-row__label" for="td-${t.key}">Discount${lock}</label><div class="ads-control ads-control--select"><select id="td-${t.key}" data-f="td" data-nodirty data-hook="tdisc" data-key="${t.key}" aria-describedby="td-${t.key}-h">${opts.map(o => `<option value="${o}" ${x === o ? 'selected' : ''}>${o === 'none' ? 'Apply discount' : TDISC_LABEL[o]}</option>`).join('')}</select>${ic('chevron-down')}</div><p class="ads-helper" id="td-${t.key}-h">${why}</p></div>`;
 }
 // Actions sit under the summary they act on
 const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-row"><div class="fam-row__head"><span class="fam-row__label">${label}</span></div>${value ? `<span class="fam-row__value"${id ? ` id="${id}"` : ''}>${value}</span>` : ''}${help ? `<span class="ads-helper">${help}</span>` : ''}${actions ? `<span class="fam-row__acts fam-row__acts--below">${actions}</span>` : ''}</div>`;
@@ -8507,7 +8866,7 @@ const famRow = (label, value, help, id = '', actions = '') => `<div class="fam-r
 function assistanceRow(b, t, r) {
   const a = assistRec(b, t.key), items = asks(b, t.key) && a.done ? assistSummaryItems(a.m) : [];
   const details = items.slice(1).filter(x => x !== 'No other needs').map(esc).join(' · ');
-  const tag = t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From your profile</span>' : '';
+  const tag = t.key === holderKey(b) && a.fromProfile ? ' <span class="ads-lock">From profile</span>' : '';
   const summary = items.length ? `<div class="tassist__saved"><span class="fam-row__label">Assistance${tag}</span><span class="fam-row__value">${esc(items[0])}</span>${details ? `<span class="ads-helper">${details}</span>` : ''}</div>` : '';
   ref('615', '973');
   // Figma TR.8 / TR.17: saved assistance is a List Button (type, details, edit icon); "From profile" sits beside the label
@@ -8713,7 +9072,7 @@ function devicePos() {
 const NEAR_MSG = {
   locating: 'Finding your location',
   loading: 'Finding nearby stations',
-  deniedFirst: { title: 'Location isn’t allowed', body: 'You can still search by name or browse the map.' },
+  deniedFirst: { title: 'Location isn’t enabled', body: 'You can still search by name or browse the map.' },
   denied: { title: 'Location is off for Amtrak', body: 'To see stations near you, allow location in Settings. You can still search by name or browse the map.' },
   servicesOff: { title: 'Location Services are off', ios: 'Turn on Location Services in Settings › Privacy & Security › Location Services. You can still search by name or browse the map.', android: 'Turn on Location in Settings › Location. You can still search by name or browse the map.' },
   unavailable: { title: 'We couldn’t find your location', body: 'Check your connection or move to an open area, then try again. You can still search by name or browse the map.' },
@@ -8849,7 +9208,7 @@ function nearSection(r, ri) {
   else if (n.st === 'none') body = recovery('none', NEAR_MSG.none, btn('near-explore', 'Explore map'));
   else if (n.st === 'results') {
     const approx = n.approx, rows = n.results.map((x, i) => stationRow(ST[x.code], r.p.field, 'near', { mi: x.mi, approx, rank: i + 1 })).join('');
-    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection ss-nearlist"><div class="ads-stationrow__header"><span>Near you · within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
+    body = `<p class="ads-sr-only" role="status">${n.results.length} station${n.results.length > 1 ? 's' : ''} within ${n.radius} miles</p><div class="stsection ss-nearlist"><div class="ads-stationrow__header"><span>Near you • within ${n.radius} mi</span></div>${approx ? `<p class="ss-near__approx">${ic('info-circle', 'ads-icon--sm')}<span>Your location is approximate, so distances are estimates.</span></p>` : ''}<ul class="stlist" aria-label="Stations near you, closest first">${rows}</ul></div>`;
   }
   if (n.st === 'none') snote('Conflict (NMA-1085): the no-nearby-results scenario asks to zoom out to find a station, but the nearby rule caps the search at 150 miles. The prototype stops at 150 miles and offers Explore map instead of searching further. Needs a decision.');
   if (n.st === 'denied-alert') snote('Location denied: the alert can be dismissed (for this session) or Open settings goes to the app’s location settings. If access is still not allowed, the default view shows without the alert.');
@@ -8991,13 +9350,14 @@ function stationCard(code, r, ri, pos) {
 }
 // The sheet footer's Select for the station on the map listing (nothing to select until a station is tapped)
 function mapFoot(r) {
+  if (r.u.view === 'map' && !r.u.mapSel && r.u.mapGroup && loc().map !== 'fail') return `<button class="ads-btn ads-btn--block" type="button" disabled data-k="map-select-off">Select</button>`;
   if (r.u.view !== 'map' || !r.u.mapSel || loc().map === 'fail') return null;
   const s = ST[r.u.mapSel], f = r.p.field, ctx = r.p.ctx || 'ff';
   return `<button class="ads-btn ads-btn--block" type="button" data-a="choose-station" data-code="${s.code}" data-field="${f}" data-k="map-select" aria-label="Select ${esc(s.city)}, ${esc(s.name)} as your ${ctx === 'ts' ? '' : f === 'from' ? 'departure ' : 'arrival '}station">Select</button>`;
 }
 function groupCard(r) {
   const codes = r.u.mapGroup;
-  return `<section class="map-card ads-card" aria-labelledby="map-card-t" id="map-card"><div class="map-card__head"><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${codes.length} stations here</h3><p class="map-card__name">Choose one to see its information.</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station list">${ic('close')}</button></div>${group('', codes.map(c => grow({ a: 'map-pin', data: `data-code="${c}"`, icon: STATION_TYPES[geoOf(c).type].icon, label: `${ST[c].city}, ${ST[c].st}`, value: ST[c].name })))}</section>`;
+  return `<section class="map-card ads-card" aria-labelledby="map-card-t" id="map-card"><div class="map-card__head"><div class="map-card__text"><h3 class="map-card__title" id="map-card-t" tabindex="-1">${codes.length} stations here</h3><p class="map-card__name">Select one.</p></div><button class="ads-icon-btn ads-icon-btn--sm" type="button" data-a="map-unselect" aria-label="Close station list">${ic('close')}</button></div><ul class="stlist map-card__list" aria-label="Stations here">${codes.map(c => { const s = ST[c], saved = D().fav.includes(c); return `<li class="ads-stationrow"><button class="ads-stationrow__select" type="button" data-a="map-pin" data-code="${c}"><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${esc(s.city)}, ${s.st}</span><span class="ads-stationrow__detail">${esc(s.name)}</span></span></button><button class="ads-stationrow__star ss-details" type="button" data-a="map-details" data-code="${c}" aria-label="Details for ${esc(s.city)}, ${esc(s.name)}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${c}" aria-pressed="${saved}" aria-label="Save ${esc(s.city)}, ${s.code}">${ic(saved ? 'bookmark-filled' : 'bookmark')}</button></li>`; }).join('')}</ul></section>`;
 }
 // Interactions: select a marker (tentative), group, zoom, pan, locate, details
 A['map-pin'] = (t, ri) => {
@@ -9176,8 +9536,11 @@ function kbDelete(inp) {
   let s = inp.selectionStart ?? inp.value.length, e = inp.selectionEnd ?? s; if (s === e) { if (!s) return; s--; }
   inp.setRangeText('', s, e, 'end'); inp.dispatchEvent(new Event('input', { bubbles: true }));
 }
+let KB_DLG = false; // the last tap or key press was in a dialog
+document.addEventListener('pointerdown', e => { KB_DLG = !!(e.target.closest && e.target.closest('#device [data-dlg]')); }, true);
+document.addEventListener('keydown', e => { KB_DLG = !!(e.target.closest && e.target.closest('#device [data-dlg]')); }, true);
 document.addEventListener('focusin', e => {
-  if (KB_MUTE || !e.target.matches || !e.target.matches('#device #ss-q') || !kbPane(e.target)) return;
+  if (KB_MUTE || KB_DLG || !e.target.matches || !e.target.matches('#device #ss-q') || !kbPane(e.target)) return;
   const r = kbRouteOf(e.target); if (r && !r.u.kb) setTimeout(() => kbSet(r, true), 0); // after the tap lands
 });
 document.addEventListener('pointerdown', e => {
