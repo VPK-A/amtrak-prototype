@@ -462,7 +462,7 @@ function calendarBody(r, ri, field) {
 function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
 // The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
 function calCard(c) {
-  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : '', placeholder: 'Choose date', icon: 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: !v && k === 'ret' ? 'plus-circle' : 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
   const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
   return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
 }
@@ -726,7 +726,7 @@ function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="assist-about">${infoLink('wheelchair-space', 'About wheelchair space')}</p></fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div><p class="assist-about">${infoLink('wheelchair-space', 'About wheelchair space')}</p>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
@@ -745,7 +745,7 @@ function assistForm(r, ri, o) {
   const nErr = Object.keys(r.u.err || {}).length;
   const errTop = nErr ? `<div class="ads-alert ads-alert--error assist-errsum" role="alert">${ic('alert-diamond', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${nErr === 1 ? '1 answer is missing' : `${nErr} answers are missing`}</p><p class="ads-alert__description ads-body-small">Answer the ${nErr === 1 ? 'question' : 'questions'} marked below to save.</p></div></div>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
-  return `<div class="assistform">${errTop}<div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
+  return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
   if (!m.cat || m.cat === 'none') return [AC.noneSummary];
@@ -1102,6 +1102,7 @@ A['disc-save'] = (t, ri) => {
   r.u.err = {};
   runSave(r, () => { d.discount = { type: x.type, rpa: x.type === 'rpa' ? x.rpa : '' }; d.booking.disc = ['military', 'rpa'].includes(x.type) ? x.type : 'none'; }, () => { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; toast('Discount preference saved'); });
 };
+SCR['pr-policy'] = () => ({ title: 'Pass Rider policy', kind: 'push', backIcon: true, noClose: true, banner: false, body: `<p class="prpolicy">Content pending.</p>`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="back">Done</button>`, footCls: 'ads-actionfooter' }); // placeholder until NMA-1081
 SCR.rules = () => {
   ref('566');
   const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd class="pending">Content pending</dd><dt>Applicable discount</dt><dd class="pending">Content pending</dd><dt>Restrictions</dt><dd class="pending">Content pending</dd></dl></div></details>`;

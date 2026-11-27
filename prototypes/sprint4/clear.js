@@ -249,7 +249,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   else if (pr) {
     ref('1017', '1018', '1081', '1016');
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
-    const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
+    const policy = `<p class="info-entry"><button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="pr-policy">Pass Rider policy</button></p>`; // Figma TR.10: a pushed screen
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
     // Leisure starts selected (decision; NMA-1016 AC2 says neither is preselected). Leisure is the left tab, Business the right.
     const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
@@ -274,10 +274,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', fam && paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
+    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
     // Youth, Child and Infant sit under one "Children and infants" row, collapsed each time Traveler selection opens.
     // Expanding or collapsing only shows or hides the counters; counts are kept and summarised in the header.
-    const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen;
+    const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen || KIDS.some(k => paxErrorFor(p, k)); // a row with an error is never hidden
     const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
     const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
     const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children &amp; infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
@@ -292,7 +292,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).length ? `<div class="ffc-problems" role="alert">${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
       ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }

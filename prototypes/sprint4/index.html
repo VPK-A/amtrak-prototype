@@ -3137,6 +3137,48 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 55px; }
 .ds-next .stinfo-dl dd { text-align: left; }
 
+/* ===== Error styling per Figma (ED.4, AS.4, TR.5, TR.14, VF.3) ===== */
+/* .helper[error]: a 24px alert-diamond, 4px gap, Caption in text-error */
+.ds-next .ads-helper--error { gap: var(--ads-space-4); align-items: center; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-error); }
+.ds-next .ads-helper--error > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); margin-block: -4px; color: var(--ads-content-icon-error); }
+/* Group in error: a 1px border/status-error box around the group (padding 12 / 20) */
+.ds-next .assistform fieldset:has(> .ads-helper--error) { outline: 1px solid var(--ads-border-status-error); outline-offset: var(--ads-space-12); border-radius: 0; }
+/* List in error: the List outline turns border/status-error; a row in error is outlined with its message inside */
+.ds-next .travsel .pr-card:has(~ .ffc-problems), .ds-next .travsel .ffc-counts:has(~ .ffc-problems) { border-color: var(--ads-border-status-error); }
+.ds-next .travsel .ffc-count:has(.fam-counterr) { outline: 1px solid var(--ads-border-status-error); outline-offset: -1px; flex-wrap: wrap; }
+.ds-next .travsel .ffc-count .fam-counterr { flex: 1 0 100%; }
+.ds-next .travsel .ffc-problems { margin-top: 0; }
+/* Dates (Figma DT.3): Save selection keeps the primary look while it waits for a date; the reason is shown above it */
+.ds-next .pane--calx .pane__foot .ads-btn:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary); color: var(--ads-content-text-on-brand); opacity: 1; }
+.prpolicy { margin: 0; font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+
+/* ===== Remaining states pass (FF.6, FF.9, FF.10, ST.19, DT.3, TR.14, TR.19) ===== */
+/* FF.6: a missing station outlines only that half of the station card */
+.ds-next .ads-stationgroup.ads-fieldgroup--error:has(> .ads-fieldgroup__field[aria-invalid="true"]):not(:has(> .ads-fieldgroup__field[aria-invalid="true"] ~ .ads-fieldgroup__field[aria-invalid="true"])) { border-color: var(--ads-border-default); box-shadow: none; outline: 0; }
+.ds-next .ads-stationgroup.ads-fieldgroup--error > .ads-fieldgroup__field[aria-invalid="true"] { outline: 1px solid var(--ads-border-status-error); outline-offset: 0; }
+/* FF.9 / FF.12: booking notices are the Figma Alert: Body text, top accent, square */
+.ds-next .ads-bookingsheet__form > .ads-alert, .ds-next .pane__body > .ads-alert { border: 0; border-top: 3px solid var(--ads-border-status-info, #3483e6); border-radius: 0; padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-12) var(--ads-space-12); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: 1.5; }
+/* FF.10: the booking-type footnote is Body Small */
+.ds-next .ss-note.v1modes__none { font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-secondary); }
+/* ST.19 / ST.23: Cancel is a small underlined link; the Auto Train tag is neutral */
+.ds-next .ss-cancel { font-size: var(--ads-type-body-small-size); font-weight: 400; letter-spacing: 0; text-decoration: underline; padding-inline: var(--ads-space-8) 0; min-width: 0; }
+.ds-next .ads-stationrow__tag.ads-badge { background: var(--ads-background-surface-sunken); color: var(--ads-content-text-primary); border: 0; font-weight: 600; }
+/* DT.3: Save selection keeps its primary colour while a date is still needed */
+.ds-next .pane--calx .pane__foot .ads-btn.ads-btn--block:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary) !important; color: var(--ads-content-text-on-brand) !important; border-color: transparent !important; opacity: 1 !important; }
+/* TR.14: the row error runs full width under the label and counter */
+.ds-next .travsel .ffc-count:has(.fam-counterr) { position: relative; padding-bottom: calc(var(--ads-space-12) + 34px); }
+.ds-next .travsel .ffc-count .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
+.ds-next .travsel .ffc-count .fam-counterr { margin: 0; }
+/* TR.5 / TR.14: the reason is shown beside the list, so the footer copy is for assistive tech only */
+.ds-next .travsel .pane__foot > #trav-why, .ds-next .pane:has(.travsel) .pane__foot > #trav-why { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
+/* TR.19: "From profile" is a square tag */
+.ds-next .travsel .ads-lock { border-radius: var(--ads-radius-2, 2px); font-weight: 600; color: var(--ads-content-text-primary); padding: var(--ads-space-4) var(--ads-space-8); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__content { padding: 0 var(--ads-space-8); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__icon { margin-top: 0; }
+.ds-next .ads-bookingsheet__form > .ads-alert { align-items: flex-start; }
+.ds-next .travsel .ffc-count:has(.fam-counterr) { padding-bottom: calc(var(--ads-space-12) + 40px); }
+
 /* Enhanced station search (NMA-1084 map, NMA-1085 nearby). ADS tokens throughout, except the simulated native
    OS permission prompt and Settings at the end, which imitate iOS and Android on purpose. */
 
@@ -5794,7 +5836,7 @@ function calendarBody(r, ri, field) {
 function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
 // The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
 function calCard(c) {
-  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : '', placeholder: 'Choose date', icon: 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: !v && k === 'ret' ? 'plus-circle' : 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
   const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
   return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
 }
@@ -6058,7 +6100,7 @@ function disBlock(r, x, idp, e) {
   return `<fieldset class="ads-fieldset" ${e.dis ? `aria-describedby="${idp}-dis-err"` : ''}><legend class="ads-field-label">${AC.disLegend} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required, choose at least one)</span></legend><div class="ads-fieldset__options">${DISABILITIES.map(([k, l, s]) => choice('checkbox', `${idp}-dis`, 'dis', k, x.dis.includes(k), l, s, 'data-hook="assist"')).join('')}</div>${e.dis ? `<p class="ads-helper ads-helper--error" id="${idp}-dis-err">${ic('alert-diamond')}<span>${e.dis}</span></p>` : ''}</fieldset>`;
 }
 function wcBlock(r, x, idp, e) {
-  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}<p class="assist-about">${infoLink('wheelchair-space', 'About wheelchair space')}</p></fieldset>`;
+  return `<fieldset class="ads-fieldset ads-fieldset--inline wcq" ${e.wc ? `aria-describedby="${idp}-wc-err"` : ''}><legend class="ads-field-label">${ic('wheelchair-space', 'ads-icon--sm')} ${AC.wcQuestion} <span class="ads-field__marker ads-field__marker--required" aria-hidden="true">*</span><span class="ads-sr-only"> (required)</span></legend><div class="ads-fieldset__options">${choice('radio', `${idp}-wc`, 'wc', 'yes', x.wc === 'yes', 'Yes', '', 'data-hook="assist"')}${choice('radio', `${idp}-wc`, 'wc', 'no', x.wc === 'no', 'No', '', 'data-hook="assist"')}</div><p class="assist-about">${infoLink('wheelchair-space', 'About wheelchair space')}</p>${e.wc ? `<p class="ads-helper ads-helper--error" id="${idp}-wc-err">${ic('alert-diamond')}<span>${e.wc}</span></p>` : ''}</fieldset>`;
 }
 // One-page form (V1 and V3)
 function assistForm(r, ri, o) {
@@ -6077,7 +6119,7 @@ function assistForm(r, ri, o) {
   const nErr = Object.keys(r.u.err || {}).length;
   const errTop = nErr ? `<div class="ads-alert ads-alert--error assist-errsum" role="alert">${ic('alert-diamond', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${nErr === 1 ? '1 answer is missing' : `${nErr} answers are missing`}</p><p class="ads-alert__description ads-body-small">Answer the ${nErr === 1 ? 'question' : 'questions'} marked below to save.</p></div></div>` : '';
   const note = r.u.assistNote ? `<div class="ads-alert ads-alert--info">${ic('info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description ads-body-small">${esc(r.u.assistNote)}</p></div></div>` : '';
-  return `<div class="assistform">${errTop}<div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
+  return `<div class="assistform"><div class="assist-live" role="status" aria-live="polite">${note}</div>${catBlock(r, x, idp, o.mode, e, branch)}</div>`;
 }
 function assistSummaryItems(m) {
   if (!m.cat || m.cat === 'none') return [AC.noneSummary];
@@ -6434,6 +6476,7 @@ A['disc-save'] = (t, ri) => {
   r.u.err = {};
   runSave(r, () => { d.discount = { type: x.type, rpa: x.type === 'rpa' ? x.rpa : '' }; d.booking.disc = ['military', 'rpa'].includes(x.type) ? x.type : 'none'; }, () => { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; toast('Discount preference saved'); });
 };
+SCR['pr-policy'] = () => ({ title: 'Pass Rider policy', kind: 'push', backIcon: true, noClose: true, banner: false, body: `<p class="prpolicy">Content pending.</p>`, foot: `<button class="ads-btn ads-btn--block" type="button" data-a="back">Done</button>`, footCls: 'ads-actionfooter' }); // placeholder until NMA-1081
 SCR.rules = () => {
   ref('566');
   const item = n => `<details class="ads-accordion ads-accordion--sm"><summary>${n}${ic('chevron-down')}</summary><div class="ads-accordion__panel"><dl class="rules"><dt>Age criteria</dt><dd class="pending">Content pending</dd><dt>Applicable discount</dt><dd class="pending">Content pending</dd><dt>Restrictions</dt><dd class="pending">Content pending</dd></dl></div></details>`;
@@ -6830,7 +6873,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
   else if (pr) {
     ref('1017', '1018', '1081', '1016');
     const f = b.prPax, room = prCount(b) < MAX_PAX, left = d.passrider.compLeft, picked = prPicked(b);
-    const policy = `<p class="info-entry">${infoLink('pr-policy', 'Pass Rider policy')}</p>`;
+    const policy = `<p class="info-entry"><button class="ads-link ads-link--sm linkbtn" type="button" data-a="push" data-s="pr-policy">Pass Rider policy</button></p>`; // Figma TR.10: a pushed screen
     // Business or Leisure (NMA-1016): tabs at the top of Traveler selection for employees with a Business Pass.
     // Leisure starts selected (decision; NMA-1016 AC2 says neither is preselected). Leisure is the left tab, Business the right.
     const elig = d.passrider.role === 'employee' && d.passrider.business, t0 = b.prType, inDd = prTypeInDropdown();
@@ -6855,10 +6898,10 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     } else {
     const p = b.pax, seated = paxSeated(p), probs = paxProblems(p);
     ok = !probs.length;
-    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', fam && paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
+    const row = ([k, l, ages]) => counter(k, l, `${ages}`, p[k], p[k] > 0, canAdd(p, k), 'std', paxErrorFor(p, k) ? `<span class="ads-helper ads-helper--error fam-counterr">${ic('alert-diamond')}<span>${paxErrorFor(p, k)}</span></span>` : '', k === 'youth' ? ` · <button class="ads-link ads-link--sm ffc-inlinelink" type="button" data-a="youth-alone">Traveling alone?</button>` : '');
     // Youth, Child and Infant sit under one "Children and infants" row, collapsed each time Traveler selection opens.
     // Expanding or collapsing only shows or hides the counters; counts are kept and summarised in the header.
-    const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen;
+    const KIDS = ['youth', 'child', 'infant'], kidsOpen = !!r.u.kidsOpen || KIDS.some(k => paxErrorFor(p, k)); // a row with an error is never hidden
     const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
     const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
     const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children &amp; infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
@@ -6873,7 +6916,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).length ? `<div class="ffc-problems" role="alert">${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
       ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
