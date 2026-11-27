@@ -566,6 +566,52 @@
 
 /* ===== Gallery QA ST: Station search (Sprint 4 gallery, 2026-11) ===== */
 /* ST-begin */
+/* Station search list (Figma ST.1–ST.24): 17px above the search field, 62px rows, From / To group proportions */
+.ds-next .ss-upd:not(.ss-upd--map) .ss-views { margin-bottom: 26px; }
+.ds-next .ss-upd .ss-top { padding-bottom: 23px; }
+.ds-next .ss-upd.is-kb .ss-top { padding-bottom: 22px; }
+.ds-next .ss-upd .ss-top .ss-group { margin-bottom: 1px; } /* with the 16px stack gap: 17px to the search field */
+.ds-next .ss-upd .ss-group .ads-fieldgroup__field { padding-top: var(--ads-space-8); padding-bottom: var(--ads-space-8); min-height: 71px; box-sizing: border-box; justify-content: flex-start; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__label + * { margin-top: 1px; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__placeholder { position: relative; top: 2px; }
+.ds-next .ss-upd .ss-group .ads-stationgroup__facility { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ss-head--c .ss-head__title { position: relative; top: -2px; }
+/* Same station in From and To (ST.6): the group turns red, with the message under it; no field keeps the blue outline */
+.ds-next .ss-upd .ss-group--error { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error::before { background: var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error .ads-fieldgroup__field[aria-current="true"] { outline: 0; }
+.ds-next .ss-sameerr { display: flex; align-items: center; gap: var(--ads-space-4); margin: -9px 0 0; padding-left: 2px; min-height: 15px; color: var(--ads-content-text-error); font-size: var(--ads-type-caption-size); line-height: 15px; }
+.ds-next .ss-sameerr .ads-icon { flex: none; width: 20px; height: 20px; margin: -3px 0; color: var(--ads-content-icon-error); }
+/* Search field: label-coloured prompt, 12px after the icon; dark Clear icon */
+.ds-next .ss-upd .ss-search--sq #ss-q { margin-left: var(--ads-space-4); }
+.ds-next .ss-upd .ss-search--sq #ss-q::placeholder { color: var(--ads-content-text-primary); opacity: 1; }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear { color: var(--ads-content-icon-primary); }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear .ads-icon { width: 24px; height: 24px; }
+/* Typing (ST.23, ST.24): wider field, neutral search icon, small Cancel link */
+.ds-next .ss-upd.is-kb .ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-secondary); }
+.ds-next .ss-upd .ss-search--sq:has(.ss-cancel) { gap: var(--ads-space-12); }
+.ds-next .ss-upd .ss-search--sq .ss-cancel { padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); text-decoration: underline; }
+/* Rows: 62px pitch, city and station 21px apart, icons 40px apart */
+.ds-next .ss-upd .ads-stationrow__select, .ds-next .map-card__list .ads-stationrow__select { min-height: 61px; padding-top: var(--ads-space-12); padding-bottom: var(--ads-space-12); gap: 10px; box-sizing: border-box; }
+.ds-next .ss-upd .ads-stationrow__text, .ds-next .map-card__list .ads-stationrow__text { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.ds-next .ss-upd .ads-stationrow__tag.ads-badge { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ads-stationrow__select:has(.ads-stationrow__tag) { padding-bottom: 15px; }
+.ds-next .ss-upd .ads-stationrow__select:has(.ss-dist) { padding-bottom: 14px; }
+.ds-next .ss-upd .ss-dist { color: var(--ads-content-text-secondary); font-weight: var(--ads-font-weight-regular); }
+.ds-next .ss-upd .ads-stationrow__star, .ds-next .map-card__list .ads-stationrow__star { width: 40px; min-width: 40px; padding-inline: 0; }
+.ds-next .ss-upd .ads-stationrow__star:last-child { margin-right: var(--ads-space-12); }
+/* A station that can't be chosen (ST.20): on the page surface, dimmed code and Details */
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled), .ds-next .ss-upd .ads-stationrow__select:disabled { background: transparent; }
+.ds-next .ss-upd .ads-stationrow__select:disabled :is(.ads-stationrow__code, .ads-stationrow__name) { opacity: 1; color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow__select:disabled .ads-stationrow__detail { color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled) .ss-details { color: var(--ads-color-neutral-500); }
+/* Full list (ST.7), helper under Saved (ST.9), no results (ST.3) */
+.ds-next .ss-upd .ss-allhead { margin-inline: var(--ads-space-20); color: var(--ads-content-text-secondary); }
+.ds-next .ss-upd .ss-allhead ~ .stlist .ads-stationrow__star[aria-pressed="false"] { color: var(--ads-content-icon-brand); }
+.ds-next .ss-savehint { margin: var(--ads-space-12) 0 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.5; }
+.ds-next .ss-upd .ss-empty { gap: 0; padding: var(--ads-space-16) var(--ads-space-8); }
+.ds-next .ss-upd .ss-empty b { font-weight: var(--ads-font-weight-semibold); }
+.ds-next .ss-upd .ss-empty span { max-width: 290px; margin-inline: auto; line-height: 20px; }
 /* ST-end */
 
 /* . */
