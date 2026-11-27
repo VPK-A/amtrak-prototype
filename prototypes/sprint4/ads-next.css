@@ -507,7 +507,7 @@
 .ds-next .pane--calx .pane__foot .ads-btn.ads-btn--block:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary) !important; color: var(--ads-content-text-on-brand) !important; border-color: transparent !important; opacity: 1 !important; }
 /* TR.14: the row error runs full width under the label and counter */
 .ds-next .travsel .ffc-count:has(.fam-counterr) { position: relative; padding-bottom: calc(var(--ads-space-12) + 34px); }
-.ds-next .travsel .ffc-count .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
+.ds-next .travsel .ffc-count:has(.fam-counterr) .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
 .ds-next .travsel .ffc-count .fam-counterr { margin: 0; }
 /* TR.5 / TR.14: the reason is shown beside the list, so the footer copy is for assistive tech only */
 .ds-next .travsel .pane__foot > #trav-why, .ds-next .pane:has(.travsel) .pane__foot > #trav-why { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
@@ -517,3 +517,359 @@
 .ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__icon { margin-top: 0; }
 .ds-next .ads-bookingsheet__form > .ads-alert { align-items: flex-start; }
 .ds-next .travsel .ffc-count:has(.fam-counterr) { padding-bottom: calc(var(--ads-space-12) + 40px); }
+
+
+/* ===== Gallery QA SHARED: shared components: toasts, sheets, alerts, select rows, error borders (Sprint 4 gallery, 2026-11) ===== */
+/* SHARED-begin */
+/* Toast (Figma ST.9, ST.10, ST.12, FF.8, PF.2, PF.5): brand-blue panel, 40px, radius/4, 20px white icon, 13px text.
+   It sits 24px above the bottom edge, or 24px above a sticky footer or the tab bar (placeToast in interact.js). */
+.ds-next .toast-wrap, .ds-next .sheet-layer ~ .toast-wrap, .ds-next .cover-layer ~ .toast-wrap, .ds-next.device--ipad .toast-wrap, .ds-next.device--iphone.device--landscape .toast-wrap { bottom: 24px; }
+.ds-next .ads-toast { min-height: 40px; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-16); border-radius: var(--ads-radius-4); background: var(--ads-color-blue-700); color: var(--ads-content-text-on-brand); box-shadow: var(--ads-shadow-elevation-md); font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next .ads-toast .ads-icon, .ds-next .ads-toast--success .ads-icon { width: 20px; height: 20px; color: var(--ads-content-icon-on-brand); }
+.ds-next .ads-toast--busy .ads-icon { animation: ads-toast-spin 0.9s linear infinite; }
+@keyframes ads-toast-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ds-next .ads-toast--busy .ads-icon { animation: none; } }
+
+/* Info sheets (Figma AP.4, AP.6, CP.4, ST.21, ST.22, TR.15): the warm page surface, so the round white Close button
+   (36px, shadow) in the header reads on every sheet */
+.ds-next .info-sheet { background: var(--ads-background-surface-page); }
+.ds-next.device .info-sheet .info-head .ads-icon-btn--round::before { content: ""; }
+
+/* Alerts (Figma FF.9, FF.12, AP.7, AS.8, VF.3–VF.7, ST.14, TR.4): a flat banner. 4px top border in the status colour,
+   no side or bottom border, square corners, status-subtle fill, 24px icon on the first text line, body-size text. */
+.ds-next.device .ads-alert, .ds-next .ads-bookingsheet__form > .ads-alert, .ds-next .pane__body > .ads-alert { align-items: flex-start; padding: 0 var(--ads-space-8) 0 var(--ads-space-12); border: 0; border-top: 4px solid var(--_border); border-radius: 0; }
+.ds-next.device .ads-alert .ads-alert__icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); margin-top: var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__content { gap: 0; padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-12) var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__title { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__content > div:has(> .ads-btn) { margin-top: var(--ads-space-8); }
+/* A close X sits level with the first text line */
+.ds-next.device .ads-alert > .ads-icon-btn { flex: none; margin-top: 2px; color: var(--ads-content-icon-primary); }
+.ds-next.device .ads-alert > .ads-icon-btn .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+/* A link action inside an alert is a small underlined link (Figma AP.7 "Reload", ST.14 "Open settings") */
+.ds-next.device .ads-alert .linkbtn { min-height: 0; margin-top: 0; font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next.device .ads-alert .ads-alert__description .ads-link { font-size: inherit; }
+/* The web verification pages float the banner on a soft shadow (Figma VF.3–VF.7) */
+.ds-next .b2c .ads-alert { box-shadow: var(--ads-shadow-elevation-sm); }
+/* Traveler limit (Figma TR.4, TR.16): the warning sits at the top of the Travelers screen */
+.ds-next .trav-limit { margin-bottom: var(--ads-space-8); }
+
+/* Apply code, coupons couldn't load (Figma AP.7): three solid blocks stand in for the coupons */
+.apc-skels { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-skel { height: 136px; border-radius: var(--ads-radius-8); background: var(--ads-color-neutral-200); }
+
+/* Select rows with a supporting line (Figma FF.17, FF.18): 55px tall, 11px supporting line */
+.ds-next .ads-selectrow__btn:has(.ads-selectrow__sub) { padding-block: var(--ads-space-8); }
+.ds-next .ads-selectrow__sub { font-size: var(--ads-type-caption-size); line-height: 1.3; }
+
+/* Field errors: a 1px border in the status-error colour (Figma FF.4, FF.5, AP.3, DS.2), not border + inner ring */
+.ds-next .ads-fieldgroup--error { box-shadow: none; }
+/* Both stations missing: the group's own 1px border carries the error, without a second ring on each half */
+.ds-next .ads-stationgroup.ads-fieldgroup--error:has(> .ads-fieldgroup__field[aria-invalid="true"] ~ .ads-fieldgroup__field[aria-invalid="true"]) > .ads-fieldgroup__field[aria-invalid="true"] { outline: 0; }
+.ds-next .ads-selectrow__btn[aria-invalid="true"] { box-shadow: none; }
+.ds-next .ads-control--error:focus-within { --_border-w: 1px; }
+.ds-next .ads-codeinput--error .ads-codeinput__cell { box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+
+/* "Send new code" on the verification pages (Figma VF.2, VF.4): a plain underlined link, no button chrome */
+.ds-next .b2c__resend { appearance: none; -webkit-appearance: none; min-height: var(--ads-space-24); margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: inherit; font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
+.ds-next .b2c__resend:hover { color: var(--ads-content-text-link-hover); }
+.ds-next .b2c__resend:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+/* SHARED-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA FF: Fare Finder (Sprint 4 gallery, 2026-11) ===== */
+/* FF-begin */
+/* New booking (.pane--nb) only. Positions measured against the Figma exports FF.1–FF.32 (390 x 844). */
+/* Station card: both halves 72px whether empty or filled; label 3px higher, value 8px under the label; the city and
+   station-name lines sit 4px apart and no longer make a filled card taller */
+.ds-next .pane--nb .ads-stationgroup .ads-fieldgroup__field { box-sizing: border-box; min-height: 72px; padding-top: 9px; gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-stationgroup__value { height: 25px; min-height: 0; }
+.ds-next .pane--nb .ads-stationgroup__lines { gap: var(--ads-space-4); }
+/* A station that's missing: the prompt turns primary; error lines sit 28px apart */
+.ds-next .pane--nb .ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__placeholder { color: var(--ads-content-text-primary); }
+.ds-next .pane--nb .ads-fieldwrap > .ads-stationgroup + .ads-helper--error { margin-top: -2px; }
+.ds-next .pane--nb .ads-fieldwrap > .ads-helper--error + .ads-helper--error { margin-top: 3px; }
+/* Date card: 81px; label and date 3px higher, the weekday line 4px further from the date */
+.ds-next .pane--nb .ads-dategroup .ads-fieldgroup__field { padding-top: 9px; padding-bottom: 9px; }
+.ds-next .pane--nb .ads-dategroup__sub { margin-top: 2px; }
+/* Travelers label 25px under the date card; code label 25px under the Travelers row */
+.ds-next .pane--nb .ads-fieldwrap + .ads-selectrow { margin-top: -3px; }
+.ds-next .pane--nb .ads-selectrow + .ads-selectrow { margin-top: -2px; }
+.ds-next .pane--nb .ads-selectrow.dcode .ads-selectrow__label { margin-bottom: -3px; }
+/* Booking-mode switch (Pass Rider, TripLink): 56px row, description on a 20px line, 5px closer to the tabs and
+   6px closer to the stations; the text column ends 8px before the switch (here and in the footer) */
+.ds-next .pane--nb .v1modes--switch { margin-top: -5px; margin-bottom: -6px; }
+.ds-next .pane--nb .v1modes--switch .ads-pointsrow { min-height: 56px; }
+.ds-next .pane--nb .ads-pointsrow { gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-pointsrow__sub { line-height: 20px; }
+/* Note under Travelers when points, discounts and codes aren't used */
+.ds-next .pane--nb .ss-note.v1modes__none { margin-top: -6px; line-height: 20px; }
+/* FF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA ST: Station search (Sprint 4 gallery, 2026-11) ===== */
+/* ST-begin */
+/* Station search list (Figma ST.1–ST.24): 17px above the search field, 62px rows, From / To group proportions */
+.ds-next .ss-upd:not(.ss-upd--map) .ss-views { margin-bottom: 26px; }
+.ds-next .ss-upd .ss-top { padding-bottom: 23px; }
+.ds-next .ss-upd.is-kb .ss-top { padding-bottom: 22px; }
+.ds-next .ss-upd .ss-top .ss-group { margin-bottom: 1px; } /* with the 16px stack gap: 17px to the search field */
+.ds-next .ss-upd .ss-group .ads-fieldgroup__field { padding-top: var(--ads-space-8); padding-bottom: var(--ads-space-8); min-height: 71px; box-sizing: border-box; justify-content: flex-start; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__label + * { margin-top: 1px; }
+.ds-next .ss-upd .ss-group .ads-fieldgroup__placeholder { position: relative; top: 2px; }
+.ds-next .ss-upd .ss-group .ads-stationgroup__facility { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ss-head--c .ss-head__title { position: relative; top: -2px; }
+/* Same station in From and To (ST.6): the group turns red, with the message under it; no field keeps the blue outline */
+.ds-next .ss-upd .ss-group--error { border-color: var(--ads-border-status-error); box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error::before { background: var(--ads-border-status-error); }
+.ds-next .ss-upd .ss-group--error .ads-fieldgroup__field[aria-current="true"] { outline: 0; }
+.ds-next .ss-sameerr { display: flex; align-items: center; gap: var(--ads-space-4); margin: -9px 0 0; padding-left: 2px; min-height: 15px; color: var(--ads-content-text-error); font-size: var(--ads-type-caption-size); line-height: 15px; }
+.ds-next .ss-sameerr .ads-icon { flex: none; width: 20px; height: 20px; margin: -3px 0; color: var(--ads-content-icon-error); }
+/* Search field: label-coloured prompt, 12px after the icon; dark Clear icon */
+.ds-next .ss-upd .ss-search--sq #ss-q { margin-left: var(--ads-space-4); }
+.ds-next .ss-upd .ss-search--sq #ss-q::placeholder { color: var(--ads-content-text-primary); opacity: 1; }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear { color: var(--ads-content-icon-primary); }
+.ds-next .ss-upd .ss-search--sq .ads-control__clear .ads-icon { width: 24px; height: 24px; }
+/* Typing (ST.23, ST.24): wider field, neutral search icon, small Cancel link */
+.ds-next .ss-upd.is-kb .ss-search--sq .ads-control > .ads-icon { color: var(--ads-content-icon-secondary); }
+.ds-next .ss-upd .ss-search--sq:has(.ss-cancel) { gap: var(--ads-space-12); }
+.ds-next .ss-upd .ss-search--sq .ss-cancel { padding: 0; font-size: var(--ads-type-body-small-size); font-weight: var(--ads-font-weight-regular); text-decoration: underline; }
+/* Rows: 62px pitch, city and station 21px apart, icons 40px apart */
+.ds-next .ss-upd .ads-stationrow__select, .ds-next .map-card__list .ads-stationrow__select { min-height: 61px; padding-top: var(--ads-space-12); padding-bottom: var(--ads-space-12); gap: 10px; box-sizing: border-box; }
+.ds-next .ss-upd .ads-stationrow__text, .ds-next .map-card__list .ads-stationrow__text { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.ds-next .ss-upd .ads-stationrow__tag.ads-badge { margin-top: var(--ads-space-4); }
+.ds-next .ss-upd .ads-stationrow__select:has(.ads-stationrow__tag) { padding-bottom: 15px; }
+.ds-next .ss-upd .ads-stationrow__select:has(.ss-dist) { padding-bottom: 14px; }
+.ds-next .ss-upd .ss-dist { color: var(--ads-content-text-secondary); font-weight: var(--ads-font-weight-regular); }
+.ds-next .ss-upd .ads-stationrow__star, .ds-next .map-card__list .ads-stationrow__star { width: 40px; min-width: 40px; padding-inline: 0; }
+.ds-next .ss-upd .ads-stationrow__star:last-child { margin-right: var(--ads-space-12); }
+/* A station that can't be chosen (ST.20): on the page surface, dimmed code and Details */
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled), .ds-next .ss-upd .ads-stationrow__select:disabled { background: transparent; }
+.ds-next .ss-upd .ads-stationrow__select:disabled :is(.ads-stationrow__code, .ads-stationrow__name) { opacity: 1; color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow__select:disabled .ads-stationrow__detail { color: var(--ads-color-neutral-500); }
+.ds-next .ss-upd .ads-stationrow:has(> .ads-stationrow__select:disabled) .ss-details { color: var(--ads-color-neutral-500); }
+/* Full list (ST.7), helper under Saved (ST.9), no results (ST.3) */
+.ds-next .ss-upd .ss-allhead { margin-inline: var(--ads-space-20); color: var(--ads-content-text-secondary); }
+.ds-next .ss-upd .ss-allhead ~ .stlist .ads-stationrow__star[aria-pressed="false"] { color: var(--ads-content-icon-brand); }
+.ds-next .ss-savehint { margin: var(--ads-space-12) 0 0; color: var(--ads-content-text-secondary); font-size: var(--ads-type-caption-size); line-height: 1.5; }
+.ds-next .ss-upd .ss-empty { gap: 0; padding: var(--ads-space-16) var(--ads-space-8); }
+.ds-next .ss-upd .ss-empty b { font-weight: var(--ads-font-weight-semibold); }
+.ds-next .ss-upd .ss-empty span { max-width: 290px; margin-inline: auto; line-height: 20px; }
+/* ST-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA DT: Dates, Apply code, My coupons, Passenger discounts (Sprint 4 gallery, 2026-11) ===== */
+/* DT-begin */
+/* --- Dates (DT.1–DT.8): date card, weekday row, months, footer helper --- */
+/* Date card: 79px tall; the active field carries its 2px outline inside the layout (83px when it also has a weekday line) */
+.ds-next .calx-group .ads-fieldgroup__field { min-height: 77px; padding: 8px var(--ads-space-12) 9px; gap: 5px; }
+.ds-next .calx-group .ads-fieldgroup__field[aria-current="true"],
+.ds-next .calx-group:has(.ads-fieldgroup__field[aria-current="true"] .ads-dategroup__sub) .ads-fieldgroup__field { padding: 10px 14px 11px; }
+.ds-next .calx-group .ads-dategroup__sub { margin-top: 1px; }
+.ds-next .pane--calx .calx-head { gap: 13px; }
+/* Day columns are 4px wider on each side than the 350px card; the weekday rule keeps the card's width */
+.ds-next .pane--calx .calx-head .ads-calendar__weekdays { margin-inline: -4px; border-bottom: 0; background: linear-gradient(var(--ads-border-subtle), var(--ads-border-subtle)) no-repeat 4px 100% / calc(100% - 8px) 1px, var(--ads-background-surface-page); }
+.ds-next .pane--calx .calx .ads-calendar__grid { margin-inline: -4px; }
+.ds-next .pane--calx .calx { gap: 19px; }
+.ds-next .pane--calx .calx .ads-calendar__month h3 { margin-bottom: 9px; }
+.ds-next .pane--calx .calx .ads-calendar__month:first-of-type h3 { margin-top: 8px; }
+/* Footer with the "Choose a … date." helper (DT.3/DT.5/DT.6): 44px from the top rule to the button */
+.ds-next .pane--calx .pane__foot.ads-actionfooter:has(> .ads-helper) { padding-top: 13px; }
+.ds-next .pane--calx .pane__foot.ads-actionfooter > .ads-helper { margin-bottom: -3px; }
+
+/* --- Apply code (AP.1–AP.8) --- */
+.ds-next .pane--apc .pane__body { gap: 19px; }
+.ds-next .psheet .pane.pane--apc:not(.pane--sheet):not(.pane--fl):has(> .ads-navbar) > .pane__scroll > .pane__body:not(:has(> .travsel)) { padding-top: 9px; }
+.ds-next .pane--apc .apc-field > .apc-label { margin-bottom: -3px; }
+.ds-next .pane--apc .apc-field > .ads-helper { margin-top: -1px; }
+.ds-next .pane--apc .apc-labelinfo { margin-right: 0; }
+.ds-next .pane--apc .apc-info { margin-right: 10px; }
+.ds-next .pane--apc .apc-h { margin-bottom: -8px; }
+/* AP.2: the clear button is there as soon as the field has text (hidden only while the placeholder shows) */
+.ds-next .pane--apc .apc-field input:placeholder-shown ~ .apc-clear { display: none; }
+.ds-next .pane--apc [data-a="apc-clear"] { color: var(--ads-content-icon-secondary); }
+/* AP.5: the picked coupon's row (blue-100) */
+.ds-next .apc-row.is-selected { background: var(--ads-background-interactive-secondary-active); }
+.ds-next :is(.apc-list, .cpl-list) { box-shadow: var(--ads-shadow-elevation-xs); }
+/* AP.8: "None saved" fills the space down to the footer, centred */
+.ds-next .pane--apc .pane__scroll:has(.apc-empty) { display: flex; flex-direction: column; }
+.ds-next .pane--apc .pane__body:has(.apc-empty) { flex: 1 0 auto; }
+.ds-next .pane--apc .pane__body:has(.apc-empty) > .apc-yours { flex: 1 0 auto; }
+.ds-next .apc-empty { flex: 1 0 auto; min-height: 160px; justify-content: center; align-items: center; gap: var(--ads-space-2, 2px); border-style: solid; border-color: var(--ads-border-subtle); background: transparent; text-align: center; }
+.ds-next .apc-empty .ads-summary__title { margin: 0; color: var(--ads-content-text-primary); font-size: var(--ads-type-body-size); font-weight: var(--ads-font-weight-semibold); line-height: 1.3; }
+.ds-next .apc-empty .ads-body-small { margin: 0; color: var(--ads-content-text-secondary); }
+/* AP.4 / CP.4 coupon details: tighter rows, footnote in the primary text colour */
+.ds-next .cpn-dl--end { row-gap: 6px; }
+.ds-next :not(.apc-detail) > .cpn-dl__name { margin-bottom: 3px; }
+.ds-next .cpn-dl ~ .info-draft { color: var(--ads-content-text-primary); }
+
+/* --- My coupons (CP.1, CP.5) --- */
+.ds-next .pane--cpn .cpn-h { margin-bottom: -5px; }
+.ds-next .pane--cpn .cpl { padding: 11px 10px 12px var(--ads-space-20); }
+.ds-next .pane--cpn .cpn-avail + .cpn-acc { margin-top: 2px; }
+.ds-next .pane--cpn .cpn-acc__head { min-height: 56px; }
+.ds-next .pane--cpn .cpn-acc__panel { padding-top: 1px; }
+
+/* --- Passenger discounts (DS.1, DS.2) --- */
+.ds-next .ads-fieldset:has(input[name="disc"]) > .ads-field-label { margin-bottom: 1px; }
+.ds-next .pane--ed .ads-fieldset:has(input[name="disc"]) .ads-fieldset__options > .ads-choice .ads-choice__supporting { margin-top: 4px; }
+.ds-next .pane--ed .ads-fieldset:has(input[name="disc"]) .ads-fieldset__options > .ads-choice:has(.ads-choice__supporting) { margin-bottom: -6px; }
+.ds-next .ads-fieldset:has(input[name="disc"]) { margin-bottom: 2px; }
+/* DS.2: Membership ID sits a full step below the option's helper; the required asterisk reads as part of the label */
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield { margin-top: var(--ads-space-12); margin-bottom: var(--ads-space-4); }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-helper--error { margin-top: -4px; }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-field__label { gap: 0; }
+.ds-next .ads-fieldset:has(input[name="disc"]) .condfield .ads-field__marker--required { margin: 0; padding: 0; color: inherit; font-size: inherit; font-weight: inherit; }
+/* DT-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA TR: Travelers (Sprint 4 gallery, 2026-11) ===== */
+/* TR-begin */
+/* TR.22: a counter's plain reason ("No companion passes left this year.") stays in its row, under the sub-line
+   (only a row error is laid out across the row: see the TR.14 rule above) */
+.ds-next .travsel .ffc-count__why:not(:has(.fam-counterr)) { display: block; font-size: var(--ads-type-caption-size); line-height: 1.5; text-box: trim-both cap alphabetic; }
+/* TR.16 / TR.22: a counter that can't change is disabled as a whole (border/disabled, disabled fill, grey value) */
+.ds-next .travsel .ffc-count.is-disabled .ads-counter { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); }
+.ds-next .travsel .ffc-count.is-disabled .ads-counter__value { color: var(--ads-content-text-disabled); }
+/* TR.9: "Opening questions" takes the place of Add assistance as a secondary button, Cancel 20px below it */
+.ds-next .travsel .tassist__acts:has(> .ffassist__busy) { gap: var(--ads-space-20); }
+.ds-next .travsel .tassist__acts > .ffassist__busy { gap: var(--ads-space-8); pointer-events: none; cursor: default; }
+/* TR.12 / TR.14: Children & infants open: no rule under the header, rows separated by rules inset to the content */
+.ds-next .travsel .ffc-kids[aria-expanded="true"] { border-bottom: 0; }
+.ds-next .travsel .ffc-kids .ffc-kids__chev { color: var(--ads-content-icon-primary); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count { position: relative; border-bottom: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count + .ffc-count::before { content: ""; position: absolute; top: 0; left: var(--ads-space-12); right: var(--ads-space-12); border-top: 1px solid var(--ads-border-subtle); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:first-child { padding-top: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr)::before, .ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr) + .ffc-count::before { content: none; }
+.ds-next .travsel .ffc-kids__rows { padding-bottom: var(--ads-space-16); }
+.ds-next .travsel .ffc-count__sub .ffc-inlinelink { margin-left: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+/* R6: saved assistance is the 56px List Button; the "From profile" tag is Body Small Emphasis */
+.ds-next .travsel .tassist__card { box-sizing: border-box; min-height: 56px; padding: var(--ads-space-12); }
+.ds-next .travsel .tassist__cardlines { gap: var(--ads-space-8); }
+.ds-next .travsel .tassist__head .ads-lock { font-size: var(--ads-type-body-small-size); line-height: 1.2; }
+/* R3: a disabled Select keeps readable grey-brown text and an even 1px border */
+.ds-next .travsel .ads-control--select.is-disabled { box-shadow: none; border: 1px solid var(--ads-border-disabled); }
+.ds-next .travsel .ads-control--select.is-disabled select { color: var(--ads-content-text-disabled); opacity: 1; -webkit-text-fill-color: currentColor; }
+/* TR.5–TR.7: the list error sits space/8 under the outlined card */
+.ds-next .travsel .ffc-problems { margin-top: calc(-1 * var(--ads-space-4)); }
+/* R7: a one-line helper under a Select is trimmed like the rest (no 16px minimum), so the rule sits space/12 below it */
+.ds-next .travsel .fam-row > .ads-helper:not(.ads-helper--error) { min-height: 0; }
+/* TR.10: policy text starts 20px under the header */
+.ds-next .pane__body > .prpolicy { padding-top: var(--ads-space-4); }
+/* TR-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA AS: Assistance (Sprint 4 gallery, 2026-11) ===== */
+/* AS-begin */
+/* Branch card (Figma AS.2): first legend 8px under the chosen type, groups 14px apart, the card ends 24px under the last link's centre */
+.ds-next .assist-opt > .assist-branch { margin-top: var(--ads-space-8); gap: 14px; }
+.ds-next .assist-opt.is-selected { padding-bottom: 14px; }
+.ds-next .assist-opt.is-selected + .assist-opt { margin-top: 0; }
+.ds-next .assist-branch .ads-fieldset > .ads-field-label { margin-bottom: 1px; }
+/* Other needs (Figma AS.2): the About link sits close under the hint; need rows repeat about every 97px */
+.ds-next .assist-about { margin: 7px 0 0 10px; line-height: 0; }
+.ds-next .assist-about .ads-link { position: relative; display: inline-block; min-height: 0; height: auto; padding: 0; margin: 0; font-size: 13px; line-height: 18px; }
+.ds-next .assist-about .ads-link::after { content: ""; position: absolute; inset: -6px 0; }
+.ds-next .wcq .assist-about { margin: 0; }
+.ds-next .wcq > .ads-field-label { margin-bottom: 3px; }
+/* Station note (Figma AS.7): plain Caption text at the bottom of the card */
+.ds-next .assist-note { margin: var(--ads-space-8) 0 0; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+/* Disabled type (Figma AS.1): its hint is greyed with the label */
+.ds-next .assistform .assist-opt .ads-choice:has(input:disabled) .ads-choice__supporting { color: var(--ads-content-text-disabled); }
+/* Group in error (Figma AS.4, AS.5): a 1px border/status-error box flush with the card, drawn as the group's own border.
+   The legend floats so it sits inside the border like any other line. */
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) { outline: 0; margin: -2px calc(-1 * var(--ads-space-16) - 1px) 0 calc(-1 * var(--ads-space-20) - 1px); padding: 14px var(--ads-space-16) 15px var(--ads-space-20); border: 1px solid var(--ads-border-status-error); border-radius: 0; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error):first-child { margin-top: -7px; padding-top: 6px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend { float: left; width: 100%; margin-bottom: -7px; }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) > legend { margin-bottom: -4px; }
+.ds-next .assistform .assist-branch > fieldset:has(> .ads-helper--error) > legend + * { clear: both; }
+.ds-next .assistform .assist-branch > fieldset > .ads-helper--error { margin-top: var(--ads-space-12); }
+.ds-next .assistform .assist-branch > fieldset.wcq:has(> .ads-helper--error) { padding-bottom: 11px; }
+.ds-next .assistform .assist-branch > fieldset.wcq > .ads-helper--error { margin-top: var(--ads-space-4); }
+/* Mobility needs (Figma AS.15): resting radios in content/icon-secondary, options about 54px apart, 20px line spacing in the closing paragraph */
+.ds-next .mobq .ads-choice input:not(:checked):not(:disabled) + .ads-choice__control { color: var(--ads-content-icon-secondary); }
+.ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 0; }
+.ds-next .mobq__card:not(.mobq__card--field) + .mobq__card { margin-top: -6px; }
+.ds-next .mobq__who + .mobq__intro { margin-top: -5px; }
+.ds-next .mobq__call { margin-top: -4px; }
+.ds-next .mobq__call .ads-link { display: inline; min-height: 0; height: auto; padding: 0; line-height: inherit; }
+.ds-next .mobq__who > span:last-child { display: none; }
+/* Profile (Figma PA.2): "I have a disability" sits above the card; the card holds its questions */
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) { border-color: transparent; background: none; padding-bottom: 0; }
+.ds-next .assist-opt.is-selected:has(> .ads-choice input[name="pa-cat"][value="disability"]) > .assist-branch { margin: 0 -1px; padding-top: var(--ads-space-8); padding-bottom: 14px; border: 1px solid var(--ads-border-subtle); background: var(--ads-background-interactive-secondary); }
+/* Profile (Figma PA.1): the first type sits 3px closer to "Assistance type" */
+.ds-next .assistform > .ads-fieldset:has(input[name="pa-cat"]) > .ads-field-label { margin-bottom: 1px; }
+/* AS-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA PF: Profile, editors, change email (Sprint 4 gallery, 2026-11) ===== */
+/* PF-begin */
+/* Profile (Figma PF.1–PF.6): thin grey row chevrons, 57px rows, headings 21px above their card */
+.ds-next .pane--profile .ads-group__row > .ads-icon--chevron-right { width: 20px; height: 20px; color: var(--ads-content-icon-secondary); }
+.ds-next .pane--profile .ads-group__row { min-height: 56px; padding-block: 8px 7px; }
+.ds-next .pane--profile .ads-group__row + .ads-group__row { min-height: 57px; padding-block: 8px; }
+.ds-next .pane--profile .pane__body > .ads-group:first-child { margin-top: -2px; }
+/* Editors with a card first (Figma ED.5–ED.7, ED.12): the card starts 13px under the header */
+.ds-next .pane--ed .pane__body > :is(.ed-card, .emp-status):first-child { margin-top: 5px; }
+.ds-next .pane--ed .ed-card { padding-top: 11px; padding-bottom: 15px; }
+.ds-next .pane--ed .ed-card .ads-fieldset { margin-bottom: 1px; }
+.ds-next .pane--ed .ed-card .ads-fieldset__options { margin-top: -2px; }
+/* Phone, International (Figma ED.7): a plain field where the country code reads as part of the number */
+.ds-next .pane--ed .ph-ccfield { margin-bottom: var(--ads-space-8); }
+.ds-next .pane--ed .ph-intlfield .ctl-prefix { padding-right: 0; margin-right: var(--ads-space-4); border-right: 0; color: var(--ads-content-text-primary); }
+/* Billing address and Employee pass (Figma ED.8–ED.12): labels carry no required asterisk; optional fields are marked instead */
+.ds-next .pane--ed .ads-field__label:is([for^="ad-"], [for^="ee-"]) .ads-field__marker--required { display: none; }
+/* Saved pass (Figma ED.12): label left, value right-aligned to the card edge, 25px rows, 12px inset */
+.ds-next .pane--ed .emp-status { gap: var(--ads-space-20); margin-bottom: 2px; padding: var(--ads-space-8) var(--ads-space-12) 7px; border-radius: var(--ads-radius-4); }
+.ds-next .pane--ed .emp-status .cpn-dl { grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 5px var(--ads-space-16); }
+.ds-next .pane--ed .emp-status .cpn-dl :is(dt, dd) { line-height: 20px; }
+/* Change email (Figma VF.1–VF.7): 16px side margins, 32px between blocks, navy logo, flat 48px read-only field */
+.ds-next .pane--b2c .pane__body { padding: var(--ads-space-24) var(--ads-space-16) var(--ads-space-32); }
+.ds-next .pane--b2c .ads-navbar { padding-left: var(--ads-space-16); }
+.ds-next .b2c { gap: var(--ads-space-32); }
+.ds-next .b2c__logo { margin-bottom: 0; color: var(--ads-color-blue-900); }
+[data-theme="dark"] .ds-next .b2c__logo, .ds-next[data-theme="dark"] .b2c__logo { color: var(--ads-content-text-primary); }
+.ds-next .b2c__intro { margin-block: calc(-1 * var(--ads-space-16)) calc(-1 * var(--ads-space-12)); }
+.ds-next .b2c__intro + .ads-alert { margin-top: 6px; }
+.ds-next .b2c > .ads-alert { margin-bottom: calc(-1 * var(--ads-space-8)); }
+.ds-next .b2c .b2c__ro { min-height: 48px; height: 48px; border: 0; box-shadow: none; }
+.ds-next .b2c__acts { gap: var(--ads-space-32); }
+.ds-next .b2c__resend { margin-top: calc(-1 * var(--ads-space-4)); }
+.ds-next .b2c__wait { margin-top: calc(-1 * var(--ads-space-20)); }
+.ds-next .b2c .ads-alert__title:empty { display: none; }
+/* PF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */

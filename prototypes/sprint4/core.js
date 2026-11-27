@@ -248,7 +248,8 @@ function netAlert(r) {
   if (a.kind === 'custom') return alertBox(a.tone, a.title, a.text, a.action || '');
   return '';
 }
-const alertBox = (tone, title, text, action = '') => `<div class="ads-alert ads-alert--${tone}" role="${tone === 'error' ? 'alert' : 'status'}">${ic(tone === 'error' ? 'alert-diamond' : tone === 'warning' ? 'alert-triangle' : tone === 'success' ? 'check-circle' : 'info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${title}</p><p class="ads-alert__description ads-body-small">${text}</p>${action ? `<div>${action}</div>` : ''}</div></div>`;
+const alertBox = (tone, title, text, action = '') => `<div class="ads-alert ads-alert--${tone}" role="${tone === 'error' ? 'alert' : 'status'}">${ic(tone === 'error' ? 'alert-diamond' : tone === 'warning' ? 'alert-triangle' : tone === 'success' ? 'check-circle' : 'info-circle', 'ads-alert__icon')}<div class="ads-alert__content">${title ? `<p class="ads-alert__title">${title}</p>` : ''}<p class="ads-alert__description">${text}</p>${action ? `<div class="ads-alert__actions">${action}</div>` : ''}</div></div>`;
+const alertLink = (a, label, attrs = '') => `<button class="ads-link ads-link--sm linkbtn ads-alert__link" type="button" data-a="${a}" ${attrs}>${label}</button>`;
 function busyBtn(r, label, busyLabel, attrs = '') {
   return r.u.busy ? `<div class="busyrow"><button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}${busyLabel}</button><button class="ads-btn ads-btn--tertiary ads-btn--sm busy-cancel" type="button" data-a="cancel-busy">Cancel</button></div>`
     : `<button class="ads-btn ads-btn--block" type="button" ${attrs}>${label}</button>`;
@@ -285,7 +286,7 @@ function startCooldown() {
 // ---------- Clear recent stations (NMA-1004) ----------
 function clearDialog() {
   return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed from this device. Your favorites stay.', returnFocus: '[data-a="clear-recents"]',
-    actions: [['Cancel', 'secondary', null], ['Confirm', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
+    actions: [['Cancel', 'secondary', null], ['Clear recents', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
 }
 
 // ---------- Rendering shell ----------
@@ -325,8 +326,9 @@ function renderDevice() {
   if (n.info) h += renderInfo(n.info, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
   if (n.native) h += renderNative(n.native); // simulated OS permission prompt or Settings (stationmap.js)
-  const t = V().toast;
-  h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
+  // Toast (Figma ST.9, ST.10, ST.12, FF.8, PF.2): a message, or a "busy" toast with a spinner while something is in progress
+  const t = V().toast || (typeof busyToast === 'function' ? busyToast() : null);
+  h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic({ success: 'check-circle', warning: 'alert-triangle', busy: 'spinner-static' }[t.kind] || 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
   return h;
 }
 const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train status', support: 'Support' }[t]);
@@ -499,7 +501,7 @@ A.back = (t, ri) => {
 A.push = (t, ri) => { const p = t.dataset.p ? JSON.parse(t.dataset.p) : {}; push(t.dataset.s, p, ri == null || ri === 'c' ? null : +ri); };
 A['alert-close'] = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r) { r.u.alert = null; pendingFocus = 'title'; render(); } };
 A.retry = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r && r.u.retry) r.u.retry(); };
-A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was sent. Your entries are kept.' }; render(); } };
+A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = null; toast('Nothing was sent. Your entries are kept.', 'warning'); } };
 A['cover-cancel'] = () => endVerify(false);
 A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && t.dataset.ret ? { returnFocus: t.dataset.ret } : {})); // from station search, focus returns to the search field
 

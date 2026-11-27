@@ -64,7 +64,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     for (const sc of ['passrider', 'triplink']) { await go(v, sc); ok(await p.locator(D + '#ff-points').count() === 0 && await p.locator(D + '#ff-coderow').count() === 0, `${T} 624/613 points and code hidden in ${sc}`); }
     // ---- 973/615/614 ----
     await go(v, 'returning'); await ev(() => { D().booking.pax.adult = 2; render(); });
-    ok(!/Traveler with disability or need help/.test(await txt()), `${T} 973 indication not on the Fare Finder form (proposed mapping: Travelers)`);
+    ok(!/Are you a traveler with a disability/.test(await txt()), `${T} 973 indication not on the Fare Finder form (proposed mapping: Travelers)`);
     await dclick('[data-a="pick-travelers"]'); await w(300);
     ok(await p.locator(D + '#ff-assist, .ffassist').count() === 0, `${T} 973 no booking-level checkbox above Traveler details`);
     const ctas = await ev(() => [...document.querySelectorAll('#device [data-a="assist-answer"]')].map(i => !!i.closest('.fam-card, .ov-trav') && i.closest('section').querySelector('.ffc-h').textContent.trim() === 'Traveler details' && /Add assistance/.test(i.textContent)));
@@ -98,7 +98,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
     ok(b.assistOn && b.assistDone && b.assistFromProfile, `${T} 614 indication on and Traveler 1 prefilled from Profile`);
     await dclick('[data-a="pick-travelers"]'); await w(300);
     if (v === 3) ok(/From your profile/.test(await txt()), `${T} 614 prefill labeled`);
-    else ok(/From your profile/.test(await txt()), `${T} 614 prefill labeled`);
+    else ok(/From profile/.test(await txt()), `${T} 614 prefill labeled`);
     await dclick('[data-a="assist-edit"][data-t="adult-1"]'); await w(400);
     await ans('station', { needs: [] });
     ok(await ev(() => D().assist.cat === 'disability' && D().booking.assist.cat === 'station'), `${T} 614 booking edit doesn't write back to Profile`);

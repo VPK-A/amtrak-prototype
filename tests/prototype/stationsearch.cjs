@@ -50,8 +50,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('#map-card [data-a="map-pin"][data-code="BBY"]'); ok(await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} a station in the group can be chosen`);
     // Details and back: position, zoom and selection kept
     const keep = await ev(() => JSON.stringify(sheet().stack.at(-1).u.map));
-    await click('#map-card [data-a="map-details"]'); ok((await stack()).endsWith('station-detail') && /Parking/.test(await txt()), `${T} Details shows station information, including parking`);
-    await click('.psheet [data-a="back"]'); await w(300);
+    await click('#map-card [data-a="map-details"]'); ok((await stack()).endsWith('stations') && await ev(() => !!nav().info && /^station:/.test(nav().info.stack[0])) && /Parking/.test(await ev(() => document.querySelector('#device .info-sheet').innerText)), `${T} Details shows station information, including parking, in a bottom sheet over the map (Figma ST.22)`);
+    await click('.info-sheet [data-a="info-close"]'); await w(300);
     ok((await stack()).endsWith('stations') && await ev(() => JSON.stringify(sheet().stack.at(-1).u.map)) === keep && await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} back from Details keeps position, zoom and selected marker`);
     await click('[data-k="map-select"]');
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} map, both set: Select commits Arrival only and returns to New booking`);
@@ -87,7 +87,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     ok(/within 40 mi/.test(await txt()) && await ev(() => sheet().stack.at(-1).u.near.radius) === 40, `${T} widens by 20 miles until a station is found (40 mi: Altoona from State College)`);
     // denied: a dismissible alert with Open settings
     const rec = async (L, key) => { await go(v, 'returning', 'stations:from', L); await w(1700); return ev(k => !!document.querySelector(`#device #near-msg[data-k="${k}"]`), key); };
-    ok(await rec({ perm: 'denied' }, 'denied') && await ev(() => !nav().native) && /Location isn’t allowed/.test(await txt()) && /You can still search by name or browse the map/.test(await txt()), `${T} denied: “Location isn’t allowed” alert on opening, no prompt`);
+    ok(await rec({ perm: 'denied' }, 'denied') && await ev(() => !nav().native) && /Location isn’t enabled/.test(await txt()) && /You can still search by name or browse the map/.test(await txt()), `${T} denied: “Location isn’t enabled” alert on opening, no prompt`);
     ok(await p.locator(D_ + '#near-msg [data-a="open-settings"]').innerText() === 'Open settings' && await p.locator(D_ + '#near-msg [data-a="loc-alert-dismiss"]').count() === 1 && await ev(() => document.querySelector('#device #near-msg').closest('.ss-top') !== null), `${T} denied: Open settings link and a dismiss button, under the search field`);
     await click('#near-msg [data-a="loc-alert-dismiss"]');
     ok(await p.locator(D_ + '#near-msg').count() === 0 && await ev(() => document.activeElement.id) === 'ss-q' && await p.locator(D_ + '.stsection').count() >= 1, `${T} dismissed: the default view; focus moves to the search field`);

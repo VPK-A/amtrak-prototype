@@ -721,7 +721,7 @@ const CATS = {
 // Assistance questionnaire copy (stands in for AEM-managed content: product and content can change any of it
 // here). Option labels and descriptions are CATS, DISABILITIES and NEEDS above.
 const ASSIST_COPY = {
-  entryLabel: 'Traveler with disability or need help?', entryHelp: 'Like a wheelchair space, an accessible seat, station assistance or a personal companion.',
+  entryLabel: 'Are you a traveler with a disability, need to add help, or are a companion?', entryHelp: 'Request wheelchair spaces, accessible seats, station assistance, or identify as a companion.',
   addCta: 'Add assistance', editCta: 'Edit assistance', removeCta: 'Remove',
   animalSizeLegend: 'Size of your service animal',
   animalSizes: [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']],
@@ -890,7 +890,7 @@ const FLOWS = [
 ];
 
 // Traveler types (NMA-611). Age bands aren't final (Q10).
-const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under 2']];
+const PAX = [['adult', 'Adult', 'Ages 18-64'], ['senior', 'Senior', 'Ages 65 & over'], ['ya', 'Young adult', 'Ages 16 & 17'], ['youth', 'Youth', 'Ages 13-15'], ['child', 'Child', 'Ages 2-12'], ['infant', 'Infant', 'Under age 2']];
 const PAX_LABEL = Object.fromEntries(PAX.map(([k, l]) => [k, l]));
 // Traveler discount choices per type (NMA-612 BR5, expected new app values). null = fixed, not editable.
 const TDISC = { adult: ['none', 'military', 'rpa'], ya: ['none', 'military', 'rpa'], youth: ['none', 'military', 'rpa'], child: ['childfare', 'military'], senior: null, infant: null };

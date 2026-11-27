@@ -9,7 +9,7 @@
 PFIELDS.employee = 'Employee pass'; // Figma 3430:140680
 const EMP_REL = { employee: 'Employee', retiree: 'Retiree', spouse: 'Spouse of an employee', dependent: 'Dependent of an employee' };
 const PASS_RE = /^[0-9]{9}$/, INDEX_RE = /^[0-9]{3}$/; // NMA-20 BR4 field rules
-const empSummary = e => e ? `${EMP_REL[e.rel]} · Pass ${e.pass.slice(0, 3)}••••${e.pass.slice(-2)} · ${prCanStart(D()).ok ? 'Pass Rider booking on' : 'Pass Rider not available yet'}` : 'Not added';
+const empSummary = e => e ? `${EMP_REL[e.rel]} Pass ${e.pass.slice(0, 3)}•••${e.pass.slice(-2)}` : 'Not added'; // Figma PF.3: one line; the Pass Rider status is in the editor's Saved pass card
 // Status of the saved pass: what the pass record allows (NMA-1016, 1018) and, for dependents, the age rule (NMA-1017 AC4)
 function empStatus(d) {
   const e = d.employee, p = d.passrider; if (!e || !p) return '';
@@ -17,7 +17,7 @@ function empStatus(d) {
   if (p.role === 'employee') { rows.push(['Business Pass', p.business ? 'Active: Business or Leisure travel' : 'Not on your pass: Leisure travel only']); rows.push(['Remaining passes', `${p.compLeft} of 16 one-way passes`]); rows.push(['Renewal', `New passes are issued ${fmtExp(p.renews || PASS_RENEWS)}`]); }
   else rows.push(['Travel type', 'Leisure only']);
   if (p.role === 'dependent' && !can.ok) rows.push(['Booking on your own', can.text]);
-  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
+  return `<div class="ads-summary emp-status" role="status"><p class="ads-summary__title">Saved pass</p><dl class="cpn-dl cpn-dl--end">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
 }
 // Add or update only: there's no user-facing way to delete pass details (NMA-20 AC6, decision closed).
 // The backend can remove them when the customer is no longer eligible (BR4 AC4): see the "pass removed" scenario.

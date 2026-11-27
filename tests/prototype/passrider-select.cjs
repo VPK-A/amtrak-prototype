@@ -32,7 +32,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // companion counter still works
   await p.click(D_ + '[data-a="pax"][data-g="pr"][data-k="comp"][data-d="1"]'); await w(250);
   await p.click(D_ + '[data-a="pax"][data-g="pr"][data-k="comp"][data-d="1"]'); await w(250);
-  ok((await pax()).comp === 2 && /Companions travel with you/.test(await ev(() => document.querySelector('#device').innerText)), 'companion counter adds');
+  ok((await pax()).comp === 2 && /Traveler \d: Companion 2/.test(await ev(() => document.querySelector('#device').innerText)), 'companion counter adds');
   await p.click(D_ + '[data-a="pax"][data-g="pr"][data-k="comp"][data-d="-1"]'); await w(250);
   ok((await pax()).comp === 1, 'companion counter removes');
   // the 8-traveler limit disables unselected riders

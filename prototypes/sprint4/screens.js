@@ -90,7 +90,7 @@ const SPLIT_SELF = r => TB.v !== 1 && ((v3() && ['profile', 'assist-profile'].in
 // =====================================================================
 // A. Fare Finder
 // =====================================================================
-function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
+function ffErrors(b) { return { from: !b.from ? 'Choose a departure station.' : '', to: !b.to ? 'Choose an arrival station.' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date.' : '' }; }
 // ---------- New booking fields, normalized against ADS Next and Mobile ADS ----------
 // From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
 // triggers: the label sits outside the field; the accessible name stays on the button.
@@ -118,8 +118,18 @@ function dateFields(r, opts = {}) {
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
   const d = D(), it = intentOf(b);
-  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : paxSummary(b);
-  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  // Figma FF.17 / FF.23 / FF.24 / FF.32: a regular booking shows assistance on the value line ("2 adults · Assistance for 2")
+  // and each traveler's discount on the supporting line; Pass Rider keeps the names on the value line and adds
+  // "Assistance" to the supporting line; a corporate booking is a single line ("1 adult").
+  const std = ['standard', 'personal'].includes(it), list = travelerList(b), all = paxList(b);
+  const helped = list.filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const asked = list.filter(t => asks(b, t.key)).length, miss = assistMissing(b).length;
+  const assist = miss ? '' : helped ? (list.length > 1 ? `Assistance for ${helped}` : 'Assistance') : '';
+  const discs = std ? all.map(t => [t, tdiscOf(b, t)]).filter(([t, x]) => !['none', 'childfare', 'infant', 'senior'].includes(x)).map(([t, x]) => `${x === 'pwd' ? 'Disability' : TDISC_LABEL[x]}${all.length > 1 ? ` (Traveler ${t.n})` : ''}`) : [];
+  const kids = it === 'pr' && b.prType !== 'business' ? list.filter(t => prKind(b, t.key) === 'child').length : 0;
+  const val = it === 'corporate' ? '1 adult' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : [paxSummary(b), assist].filter(Boolean).join(' · ');
+  const sub = [it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', ...discs, kids ? `${kids} child${kids > 1 ? 'ren' : ''}` : '', std ? '' : assist,
+    miss ? `Assistance answered for ${asked - miss} of ${asked}` : '', assistProblems(b).length ? 'Assistance needs a change' : ''].filter(Boolean).join(' · ');
   const err = travErr(r, b);
   return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
@@ -158,7 +168,7 @@ function modesV1(r, b) {
   if (!can.ok) { snote('A dependent 15 or younger can’t book Pass Rider travel on their own (NMA-1017), so New booking shows no Pass Rider switch and books regular fares.'); return ''; }
   const on = b.intent === sp;
   if (on && tl) q(12);
-  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : 'Employee pass travel for you and eligible family. Points, passenger discounts and codes aren’t used.') : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
+  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only.' : 'Employee pass travel is for you and eligible family only.') : tl ? 'Off: regular fares, with codes and points.' : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
   return `<div class="v1modes v1modes--switch">${row}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 A['mode-toggle'] = t => {
@@ -201,7 +211,7 @@ SCR.ff = (r, ri) => {
   // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
   // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts, coupons, and promotion codes cannot be used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider bookings'}.</p>`}${netAlert(r)}</div>`;
   return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions
@@ -268,8 +278,8 @@ function stationRow(s, field, sec, near) {
   const when = ''; // recents show the station only, as in the designs (Figma 3295:51259); NMA-984 doesn't ask for when it was used
   const blocked = ctx === 'ff' && s.tag && autoTrainBlocked();
   const b = tg, role = b.from === s.code ? 'Departure' : b.to === s.code ? 'Arrival' : '';
-  const roleTag = role && !cur ? `<span class="ads-badge ss-roletag">${role === 'Departure' ? 'Departure station' : 'Arrival station'}</span>` : ''; // the other end of the trip
-  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag} only</span>` : ''}${blocked ? '<span class="ads-stationrow__detail">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Save ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
+  const roleTag = role && !cur ? `<span class="ads-sr-only">, ${role === 'Departure' ? 'departure station' : 'arrival station'}</span>` : ''; // the other end of the trip: a standard row (Figma ST.5), named for screen readers
+  return `<li class="ads-stationrow${role && !cur ? ' is-other' : ''}" ${cur ? 'aria-current="true"' : ''}><button class="ads-stationrow__select" type="button" data-a="choose-station" data-code="${s.code}" data-field="${field}" data-k="st-${sec}-${s.code}"${near ? ` data-mi="${near.mi.toFixed(1)}" data-rank="${near.rank}"` : ''} ${blocked ? 'disabled' : ''}><span class="ads-stationrow__code">${s.code}</span><span class="ads-stationrow__text"><span class="ads-stationrow__name">${s.city}, ${s.st}${roleTag}</span><span class="ads-stationrow__detail">${s.name}${when}</span>${near ? `<span class="ads-stationrow__detail ss-dist"><span aria-hidden="true">${fmtMi(near.mi, near.approx)}</span><span class="ads-sr-only">, ${spokenMi(near.mi, near.approx)}</span></span>` : ''}${s.tag ? `<span class="ads-badge ads-badge--info ads-stationrow__tag">${s.tag}${blocked ? ' only' : ''}</span>` : ''}${blocked ? '<span class="ads-sr-only">Auto Train isn’t available for Pass Rider Business travel</span>' : ''}</span>${cur ? `${ic('check', 'ss-check')}<span class="ads-sr-only">, selected</span>` : ''}</button><button class="ads-stationrow__star ss-details" type="button" data-a="info" data-topic="station:${s.code}" data-k="det-${sec}-${s.code}" aria-label="Station details: ${s.city}, ${s.code}">${ic('info-circle')}</button><button class="ads-stationrow__star" type="button" data-a="fav" data-code="${s.code}" aria-pressed="${fav}" aria-label="Save ${s.city}, ${s.code}" data-k="fav-${sec}-${s.code}">${ic(fav ? 'bookmark-filled' : 'bookmark')}</button></li>`;
 }
 function stationSearch(r, ri, field, inline) {
   const d = D(); r.u.d = r.u.d || {};
@@ -289,13 +299,16 @@ function stationSearch(r, ri, field, inline) {
   const head = focus ? `<div class="ss-head ss-head--c">${backBtn}<h2 class="ss-head__title" id="t-${ri}" tabindex="-1" data-title>${selHeading(field, r.p.ctx)}<span class="ads-sr-only">${r.p.ctx === 'ts' || !selPair() ? '' : field === 'from' ? ', departure' : ', arrival'}</span></h2><span aria-hidden="true"></span></div>` : '';
   const tabs = selViewTabs(qv.trim() && r.u.view !== 'map' ? Object.assign({}, r, { u: Object.assign({}, r.u, { view: 'list' }) }) : r);
   if (r.u.view === 'map') return head + tabs + '<!--why-->' + `<p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>` + mapView(r, ri, field);
-  let sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, `placeholder="${r.p.ctx === 'ts' || !selPair() ? 'Search stations' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`).replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
+  const pairSearch = !(r.p.ctx === 'ts' || !selPair()), restPh = pairSearch && !(focus && r.u.kb); // Figma: "Search station" at rest, the end being searched while typing
+  let sq = upSearch.replace('ads-control ads-control--pill', 'ads-control').replace(/placeholder="[^"]*"/, `placeholder="${!pairSearch ? 'Search stations' : restPh ? 'Search station' : field === 'from' ? 'Search departure stations' : 'Search arrival stations'}"`).replace('class="ss-search ss-search--upd', 'class="ss-search ss-search--upd ss-search--sq');
   // iPhone: the From / To card collapses while search is active (iOS keyboard up). Layout A: card above the field;
   // layout B: field above the card (Prototype controls › Station search layout).
   const grp = r.p.ctx === 'ts' || !selPair() ? '' : focus ? `<div class="ss-collapse"${r.u.kb ? ' inert' : ''}><div>${selGroup(r, field)}</div></div>` : selGroup(r, field);
+  if (restPh) sq = sq.replace(/(<label class="ads-sr-only" for="ss-q">)[^<]*(<\/label>)/, `$1Search station, ${field === 'from' ? 'departure' : 'arrival'}$2`); // the name starts with the visible text (WCAG 2.5.3)
+  const sameErr = r.u.sameErr && grp ? `<p class="ss-sameerr" id="ss-sameerr" role="alert">${ic('alert-diamond', 'ads-icon--sm')}<span>Departure and arrival stations must be different.</span></p>` : '';
   if (focus && r.u.kb) { const at = sq.lastIndexOf('</div>'); sq = sq.slice(0, at) + '<button class="ads-btn ads-btn--tertiary ss-cancel" type="button" data-a="ss-cancel">Cancel</button>' + sq.slice(at); }
   if (focus) snote('iOS build: VoiceOver’s escape gesture (two-finger scrub) and Esc on a hardware keyboard end search, like Cancel. The card folds when the field has focus, so it also works with a hardware keyboard and no on-screen keyboard.');
-  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${grp + sq}`;
+  let h = head + tabs + '<!--why-->' + `<div class="ss-top"><p class="ads-sr-only" role="status">${esc(r.u.selLive || '')}</p>${(sameErr ? grp.replace('ads-stationgroup ss-group', 'ads-stationgroup ss-group ss-group--error') : grp) + sameErr + sq}`;
   const PANEL = '<div id="ss-panel" role="tabpanel" aria-labelledby="ss-tab-list" class="ss-listpanel">';
   if (qv.trim()) h += '</div>' + PANEL; // the top block ends with the search field while results show
   r.u.fullFoot = false;
@@ -308,7 +321,7 @@ function stationSearch(r, ri, field, inline) {
     } else if (qt.length < SS_PLACE_MIN) { // up to 3 characters: stations, as before
       const res = searchStations(qv);
       if (res.length) h += `<p class="ads-sr-only" role="status">${res.length} result${res.length > 1 ? 's' : ''}</p><ul class="stlist" aria-label="Search results">${res.slice(0, 25).map(s => stationRow(s, field, 'res')).join('')}</ul>`;
-      else if (qt.length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code, ZIP code${offline ? '' : ' or landmark'}.</span></div>`;
+      else if (qt.length > 2) h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>`;
       else h += `<p class="ss-empty" role="status">Keep typing to search.</p>`;
     } else { // 4 or more: places to choose from, then stations whose own name matches
       const places = searchPlaces(qv, offline); r.u.sugg = places;
@@ -318,7 +331,7 @@ function stationSearch(r, ri, field, inline) {
       const placeH = places.length ? `<div class="stsection ss-places"><div class="ads-stationrow__header"><span>Locations</span></div><ul class="ss-placelist" aria-label="Locations. Choose one to see the closest stations">${places.map((p, k) => `<li><button class="ss-placerow" type="button" data-a="ss-place" data-i="${k}">${ic(PLACE_ICON[p.kind])}<span class="ss-placerow__text"><span class="ss-placerow__name">${esc(p.label)}</span></span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`).join('')}</ul></div>` : '';
       const namedH = named.length ? `<div class="stsection"><div class="ads-stationrow__header"><span>Stations</span></div><ul class="stlist" aria-label="Stations">${named.slice(0, 10).map(s => stationRow(s, field, 'res')).join('')}</ul></div>` : '';
       if (n) h += `<p class="ads-sr-only" role="status">${named.length ? `${named.length} station${named.length > 1 ? 's' : ''}` : ''}${places.length && named.length ? ' and ' : ''}${places.length ? `${places.length} location${places.length > 1 ? 's' : ''}` : ''}</p>${namedH}${placeH}${offNote}`;
-      else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, state, station, ZIP code${offline ? '' : ' or landmark'}.</span></div>${offNote}`;
+      else h += `<div class="ss-empty" role="status"><b>No results for “${esc(qt)}”</b><span>Check the spelling, or search by city, station code or ZIP code.</span></div>${offNote}`;
     }
     return h + q(3) + '</div>';
   }
@@ -327,6 +340,7 @@ function stationSearch(r, ri, field, inline) {
   h += nearTop + '</div>' + PANEL + nearList; // top block: group, search, Nearby stations; then the lists
   if (favs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Saved</span></div><ul class="stlist" aria-label="Saved stations">${favs.map(s => stationRow(s, field, 'fav')).join('')}</ul></div>`;
   if (recs.length) h += `<div class="stsection"><div class="ads-stationrow__header"><span>Recents</span><button class="ads-link ads-link--sm ss-clearrec" type="button" data-a="clear-recents" data-ret="#ss-q" aria-label="Clear recent stations">Clear recents</button></div><ul class="stlist" aria-label="Recent stations">${recs.map(s => stationRow(s, field, 'rec')).join('')}</ul></div>`;
+  if (favs.length && !recs.length) h += `<p class="ss-savehint">Bookmark a station to save it.</p>`; // Figma ST.9
   if (d.rec.some(x => x.d > RECENT_DAYS)) tip(`BAL was chosen 12 days ago, so it has dropped out of recents (${RECENT_DAYS}-day retention, set by RECENT_DAYS).`);
   const showAll = (!favs.length && !recs.length) || r.u.full;
   if (showAll) {
@@ -362,8 +376,8 @@ function selGroup(r, field) {
   const tg = selTarget(r.p.ctx || 'ff'), side = (f, label) => { const c = tg[f], s = c && ST[c]; return { label, code: c || '', city: s ? `${s.city}, ${s.st}` : '', facility: s ? s.name : '', placeholder: f === 'from' ? 'Select departure station' : 'Select arrival station', attrs: `data-a="ss-field" data-v="${f}" id="ss-f-${f}"${f === field ? ' aria-current="true"' : ''}` }; };
   return stationGroup({ from: side('from', 'From'), to: side('to', 'To'), swapAttrs: 'data-a="ss-swap"', swapDisabled: !tg.from && !tg.to }).replace('ads-stationgroup', 'ads-stationgroup ss-group');
 }
-A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
-A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
+A['ss-field'] = (t, ri) => { const r = routeAt(ri), f = t.dataset.v; r.u.sameErr = false; if (r.p.field === f) { pendingFocus = `#ss-f-${f}`; render(); return; } /* search isn't made active */ r.p.field = f; track('station_search_field_switched', { field: f === 'from' ? 'departure' : 'arrival' }); pendingFocus = `#ss-f-${f}`; render(); };
+A['ss-swap'] = (t, ri) => { const r = routeAt(ri), tg = selTarget(r.p.ctx || 'ff'); r.u.sameErr = false; [tg.from, tg.to] = [tg.to, tg.from]; pendingFocus = '[data-a="ss-swap"]'; render(); };
 A['ss-clear'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; pendingFocus = '#ss-q'; render(); }; // clears only: search (and the keyboard) stay active
 A['ss-cancel'] = (t, ri) => { const r = routeAt(ri); r.u.d.q = ''; r.u.kbShift = true; kbSet(r, false, true, '#ss-q'); }; // iOS Cancel: clears and ends search
 A['ss-place'] = (t, ri) => { const r = routeAt(ri), p = (r.u.sugg || [])[+t.dataset.i]; if (!p) return; r.u.place = p; r.u.placeQ = (r.u.d.q || '').trim(); track('station_search_place_chosen', { kind: p.kind }); if (r.u.kb && typeof kbSet === 'function') kbSet(r, false, false); pendingFocus = '.ss-place__t'; render(); };
@@ -379,7 +393,13 @@ A['choose-station'] = (t, ri) => {
   const d = D(), si = selIndex(), sr = si >= 0 ? sheet().stack[si] : null, ctx = (sr && sr.p.ctx) || 'ff', b = selTarget(ctx);
   const f = t.dataset.field, c = t.dataset.code, other = f === 'from' ? 'to' : 'from';
   if (ctx === 'ff' && autoTrainBlocked() && AUTO_TRAIN[c]) return;
-  if (b[other] === c) { dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return; }
+  if (b[other] === c) {
+    // Figma ST.6: with the From / To group on screen (station list), the group turns red with a message under it.
+    // Elsewhere (map, Details, single-field selector) the dialog still explains it. The rule itself is unchanged.
+    if (sr && sr === sheet().stack.at(-1) && sr.u.view !== 'map' && ctx !== 'ts' && selPair()) { sr.u.sameErr = true; if (sr.u.kb && typeof kbSet === 'function') kbSet(sr, false, false); pendingFocus = `[data-k="${t.dataset.k}"]`; render(); return; }
+    dialog({ title: 'Select a different station', body: 'From and To need to be different stations.', actions: [['Choose another station', 'primary', null]], returnFocus: `[data-k="${t.dataset.k}"]` }); return;
+  }
+  if (sr) sr.u.sameErr = false;
   b[f] = c;
   if (ctx === 'ff') {
     b.notice = null;
@@ -460,9 +480,11 @@ function calendarBody(r, ri, field) {
 // being filled is outlined (as in station search). Round trip: each tap fills the active field and activates the other.
 // A new departure after the return moves the return to that day and keeps Return active.
 function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
-// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
+// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current.
+// Presentation only (Figma DT.6/DT.8): a return the traveler hasn't picked yet (added from one-way, or moved along
+// with a later departure: c.retAuto) keeps the "add" plus icon and has no weekday line until a day is chosen.
 function calCard(c) {
-  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: !v && k === 'ret' ? 'plus-circle' : 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: k === 'ret' && (!v || c.retAuto) ? 'plus-circle' : 'calendar', sub: v && !(k === 'ret' && c.retAuto) ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
   const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
   return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
 }
@@ -504,17 +526,17 @@ SCR.calendar = (r, ri) => {
 // Tapping a field in the date card makes it active (and brings its month into view)
 A['calx-edit'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r), v = t.dataset.v; if (c.edit !== v) { c.edit = v; c.jump = true; } pendingFocus = `#calx-f-${v}`; render(); };
 // One-way: "Add return" in the card adds a return to the draft (same day, as on New booking) and activates it
-A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
+A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.retAuto = true; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
 A['calx-day'] = (t, ri) => {
   const r = routeAt(ri), c = calDraft(r), s = t.dataset.d;
   if (c.trip !== 'rt') c.dep = s; // one-way: only the departure changes
-  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) c.ret = s; c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
-  else { c.ret = s; c.edit = 'dep'; }
+  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) { c.ret = s; c.retAuto = true; } c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
+  else { c.ret = s; c.retAuto = false; c.edit = 'dep'; }
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
 // Clear: no dates chosen; Save selection waits for them
 // Clear returns the dates to their defaults (NMA-1060 AC#2): departure today, and on a round trip return today
-A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.retAuto = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
   if (!c.dep || (c.trip === 'rt' && (!c.ret || c.ret < c.dep))) return;
@@ -670,9 +692,9 @@ function needsBlock(r, x, idp, explain, e = {}) {
   }).join('');
   const help = locked ? AC.needsLocked : st ? AC.stationIncluded : x.cat === 'disability' && wcYes ? AC.wcRule : '';
   const fix = conflict ? `<div class="ads-alert ads-alert--warning assist-conflict" role="alert" id="${idp}-needs-err">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${AC.conflictTitle}</p><p class="ads-alert__description ads-body-small">${AC.conflictBody}</p><div class="ads-row" style="--ads-row-gap:8px"><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="seat">${AC.keepSeat}</button><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="assist-keep" data-v="animal">${AC.keepAnimal}</button></div></div></div>` : '';
-  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional assist-opt-mark">(optional)</span></legend>${help ? `<p class="${locked ? 'ads-sr-only' : 'ads-helper'}" id="${idp}-needs-why">${locked ? '' : ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}</fieldset>`;
+  return `<fieldset class="ads-fieldset${locked ? ' is-locked' : ''}" ${help ? `aria-describedby="${idp}-needs-why"` : ''}><legend class="ads-field-label">${st ? AC.stationSeatLegend : comp ? AC.compLegend : AC.needsLegend} <span class="ads-field__marker ads-field__marker--optional assist-opt-mark">(optional)</span></legend>${help && !st ? `<p class="${locked ? 'ads-sr-only' : 'ads-helper'}" id="${idp}-needs-why">${locked ? '' : ic('info-circle', 'ads-icon--sm')}<span>${help}</span></p>` : ''}${fix}<div class="ads-fieldset__options">${opts}</div>${help && st ? `<p class="ads-helper assist-note" id="${idp}-needs-why"><span>${help}</span></p>` : ''}${e.needs ? `<p class="ads-helper ads-helper--error" id="${idp}-needs-e">${ic('alert-diamond')}<span>${e.needs}</span></p>` : ''}${!st && !comp && bookingMode && x.animalLater ? `<p class="ads-helper">${ic('info-circle', 'ads-icon--sm')}<span>${AC.animalLaterKept(x.animalLater)}</span></p>` : ''}</fieldset>`;
 }
-// Figma 4734:249198: an About link under each other need (content: NMA-621)
+// Figma 4734:249198: an About link under each other need (content: NMA-621). Figma AS.7: the station note is plain text at the bottom of the card.
 const ABOUT = { seat: ['accessible-seats', 'About accessible seats'], station: ['station-assistance', 'About station assistance'], animal: ['service-animals', 'About service animals'] };
 // NMA-29 and NMA-628 (Profile): follow-up questions, each required once it appears
 function radioSet(idp, f, legend, opts, val, err, inline) {
@@ -1001,20 +1023,22 @@ EDITORS.phone = (r, ri, inline) => {
   const regionQ = `<fieldset class="ads-fieldset"><legend class="ads-field-label">${v2() ? 'Where is this number registered?' : 'Number type'}</legend><div class="ads-fieldset__options">${choice('radio', 'ph-region', 'region', 'us', x.region === 'us', 'US/Canada')}${choice('radio', 'ph-region', 'region', 'intl', x.region === 'intl', 'International')}</div><p class="ads-helper">Switching the type keeps the number you entered for each type.</p></fieldset>`;
   const num = x.region === 'us'
     ? fieldHtml({ id: 'ph-mobile', f: 'mobile', label: 'Phone number', type: 'tel', value: x.mobile, digits: 10, placeholder: '215-444-5358', autocomplete: 'tel-national', help: 'Must be 10 digits; numbers only.', err: e.mobile })
-    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c, fl]) => [k, `${fl} ${n} (${c})`]), value: x.cc })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', help: 'Must be 5 to 15 digits; numbers only.', err: e.intl })}`;
+    : `${fieldHtml({ id: 'ph-cc', f: 'cc', label: 'Country code', select: DIAL.map(([k, n, c]) => [k, `${n} (${c})`]), value: x.cc, cls: 'ph-ccfield' })}${fieldHtml({ id: 'ph-intl', f: 'intl', label: 'Phone number', type: 'tel', value: x.intl, digits: 15, prefix: (DIAL.find(z => z[0] === x.cc) || DIAL[0])[2], autocomplete: 'tel-national', err: e.intl, cls: 'ph-intlfield' })}`; // Figma ED.7: text-only country names, the code reads as part of the number, no helper line
   const card = `<section class="ed-card" aria-labelledby="ph-card-h"><h3 class="ed-card__title" id="ph-card-h">Mobile phone number</h3>${regionQ}${num}</section>`;
   // Add phone number: a second card for home and business numbers (US/Canada)
-  const more = x.region === 'us' && (r.u.more || x.home || x.business);
+  const more = x.region === 'us' ? (r.u.more || x.home || x.business) : r.u.more; // Figma ED.7: Add phone number is offered for International too
   const other = more ? `<section class="ed-card" aria-labelledby="ph-more-h"><h3 class="ed-card__title" id="ph-more-h">Other phone numbers</h3>${fieldHtml({ id: 'ph-home', f: 'home', label: 'Home', type: 'tel', value: x.home, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.home })}${fieldHtml({ id: 'ph-bus', f: 'business', label: 'Business', type: 'tel', value: x.business, digits: 10, opt: true, help: 'Must be 10 digits; numbers only.', err: e.business })}${fieldHtml({ id: 'ph-ext', f: 'ext', label: 'Extension', type: 'tel', value: x.ext, digits: 3, opt: true, help: 'Up to 3 digits.', err: e.ext })}</section>`
-    : x.region === 'us' ? `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>` : '';
+    : `<button class="ads-btn ads-btn--secondary ads-btn--block ed-add" type="button" data-a="ph-more">${ic('plus')}Add phone number</button>`;
   const body = `${intro('US/Canada numbers need a mobile number. International numbers need a country code. You can use a number that’s also on another account.')}${netAlert(r)}${card}${other}`;
   return { body, unchanged: !changed, saveDisabled: !changed, noSaveWhy: 'Make a change to save.' };
 };
 A['ph-more'] = (t, ri) => { const r = edRoute(ri); r.u.more = true; pendingFocus = '#ph-home'; render(); };
 SAVE.phone = (r, ri) => {
   const x = r.u.d, e = {};
-  if (x.region === 'us') { if (!/^\d{10}$/.test(x.mobile)) e.mobile = 'Enter a valid phone number'; if (x.home && !/^\d{10}$/.test(x.home)) e.home = 'Enter a valid phone number'; if (x.business && !/^\d{10}$/.test(x.business)) e.business = 'Enter a valid phone number'; if (x.ext && !/^\d{1,3}$/.test(x.ext)) e.ext = 'Enter up to 3 digits'; }
+  if (x.region === 'us') { if (!/^\d{10}$/.test(x.mobile)) e.mobile = 'Enter a valid phone number'; }
   else if (!/^\d{5,15}$/.test(x.intl)) e.intl = 'Enter a valid phone number';
+  // The other numbers keep their checks wherever their card is showing (US/Canada, or International after Add phone number)
+  if (x.region === 'us' || r.u.more) { if (x.home && !/^\d{10}$/.test(x.home)) e.home = 'Enter a valid phone number'; if (x.business && !/^\d{10}$/.test(x.business)) e.business = 'Enter a valid phone number'; if (x.ext && !/^\d{1,3}$/.test(x.ext)) e.ext = 'Enter up to 3 digits'; }
   r.u.err = e; if (Object.keys(e).length) { pendingFocus = '[aria-invalid="true"]'; render(); return; }
   runSave(r, () => { D().profile.phone = clone(x); }, () => afterSave(ri, 'Profile has been updated', 'phone'));
 };
@@ -1098,7 +1122,7 @@ A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
   if (x.type === d.discount.type && (x.type !== 'rpa' || x.rpa === d.discount.rpa)) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; render(); return; } // nothing to save
-  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
+  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces.' }; pendingFocus = '#rpa-id'; render(); return; }
   if (x.type === 'pwd' && d.assist.cat !== 'disability') { r.u.alert = { kind: 'custom', tone: 'error', title: 'Passenger with disability can’t be saved yet', text: 'Save assistance with “I have a disability” first.' }; pendingFocus = '[data-a="go-assist"]'; render(); return; }
   r.u.err = {};
   runSave(r, () => { d.discount = { type: x.type, rpa: x.type === 'rpa' ? x.rpa : '' }; d.booking.disc = ['military', 'rpa'].includes(x.type) ? x.type : 'none'; }, () => { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; toast('Discount preference saved'); });

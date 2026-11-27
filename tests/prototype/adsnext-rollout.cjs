@@ -60,7 +60,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await go(v, 'returning', 'clear-recents', th); await w(250); ok((await css('.pdialog')).r === '12px', `${T} modal: radius/12`);
     await go(v, 'returning', 'ff', th, 'iphone', "openInfo('codes')"); await w(400); ok((await css('.info-sheet')).r === '12px', `${T} mobile sheet: radius/12 top`);
     await go(v, 'returning', 'ff', th, 'ipad', "openInfo('codes')"); await w(400); const isd = await css('.info-sheet', ['borderBottomLeftRadius']); ok(isd.r === '12px', `${T} iPad sheet: radius/12`);
-    await go(v, 'returning', 'ff', th, 'iphone', "toast('Saved')"); await w(250); const ts = await css('.ads-toast'); ok(!ts || ts.r === '8px', `${T} toast: radius/8 (proposed)`);
+    await go(v, 'returning', 'ff', th, 'iphone', "toast('Saved')"); await w(250); const ts = await css('.ads-toast'); ok(!ts || ts.r === '4px', `${T} toast: radius/4 (Figma ST.9)`);
     await go(v, 'returning', 'verify:change-email', th); await w(400); const cell = await css('.ads-codeinput__cell'); ok(!cell || cell.r === '4px', `${T} code cells: radius/4`);
     if (cell) { await p.focus('#device .ads-codeinput__input'); await w(150); ok((await css('.ads-codeinput')).ol === 'none' && (await css('.ads-codeinput__cell.is-next')).sh.includes('2px inset'), `${T} code focus: the field's own border, no second ring`); }
   }

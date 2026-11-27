@@ -45,7 +45,7 @@ function infoTopic(topic) {
 // page itself is NMA-604, outside Sprint 4, so only the data the app already has is shown (Q3).
 function stationInfo(code) {
   const s = ST[code]; if (!s) return { title: 'Station', body: () => '' };
-  return { title: `${s.city}, ${s.st}`, body: () => `<dl class="cpn-dl stinfo-dl"><dt>Station</dt><dd>${esc(s.name)}</dd><dt>Code</dt><dd>${s.code}</dd><dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}</dl><p class="stinfo-pending">Hours, accessibility, parking and amenities is pending.</p>${snote('The station details page isn’t part of Sprint 4.')}${q(3)}` };
+  return { title: `${s.city}, ${s.st}`, body: () => { const g = typeof geoOf === 'function' ? geoOf(code) : null; /* Facility, Street address, Parking: sample data kept with the map (Figma ST.21) */ return `<dl class="cpn-dl stinfo-dl"><dt>Station</dt><dd>${esc(s.name)}</dd>${g ? `<dt>Facility</dt><dd>${esc(STATION_TYPES[g.type].label)}</dd>` : ''}<dt>Code</dt><dd>${s.code}</dd>${g && g.address ? `<dt>Street address</dt><dd>${esc(g.address.split(',')[0])}</dd>` : ''}<dt>City</dt><dd>${esc(s.city)}, ${esc(s.state)}</dd><dt>ZIP code</dt><dd>${s.zip}</dd>${s.aliases.length ? `<dt>Also known as</dt><dd>${esc(s.aliases.join(', '))}</dd>` : ''}${s.tag ? `<dt>Service</dt><dd>${esc(s.tag)} only</dd>` : ''}${g && g.parking ? `<dt>Parking</dt><dd>${esc(g.parking)}</dd>` : ''}</dl>${snote('The station details page isn’t part of Sprint 4. Hours, accessibility and amenities content is pending; facility, street address and parking are sample data.')}${q(3)}`; } };
 }
 // A link that opens supporting information (or, inside the sheet, goes one level deeper)
 function infoLink(topic, label, mode = 'open') {
@@ -77,3 +77,19 @@ A['pick-station'] = (t, ri) => {
   if (stationFocus() && t && t.getBoundingClientRect) MOTION.field = { rect: rectIn(t), at: performance.now() };
   pickStationBeforeFocus(t, ri);
 };
+
+// ---------- Toast position (Figma ST.9, ST.12, FF.8, PF.2) ----------
+// 24px above the bottom edge of the screen, or 24px above the sticky footer or tab bar when one is showing there.
+function placeToast() {
+  const dev = $('#device'), wrap = dev && $('.toast-wrap', dev); if (!wrap) return;
+  let gap = 24;
+  if (wrap.firstElementChild && document.elementFromPoint) {
+    const d = dev.getBoundingClientRect(), z = d.height / dev.offsetHeight || 1; // the device can be scaled to fit the window
+    const hit = document.elementFromPoint(d.left + d.width / 2, d.bottom - 36 * z);
+    const foot = hit && dev.contains(hit) && hit.closest('.pane__foot, .ads-actionfooter, .ads-tabbar');
+    if (foot) gap = Math.round((d.bottom - foot.getBoundingClientRect().top) / z) + 24;
+  }
+  wrap.style.bottom = gap + 'px';
+}
+const renderBeforeToastPlace = render;
+render = function () { renderBeforeToastPlace.apply(this, arguments); placeToast(); };
