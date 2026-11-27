@@ -221,3 +221,15 @@
 .s5-alert__body b { flex: 1 1 0; min-width: 0; }
 .s5-seg__h { flex-wrap: wrap; }
 .s5-seg__op { flex-basis: 100%; padding-left: calc(var(--ads-icon-size-sm, 16px) + var(--ads-space-8)); font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+/* NMA-975: guest sign-in on results; NMA-764: discount info; NMA-1094: arrival date */
+.s5-signin { margin: 0; font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.s5-disc { align-items: center; }
+.s5-disc__i { flex: none; margin-block: -6px; }
+.s5-day__n { color: var(--ads-content-text-tertiary); }
+.s5-prt { display: grid; gap: 0; margin-block: var(--ads-space-12); border: 1px solid var(--ads-border-default); font-size: var(--ads-type-body-small-size); line-height: 1.4; }
+.s5-prt__r { display: grid; grid-template-columns: 1fr 1.3fr 1.1fr; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-12); border-top: 1px solid var(--ads-border-default); }
+.s5-prt__r:first-child { border-top: 0; }
+.s5-prt__r--h { font-weight: 600; background: var(--ads-background-surface-sunken); }
+.s5-prt__r [role="rowheader"] { font-weight: 600; }
+.s5-disc { flex-wrap: nowrap; }
+.s5-disc > span { flex: 1 1 auto; min-width: 0; }

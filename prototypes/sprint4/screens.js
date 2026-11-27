@@ -883,7 +883,7 @@ A['sign-out'] = () => dialog({ title: 'Sign out?', body: 'Recent stations will b
     toast('Signed out. Recent stations were cleared.');
   }]] });
 A.dark = t => { TB.theme = t.checked ? 'dark' : 'light'; pendingFocus = '[data-a="dark"]'; render(); };
-A['sign-in'] = () => startVerify('sign-in');
+A['sign-in'] = () => { if (V().net === 'offline') { toast('You’re offline. Connect to sign in.', 'info'); return; } startVerify('sign-in'); }; // NMA-975: no sign-in without a connection
 A['open-inbox-from-account'] = (t, ri) => push('inbox', {}, +ri);
 SCR.stub = r => ({ title: r.p.t, kind: 'push', banner: false, body: `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">${esc(r.p.t)} isn’t part of Sprint 4</p><p class="ads-body-small">This row keeps its place from the App Shell IA.</p></div>` });
 SCR.inbox = () => ({ title: 'Notification inbox', kind: 'root', banner: false, body: group('', [grow({ label: 'Fall fares are here', value: 'Save up to 25% on Northeast Regional trips booked by Oct 31.' }), grow({ label: 'You’re close to Select Executive', value: 'Earn 2,550 more tier qualifying points this year.' })], 'The inbox isn’t part of Sprint 4.') });
@@ -1196,7 +1196,7 @@ SCR.verify = (r) => {
     foot = busyBtn(c, 'Continue', 'Checking', 'data-a="vf-reauth"');
   } else if (step === 'signin') {
     title = 'Sign in';
-    body = `${prog}<p class="ads-body-small">Demo sign-in for ${esc(d.profile.first)} ${esc(d.profile.last)}. The details are filled in.</p>${fieldHtml({ id: 'vf-email', f: 'email', label: 'Email or Guest Rewards number', value: x.email, autocomplete: 'username', req: true })}${fieldHtml({ id: 'vf-pw', f: 'password', label: 'Password', type: 'password', value: x.password || 'demo-pass', autocomplete: 'current-password', req: true })}<p class="ads-body-small ads-text-secondary">This device isn’t remembered, so we’ll ask for a code.</p>`;
+    body = `${prog}<p class="ads-body-small">Demo sign-in for ${esc(d.profile.first)} ${esc(d.profile.last)}. The details are filled in.</p>${fieldHtml({ id: 'vf-email', f: 'email', label: 'Email or Guest Rewards number', value: x.email, autocomplete: 'username', req: true, err: e.email })}${fieldHtml({ id: 'vf-pw', f: 'password', label: 'Password', type: 'password', value: x.password || 'demo-pass', autocomplete: 'current-password', req: true, err: e.password })}<p class="ads-body-small ads-text-secondary">This device isn’t remembered, so we’ll ask for a code.</p>`;
     foot = busyBtn(c, 'Sign in', 'Signing in', 'data-a="vf-signin"');
   } else if (step === 'newemail') {
     title = 'Change email';
@@ -1229,7 +1229,7 @@ SCR.verify = (r) => {
 const coverNext = () => { const c = nav().cover; c.i++; c.status = 'idle'; c.u.err = {}; c.u.alert = null; pendingFocus = 'title'; render(); };
 function sendCode() { const c = nav().cover; c.sends++; c.u.d.code = ''; c.status = 'idle'; startCooldown(); }
 A['vf-reauth'] = () => { const c = nav().cover, x = c.u.d, e = {}; if (!x.email) e.email = 'Enter your email or Guest Rewards number.'; if (!x.password) e.password = 'Enter your password.'; else if (x.password === 'wrong') e.password = 'The email or password is incorrect.'; c.u.err = e; if (Object.keys(e).length) { pendingFocus = '[aria-invalid="true"]'; render(); return; } runNet(c, () => {}, () => coverNext(), { what: 'continue' }); };
-A['vf-signin'] = () => { const c = nav().cover; runNet(c, () => {}, () => coverNext(), { what: 'sign in' }); };
+A['vf-signin'] = () => { const c = nav().cover, x = c.u.d, e = {}; if (!x.email) e.email = 'Enter your email or Guest Rewards number.'; else if (!/^\S+@\S+\.\S+$/.test(x.email) && !/^\d{6,12}$/.test(x.email.replace(/\s/g, ''))) e.email = 'Enter a valid email or Guest Rewards number.'; if (x.password === 'wrong') e.password = 'The email or password is incorrect.'; c.u.err = e; if (Object.keys(e).length) { pendingFocus = '[aria-invalid="true"]'; render(); return; } runNet(c, () => {}, () => coverNext(), { what: 'sign in' }); };
 A['vf-newemail'] = () => {
   const c = nav().cover, x = c.u.d, cur = D().profile.email;
   const v = (x.newEmail || '').trim();
