@@ -244,7 +244,7 @@ function netAlert(r) {
   const a = r.u.alert; if (!a) return '';
   if (a.kind === 'offline') return alertBox('warning', 'You’re offline', `Connect to the internet to ${a.what}. Everything you entered is kept.`);
   if (a.kind === 'timeout') return alertBox('warning', 'This is taking longer than usual', 'Check your connection and try again.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="retry">Try again</button>');
-  if (a.kind === 'error') return alertBox('error', a.what === 'find trains' ? 'We couldn’t search right now' : 'We couldn’t save your changes', 'Something went wrong on our side. Everything you entered is kept.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="retry">Try again</button>');
+  if (a.kind === 'error') return alertBox('error', a.what === 'find trains' ? 'We couldn’t search right now' : 'We couldn’t save your changes', 'Something went wrong on our side. Everything you entered is kept.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="retry">Try again</button> <button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="alert-close">Close</button>'); // NMA-759 AC#3/AC#4: retry or dismiss
   if (a.kind === 'custom') return alertBox(a.tone, a.title, a.text, a.action || '');
   return '';
 }
@@ -268,7 +268,7 @@ function endVerify(ok) {
     const old = d.profile.email; d.profile.email = c.u.d.newEmail;
     mockEmail('email-changed-old', { to: old, newEmail: c.u.d.newEmail, first: d.profile.first }); mockEmail('email-changed-new', { to: c.u.d.newEmail, first: d.profile.first });
     pendingFocus = 'title'; toast('Your email has been updated. We let your old and new addresses know.'); }
-  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = 'title'; toast(`Signed in as ${d.profile.first} ${d.profile.last}`); }
+  else if (c.trigger === 'sign-in') { d.signedIn = true; d.verified = true; /* NMA-975 AC3: signing in keeps the in-app context. With a booking open, the search, travelers and selections stay; otherwise the search fields carry into a member booking. */ if (!v.nav.sheet) d.booking = Object.assign(freshBooking(d), { from: d.booking.from, to: d.booking.to, trip: d.booking.trip, dep: d.booking.dep, ret: d.booking.ret }); pendingFocus = v.nav.sheet ? '[data-k="s5-signin"], title' : 'title'; toast(`Signed in as ${d.profile.first} ${d.profile.last}`); }
   else { d.verified = true; pendingFocus = 'title'; render(); if (c.resume) c.resume(); }
 }
 let cooldownT;
@@ -496,6 +496,7 @@ A.back = (t, ri) => {
   popTo(i - 1);
 };
 A.push = (t, ri) => { const p = t.dataset.p ? JSON.parse(t.dataset.p) : {}; push(t.dataset.s, p, ri == null || ri === 'c' ? null : +ri); };
+A['alert-close'] = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r) { r.u.alert = null; pendingFocus = 'title'; render(); } };
 A.retry = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r && r.u.retry) r.u.retry(); };
 A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was sent. Your entries are kept.' }; render(); } };
 A['cover-cancel'] = () => endVerify(false);

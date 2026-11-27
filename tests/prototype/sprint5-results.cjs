@@ -23,7 +23,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open(); await find();
   let t = await txt(), c = await cards();
   ok(await stack() === 'ff>handoff' && /Departure/.test(t), 'Find trains opens the Departure results');
-  ok(/NYP New York .* WAS Washington/.test(t) && /Thu, Nov 5 · 1 adult · 11 trains/.test(t), 'AC1 header: route, date, travelers and number of results');
+  ok(/NYP New York .* WAS Washington/.test(t) && /Thu, Nov 5 · 1 adult · 11 trips/.test(t), 'AC1 header: route, date, travelers and number of results');
   ok(c.length === 11, 'AC7 every trip returned is shown (11), none truncated');
   const segs = await ev(() => s5Sorted(s5Trips(D().booking, 'dep').list).map(x => [x.segs, x.dep, x.status, x.low]));
   ok(segs.every((x, i) => !i || x[0] > segs[i - 1][0] || (x[0] === segs[i - 1][0] && x[1] >= segs[i - 1][1])), 'AC6 default order: most direct first, then earliest departure');
@@ -56,7 +56,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.locator(D_ + '[data-topic="s5-pricing"]').click(); await w(400);
   ok(/Seats/.test(await txt()) && /Rooms/.test(await txt()) && /total for all travelers/.test(await txt()), 'pricing sheet explains seat and room prices'); await axe('pricing sheet');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
-  ok(await ev(() => TB.s5c == null) && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && await p.locator(D_ + '.s5-tools [data-topic="s5-fares"]').count() === 0, 'Concept Update 1 is the default: Compare classes on results, no fare types link');
+  ok(await ev(() => TB.s5c == null) && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && await p.locator(D_ + '.s5-tools [data-topic="s5-fares"]').count() === 1, 'Concept Update 1 is the default: Compare classes on results, with the fare comparison beside it (NMA-1097)');
   ok(!/crosses the U.S.–Canada border/.test(await txt()), 'no border information on a domestic trip');
   await open('returning', "s5().outcome = 'border'"); await find();
   ok(/This trip crosses the U.S.–Canada border/.test(await txt()), 'border information on a cross-border trip');
@@ -167,7 +167,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // ---- Results concepts (design exploration): compare the experience of each class ----
   ok(await ev(() => [...document.querySelector('#tbS5c').options].map(o => o.text.split(':')[0]).join()) === 'Concept Update 1,Concept Update 3,Concept Update 4' && /\(Sprint 5\)/.test(await ev(() => document.querySelector('label[for="tbS5c"]').textContent)), 'concept switcher: Current, Concept Update 1, Concept Update 2 (labelled Sprint 5)');
   await open('returning', "TB.s5c = 'c1'"); await find();
-  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 0 && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: Compare classes replaces fare types on results; tagged Proposed');
+  ok(await p.locator(D_ + '[data-topic="s5-fares"]').count() === 1 && await p.locator(D_ + '[data-topic="s5-classes"]').count() === 1 && /Proposed · Concept Update 1/.test(await tags()), 'Concept 1: Compare classes and Compare fares on results; tagged Proposed');
   await p.locator(D_ + '[data-topic="s5-classes"]').click(); await w(400);
   t = await txt();
   ok(/Compare classes/.test(t) && /Seat/.test(t) && /Lounge/.test(t) && await ev(() => [...document.querySelectorAll('#device .s5-cmp__col')].map(e => e.textContent).join()) === 'Coach,Business,First,Private rooms' && await stack() === 'ff>handoff', 'Concept 1: Compare classes sheet compares each class on these trains without leaving results'); await axe('compare classes');
@@ -236,7 +236,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
 
   // ---- Overarching updates: header, full screen, Sprint 6 tag, price-first card ----
   await open(); await find();
-  ok(await ev(() => { const h = document.querySelector('#device .pane:last-child .ads-navbar__title'); return /NYP New York → WAS Washington/.test(h.textContent) && /Departure · Thu, Nov 5 · 1 adult · 11 trains/.test(h.querySelector('.ads-navbar__sub').textContent); }), 'the route, date, travelers and number of trains are in the header');
+  ok(await ev(() => { const h = document.querySelector('#device .pane:last-child .ads-navbar__title'); return /NYP New York → WAS Washington/.test(h.textContent) && /Departure · Thu, Nov 5 · 1 adult · 11 trips/.test(h.querySelector('.ads-navbar__sub').textContent); }), 'the route, date, travelers and number of trains are in the header');
   ok(await ev(() => { const s = document.querySelector('#device .psheet'); const d = document.querySelector('#device').getBoundingClientRect(); return s.classList.contains('psheet--full') && Math.abs(s.getBoundingClientRect().top - d.top) < 1 && s.getBoundingClientRect().height >= d.height - 1; }), 'results open full screen, not as a drawer');
   ok(await ev(() => { const c = document.querySelector('#device [data-trip="t1"]'); const amt = c.querySelector('.s5-from__amt'), tm = c.querySelector('.s5-trip__times'); const lo = Math.min(...[...c.querySelectorAll('.s5-class__price')].map(e => +e.textContent.replace(/[^0-9.]/g, '')).filter(Boolean)); return +amt.textContent.replace(/[^0-9.]/g, '') === lo && parseFloat(getComputedStyle(amt).fontSize) > parseFloat(getComputedStyle(tm).fontSize); }), 'the card leads with its lowest price, larger than the times');
   ok(await ev(() => /Canceled/.test(document.querySelector('#device [data-trip="t5"] .s5-from').textContent) && /Sold out/.test(document.querySelector('#device [data-trip="t6"] .s5-from').textContent)), 'canceled and sold-out trips say so where the price would be');
@@ -271,7 +271,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => [...NOTES.scope].some(n => /Sprint 6/.test(n) && /1097/.test(n) && /1109/.test(n) && /1092/.test(n) && /757/.test(n) && /Cancelled: NMA-1105, 1138, 1141 and 1169/.test(n))) && await ev(() => [...NOTES.scope].some(n => /NMA-620/.test(n))), 'Sprint 6 moves, cancellations and the NMA-620 move are in the reviewer notes');
   await p.locator(D_ + '[data-trip="t1"] [data-a="s5-fare"][data-cls="Coach"]').click(); await w(500);
   await p.locator(D_ + '.pane:last-child [data-topic="s5-fares"]').click(); await w(300);
-  ok(/Compare fare types/.test(await txt()) && /Flex/.test(await txt()) && /Sprint 6 · NMA-1097/.test(await tags()), 'fare types (NMA-1097, now Sprint 6) open from Choose a fare and are tagged Sprint 6');
+  ok(/Compare fare types/.test(await txt()) && /Flex/.test(await txt()) && /About this fare/.test(await txt()) && /Refundability/.test(await txt()) && /Restrictions/.test(await txt()), 'fare comparison (NMA-1097) opens from Choose a fare with description, refundability and restrictions');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
 
   // ---- NMA-758 (Ready for Design): sort and filter ----
@@ -306,7 +306,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   // ---- NMA-760 (Ready for Design): service and station alerts ----
   await open('returning', "s5().outcome = 'alerts'"); await find();
   const al = await ev(() => [...document.querySelectorAll('#device .s5-alert__type')].map(e => e.textContent));
-  ok(al.join('|') === 'Service alert|Station alert · New York|Station alert · Washington|Passenger service notice', `alerts in order: service, station (origin and destination), passenger notice (${al.join('|')})`);
+  ok(al.join('|') === 'Service alert|Station alert · Philadelphia|Station alert · New York|Station alert · Washington|Passenger service notice', `alerts in order: service, station (transfer, origin, destination; most recent first), passenger notice (${al.join('|')})`);
   await p.locator(D_ + '[data-a="s5-alert"]').first().click(); await w(400);
   ok(/winter storm/.test(await txt()) && await stack() === 'ff>handoff', 'an alert opens its full text in the app');
   await p.locator(D_ + '[data-a="info-close"]').last().click({ force: true }); await w(300);
@@ -403,6 +403,37 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(c.filter(x => x.cls.some(k => !k[1])).every(x => x.cls.filter(k => !k[1]).every(k => k[2] === '$0')), 'NMA-1140 Business travel: every class offered shows $0');
   await open(); await find(); await axe('results light');
   await open('returning', '', 'dark'); await find(); await axe('results dark');
+  // ---- Sprint 5/6 story alignment (2026-11-27) ----
+  await open('returning', "b.from = 'NYP'; b.to = 'MTR';"); await find();
+  await p.locator(D_ + '[data-a="s5-sf-open"]').click(); await w(500);
+  ok(/Sort by/.test(await txt()), 'NMA-758: Sort and filter opens on a cross-border route');
+  await ev(() => { nav().info = null; render(); }); await p.locator(D_ + '.s5-details').first().click(); await w(500);
+  ok(/crosses the U\.S\.–Canada border/.test(await txt()) && await p.locator(D_ + '.info-body [data-a="info-push"][data-topic="s5-border"]').count() === 1 && /Total trip time: .* stops?/.test(await txt()), 'NMA-1093: route details show border inspection info, with the number of stops');
+  await ev(() => { nav().info = null; render(); });
+  await open('returning'); await find(); await ev(() => openInfo('s5-trip:t11')); await w(400);
+  ok(await p.locator(D_ + '.info-body .s5-seg').count() === 3 && await p.locator(D_ + '.info-body .s5-conn').count() === 2, 'NMA-1093: a 3-segment trip lists each segment and both connections');
+  await ev(() => openInfo('s5-trip:t3')); await w(400);
+  ok(await p.locator(D_ + '.info-body .s5-stop .s5-was').count() >= 2, 'NMA-1093: a delayed train shows scheduled and updated times in the route');
+  await ev(() => { nav().info = null; render(); });
+  ok(await ev(() => { const l = s5Trips(D().booking, 'dep').list, by = k => [...l].sort(S5_SORTS[k][1]); return by('dep').every((t, i, a) => !i || a[i - 1].dep < t.dep || (a[i - 1].dep === t.dep && a[i - 1].arr <= t.arr)) && by('fare').every((t, i, a) => !i || a[i - 1].first <= t.first); }), 'NMA-758: departure ties sort by arrival; lowest fare uses the first available class');
+  await open('returning', "b.trip = 'rt'; b.ret = '2026-11-08'; s5().outcome = 'nodate-both'"); await find();
+  ok(/No trains on your dates/.test(await txt()) && /return on/.test(await txt()), 'NMA-759 BR#1.2: both dates unavailable, with the next dates for each');
+  await ev(() => { nav().dialog = null; render(); });
+  await open('returning', "s5().outcome = 'alerts'"); await find();
+  ok(/Station alert · Philadelphia/.test(await txt()), 'NMA-760 AC#2: the transfer station has its alert');
+  await open('passrider', "b.prType = 'business'"); await find();
+  ok(await ev(() => s5Trips(D().booking, 'dep').list.filter(t => /Acela/.test(t.name)).every(t => !('First' in t.cls))), 'NMA-1140 AC#1: no Acela First on Pass Rider business travel');
+  await open('returning', "b.disc = 'military'; b.code = clone(PROFILE_CODES[0]); b.codeState = 'applied';"); await find();
+  ok(/Fall Northeast sale: 20% off Northeast Regional Coach, Military apply/.test(await txt()) && !/NMA-764/.test(await tags()), 'NMA-764: the card names the code and the traveler discount together');
+  await p.locator(D_ + '[data-topic="s5-disc"]').first().click(); await w(400);
+  ok(/Your discounts/.test(await txt()) && /active-duty/.test(await txt()), 'NMA-764: discount rules open from the card');
+  await ev(() => { nav().info = null; render(); });
+  await open('guest'); await find();
+  ok(await p.locator(D_ + '[data-a="sign-in"][data-k="s5-signin"]').count() === 1, 'NMA-975 AC1: guests can sign in from results');
+  await ev(() => { V().net = 'offline'; render(); }); await p.locator(D_ + '[data-k="s5-signin"]').click(); await w(400);
+  ok(await ev(() => !nav().cover) && /offline/i.test(await txt()), 'NMA-975: offline, sign-in says a connection is needed and doesn’t open');
+  await ev(() => { V().net = 'online'; V().toast = null; D().booking.pax.adult = 2; render(); startVerify('sign-in'); endVerify(true); }); await w(500);
+  ok(await ev(() => D().signedIn && D().booking.from === 'NYP' && D().booking.pax.adult === 2 && nav().sheet && nav().sheet.stack.some(r => r.s === 'handoff')), 'NMA-975 AC3: after sign-in the results, search and travelers are still there');
   ok(!errs.length, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   await br.close(); process.exit(res.every(r => r[0]) ? 0 : 1);
