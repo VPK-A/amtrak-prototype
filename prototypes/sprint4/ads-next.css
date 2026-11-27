@@ -475,3 +475,45 @@
 .ds-next .mobq__card:not(.mobq__card--field) { padding: 0; background: none; border: 0; }
 .ds-next .mobq__card:not(.mobq__card--field) .ads-choice { min-height: 55px; }
 .ds-next .stinfo-dl dd { text-align: left; }
+
+/* ===== Error styling per Figma (ED.4, AS.4, TR.5, TR.14, VF.3) ===== */
+/* .helper[error]: a 24px alert-diamond, 4px gap, Caption in text-error */
+.ds-next .ads-helper--error { gap: var(--ads-space-4); align-items: center; font-size: var(--ads-type-caption-size); line-height: 1.5; color: var(--ads-content-text-error); }
+.ds-next .ads-helper--error > .ads-icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); margin-block: -4px; color: var(--ads-content-icon-error); }
+/* Group in error: a 1px border/status-error box around the group (padding 12 / 20) */
+.ds-next .assistform fieldset:has(> .ads-helper--error) { outline: 1px solid var(--ads-border-status-error); outline-offset: var(--ads-space-12); border-radius: 0; }
+/* List in error: the List outline turns border/status-error; a row in error is outlined with its message inside */
+.ds-next .travsel .pr-card:has(~ .ffc-problems), .ds-next .travsel .ffc-counts:has(~ .ffc-problems) { border-color: var(--ads-border-status-error); }
+.ds-next .travsel .ffc-count:has(.fam-counterr) { outline: 1px solid var(--ads-border-status-error); outline-offset: -1px; flex-wrap: wrap; }
+.ds-next .travsel .ffc-count .fam-counterr { flex: 1 0 100%; }
+.ds-next .travsel .ffc-problems { margin-top: 0; }
+/* Dates (Figma DT.3): Save selection keeps the primary look while it waits for a date; the reason is shown above it */
+.ds-next .pane--calx .pane__foot .ads-btn:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary); color: var(--ads-content-text-on-brand); opacity: 1; }
+.prpolicy { margin: 0; font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-primary); }
+
+/* ===== Remaining states pass (FF.6, FF.9, FF.10, ST.19, DT.3, TR.14, TR.19) ===== */
+/* FF.6: a missing station outlines only that half of the station card */
+.ds-next .ads-stationgroup.ads-fieldgroup--error:has(> .ads-fieldgroup__field[aria-invalid="true"]):not(:has(> .ads-fieldgroup__field[aria-invalid="true"] ~ .ads-fieldgroup__field[aria-invalid="true"])) { border-color: var(--ads-border-default); box-shadow: none; outline: 0; }
+.ds-next .ads-stationgroup.ads-fieldgroup--error > .ads-fieldgroup__field[aria-invalid="true"] { outline: 1px solid var(--ads-border-status-error); outline-offset: 0; }
+/* FF.9 / FF.12: booking notices are the Figma Alert: Body text, top accent, square */
+.ds-next .ads-bookingsheet__form > .ads-alert, .ds-next .pane__body > .ads-alert { border: 0; border-top: 3px solid var(--ads-border-status-info, #3483e6); border-radius: 0; padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-12) var(--ads-space-12); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: 1.5; }
+/* FF.10: the booking-type footnote is Body Small */
+.ds-next .ss-note.v1modes__none { font-size: var(--ads-type-body-small-size); line-height: 1.5; color: var(--ads-content-text-secondary); }
+/* ST.19 / ST.23: Cancel is a small underlined link; the Auto Train tag is neutral */
+.ds-next .ss-cancel { font-size: var(--ads-type-body-small-size); font-weight: 400; letter-spacing: 0; text-decoration: underline; padding-inline: var(--ads-space-8) 0; min-width: 0; }
+.ds-next .ads-stationrow__tag.ads-badge { background: var(--ads-background-surface-sunken); color: var(--ads-content-text-primary); border: 0; font-weight: 600; }
+/* DT.3: Save selection keeps its primary colour while a date is still needed */
+.ds-next .pane--calx .pane__foot .ads-btn.ads-btn--block:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary) !important; color: var(--ads-content-text-on-brand) !important; border-color: transparent !important; opacity: 1 !important; }
+/* TR.14: the row error runs full width under the label and counter */
+.ds-next .travsel .ffc-count:has(.fam-counterr) { position: relative; padding-bottom: calc(var(--ads-space-12) + 34px); }
+.ds-next .travsel .ffc-count .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
+.ds-next .travsel .ffc-count .fam-counterr { margin: 0; }
+/* TR.5 / TR.14: the reason is shown beside the list, so the footer copy is for assistive tech only */
+.ds-next .travsel .pane__foot > #trav-why, .ds-next .pane:has(.travsel) .pane__foot > #trav-why { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
+/* TR.19: "From profile" is a square tag */
+.ds-next .travsel .ads-lock { border-radius: var(--ads-radius-2, 2px); font-weight: 600; color: var(--ads-content-text-primary); padding: var(--ads-space-4) var(--ads-space-8); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__content { padding: 0 var(--ads-space-8); }
+.ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__icon { margin-top: 0; }
+.ds-next .ads-bookingsheet__form > .ads-alert { align-items: flex-start; }
+.ds-next .travsel .ffc-count:has(.fam-counterr) { padding-bottom: calc(var(--ads-space-12) + 40px); }
