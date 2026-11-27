@@ -33,7 +33,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok(await ev(() => [...document.querySelectorAll('#device .pane--calx .pane__foot .ads-btn')].map(b => b.textContent + (b.classList.contains('ads-btn--secondary') ? ':secondary' : '')).join()) === 'Save selection,Clear:secondary' && await p.locator(D_ + '.calx-legend, ' + D_ + '.cal-pick').count() === 0, 'footer: Save selection and a secondary Clear; no legend or tabs');
   ok(await ev(() => { const t = document.querySelector('#device [data-k="day-2026-10-28"]'); return getComputedStyle(t, '::after').width === '4px' && getComputedStyle(t).textDecorationLine === 'none'; }) && await ev(() => getComputedStyle(document.querySelector('#device [data-k="day-2026-10-27"]')).textDecorationLine) === 'none', 'today has a dot; past days greyed, not struck through');
   await click('[data-a="calx-clear"]', 300);
-  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 1 && /Choose a departure date\./.test(await ev(() => document.querySelector('#device #calx-done-why').textContent)) && await p.locator(D_ + '.calx [aria-pressed="true"]').count() === 0, 'Clear empties the selection; Save selection waits, with the reason');
+  ok(await p.locator(D_ + '[data-a="calx-done"]:disabled').count() === 0 && await ev(() => [...document.querySelectorAll('#device .calx [aria-pressed="true"]')].map(e => e.dataset.k).join()) === 'day-2026-10-28', 'Clear resets the departure to today; Save selection stays available');
   await click('[data-k="day-2026-11-05"]', 300);
   await click('[data-a="calx-done"]');
   ok(await top() === 'ff' && (await bk()).dep === '2026-11-05' && (await bk()).ret === null && /11\/05\/2026/.test(await txt()), 'Done saves the date and returns to Fare Finder');
