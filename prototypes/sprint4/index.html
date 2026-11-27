@@ -3893,6 +3893,27 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .pane--s5 .ads-navbar__sub { font-size: var(--ads-type-caption-size); font-weight: 400; }
 .ds-next .psheet .pane--s5 .ads-navbar .ads-navbar__title, .pane--s5 .ads-navbar .ads-navbar__title { font-size: var(--ads-type-body-small-size) !important; line-height: 1.3 !important; font-weight: 600; }
 
+/* Figma header actions and exact card height */
+.s5f .s5-classes { border-top: 0; padding-top: 0; }
+.s5f--f2 .s5-classes { border-top: 1px solid var(--ads-border-strong, #534b45); }
+.s5f__time { height: 14px; }
+.s5f--f2 .s5f__time { height: 12px; }
+.s5-hbtn, .ds-next .s5-hbtn { min-height: 36px; height: 36px; border-radius: var(--ads-radius-2, 2px); padding-inline: var(--ads-space-12); font-size: var(--ads-type-body-small-size); letter-spacing: 0; white-space: nowrap; }
+.s5-hbtn--menu, .ds-next .s5-hbtn--menu { position: relative; width: 36px; min-width: 36px; padding: 0; color: var(--ads-content-text-primary); border-color: var(--ads-border-strong, #534b45); }
+.s5-hbtn__dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--ads-background-interactive-primary); }
+.pane--s5:has(.s5v--f1) .s5-tools__links { display: none; }
+.s5-menu { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ads-border-default); border-radius: var(--ads-radius-4); background: var(--ads-background-surface-default); }
+.s5-menu li + li { border-top: 1px solid var(--ads-border-default); }
+.s5-menu__row { display: flex; align-items: center; gap: var(--ads-space-12); width: 100%; min-height: 60px; padding: var(--ads-space-12) var(--ads-space-16); border: 0; background: none; color: var(--ads-content-text-primary); font: inherit; text-align: start; cursor: pointer; }
+.s5-menu__row:focus-visible { outline: 2px solid var(--ads-border-focus); outline-offset: -2px; }
+.s5-menu__l { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+.s5-menu__l b { font-weight: 600; font-size: var(--ads-type-body-size); }
+.s5-menu__l span { font-size: var(--ads-type-body-small-size); color: var(--ads-content-text-secondary); }
+.pane--s5 .ads-navbar:has(.s5-hbtn) { display: flex; align-items: center; gap: var(--ads-space-8); }
+.pane--s5 .ads-navbar:has(.s5-hbtn) .ads-navbar__title { position: static; transform: none; flex: 1 1 auto; min-width: 0; max-width: none; margin: 0; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pane--s5 .ads-navbar:has(.s5-hbtn) .ads-navbar__sub { overflow: hidden; text-overflow: ellipsis; }
+.pane--s5 .ads-navbar:has(.s5-hbtn) .ads-navbar__lead, .pane--s5 .ads-navbar:has(.s5-hbtn) .ads-navbar__trail { position: static; flex: none; }
+
 </style>
 </head>
 <body class="ads-root chrome-hidden">
@@ -5362,6 +5383,7 @@ function navbar(o, ri, ctx) {
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-icon-btn ads-navbar__iconback" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}</button>`; // icon-only Back everywhere (Figma .sheetHeader: Icon Button, chevron-left, 44px)
     if (ctx.showClose && !noX) trail = close;
+    if (o.trail) trail = o.trail; // a screen's own header action (search results: options menu or Filter)
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
   return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}${o.titleSub ? `<span class="ads-navbar__sub">${o.titleSub}</span>` : ''}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
@@ -9648,6 +9670,11 @@ function s5Parts(t, r, b, ctx) {
 // Figma trip card (Concepts 1 to 3). One markup, three looks: Concept 1 is condensed with a tinted service header and
 // opens in place to the service summary, amenities and route; Concepts 2 and 3 add the trip attributes box.
 const s5t = m => s5time(m).replace(' AM', 'am').replace(' PM', 'pm');
+// Options menu behind the header's ⋮ button (Concept 1): everything the row of links offered on results
+INFO['s5-menu'] = { title: 'Options', body: () => { const b = D().booking, pr = intentOf(b) === 'pr', many = s5Trips(b, s5Leg()).list.length > 1, nf = s5FiltCount(s5().filt);
+  const row = (attrs, icon, label, sub) => `<li><button class="s5-menu__row" type="button" ${attrs}>${ic(icon)}<span class="s5-menu__l"><b>${label}</b>${sub ? `<span>${sub}</span>` : ''}</span>${ic('chevron-right', 'ads-icon--sm')}</button></li>`;
+  return `<ul class="s5-menu">${many ? row('data-a="s5-sf-open"', 'trip-swap-vertical', 'Sort and filter', `Sorted by ${S5_SORTS[s5().sort][0].toLowerCase()}${nf ? ` · ${nf} filter${nf === 1 ? '' : 's'} on` : ''}`) : ''}${row('data-a="info-push" data-topic="s5-classes"', 'seat', 'Compare classes', 'Seats, space and what’s included')}${row('data-a="info-push" data-topic="s5-fares"', 'dollar', 'Compare fares', 'Changes, refunds and bags')}${row(`data-a="info-push" data-topic="${pr ? 's5-prpolicy' : 's5-pricing'}"`, 'info-circle', pr ? 'Pass Rider pricing' : 'How prices are shown', '')}</ul>`; } };
+A['s5-menu'] = () => openInfo('s5-menu', '[data-a="s5-menu"]');
 A['s5f-open'] = t => { const st = s5(); st.fopen = st.fopen === t.dataset.trip ? null : t.dataset.trip; if (st.fopen) { st.dtab = 'services'; st.fsvc = 0; } pendingFocus = `[data-a="s5f-open"][data-trip="${t.dataset.trip}"]`; render(); };
 HOOKS.s5fsvc = (r, t) => { s5().fsvc = +t.value; pendingFocus = `#${t.id}`; render(); };
 function s5FigCard(t, r, b, ctx) {
@@ -9659,8 +9686,8 @@ function s5FigCard(t, r, b, ctx) {
   const status = x.canceled ? '<span class="s5f__canceled">Canceled</span>' : '';
   const head = v === 'f1'
     ? `<button class="s5f__head s5f__head--btn" type="button" data-a="s5f-open" data-trip="${t.id}" aria-expanded="${open}" aria-controls="s5f-more-${t.id}">${ic(svc[0])}<span class="s5f__name">${label}${sr}</span>${ic(open ? 'chevron-up' : 'chevron-down', 'ads-icon--sm s5f__chev')}</button>`
-    : `<div class="s5f__head">${ic(svc[0], 'ads-icon--sm')}<span class="s5f__name">${label}${sr}</span>${info}${status}</div>`;
-  const attrs = v === 'f1' ? '' : `<p class="s5f__attrs"><span>${ic(svc[0], 'ads-icon--sm')}${svc[1] === 'Train' ? 'Train service' : svc[1] === 'Bus' ? 'Bus service' : svc[1]}</span><span>${ic('arrow-right', 'ads-icon--sm')}${multi ? 'Multi-segment trip' : 'Direct trip'}</span></p>`;
+    : `<div class="s5f__head">${ic(v === 'f2' && /Northeast Regional/.test(nm0) ? 'route-northeast-regional' : svc[0], 'ads-icon--sm')}<span class="s5f__name">${label}${sr}</span>${info}${status}</div>`;
+  const attrs = v === 'f1' ? '' : `<p class="s5f__attrs"><span>${ic(svc[0], 'ads-icon--sm')}${svc[1] === 'Train' ? 'Train service' : svc[1] === 'Bus' ? 'Bus service' : svc[1]}</span><span>${ic(multi ? 'trip-multisegment' : 'trip-one-way', 'ads-icon--sm')}${multi ? 'Multi-segment trip' : 'Direct trip'}</span></p>`;
   const tcol = (m, st, side) => `<span class="s5f__col s5f__col--${side}"><span class="s5f__date">${fmtShort(addDays(r.date, Math.floor((m + t.delay) / 1440)))}</span><b class="s5f__time"><span class="ads-sr-only">${side === 'a' ? 'Departs' : 'Arrives'} </span>${s5t(m + t.delay)}</b>${delayed ? `<s class="s5f__was"><span class="ads-sr-only">Scheduled </span>${s5t(m)}</s>` : ''}<span class="s5f__stn">${esc(st.name.length > 22 ? st.city + ', ' + st.st : st.name)}</span></span>`;
   const inds = [...x.tags.matchAll(/>([^<]+)<\/span>/g)].map(m => m[1]).filter(l => l !== 'Sale'), tags = '';
   const classes = x.classes.replace(/>Sale fare available</g, '>Sale<').replace(/>Only \d+ (seat|room)s? left at this price</g, '>Few $1s left<');
@@ -9673,13 +9700,13 @@ function s5FigCard(t, r, b, ctx) {
   let more = '';
   if (open) {
     const segs = multi ? s5Segs(t, r).map(q => Object.assign({}, q, { dep: q.dep - t.delay, arr: q.arr - t.delay })) : [{ name: t.name, num: t.num, svc: t.svc === 'bus' ? 'bus' : 'train', from: ST[r.from], to: ST[r.to], dep: t.dep, arr: t.arr, layover: 0 }];
-    const sum = segs.map((q, i) => `<li>${ic(q.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<span>${q.num} ${esc(q.name)}</span><span class="s5f__sumr">Service ${i + 1}</span></li>${q.layover ? `<li>${ic('clock', 'ads-icon--sm')}<span>${esc(q.to.city)}, ${q.to.st}</span><span class="s5f__sumr">Layover</span></li>` : ''}`).join('');
+    const sum = segs.map((q, i) => `<li>${ic(q.svc === 'bus' ? 'bus' : 'train', 'ads-icon--sm')}<span>${q.num} ${esc(q.name)}</span><span class="s5f__sumr">Service ${i + 1}</span></li>${q.layover ? `<li>${ic('trip-interruption', 'ads-icon--sm')}<span>${esc(q.to.city)}, ${q.to.st}</span><span class="s5f__sumr">Layover</span></li>` : ''}`).join('');
     const tab = s5().dtab === 'route' ? 'route' : 'services', tb = (k, l) => `<button class="ads-tab" type="button" role="tab" id="s5d-${k}" aria-selected="${tab === k}" aria-controls="s5d-panel" tabindex="${tab === k ? 0 : -1}" data-a="s5-dtab" data-v="${k}">${l}</button>`;
     let panel;
     if (tab === 'services') {
       // Amenities & Add-ons: choose a service, then its amenities as an accordion (Figma 271:15789, frame 2)
       const si = Math.min(s5().fsvc || 0, segs.length - 1), cur = segs[si], bus = cur.svc === 'bus';
-      const items = bus ? [['luggage', 'Checked baggage', 'Bags travel under the bus. Carry-on bags are always free.']] : [...(t.unreserved ? [] : [['seat', 'Reserved seats', 'View and select your seats before traveling. Seat choices may be changed after your booking is complete.']]), ...S5_AMENITIES.filter(([, , , rooms]) => !rooms || 'Rooms' in t.cls).map(([i, n, d]) => [i, n, d]), ['plus-circle', 'Add-ons', t.add.length ? `Offered on this train: ${t.add.join(', ')}. You can add them after you choose a fare.` : 'No add-ons are offered on this train.']];
+      const items = bus ? [['luggage', 'Checked baggage', 'Bags travel under the bus. Carry-on bags are always free.']] : [...(t.unreserved ? [] : [['seat', 'Reserved seats', 'View and select your seats before traveling. Seat choices may be changed after your booking is complete.']]), ...S5_AMENITIES.filter(([, , , rooms]) => !rooms || 'Rooms' in t.cls).map(([i, n, d]) => [i, n, d]), ...(/Northeast Regional|Acela/.test(cur.name) ? [['speaker-off', 'Quiet car', 'A car for quiet travel. Keep calls and conversations to a minimum.']] : [])];
       const pick = segs.length > 1 ? `<div class="ads-control ads-control--select s5fa__sel"><select id="s5fa-svc-${t.id}" data-hook="s5fsvc" aria-label="Service">${segs.map((q, i) => `<option value="${i}" ${i === si ? 'selected' : ''}>${q.num} ${esc(q.name)}</option>`).join('')}</select>${ic('chevron-down')}</div>` : `<p class="s5fa__one">${cur.num} ${esc(cur.name)}</p>`;
       panel = `<div class="s5fa"><h4 class="s5fa__h">Service</h4>${pick}${items.map(([i, n, d], j) => `<details class="ads-accordion ads-accordion--sm s5fa__item"${j === 0 ? ' open' : ''}><summary><span class="s5-amen__label">${ic(i, 'ads-icon--sm')}${n}</span>${ic('chevron-down')}</summary><div class="ads-accordion__panel"><p>${d}</p></div></details>`).join('')}</div>`;
     } else {
@@ -9795,12 +9822,15 @@ SCR.handoff = (r, ri) => {
     trips = `${chips ? `<div class="s5-jumps" role="group" aria-label="Jump to a trip"><span class="s5-jumps__l">Jump to</span>${chips}</div>` : ''}<ul class="s5-list s5-board" aria-labelledby="s5-count">${list.map(t => s5Row(t, res, b, ctx)).join('')}</ul>`;
   } else if (s5v() !== 'legacy') {
     snote('Search results design from Figma (Sprint 5 file). Concept 1: condensed cards with a tinted service header; a card opens in place to its service summary, amenities and route. Concept 2: a results count with sort and filter controls above cards that carry the trip attributes and joined fare buttons. Concept 3: cards with the trip attributes box, the Acela header tint and separate fare buttons. Kept from the stories where Figma is silent or differs: Lowest fare, Fastest trip, Sale and New train badges (NMA-755), the urgency signal per class (NMA-762, as Figma’s “Few seats left”; the count stays in the button’s accessible name), named discounts (NMA-764), self-transfer and border flags (NMA-1094, 1095), and prices per traveler (NMA-1098).');
-    const bar = s5v() === 'f2' ? `<div class="s5f-bar"><span class="s5f-bar__n">${list.length} result${list.length === 1 ? '' : 's'}</span>${all.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-sf-open" data-k="s5f-sort">Sort by: ${S5_SORTS[s5().sort][0]}</button><button class="ads-btn ads-btn--secondary ads-btn--sm s5f-bar__f" type="button" data-a="s5-sf-open" data-k="s5f-filter">Filter${nf ? ` (${nf})` : ''}</button>` : ''}</div>` : '';
+    const bar = s5v() === 'f2' ? `<div class="s5f-bar"><span class="s5f-bar__n">${list.length} result${list.length === 1 ? '' : 's'}</span>${all.length > 1 ? `<button class="ads-link ads-link--sm linkbtn" type="button" data-a="s5-sf-open" data-k="s5f-sort">Sort by: ${S5_SORTS[s5().sort][0]}</button>` : ''}</div>` : '';
     trips = `<div class="s5v s5v--${s5v()}">${bar}<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5FigCard(t, res, b, ctx)).join('')}</ul></div>`;
   } else trips = `<ul class="s5-list" aria-labelledby="s5-count">${list.map(t => s5Card(t, res, b, ctx)).join('')}</ul>`;
   // NMA-758: filters that match nothing say so, with a way back
   if (!list.length && all.length) trips = `<div class="s5-nofilt" role="status"><p class="ads-body"><b>No trains match your filters</b></p><p class="ads-body-small">Try fewer filters to see more trains.</p><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="s5-sf-reset">Clear filters</button></div>`;
-  return { title: navTitle, titleSub: navSub, kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
+  // Figma header action: Concept 1 has an options menu (sort, filter, compare, pricing); Concept 2 has Filter with its count
+  const fig = s5c() === 'c1' && s5v() !== 'legacy' ? s5v() : '';
+  const trail = fig === 'f1' ? `<button class="ads-btn ads-btn--secondary s5-hbtn s5-hbtn--menu" type="button" data-a="s5-menu" aria-haspopup="dialog" aria-label="Options: sort, filter and compare${nf ? `. ${nf} filter${nf === 1 ? '' : 's'} on` : ''}">${ic('ellipsis-vertical', 'ads-icon--sm')}${nf ? '<span class="s5-hbtn__dot" aria-hidden="true"></span>' : ''}</button>` : fig === 'f2' && all.length > 1 ? `<button class="ads-btn ads-btn--secondary ads-btn--sm s5-hbtn" type="button" data-a="s5-sf-open" data-k="s5f-filter">Filter${nf ? ` (${nf})` : ''}</button>` : '';
+  return { title: navTitle, titleSub: navSub, trail, kind: 'push', backIcon: true, cls: 'pane--s5', offlineText: 'You can view these trains. Choosing a fare needs a connection.', foot, footCls: foot ? 'ads-actionfooter' : '',
     body: `<h3 class="ads-sr-only">Search results</h3>${head}${added}${alerts}${ptsCode}${noAssist}${border}${allSold}${tools}${trips}${details}` };
 };
 // Trip details open in the info sheet: route the "s5-trip:<id>" topic

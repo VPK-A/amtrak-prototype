@@ -364,6 +364,7 @@ function navbar(o, ri, ctx) {
   } else {
     if (ri > 0 && !ctx.hideBack) lead = `<button class="ads-icon-btn ads-navbar__iconback" type="button" data-a="back" aria-label="Back to ${esc(ctx.parentTitle || 'previous screen')}">${ic('chevron-left')}</button>`; // icon-only Back everywhere (Figma .sheetHeader: Icon Button, chevron-left, 44px)
     if (ctx.showClose && !noX) trail = close;
+    if (o.trail) trail = o.trail; // a screen's own header action (search results: options menu or Filter)
   }
   if (ctx.cover && o.kind !== 'editor') lead = `<button class="ads-navbar__btn" type="button" data-a="cover-cancel">Cancel</button>`;
   return `<div class="ads-navbar"><div class="ads-navbar__lead">${lead}</div><h2 class="ads-navbar__title${o.srTitle ? ' ads-sr-only' : ''}" tabindex="-1" ${o.srTitle ? '' : 'data-title'} id="t-${ri}">${esc(o.title)}${o.titleSub ? `<span class="ads-navbar__sub">${o.titleSub}</span>` : ''}</h2><div class="ads-navbar__trail">${trail}</div></div>`;
