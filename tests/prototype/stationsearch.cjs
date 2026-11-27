@@ -50,8 +50,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await click('#map-card [data-a="map-pin"][data-code="BBY"]'); ok(await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} a station in the group can be chosen`);
     // Details and back: position, zoom and selection kept
     const keep = await ev(() => JSON.stringify(sheet().stack.at(-1).u.map));
-    await click('#map-card [data-a="map-details"]'); ok((await stack()).endsWith('station-detail') && /Parking/.test(await txt()), `${T} Details shows station information, including parking`);
-    await click('.psheet [data-a="back"]'); await w(300);
+    await click('#map-card [data-a="map-details"]'); ok((await stack()).endsWith('stations') && await ev(() => !!nav().info && /^station:/.test(nav().info.stack[0])) && /Parking/.test(await ev(() => document.querySelector('#device .info-sheet').innerText)), `${T} Details shows station information, including parking, in a bottom sheet over the map (Figma ST.22)`);
+    await click('.info-sheet [data-a="info-close"]'); await w(300);
     ok((await stack()).endsWith('stations') && await ev(() => JSON.stringify(sheet().stack.at(-1).u.map)) === keep && await ev(() => sheet().stack.at(-1).u.mapSel) === 'BBY', `${T} back from Details keeps position, zoom and selected marker`);
     await click('[data-k="map-select"]');
     ok(await stack() === 'booking:ff' && await ev(() => D().booking.to === 'BBY' && D().booking.from === 'PHL'), `${T} map, both set: Select commits Arrival only and returns to New booking`);

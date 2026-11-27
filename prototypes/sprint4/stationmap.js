@@ -226,7 +226,7 @@ function nearSection(r, ri) {
   const recovery = (k, msg, acts) => `<div class="ads-alert ads-alert--${k === 'none' ? 'info' : 'warning'} ss-near__msg" role="status" id="near-msg" data-k="${k}">${ic(k === 'none' ? 'info-circle' : 'alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(msg.title)}</p><p class="ads-alert__description ads-body-small">${esc(msg.body)}</p>${acts ? `<div class="ss-near__acts">${acts}</div>` : ''}</div></div>`;
   const btn = (a, label, kind = 'secondary', extra = '') => `<button class="ads-btn ads-btn--${kind}" type="button" data-a="${a}" ${extra}>${label}</button>`;
   if (n.st === 'denied-alert') body = `<div class="ads-alert ads-alert--warning ss-localert" role="status" id="near-msg" data-k="denied">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(NEAR_MSG.deniedFirst.title)}</p><p class="ads-alert__description">${esc(NEAR_MSG.deniedFirst.body)}</p><button class="ads-link ads-link--sm linkbtn ss-localert__link" type="button" data-a="open-settings" data-what="app">Open settings</button></div><button class="ads-icon-btn ads-icon-btn--sm ss-localert__close" type="button" data-a="loc-alert-dismiss" aria-label="Dismiss: location isn’t allowed">${ic('close')}</button></div>`;
-  else if (n.st === 'locating' || n.st === 'loading') body = `<p class="ss-near__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>${n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading}</span></p>`;
+  else if (n.st === 'locating' || n.st === 'loading') body = ''; // said by the busy toast (busyToast below), so the list stays where it is
   else if (n.st === 'denied-first') body = recovery('denied-first', NEAR_MSG.deniedFirst, P === 'android' && !n.askedTwice ? btn('near-start', 'Try again', 'secondary', 'data-again="1"') : btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'denied') body = recovery('denied', NEAR_MSG.denied, btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'services-off') body = recovery('services-off', { title: NEAR_MSG.servicesOff.title, body: NEAR_MSG.servicesOff[P] }, btn('open-settings', 'Open Settings', 'secondary', 'data-what="device"'));
@@ -246,6 +246,12 @@ function nearSection(r, ri) {
   snote('Error and status messages for location and nearby search are configurable (NEAR_MSG in stationmap.js).');
   const list = n.st === 'results' ? body : '', msg = n.st === 'results' ? '' : body;
   return `${msg ? `<section class="ss-near" aria-label="Stations near you">${msg}</section>` : ''}<!--near-split-->${list}`; // messages end the selector's top block; nearby results start the list
+}
+// While the device location or the nearby stations are being found, the List view shows a toast with a spinner (Figma ST.12)
+function busyToast() {
+  const r = selRoute(), n = r && r.u.near, sh = sheet();
+  if (!n || !['locating', 'loading'].includes(n.st) || r.u.view === 'map' || sh.stack[sh.stack.length - 1] !== r || nav().cover || nav().dialog || nav().info || nav().native) return null;
+  return { kind: 'busy', msg: n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading };
 }
 // My Location: ask the OS only if permission hasn't been requested; otherwise use what's allowed
 A['near-start'] = (t, ri) => {
@@ -413,7 +419,17 @@ A['map-locate'] = t => {
   if (L.perm === 'denied') { dialog({ title: NEAR_MSG.denied.title, body: esc(NEAR_MSG.denied.body), actions: [['Not now', 'secondary', null], ['Open Settings', 'primary', () => A['open-settings']({ dataset: { what: 'app' } })]], returnFocus: '[data-a="map-locate"]' }); return; }
   nativePerm(ok => { if (ok && locKnown()) center(); else { pendingFocus = '[data-a="map-locate"]'; render(); } });
 };
-A['map-details'] = t => { const r = routeAt(selIndex()); track('map_station_details_opened', { code: t.dataset.code }); push('station-detail', { code: t.dataset.code, field: r.p.field }, selIndex()); };
+A['map-details'] = t => { const r = routeAt(selIndex()); track('map_station_details_opened', { code: t.dataset.code }); openInfo(`station:${t.dataset.code}`, `[data-a="map-details"][data-code="${t.dataset.code}"]`); };
+// The sheet also lists what the map knows about the station (facility, street address, parking) when the base details don't
+stationInfo = (base => code => {
+  const o = base(code), g = ST[code] && typeof geoOf === 'function' ? geoOf(code) : null; if (!g) return o;
+  return { title: o.title, body: () => {
+    let h = o.body(); const t = STATION_TYPES[g.type];
+    const row = (label, value, after) => { if (!value || h.includes(`<dt>${label}</dt>`)) return; const at = after ? h.indexOf(`<dt>${after}</dt>`) : -1, html = `<dt>${label}</dt><dd>${esc(value)}</dd>`; if (at >= 0) h = h.slice(0, at) + html + h.slice(at); else h = h.replace('</dl>', html + '</dl>'); };
+    row('Facility', t && t.label, 'Code'); row('Street address', g.address, 'City'); row('Parking', g.parking);
+    return h;
+  } };
+})(stationInfo);
 // Pan by dragging; keyboard arrows and +/- for the map region; wheel zoom
 let DRAG = null, SUPPRESS_CLICK = false;
 // A drag can start anywhere on the map, markers included; it only becomes a pan once the pointer moves, so a tap

@@ -77,3 +77,19 @@ A['pick-station'] = (t, ri) => {
   if (stationFocus() && t && t.getBoundingClientRect) MOTION.field = { rect: rectIn(t), at: performance.now() };
   pickStationBeforeFocus(t, ri);
 };
+
+// ---------- Toast position (Figma ST.9, ST.12, FF.8, PF.2) ----------
+// 24px above the bottom edge of the screen, or 24px above the sticky footer or tab bar when one is showing there.
+function placeToast() {
+  const dev = $('#device'), wrap = dev && $('.toast-wrap', dev); if (!wrap) return;
+  let gap = 24;
+  if (wrap.firstElementChild && document.elementFromPoint) {
+    const d = dev.getBoundingClientRect(), z = d.height / dev.offsetHeight || 1; // the device can be scaled to fit the window
+    const hit = document.elementFromPoint(d.left + d.width / 2, d.bottom - 36 * z);
+    const foot = hit && dev.contains(hit) && hit.closest('.pane__foot, .ads-actionfooter, .ads-tabbar');
+    if (foot) gap = Math.round((d.bottom - foot.getBoundingClientRect().top) / z) + 24;
+  }
+  wrap.style.bottom = gap + 'px';
+}
+const renderBeforeToastPlace = render;
+render = function () { renderBeforeToastPlace.apply(this, arguments); placeToast(); };

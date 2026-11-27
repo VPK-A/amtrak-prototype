@@ -165,7 +165,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(await top() === 'ff' && /Connect to the internet to find trains/.test(await txt()) && (await rec('adult-2')).m.cat === 'disability', 'offline Find trains: message, no results, answers kept');
   await ev(() => { V().net = 'slow6'; render(); }); await p.click(D_ + '[data-a="find-trains"]'); await w(300);
   ok(/Finding trains/.test(await txt()) && await p.locator(D_ + '[data-a="cancel-busy"]').count() === 1, 'slow: loading with Cancel');
-  await p.click(D_ + '[data-a="cancel-busy"]'); await w(); ok(/Cancelled/.test(await txt()) && await p.locator(D_ + '[data-a="find-trains"]:not([disabled])').count() === 1, 'cancel stops and restores the screen');
+  await p.click(D_ + '[data-a="cancel-busy"]'); await w(); ok(/Nothing was sent/.test(await ev(() => (V().toast || {}).msg || '')) && await p.locator(D_ + '[data-a="find-trains"]:not([disabled])').count() === 1, 'cancel stops and restores the screen');
   await p.click(D_ + '[data-a="find-trains"]'); await w(6500);
   ok(/This is taking longer than usual/.test(await txt()) && await p.locator(D_ + '[data-a="retry"]').count() === 1 && (await rec('adult-2')).m.cat === 'disability', 'timeout with Try again, answers kept');
   ok(await ev(() => NET_TIMEOUT_MS) === 120000 && await ev(() => [...document.querySelectorAll('#tbNet option')].some(o => /120-second/.test(o.textContent))), 'production timeout 120 s (Network › Slow connection)');
