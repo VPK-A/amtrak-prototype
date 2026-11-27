@@ -460,9 +460,11 @@ function calendarBody(r, ri, field) {
 // being filled is outlined (as in station search). Round trip: each tap fills the active field and activates the other.
 // A new departure after the return moves the return to that day and keeps Return active.
 function calDraft(r) { const b = D().booking; if (!r.u.cal) r.u.cal = { dep: b.dep, ret: b.trip === 'rt' ? b.ret : null, trip: b.trip, edit: b.trip === 'rt' && r.p.field === 'ret' ? 'ret' : 'dep', jump: true }; return r.u.cal; }
-// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current
+// The New booking date card (dateGroup), showing the draft dates; the active field carries aria-current.
+// Presentation only (Figma DT.6/DT.8): a return the traveler hasn't picked yet (added from one-way, or moved along
+// with a later departure: c.retAuto) keeps the "add" plus icon and has no weekday line until a day is chosen.
 function calCard(c) {
-  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: !v && k === 'ret' ? 'plus-circle' : 'calendar', sub: v ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
+  const f = (k, label) => { const v = c[k], on = c.edit === k; return { label, value: v ? fmtNumDate(v) : k === 'ret' ? 'Add return' : 'Choose date', icon: k === 'ret' && (!v || c.retAuto) ? 'plus-circle' : 'calendar', sub: v && !(k === 'ret' && c.retAuto) ? fmtWeekday(v) + (v === TODAY_S ? ' · Today' : '') : '', aria: `${label}: ${v ? fmtWeekday(v) + ', ' + fmtDate(v) : 'not chosen'}`, attrs: `data-a="calx-edit" data-v="${k}" id="calx-f-${k}"${on ? ' aria-current="true"' : ''}` }; };
   const ret = c.trip === 'rt' ? f('ret', 'Return date') : { label: 'Return date', value: 'Add return', icon: 'plus-circle', aria: 'Return date: Add return', attrs: 'data-a="calx-addret" id="calx-f-addret"' };
   return dateGroup({ start: f('dep', 'Departure date'), end: ret }).replace('ads-dategroup', 'ads-dategroup calx-group');
 }
@@ -504,17 +506,17 @@ SCR.calendar = (r, ri) => {
 // Tapping a field in the date card makes it active (and brings its month into view)
 A['calx-edit'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r), v = t.dataset.v; if (c.edit !== v) { c.edit = v; c.jump = true; } pendingFocus = `#calx-f-${v}`; render(); };
 // One-way: "Add return" in the card adds a return to the draft (same day, as on New booking) and activates it
-A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
+A['calx-addret'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.trip = 'rt'; c.ret = c.dep; c.retAuto = true; c.edit = 'ret'; pendingFocus = '#calx-f-ret'; render(); };
 A['calx-day'] = (t, ri) => {
   const r = routeAt(ri), c = calDraft(r), s = t.dataset.d;
   if (c.trip !== 'rt') c.dep = s; // one-way: only the departure changes
-  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) c.ret = s; c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
-  else { c.ret = s; c.edit = 'dep'; }
+  else if (c.edit === 'dep') { c.dep = s; if (c.ret && c.ret < s) { c.ret = s; c.retAuto = true; } c.edit = 'ret'; } // a later departure moves the return with it; Return stays next
+  else { c.ret = s; c.retAuto = false; c.edit = 'dep'; }
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
 // Clear: no dates chosen; Save selection waits for them
 // Clear returns the dates to their defaults (NMA-1060 AC#2): departure today, and on a round trip return today
-A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.retAuto = false; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
   if (!c.dep || (c.trip === 'rt' && (!c.ret || c.ret < c.dep))) return;
@@ -1098,7 +1100,7 @@ A['go-assist'] = (t, ri) => { const sh = sheet(); const dr = sh.stack[+ri]; dr.u
 A['disc-save'] = (t, ri) => {
   const r = routeAt(ri), x = r.u.d, d = D();
   if (x.type === d.discount.type && (x.type !== 'rpa' || x.rpa === d.discount.rpa)) { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; render(); return; } // nothing to save
-  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces' }; pendingFocus = '#rpa-id'; render(); return; }
+  if (x.type === 'rpa' && !/^\d{6,10}$/.test(x.rpa || '')) { r.u.err = { rpa: 'Check your membership number. Maximum 10 digits without spaces.' }; pendingFocus = '#rpa-id'; render(); return; }
   if (x.type === 'pwd' && d.assist.cat !== 'disability') { r.u.alert = { kind: 'custom', tone: 'error', title: 'Passenger with disability can’t be saved yet', text: 'Save assistance with “I have a disability” first.' }; pendingFocus = '[data-a="go-assist"]'; render(); return; }
   r.u.err = {};
   runSave(r, () => { d.discount = { type: x.type, rpa: x.type === 'rpa' ? x.rpa : '' }; d.booking.disc = ['military', 'rpa'].includes(x.type) ? x.type : 'none'; }, () => { r.u.dirty = false; popTo(+ri - 1); pendingFocus = '[data-k="row-disc"]'; toast('Discount preference saved'); });
