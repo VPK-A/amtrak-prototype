@@ -308,3 +308,35 @@
 .ss-place { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-12); padding: var(--ads-space-12) var(--ads-space-20); background: var(--ads-background-surface-sunken); }
 .ss-place__t { margin: 0; display: flex; align-items: flex-start; gap: var(--ads-space-8); font-size: var(--ads-type-body-small-size); }
 .ss-place__t > .ads-icon { margin-top: 2px; color: var(--ads-content-icon-brand); }
+
+/* ---------- Gallery QA (Figma ST.16–ST.22) ---------- */
+/* Map view: List / Map tabs run edge to edge */
+.ds-next .ss-upd--map .ss-views { margin-inline: calc(-1 * var(--ads-space-20)); }
+/* Zoom: one box with a hairline between the two buttons */
+.ss-map-wrap--upd .map-ctl { gap: 14px; }
+.map-ctl__zoom .map-ctl__btn, .map-ctl__zoom .map-ctl__btn:hover { box-shadow: none; }
+.map-ctl__zoom .map-ctl__btn + .map-ctl__btn { border-top: 0; box-shadow: inset 0 1px 0 var(--ads-border-subtle); }
+/* Your location (ST.19): red dot with a translucent halo */
+.map-me { width: 20px; height: 20px; background: var(--ads-color-red-700); box-shadow: 0 0 0 1px var(--ads-background-surface-default); }
+.map-me::before { width: max(48px, var(--acc)); height: max(48px, var(--acc)); background: var(--ads-color-red-700); border: 0; opacity: 0.25; }
+/* Station listing on the map (ST.17): 61px, 20px inset, neutral Details icon */
+.ds-next .ss-upd .map-listing { min-height: 61px; box-sizing: border-box; padding: var(--ads-space-8) var(--ads-space-12) var(--ads-space-8) var(--ads-space-20); gap: 10px; }
+.ds-next .ss-upd .map-listing__acts { gap: 0; margin-right: 0; }
+.ds-next .ss-upd .map-listing__acts .ads-icon-btn { width: 40px; min-width: 40px; color: var(--ads-content-icon-secondary); }
+/* Several stations at one point (ST.18): standard station rows above the footer's disabled Select */
+.ds-next .ss-upd .ss-mapcard:not(.ss-mapcard--listing) { border-radius: var(--ads-radius-4); box-shadow: var(--ads-shadow-elevation-sm); }
+.ds-next .ss-upd .ss-mapcard .map-card { gap: 0; padding: 0; border-radius: var(--ads-radius-4); }
+.ds-next .ss-upd .map-card .map-card__head { align-items: center; padding: var(--ads-space-12) var(--ads-space-12) var(--ads-space-12) var(--ads-space-16); }
+.ds-next .ss-upd .map-card .map-card__name { margin-top: var(--ads-space-4); }
+.map-card__list { margin: 0; padding: 0; list-style: none; }
+.ds-next .map-card__list .ads-stationrow { border-top: 1px solid var(--ads-border-subtle); border-bottom: 0; }
+.ds-next .map-card__list .ads-stationrow__select { padding-left: var(--ads-space-16); }
+.ds-next .map-card__list .ads-stationrow__star:last-child { margin-right: var(--ads-space-8); }
+/* Station details (ST.21): compact rows */
+.ds-next .stinfo-dl { gap: 5px var(--ads-space-8); }
+.ds-next .stinfo-dl dt, .ds-next .stinfo-dl dd { line-height: 20px; }
+.ds-next .ss-upd .map-card .map-card__list { margin: 0; }
+/* Simulated iOS location preferences sheet (ST.11, ST.15): frosted material, semibold options */
+.native--prefs .native__sheet { background: rgb(250 250 252 / 0.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.native--prefs button { font-weight: 600; }
+[data-theme="dark"] .native--prefs .native__sheet { background: rgb(44 44 46 / 0.8); }

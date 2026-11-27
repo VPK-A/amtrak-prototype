@@ -285,7 +285,7 @@ function startCooldown() {
 // ---------- Clear recent stations (NMA-1004) ----------
 function clearDialog() {
   return { id: 'clear', title: 'Clear recent stations?', body: 'All recent stations will be removed from this device. Your favorites stay.', returnFocus: '[data-a="clear-recents"]',
-    actions: [['Cancel', 'secondary', null], ['Confirm', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
+    actions: [['Cancel', 'secondary', null], ['Clear recents', 'destructive', () => { D().rec = []; toast('Recent stations cleared'); }]] };
 }
 
 // ---------- Rendering shell ----------
