@@ -150,7 +150,7 @@ A['find-trains'] = (t, ri) => {
     if (intentOf(b) === 'corporate' && (AUTO_TRAIN[b.from] || AUTO_TRAIN[b.to])) { // NMA-622 AC8: an error after Find trains
       r.u.showErr = false;
       return dialog({ title: 'Auto Train isn’t available for corporate travel', body: 'This trip isn’t eligible for corporate travel. To book Auto Train, turn off TripLink corporate booking.', returnFocus: '[data-a="find-trains"]',
-        actions: [['Turn off corporate booking', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
+        actions: [['Turn off TripLink', 'primary', () => { setIntent(b, 'personal'); pendingFocus = '[data-a="find-trains"]'; render(); }], ['Close', 'secondary', null]] });
     }
     r.u.showErr = false;
     if (codeFormatError(b)) { pendingFocus = '#ff-code-h, #ff-code'; render(); return; }

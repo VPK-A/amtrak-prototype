@@ -90,7 +90,7 @@ const SPLIT_SELF = r => TB.v !== 1 && ((v3() && ['profile', 'assist-profile'].in
 // =====================================================================
 // A. Fare Finder
 // =====================================================================
-function ffErrors(b) { return { from: !b.from ? 'Choose a departure station' : '', to: !b.to ? 'Choose an arrival station' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date' : '' }; }
+function ffErrors(b) { return { from: !b.from ? 'Choose a departure station.' : '', to: !b.to ? 'Choose an arrival station.' : '', ret: b.trip === 'rt' && !b.ret ? 'Choose a return date.' : '' }; }
 // ---------- New booking fields, normalized against ADS Next and Mobile ADS ----------
 // From, To, Depart, Return and Travelers are ADS Text Input fields (field/station, field/large) used as picker
 // triggers: the label sits outside the field; the accessible name stays on the button.
@@ -118,8 +118,18 @@ function dateFields(r, opts = {}) {
 // Travelers: a field/large picker trigger with a leading icon and a trailing chevron (opens Traveler selection)
 function travField(r, b, opts = {}) {
   const d = D(), it = intentOf(b);
-  const val = it === 'corporate' ? '1 adult · You' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : paxSummary(b);
-  const sub = [it === 'corporate' ? 'Corporate bookings are for you only' : it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', travelerChoices(b)].filter(Boolean).join(' · ');
+  // Figma FF.17 / FF.23 / FF.24 / FF.32: a regular booking shows assistance on the value line ("2 adults · Assistance for 2")
+  // and each traveler's discount on the supporting line; Pass Rider keeps the names on the value line and adds
+  // "Assistance" to the supporting line; a corporate booking is a single line ("1 adult").
+  const std = ['standard', 'personal'].includes(it), list = travelerList(b), all = paxList(b);
+  const helped = list.filter(t => { const a = assistRec(b, t.key); return asks(b, t.key) && a.done && a.m.cat && a.m.cat !== 'none'; }).length;
+  const asked = list.filter(t => asks(b, t.key)).length, miss = assistMissing(b).length;
+  const assist = miss ? '' : helped ? (list.length > 1 ? `Assistance for ${helped}` : 'Assistance') : '';
+  const discs = std ? all.map(t => [t, tdiscOf(b, t)]).filter(([t, x]) => !['none', 'childfare', 'infant', 'senior'].includes(x)).map(([t, x]) => `${x === 'pwd' ? 'Disability' : TDISC_LABEL[x]}${all.length > 1 ? ` (Traveler ${t.n})` : ''}`) : [];
+  const kids = it === 'pr' && b.prType !== 'business' ? list.filter(t => prKind(b, t.key) === 'child').length : 0;
+  const val = it === 'corporate' ? '1 adult' : it === 'pr' ? (b.prType ? prSummary(b, d) : 'Choose Business or Leisure') : [paxSummary(b), assist].filter(Boolean).join(' · ');
+  const sub = [it === 'pr' ? (b.prType ? `Pass Rider · ${b.prType === 'business' ? 'Business' : 'Leisure'}` : 'Pass Rider') : '', ...discs, kids ? `${kids} child${kids > 1 ? 'ren' : ''}` : '', std ? '' : assist,
+    miss ? `Assistance answered for ${asked - miss} of ${asked}` : '', assistProblems(b).length ? 'Assistance needs a change' : ''].filter(Boolean).join(' · ');
   const err = travErr(r, b);
   return selectRow({ id: 'ff-trav', cls: 'ffc-travfield', label: 'Travelers', icon: 'person', value: val, sub, invalid: !!err, describedby: err ? 'trav-err' : '', attrs: `data-a="pick-travelers"${opts.open || openPicker('travelers') ? ' aria-current="true"' : ''}`, after: err });
 }
@@ -158,7 +168,7 @@ function modesV1(r, b) {
   if (!can.ok) { snote('A dependent 15 or younger can’t book Pass Rider travel on their own (NMA-1017), so New booking shows no Pass Rider switch and books regular fares.'); return ''; }
   const on = b.intent === sp;
   if (on && tl) q(12);
-  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only. Points, passenger discounts and codes aren’t used.' : 'Employee pass travel for you and eligible family. Points, passenger discounts and codes aren’t used.') : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
+  const row = pointsRow({ id: `ff-mode-${sp}`, title: tl ? 'TripLink corporate booking' : 'Pass Rider booking', sub: on ? (tl ? 'Corporate fares for you only.' : 'Employee pass travel is for you and eligible family only.') : tl ? 'Off: regular fares, with codes and points.' : 'Off: regular fares, with points, passenger discounts and codes.', checked: on, attrs: `data-a="mode-toggle" data-v="${sp}"` });
   return `<div class="v1modes v1modes--switch">${row}${b.modeNote ? `<p class="ads-helper" role="status">${ic('info-circle', 'ads-icon--sm')}<span>${b.modeNote}</span></p>` : ''}</div>`;
 }
 A['mode-toggle'] = t => {
@@ -201,7 +211,7 @@ SCR.ff = (r, ri) => {
   // Figma Sprint 4 node 3295:51258: trip tabs, stations, dates, Travelers, then the code; Pay with points and
   // Find trains in the action footer. Booking modes (TripLink, Pass Rider) sit above the tabs for eligible members.
   q(7);
-  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts and coupon or promotion codes aren’t used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider travel'}.</p>`}${netAlert(r)}</div>`;
+  const body = `<div class="ads-bookingsheet__form">${tripSeg()}${modesV1(r, b)}${ffNotice(b)}${routeField(r, ri)}${dateFields(r)}${travelersRow(r)}${std ? codeRow(r, b) : `<p class="ss-note v1modes__none">Points, passenger discounts, coupons, and promotion codes cannot be used for ${intentOf(b) === 'corporate' ? 'corporate bookings' : 'Pass Rider bookings'}.</p>`}${netAlert(r)}</div>`;
   return { title: 'New booking', header: 'brand', cls: 'pane--nb', kind: 'root', body, foot: (std ? payV1(b) : '') + findBtn(r), footCls: 'ads-actionfooter', offlineText: 'You can fill in your trip. Finding trains needs a connection.' };
 };
 // Fare Finder actions

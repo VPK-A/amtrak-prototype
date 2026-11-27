@@ -531,6 +531,31 @@
 
 /* ===== Gallery QA FF: Fare Finder (Sprint 4 gallery, 2026-11) ===== */
 /* FF-begin */
+/* New booking (.pane--nb) only. Positions measured against the Figma exports FF.1–FF.32 (390 x 844). */
+/* Station card: both halves 72px whether empty or filled; label 3px higher, value 8px under the label; the city and
+   station-name lines sit 4px apart and no longer make a filled card taller */
+.ds-next .pane--nb .ads-stationgroup .ads-fieldgroup__field { box-sizing: border-box; min-height: 72px; padding-top: 9px; gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-stationgroup__value { height: 25px; min-height: 0; }
+.ds-next .pane--nb .ads-stationgroup__lines { gap: var(--ads-space-4); }
+/* A station that's missing: the prompt turns primary; error lines sit 28px apart */
+.ds-next .pane--nb .ads-fieldgroup__field[aria-invalid="true"] .ads-fieldgroup__placeholder { color: var(--ads-content-text-primary); }
+.ds-next .pane--nb .ads-fieldwrap > .ads-stationgroup + .ads-helper--error { margin-top: -2px; }
+.ds-next .pane--nb .ads-fieldwrap > .ads-helper--error + .ads-helper--error { margin-top: 3px; }
+/* Date card: 81px; label and date 3px higher, the weekday line 4px further from the date */
+.ds-next .pane--nb .ads-dategroup .ads-fieldgroup__field { padding-top: 9px; padding-bottom: 9px; }
+.ds-next .pane--nb .ads-dategroup__sub { margin-top: 2px; }
+/* Travelers label 25px under the date card; code label 25px under the Travelers row */
+.ds-next .pane--nb .ads-fieldwrap + .ads-selectrow { margin-top: -3px; }
+.ds-next .pane--nb .ads-selectrow + .ads-selectrow { margin-top: -2px; }
+.ds-next .pane--nb .ads-selectrow.dcode .ads-selectrow__label { margin-bottom: -3px; }
+/* Booking-mode switch (Pass Rider, TripLink): 56px row, description on a 20px line, 5px closer to the tabs and
+   6px closer to the stations; the text column ends 8px before the switch (here and in the footer) */
+.ds-next .pane--nb .v1modes--switch { margin-top: -5px; margin-bottom: -6px; }
+.ds-next .pane--nb .v1modes--switch .ads-pointsrow { min-height: 56px; }
+.ds-next .pane--nb .ads-pointsrow { gap: var(--ads-space-8); }
+.ds-next .pane--nb .ads-pointsrow__sub { line-height: 20px; }
+/* Note under Travelers when points, discounts and codes aren't used */
+.ds-next .pane--nb .ss-note.v1modes__none { margin-top: -6px; line-height: 20px; }
 /* FF-end */
 
 /* . */
