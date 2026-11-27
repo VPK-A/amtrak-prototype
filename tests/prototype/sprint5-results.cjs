@@ -445,13 +445,21 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
     await axe('Figma ' + v);
   }
   await ev(() => { TB.s5vNext = 'f2'; }); await open('returning'); await find();
-  ok(/11 results/.test(await txt()) && /Sort by: Most direct/.test(await txt()) && await p.locator(D_ + '.s5f-bar__f').count() === 1, 'Concept 2: results count, sort link and Filter button');
-  await p.locator(D_ + '.s5f-bar__f').click(); await w(400); ok(/Sort by/.test(await txt()) && /Time of day/.test(await txt()), 'Concept 2: Filter opens sort and filter (NMA-758)');
+  ok(/11 results/.test(await txt()) && /Sort by: Most direct/.test(await txt()) && await p.locator(D_ + '.ads-navbar .s5-hbtn[data-a="s5-sf-open"]').count() === 1, 'Concept 2: results count and sort link, with Filter in the header');
+  await p.locator(D_ + '.ads-navbar .s5-hbtn').click(); await w(400); ok(/Sort by/.test(await txt()) && /Time of day/.test(await txt()), 'Concept 2: Filter opens sort and filter (NMA-758)');
   await ev(() => { nav().info = null; TB.s5vNext = 'f1'; }); await open('returning'); await find();
   await p.locator(D_ + '[data-a="s5f-open"][data-trip="t9"]').click(); await w(400);
   ok(await p.locator(D_ + '[data-trip="t9"] .s5f__sum li').count() === 3 && /Service summary/.test(await txt()) && /Reserved seats/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5fa__sel select option').count() === 2 && await p.locator(D_ + '#s5d-route').click().then(() => w(400)).then(() => p.locator(D_ + '[data-trip="t9"] .s5fr').count()) === 2 && /Departs/.test(await txt()) && /Layover/.test(await txt()) && await p.locator(D_ + '[data-trip="t9"] .s5-class').count() === 2, 'Concept 1: a card opens in place to the service summary, amenities, route and fares');
   await p.locator(D_ + '[data-trip="t9"] [data-a="s5-fare"]').first().click(); await w(600);
   ok(/s5combo|s5fare/.test(await stack()), 'Concept 1: choosing a class still goes on to fares');
+  await ev(() => { nav().info = null; TB.s5vNext = 'f1'; }); await open('returning'); await find();
+  ok(await p.locator(D_ + '.ads-navbar [data-a="s5-menu"]').count() === 1 && await p.locator(D_ + '.s5-tools__links').isHidden(), 'Concept 1: the header has the options button; the row of links is gone');
+  await p.locator(D_ + '[data-a="s5-menu"]').click(); await w(400);
+  ok(await p.locator(D_ + '.s5-menu__row').count() === 4 && /Sort and filter/.test(await txt()) && /Compare classes/.test(await txt()) && /Compare fares/.test(await txt()) && /How prices are shown/.test(await txt()), 'Concept 1: options list sort and filter, both comparisons and pricing');
+  await p.locator(D_ + '.s5-menu__row[data-topic="s5-fares"]').click(); await w(400); ok(/Refundability/.test(await txt()), 'Concept 1: Compare fares opens from the menu (NMA-1097)');
+  await ev(() => { nav().info = null; render(); }); await p.locator(D_ + '[data-a="s5f-open"][data-trip="t1"]').click(); await w(400);
+  ok(/Quiet car/.test(await txt()) && !/Add-ons\s*$/m.test(await ev(() => [...document.querySelectorAll('#device .s5fa__item summary')].map(e => e.textContent.trim()).join('\n'))) && await ev(() => document.querySelector('#device [data-trip="t1"]').closest('li') && true), 'Concept 1: amenities list has no Add-ons row');
+  await ev(() => { s5().fopen = null; render(); }); ok(await ev(() => Math.round(document.querySelector('#device [data-trip="t1"]').getBoundingClientRect().height)) === 208, 'Concept 1: a collapsed card is 208px tall, as in Figma');
   await ev(() => { delete TB.s5vNext; TB.s5v = 'legacy'; });
   ok(!errs.length, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
