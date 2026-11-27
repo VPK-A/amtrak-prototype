@@ -507,7 +507,7 @@
 .ds-next .pane--calx .pane__foot .ads-btn.ads-btn--block:not(.ads-btn--secondary):disabled { background: var(--ads-background-interactive-primary) !important; color: var(--ads-content-text-on-brand) !important; border-color: transparent !important; opacity: 1 !important; }
 /* TR.14: the row error runs full width under the label and counter */
 .ds-next .travsel .ffc-count:has(.fam-counterr) { position: relative; padding-bottom: calc(var(--ads-space-12) + 34px); }
-.ds-next .travsel .ffc-count .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
+.ds-next .travsel .ffc-count:has(.fam-counterr) .ffc-count__why { position: absolute; left: var(--ads-space-12); right: var(--ads-space-12); bottom: var(--ads-space-12); }
 .ds-next .travsel .ffc-count .fam-counterr { margin: 0; }
 /* TR.5 / TR.14: the reason is shown beside the list, so the footer copy is for assistive tech only */
 .ds-next .travsel .pane__foot > #trav-why, .ds-next .pane:has(.travsel) .pane__foot > #trav-why { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
@@ -561,6 +561,37 @@
 
 /* ===== Gallery QA TR: Travelers (Sprint 4 gallery, 2026-11) ===== */
 /* TR-begin */
+/* TR.22: a counter's plain reason ("No companion passes left this year.") stays in its row, under the sub-line
+   (only a row error is laid out across the row: see the TR.14 rule above) */
+.ds-next .travsel .ffc-count__why:not(:has(.fam-counterr)) { display: block; font-size: var(--ads-type-caption-size); line-height: 1.5; text-box: trim-both cap alphabetic; }
+/* TR.16 / TR.22: a counter that can't change is disabled as a whole (border/disabled, disabled fill, grey value) */
+.ds-next .travsel .ffc-count.is-disabled .ads-counter { border-color: var(--ads-border-disabled); background: var(--ads-background-interactive-secondary-disabled); }
+.ds-next .travsel .ffc-count.is-disabled .ads-counter__value { color: var(--ads-content-text-disabled); }
+/* TR.9: "Opening questions" takes the place of Add assistance as a secondary button, Cancel 20px below it */
+.ds-next .travsel .tassist__acts:has(> .ffassist__busy) { gap: var(--ads-space-20); }
+.ds-next .travsel .tassist__acts > .ffassist__busy { gap: var(--ads-space-8); pointer-events: none; cursor: default; }
+/* TR.12 / TR.14: Children & infants open: no rule under the header, rows separated by rules inset to the content */
+.ds-next .travsel .ffc-kids[aria-expanded="true"] { border-bottom: 0; }
+.ds-next .travsel .ffc-kids .ffc-kids__chev { color: var(--ads-content-icon-primary); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count { position: relative; border-bottom: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count + .ffc-count::before { content: ""; position: absolute; top: 0; left: var(--ads-space-12); right: var(--ads-space-12); border-top: 1px solid var(--ads-border-subtle); }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:first-child { padding-top: 0; }
+.ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr)::before, .ds-next .travsel .ffc-kids__rows > .ffc-count:has(.fam-counterr) + .ffc-count::before { content: none; }
+.ds-next .travsel .ffc-kids__rows { padding-bottom: var(--ads-space-16); }
+.ds-next .travsel .ffc-count__sub .ffc-inlinelink { margin-left: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
+/* R6: saved assistance is the 56px List Button; the "From profile" tag is Body Small Emphasis */
+.ds-next .travsel .tassist__card { box-sizing: border-box; min-height: 56px; padding: var(--ads-space-12); }
+.ds-next .travsel .tassist__cardlines { gap: var(--ads-space-8); }
+.ds-next .travsel .tassist__head .ads-lock { font-size: var(--ads-type-body-small-size); line-height: 1.2; }
+/* R3: a disabled Select keeps readable grey-brown text and an even 1px border */
+.ds-next .travsel .ads-control--select.is-disabled { box-shadow: none; border: 1px solid var(--ads-border-disabled); }
+.ds-next .travsel .ads-control--select.is-disabled select { color: var(--ads-content-text-disabled); opacity: 1; -webkit-text-fill-color: currentColor; }
+/* TR.5–TR.7: the list error sits space/8 under the outlined card */
+.ds-next .travsel .ffc-problems { margin-top: calc(-1 * var(--ads-space-4)); }
+/* R7: a one-line helper under a Select is trimmed like the rest (no 16px minimum), so the rule sits space/12 below it */
+.ds-next .travsel .fam-row > .ads-helper:not(.ads-helper--error) { min-height: 0; }
+/* TR.10: policy text starts 20px under the header */
+.ds-next .pane__body > .prpolicy { padding-top: var(--ads-space-4); }
 /* TR-end */
 
 /* . */
