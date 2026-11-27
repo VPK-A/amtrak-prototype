@@ -5887,7 +5887,8 @@ A['calx-day'] = (t, ri) => {
   pendingFocus = `[data-k="day-${s}"]`; render();
 };
 // Clear: no dates chosen; Save selection waits for them
-A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = null; c.ret = null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
+// Clear returns the dates to their defaults (NMA-1060 AC#2): departure today, and on a round trip return today
+A['calx-clear'] = (t, ri) => { const r = routeAt(ri), c = calDraft(r); c.dep = TODAY_S; c.ret = c.trip === 'rt' ? TODAY_S : null; c.edit = 'dep'; pendingFocus = '[data-a="calx-clear"]'; render(); };
 A['calx-done'] = (t, ri) => {
   const r = routeAt(ri), b = D().booking, c = calDraft(r);
   if (!c.dep || (c.trip === 'rt' && (!c.ret || c.ret < c.dep))) return;
