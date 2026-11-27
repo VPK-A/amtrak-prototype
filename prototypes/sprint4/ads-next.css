@@ -517,3 +517,73 @@
 .ds-next .ads-bookingsheet__form > .ads-alert .ads-alert__icon { margin-top: 0; }
 .ds-next .ads-bookingsheet__form > .ads-alert { align-items: flex-start; }
 .ds-next .travsel .ffc-count:has(.fam-counterr) { padding-bottom: calc(var(--ads-space-12) + 40px); }
+
+
+/* ===== Gallery QA SHARED: shared components: toasts, sheets, alerts, select rows, error borders (Sprint 4 gallery, 2026-11) ===== */
+/* SHARED-begin */
+/* SHARED-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA FF: Fare Finder (Sprint 4 gallery, 2026-11) ===== */
+/* FF-begin */
+/* FF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA ST: Station search (Sprint 4 gallery, 2026-11) ===== */
+/* ST-begin */
+/* ST-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA DT: Dates, Apply code, My coupons, Passenger discounts (Sprint 4 gallery, 2026-11) ===== */
+/* DT-begin */
+/* DT-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA TR: Travelers (Sprint 4 gallery, 2026-11) ===== */
+/* TR-begin */
+/* TR-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA AS: Assistance (Sprint 4 gallery, 2026-11) ===== */
+/* AS-begin */
+/* AS-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
+
+
+/* ===== Gallery QA PF: Profile, editors, change email (Sprint 4 gallery, 2026-11) ===== */
+/* PF-begin */
+/* PF-end */
+
+/* . */
+/* . */
+/* . */
+/* . */
