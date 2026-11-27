@@ -72,8 +72,8 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await p.fill(D_ + '#apc-in', 'HALF'); await ev(() => { const s = document.querySelector('#device .pane--apc .pane__scroll'); s.scrollTop = 200; }); await w(150);
   const sc = await ev(() => document.querySelector('#device .pane--apc .pane__scroll').scrollTop);
   await click('[data-a="apc-details"][data-code="60412233445566"]', 600);
-  ok(await top() === 'ff>dcode>apc-detail' && /Select Plus companion/.test(await txt()), 'the info button opens the coupon details');
-  await click('.ads-navbar [data-a="back"]', 600);
+  ok(await top() === 'ff>dcode' && await ev(() => (nav().info || { stack: [] }).stack[0]) === 'coupon:60412233445566' && /Select Plus companion/.test(await ev(() => document.querySelector('#device .info-sheet').innerText)), 'the info button opens the coupon details in a bottom sheet (Figma AP.4)');
+  await click('.info-sheet [data-a="info-close"]', 600);
   ok(await ev(() => document.querySelector('#device #apc-in').value) === 'HALF' && Math.abs(await ev(() => document.querySelector('#device .pane--apc .pane__scroll').scrollTop) - sc) <= 2, `Back from details keeps the typed code and scroll (${sc})`);
   await axe('light');
   // Back without saving keeps the booking as it was
@@ -86,7 +86,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   await open({ sc: 'new' }); ok(/None saved\s+Codes you add in My coupons will show here\./.test(await txt()) && await p.locator(D_ + '#apc-in').count() === 1, 'empty state');
   await open({ sc: 'guest' }); ok(/None saved\s+Sign in to see codes saved in My coupons\./.test(await txt()), 'guest state');
   await open({ net: 'slow' }); ok(await p.locator(D_ + '.cpn-loading[role="status"]').count() === 1, 'loading state'); await w(1700); ok(await ev(() => document.querySelectorAll('#device .apc-row').length) === 3, 'loading finishes');
-  await open({ net: 'error' }); ok(/We couldn’t load your coupons/.test(await txt()) && await p.locator(D_ + '[data-a="coupon-retry"]').count() === 1, 'error state'); await axe('error');
+  await open({ net: 'error' }); ok(/We couldn’t load your saved codes/.test(await txt()) && await p.locator(D_ + '.ads-alert [data-a="coupon-retry"]').count() === 1 && await p.locator(D_ + '.apc-skel').count() === 3 && await ev(() => { const a = document.querySelector('#device .pane--apc .ads-alert'), f = document.querySelector('#device #apc-in'); return a.getBoundingClientRect().bottom <= f.getBoundingClientRect().top; }), 'error state: alert above the field with Reload, three placeholders (Figma AP.7)'); await axe('error');
   await open({ th: 'dark', code: '60310045672211' }); await axe('dark, selected');
   ok(errs.length === 0, `no page errors (${errs.join(' | ')})`);
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`); await br.close();

@@ -79,8 +79,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   // Details, then back: same view and highlight
   const before = await st(p);
   await p.click(D_ + '.ss-mapcard [data-a="map-details"]'); await p.waitForTimeout(400);
-  ok(await p.evaluate(() => sheet().stack.at(-1).s) === 'station-detail', 'Details opens station information');
-  await p.click(D_ + '.pane:last-of-type [data-a="back"], ' + D_ + '[data-a="back"]'); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => sheet().stack.at(-1).s === 'stations' && !!nav().info && /^station:/.test(nav().info.stack[0])), 'Details opens station information in a bottom sheet over the map');
+  await p.click(D_ + '.info-sheet [data-a="info-close"]'); await p.waitForTimeout(400);
   const after = await st(p); ok(after.sel === before.sel && after.z === before.z && Math.abs(after.lat - before.lat) < 1e-9 && await provider(p) === 'google' && await p.evaluate(() => !!document.querySelector('#device .gmap-slot .gmap-host')), 'back from Details: same Google map, view and highlight');
   // group list → highlight on the map (sync from the card's list)
   await openMap(p, 'new'); await p.waitForTimeout(300);

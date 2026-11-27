@@ -521,6 +521,59 @@
 
 /* ===== Gallery QA SHARED: shared components: toasts, sheets, alerts, select rows, error borders (Sprint 4 gallery, 2026-11) ===== */
 /* SHARED-begin */
+/* Toast (Figma ST.9, ST.10, ST.12, FF.8, PF.2, PF.5): brand-blue panel, 40px, radius/4, 20px white icon, 13px text.
+   It sits 24px above the bottom edge, or 24px above a sticky footer or the tab bar (placeToast in interact.js). */
+.ds-next .toast-wrap, .ds-next .sheet-layer ~ .toast-wrap, .ds-next .cover-layer ~ .toast-wrap, .ds-next.device--ipad .toast-wrap, .ds-next.device--iphone.device--landscape .toast-wrap { bottom: 24px; }
+.ds-next .ads-toast { min-height: 40px; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-16); border-radius: var(--ads-radius-4); background: var(--ads-color-blue-700); color: var(--ads-content-text-on-brand); box-shadow: var(--ads-shadow-elevation-md); font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next .ads-toast .ads-icon, .ds-next .ads-toast--success .ads-icon { width: 20px; height: 20px; color: var(--ads-content-icon-on-brand); }
+.ds-next .ads-toast--busy .ads-icon { animation: ads-toast-spin 0.9s linear infinite; }
+@keyframes ads-toast-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ds-next .ads-toast--busy .ads-icon { animation: none; } }
+
+/* Info sheets (Figma AP.4, AP.6, CP.4, ST.21, ST.22, TR.15): the warm page surface, so the round white Close button
+   (36px, shadow) in the header reads on every sheet */
+.ds-next .info-sheet { background: var(--ads-background-surface-page); }
+.ds-next.device .info-sheet .info-head .ads-icon-btn--round::before { content: ""; }
+
+/* Alerts (Figma FF.9, FF.12, AP.7, AS.8, VF.3–VF.7, ST.14, TR.4): a flat banner. 4px top border in the status colour,
+   no side or bottom border, square corners, status-subtle fill, 24px icon on the first text line, body-size text. */
+.ds-next.device .ads-alert, .ds-next .ads-bookingsheet__form > .ads-alert, .ds-next .pane__body > .ads-alert { align-items: flex-start; padding: 0 var(--ads-space-8) 0 var(--ads-space-12); border: 0; border-top: 4px solid var(--_border); border-radius: 0; }
+.ds-next.device .ads-alert .ads-alert__icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); margin-top: var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__content { gap: 0; padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-12) var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__title { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__content > div:has(> .ads-btn) { margin-top: var(--ads-space-8); }
+/* A close X sits level with the first text line */
+.ds-next.device .ads-alert > .ads-icon-btn { flex: none; margin-top: 2px; color: var(--ads-content-icon-primary); }
+.ds-next.device .ads-alert > .ads-icon-btn .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+/* A link action inside an alert is a small underlined link (Figma AP.7 "Reload", ST.14 "Open settings") */
+.ds-next.device .ads-alert .linkbtn { min-height: 0; margin-top: 0; font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next.device .ads-alert .ads-alert__description .ads-link { font-size: inherit; }
+/* The web verification pages float the banner on a soft shadow (Figma VF.3–VF.7) */
+.ds-next .b2c .ads-alert { box-shadow: var(--ads-shadow-elevation-sm); }
+/* Traveler limit (Figma TR.4, TR.16): the warning sits at the top of the Travelers screen */
+.ds-next .trav-limit { margin-bottom: var(--ads-space-8); }
+
+/* Apply code, coupons couldn't load (Figma AP.7): three solid blocks stand in for the coupons */
+.apc-skels { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-skel { height: 136px; border-radius: var(--ads-radius-8); background: var(--ads-color-neutral-200); }
+
+/* Select rows with a supporting line (Figma FF.17, FF.18): 55px tall, 11px supporting line */
+.ds-next .ads-selectrow__btn:has(.ads-selectrow__sub) { padding-block: var(--ads-space-8); }
+.ds-next .ads-selectrow__sub { font-size: var(--ads-type-caption-size); line-height: 1.3; }
+
+/* Field errors: a 1px border in the status-error colour (Figma FF.4, FF.5, AP.3, DS.2), not border + inner ring */
+.ds-next .ads-fieldgroup--error { box-shadow: none; }
+/* Both stations missing: the group's own 1px border carries the error, without a second ring on each half */
+.ds-next .ads-stationgroup.ads-fieldgroup--error:has(> .ads-fieldgroup__field[aria-invalid="true"] ~ .ads-fieldgroup__field[aria-invalid="true"]) > .ads-fieldgroup__field[aria-invalid="true"] { outline: 0; }
+.ds-next .ads-selectrow__btn[aria-invalid="true"] { box-shadow: none; }
+.ds-next .ads-control--error:focus-within { --_border-w: 1px; }
+.ds-next .ads-codeinput--error .ads-codeinput__cell { box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+
+/* "Send new code" on the verification pages (Figma VF.2, VF.4): a plain underlined link, no button chrome */
+.ds-next .b2c__resend { appearance: none; -webkit-appearance: none; min-height: var(--ads-space-24); margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: inherit; font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
+.ds-next .b2c__resend:hover { color: var(--ads-content-text-link-hover); }
+.ds-next .b2c__resend:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
 /* SHARED-end */
 
 /* . */

@@ -30,16 +30,17 @@ SCR.dcode = (r, ri) => {
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
     <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}><button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button></div>${help}</div>`;
   const load = couponLoad(r);
+  const loadErr = load === 'error' ? alertBox('error', 'We couldn’t load your saved codes', 'You can still enter a code. Try again in a moment.', alertLink('coupon-retry', 'Reload')) : '';
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
-  else if (load === 'error') list = alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment. You can still enter a code above.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>');
+  else if (load === 'error') list = `<div class="apc-skels" aria-hidden="true">${'<div class="apc-skel"></div>'.repeat(3)}</div>`;
   else {
     const codes = bookingCodes();
     list = codes.length ? `<ul class="apc-list" aria-label="Your coupons">${codes.map(c => apcRow(c, (val || '').toUpperCase())).join('')}</ul>`
       : `<div class="ads-summary ads-summary--empty apc-empty"><p class="ads-summary__title">None saved</p><p class="ads-body-small">${d.signedIn ? 'Codes you add in My coupons will show here.' : 'Sign in to see codes saved in My coupons.'}</p></div>`;
   }
   tip('Choose a coupon or type a code, then Apply. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
-  const body = `${netAlert(r)}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
+  const body = `${netAlert(r)}${loadErr}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
   return { title: 'Apply code', kind: 'push', backIcon: true, noGrabber: true, cls: 'pane--apc', body, foot: '<button class="ads-btn ads-btn--block" type="button" data-a="apc-save">Apply</button>', footCls: 'ads-actionfooter', offlineText: 'You can enter a code. Your saved coupons need a connection to refresh.' };
 };
 HOOKS.apcin = (r, t) => { r.u.d.add = t.value; r.u.err = ''; };
@@ -60,7 +61,7 @@ A['apc-save'] = (t, ri) => {
   if (c !== b.codeText) Object.assign(b, { codeText: c, code: saved ? clone(saved) : null, codeState: '', codeErr: '', codeSrc: saved ? 'saved' : 'manual' });
   r.u.err = ''; popTo(+ri - 1); pendingFocus = '#ff-coderow';
 };
-A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; push('apc-detail', { code: t.dataset.code }, +ri); };
+A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; openInfo(`coupon:${t.dataset.code}`, `[data-a="apc-details"][data-code="${t.dataset.code}"]`); };
 // Details: the coupon's full details (as in My coupons)
 SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail">${info.body()}</div>` }; };
 // The information beside "Coupon or promotional code": the established codes copy under the Figma "Info" title (AP.6)

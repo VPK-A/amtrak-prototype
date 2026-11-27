@@ -3182,6 +3182,59 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 
 /* ===== Gallery QA SHARED: shared components: toasts, sheets, alerts, select rows, error borders (Sprint 4 gallery, 2026-11) ===== */
 /* SHARED-begin */
+/* Toast (Figma ST.9, ST.10, ST.12, FF.8, PF.2, PF.5): brand-blue panel, 40px, radius/4, 20px white icon, 13px text.
+   It sits 24px above the bottom edge, or 24px above a sticky footer or the tab bar (placeToast in interact.js). */
+.ds-next .toast-wrap, .ds-next .sheet-layer ~ .toast-wrap, .ds-next .cover-layer ~ .toast-wrap, .ds-next.device--ipad .toast-wrap, .ds-next.device--iphone.device--landscape .toast-wrap { bottom: 24px; }
+.ds-next .ads-toast { min-height: 40px; gap: var(--ads-space-8); padding: var(--ads-space-8) var(--ads-space-16); border-radius: var(--ads-radius-4); background: var(--ads-color-blue-700); color: var(--ads-content-text-on-brand); box-shadow: var(--ads-shadow-elevation-md); font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next .ads-toast .ads-icon, .ds-next .ads-toast--success .ads-icon { width: 20px; height: 20px; color: var(--ads-content-icon-on-brand); }
+.ds-next .ads-toast--busy .ads-icon { animation: ads-toast-spin 0.9s linear infinite; }
+@keyframes ads-toast-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ds-next .ads-toast--busy .ads-icon { animation: none; } }
+
+/* Info sheets (Figma AP.4, AP.6, CP.4, ST.21, ST.22, TR.15): the warm page surface, so the round white Close button
+   (36px, shadow) in the header reads on every sheet */
+.ds-next .info-sheet { background: var(--ads-background-surface-page); }
+.ds-next.device .info-sheet .info-head .ads-icon-btn--round::before { content: ""; }
+
+/* Alerts (Figma FF.9, FF.12, AP.7, AS.8, VF.3–VF.7, ST.14, TR.4): a flat banner. 4px top border in the status colour,
+   no side or bottom border, square corners, status-subtle fill, 24px icon on the first text line, body-size text. */
+.ds-next.device .ads-alert, .ds-next .ads-bookingsheet__form > .ads-alert, .ds-next .pane__body > .ads-alert { align-items: flex-start; padding: 0 var(--ads-space-8) 0 var(--ads-space-12); border: 0; border-top: 4px solid var(--_border); border-radius: 0; }
+.ds-next.device .ads-alert .ads-alert__icon { flex: none; width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); margin-top: var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__content { gap: 0; padding: var(--ads-space-12) var(--ads-space-8) var(--ads-space-12) var(--ads-space-12); }
+.ds-next.device .ads-alert .ads-alert__title { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__description { font-size: var(--ads-type-body-size); line-height: var(--ads-type-body-line-height); }
+.ds-next.device .ads-alert .ads-alert__content > div:has(> .ads-btn) { margin-top: var(--ads-space-8); }
+/* A close X sits level with the first text line */
+.ds-next.device .ads-alert > .ads-icon-btn { flex: none; margin-top: 2px; color: var(--ads-content-icon-primary); }
+.ds-next.device .ads-alert > .ads-icon-btn .ads-icon { width: var(--ads-size-icon-md); height: var(--ads-size-icon-md); }
+/* A link action inside an alert is a small underlined link (Figma AP.7 "Reload", ST.14 "Open settings") */
+.ds-next.device .ads-alert .linkbtn { min-height: 0; margin-top: 0; font-size: var(--ads-type-body-small-size); line-height: 20px; }
+.ds-next.device .ads-alert .ads-alert__description .ads-link { font-size: inherit; }
+/* The web verification pages float the banner on a soft shadow (Figma VF.3–VF.7) */
+.ds-next .b2c .ads-alert { box-shadow: var(--ads-shadow-elevation-sm); }
+/* Traveler limit (Figma TR.4, TR.16): the warning sits at the top of the Travelers screen */
+.ds-next .trav-limit { margin-bottom: var(--ads-space-8); }
+
+/* Apply code, coupons couldn't load (Figma AP.7): three solid blocks stand in for the coupons */
+.apc-skels { display: flex; flex-direction: column; gap: var(--ads-space-12); }
+.apc-skel { height: 136px; border-radius: var(--ads-radius-8); background: var(--ads-color-neutral-200); }
+
+/* Select rows with a supporting line (Figma FF.17, FF.18): 55px tall, 11px supporting line */
+.ds-next .ads-selectrow__btn:has(.ads-selectrow__sub) { padding-block: var(--ads-space-8); }
+.ds-next .ads-selectrow__sub { font-size: var(--ads-type-caption-size); line-height: 1.3; }
+
+/* Field errors: a 1px border in the status-error colour (Figma FF.4, FF.5, AP.3, DS.2), not border + inner ring */
+.ds-next .ads-fieldgroup--error { box-shadow: none; }
+/* Both stations missing: the group's own 1px border carries the error, without a second ring on each half */
+.ds-next .ads-stationgroup.ads-fieldgroup--error:has(> .ads-fieldgroup__field[aria-invalid="true"] ~ .ads-fieldgroup__field[aria-invalid="true"]) > .ads-fieldgroup__field[aria-invalid="true"] { outline: 0; }
+.ds-next .ads-selectrow__btn[aria-invalid="true"] { box-shadow: none; }
+.ds-next .ads-control--error:focus-within { --_border-w: 1px; }
+.ds-next .ads-codeinput--error .ads-codeinput__cell { box-shadow: inset 0 0 0 1px var(--ads-border-status-error); }
+
+/* "Send new code" on the verification pages (Figma VF.2, VF.4): a plain underlined link, no button chrome */
+.ds-next .b2c__resend { appearance: none; -webkit-appearance: none; min-height: var(--ads-space-24); margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: inherit; font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
+.ds-next .b2c__resend:hover { color: var(--ads-content-text-link-hover); }
+.ds-next .b2c__resend:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
 /* SHARED-end */
 
 /* . */
@@ -5602,7 +5655,8 @@ function netAlert(r) {
   if (a.kind === 'custom') return alertBox(a.tone, a.title, a.text, a.action || '');
   return '';
 }
-const alertBox = (tone, title, text, action = '') => `<div class="ads-alert ads-alert--${tone}" role="${tone === 'error' ? 'alert' : 'status'}">${ic(tone === 'error' ? 'alert-diamond' : tone === 'warning' ? 'alert-triangle' : tone === 'success' ? 'check-circle' : 'info-circle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${title}</p><p class="ads-alert__description ads-body-small">${text}</p>${action ? `<div>${action}</div>` : ''}</div></div>`;
+const alertBox = (tone, title, text, action = '') => `<div class="ads-alert ads-alert--${tone}" role="${tone === 'error' ? 'alert' : 'status'}">${ic(tone === 'error' ? 'alert-diamond' : tone === 'warning' ? 'alert-triangle' : tone === 'success' ? 'check-circle' : 'info-circle', 'ads-alert__icon')}<div class="ads-alert__content">${title ? `<p class="ads-alert__title">${title}</p>` : ''}<p class="ads-alert__description">${text}</p>${action ? `<div class="ads-alert__actions">${action}</div>` : ''}</div></div>`;
+const alertLink = (a, label, attrs = '') => `<button class="ads-link ads-link--sm linkbtn ads-alert__link" type="button" data-a="${a}" ${attrs}>${label}</button>`;
 function busyBtn(r, label, busyLabel, attrs = '') {
   return r.u.busy ? `<div class="busyrow"><button class="ads-btn ads-btn--block" type="button" aria-busy="true" disabled>${ic('spinner-static')}${busyLabel}</button><button class="ads-btn ads-btn--tertiary ads-btn--sm busy-cancel" type="button" data-a="cancel-busy">Cancel</button></div>`
     : `<button class="ads-btn ads-btn--block" type="button" ${attrs}>${label}</button>`;
@@ -5679,8 +5733,9 @@ function renderDevice() {
   if (n.info) h += renderInfo(n.info, !!n.dialog);
   if (n.dialog) h += renderDialog(n.dialog);
   if (n.native) h += renderNative(n.native); // simulated OS permission prompt or Settings (stationmap.js)
-  const t = V().toast;
-  h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic(t.kind === 'success' ? 'check-circle' : 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
+  // Toast (Figma ST.9, ST.10, ST.12, FF.8, PF.2): a message, or a "busy" toast with a spinner while something is in progress
+  const t = V().toast || (typeof busyToast === 'function' ? busyToast() : null);
+  h += `<div class="toast-wrap" role="status" aria-live="polite">${t ? `<div class="ads-toast ads-toast--${t.kind}">${ic({ success: 'check-circle', warning: 'alert-triangle', busy: 'spinner-static' }[t.kind] || 'info-circle')}<span>${esc(t.msg)}</span></div>` : ''}</div>`;
   return h;
 }
 const tabLabel = t => ({ book: 'Book', trips: 'Trips', 'train-status': 'Train status', support: 'Support' }[t]);
@@ -5853,7 +5908,7 @@ A.back = (t, ri) => {
 A.push = (t, ri) => { const p = t.dataset.p ? JSON.parse(t.dataset.p) : {}; push(t.dataset.s, p, ri == null || ri === 'c' ? null : +ri); };
 A['alert-close'] = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r) { r.u.alert = null; pendingFocus = 'title'; render(); } };
 A.retry = (t, ri) => { let r = routeAt(ri); if (r && r.s === 'profile' && r.u.edit && t.closest('[data-ri-edit]')) r = r.u.edit; if (r && r.u.retry) r.u.retry(); };
-A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = { kind: 'custom', tone: 'info', title: 'Cancelled', text: 'Nothing was sent. Your entries are kept.' }; render(); } };
+A['cancel-busy'] = (t, ri) => { const r = routeAt(ri); if (r) { r.u.busy = null; r.u.alert = null; toast('Nothing was sent. Your entries are kept.', 'warning'); } };
 A['cover-cancel'] = () => endVerify(false);
 A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && t.dataset.ret ? { returnFocus: t.dataset.ret } : {})); // from station search, focus returns to the search field
 
@@ -7453,8 +7508,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       const probs = prProblems(b); ok = !probs.length; why = probs.join(' ');
       const compMax = prCompMax(b, d);
       const comp = prCanComp(d) ? counter('comp', 'Companions', `${left} of 16 passes left this year.`, f.comp, f.comp > 0, f.comp < compMax && room, 'pr', left ? '' : 'No companion passes left this year.') : '';
-      panel = `<h4 class="ffc-h pr-onpass" aria-hidden="true">Travelers on your pass</h4><div class="ffc-counts ffc-counts--riders pr-card"><fieldset class="ffc-riders"><legend class="ads-sr-only">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
-        ${!room ? `<p class="ffc-limit" id="prr-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 travelers in the app.</span></p>` : ''}
+      panel = `${!room ? `<div class="ads-alert ads-alert--warning trav-limit" role="status" id="prr-limit">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description">You can book up to 8 seats in the app. Call <a class="ads-link" href="tel:18008727245">1-800-USA-RAIL</a> to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on <a class="ads-link" href="https://www.amtrak.com" target="_blank" rel="noopener">Amtrak.com</a>.</p></div></div>` : ''}<h4 class="ffc-h pr-onpass" aria-hidden="true">Travelers on your pass</h4><div class="ffc-counts ffc-counts--riders pr-card"><fieldset class="ffc-riders"><legend class="ads-sr-only">Travelers on your pass</legend>${riderCheck('me', `${prMeName(d)} (You)`, '', prMe(b), prMe(b) || room)}${prPeople(d).map(p => riderCheck(p.id, p.name, '', !!picked[p.id], !!picked[p.id] || room)).join('')}</fieldset>${comp}</div>
         ${probs.length ? `<div class="ffc-problems" role="alert">${probs.map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${esc(x)}</span></p>`).join('')}</div>` : ''}`;
     }
     body = `<section aria-labelledby="pr-who"><h3 class="ffc-h${!elig || !inDd ? ' ads-sr-only' : ''}" id="pr-who">Travelers ${q(13)}</h3>${tabs}${help}<div id="pr-panel"${elig && !inDd ? ' role="tabpanel" aria-labelledby="' + (t0 ? `prt-${t0}` : 'pr-who') + '"' : ''}>${panel}</div>${policy}</section>`;
@@ -7468,7 +7522,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
     const kidsSum = KIDS.filter(k => p[k]).map(k => `${p[k]} ${(p[k] > 1 ? PAX_PLURAL[k] : PAX_LABEL[k]).toLowerCase()}`).join(', ');
     const kidsHead = `<button class="ffc-count ffc-kids" type="button" data-a="kids-toggle" id="ffc-kids-h" aria-expanded="${kidsOpen}" aria-controls="ffc-kids-rows"><span class="ffc-count__text"><span class="ffc-count__label">Children &amp; infants</span><span class="ffc-count__sub">${kidsSum && !kidsOpen ? esc(kidsSum) : 'Ages 15 &amp; under'}</span></span>${ic('chevron-down', 'ffc-kids__chev')}</button>`;
     const counts = PAX.filter(([k]) => !KIDS.includes(k)).map(row).join('') + kidsHead + `<div class="ffc-kids__rows" id="ffc-kids-rows" role="group" aria-label="Children &amp; infants"${kidsOpen ? '' : ' hidden'}>${PAX.filter(([k]) => KIDS.includes(k)).map(row).join('')}</div>`;
-    const limit = paxOccupied(p) >= MAX_PAX ? `<p class="ffc-limit" role="status">${ic('info-circle', 'ads-icon--sm')}<span>You can book up to 8 seats in the app. Call 1-800-USA-RAIL to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on Amtrak.com.</span></p>` : '';
+    const limit = paxOccupied(p) >= MAX_PAX ? `<div class="ads-alert ads-alert--warning trav-limit" role="status">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__description">You can book up to 8 seats in the app. Call <a class="ads-link" href="tel:18008727245">1-800-USA-RAIL</a> to make reservations for 9 to 14 travelers. For 15 or more, complete a Group Travel Request on <a class="ads-link" href="https://www.amtrak.com" target="_blank" rel="noopener">Amtrak.com</a>.</p></div></div>` : '';
     const ratio = p.infant > lapCap(p) && !probs.length ? '<p class="ss-note">Each infant beyond the number of adults, seniors and young adults takes a seat and pays the child fare.</p>' : '';
     why = probs.join(' ');
     const fromProfile = d.signedIn && ['military', 'rpa'].includes(d.discount.type) && b.disc === d.discount.type;
@@ -7479,7 +7533,7 @@ function travelersClear(r, ri, std, aHost = 'travelers') {
       return `<div class="ffc-disc"><label class="ffc-disc__label" ${opts && !['pwd', 'companion'].includes(x) ? `for="td-${t.key}"` : ''}>${label}${t.n === 1 && fromProfile && x === b.disc ? ' <span class="ads-lock">From your profile</span>' : ''}</label>${ctl}<p class="ads-helper" id="td-${t.key}-h">${info}</p></div>`;
     }).join('');
     // Core Flow order: travelers, then assistance, then each traveler's discount
-    body = `<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${limit}${ratio}${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).length ? `<div class="ffc-problems" role="alert">${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
+    body = `${limit}<section aria-labelledby="ffc-who"><h3 class="ffc-h" id="ffc-who">Travelers ${q(10)}</h3><div class="ffc-counts">${counts}</div>${ratio}${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).length ? `<div class="ffc-problems" role="alert">${(rowErr => rowErr ? probs.filter(x => /at least one traveler/.test(x)) : probs)(['youth', 'child', 'infant'].some(k => paxErrorFor(p, k))).map(x => `<p class="ads-helper ads-helper--error">${ic('alert-diamond')}<span>${x}</span></p>`).join('')}</div>` : ''}</section>
       ${fam ? travelerCards(b, r) : assistBlock(r, ri, aHost)}
       ${fam ? '' : paxAll(p) ? `<section aria-labelledby="ffc-disc"><h4 class="ffc-h" id="ffc-disc">Traveler discounts</h4><div class="ffc-discs">${discs}</div><p class="ss-note">One discount per traveler. Eligibility information doesn’t block your choice. Changes here don’t change your profile.</p></section>` : ''}`;
   }
@@ -8443,6 +8497,22 @@ A['pick-station'] = (t, ri) => {
   pickStationBeforeFocus(t, ri);
 };
 
+// ---------- Toast position (Figma ST.9, ST.12, FF.8, PF.2) ----------
+// 24px above the bottom edge of the screen, or 24px above the sticky footer or tab bar when one is showing there.
+function placeToast() {
+  const dev = $('#device'), wrap = dev && $('.toast-wrap', dev); if (!wrap) return;
+  let gap = 24;
+  if (wrap.firstElementChild && document.elementFromPoint) {
+    const d = dev.getBoundingClientRect(), z = d.height / dev.offsetHeight || 1; // the device can be scaled to fit the window
+    const hit = document.elementFromPoint(d.left + d.width / 2, d.bottom - 36 * z);
+    const foot = hit && dev.contains(hit) && hit.closest('.pane__foot, .ads-actionfooter, .ads-tabbar');
+    if (foot) gap = Math.round((d.bottom - foot.getBoundingClientRect().top) / z) + 24;
+  }
+  wrap.style.bottom = gap + 'px';
+}
+const renderBeforeToastPlace = render;
+render = function () { renderBeforeToastPlace.apply(this, arguments); placeToast(); };
+
 /* Sprint 4 prototype: Fare Finder fields shared by Concepts 1 and 3.
    - Discount code (NMA-613): an always-visible optional field for monetary searches, after the traveler
      summary and before Find trains (placement proposed, Q21). Guests and members type a code; members with
@@ -8788,16 +8858,17 @@ SCR.dcode = (r, ri) => {
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
     <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}><button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button></div>${help}</div>`;
   const load = couponLoad(r);
+  const loadErr = load === 'error' ? alertBox('error', 'We couldn’t load your saved codes', 'You can still enter a code. Try again in a moment.', alertLink('coupon-retry', 'Reload')) : '';
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
-  else if (load === 'error') list = alertBox('error', 'We couldn’t load your coupons', 'Something went wrong on our side. Try again in a moment. You can still enter a code above.', '<button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="coupon-retry">Try again</button>');
+  else if (load === 'error') list = `<div class="apc-skels" aria-hidden="true">${'<div class="apc-skel"></div>'.repeat(3)}</div>`;
   else {
     const codes = bookingCodes();
     list = codes.length ? `<ul class="apc-list" aria-label="Your coupons">${codes.map(c => apcRow(c, (val || '').toUpperCase())).join('')}</ul>`
       : `<div class="ads-summary ads-summary--empty apc-empty"><p class="ads-summary__title">None saved</p><p class="ads-body-small">${d.signedIn ? 'Codes you add in My coupons will show here.' : 'Sign in to see codes saved in My coupons.'}</p></div>`;
   }
   tip('Choose a coupon or type a code, then Apply. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
-  const body = `${netAlert(r)}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
+  const body = `${netAlert(r)}${loadErr}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
   return { title: 'Apply code', kind: 'push', backIcon: true, noGrabber: true, cls: 'pane--apc', body, foot: '<button class="ads-btn ads-btn--block" type="button" data-a="apc-save">Apply</button>', footCls: 'ads-actionfooter', offlineText: 'You can enter a code. Your saved coupons need a connection to refresh.' };
 };
 HOOKS.apcin = (r, t) => { r.u.d.add = t.value; r.u.err = ''; };
@@ -8818,7 +8889,7 @@ A['apc-save'] = (t, ri) => {
   if (c !== b.codeText) Object.assign(b, { codeText: c, code: saved ? clone(saved) : null, codeState: '', codeErr: '', codeSrc: saved ? 'saved' : 'manual' });
   r.u.err = ''; popTo(+ri - 1); pendingFocus = '#ff-coderow';
 };
-A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; push('apc-detail', { code: t.dataset.code }, +ri); };
+A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; openInfo(`coupon:${t.dataset.code}`, `[data-a="apc-details"][data-code="${t.dataset.code}"]`); };
 // Details: the coupon's full details (as in My coupons)
 SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail">${info.body()}</div>` }; };
 // The information beside "Coupon or promotional code": the established codes copy under the Figma "Info" title (AP.6)
@@ -9198,7 +9269,7 @@ function nearSection(r, ri) {
   const recovery = (k, msg, acts) => `<div class="ads-alert ads-alert--${k === 'none' ? 'info' : 'warning'} ss-near__msg" role="status" id="near-msg" data-k="${k}">${ic(k === 'none' ? 'info-circle' : 'alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(msg.title)}</p><p class="ads-alert__description ads-body-small">${esc(msg.body)}</p>${acts ? `<div class="ss-near__acts">${acts}</div>` : ''}</div></div>`;
   const btn = (a, label, kind = 'secondary', extra = '') => `<button class="ads-btn ads-btn--${kind}" type="button" data-a="${a}" ${extra}>${label}</button>`;
   if (n.st === 'denied-alert') body = `<div class="ads-alert ads-alert--warning ss-localert" role="status" id="near-msg" data-k="denied">${ic('alert-triangle', 'ads-alert__icon')}<div class="ads-alert__content"><p class="ads-alert__title">${esc(NEAR_MSG.deniedFirst.title)}</p><p class="ads-alert__description">${esc(NEAR_MSG.deniedFirst.body)}</p><button class="ads-link ads-link--sm linkbtn ss-localert__link" type="button" data-a="open-settings" data-what="app">Open settings</button></div><button class="ads-icon-btn ads-icon-btn--sm ss-localert__close" type="button" data-a="loc-alert-dismiss" aria-label="Dismiss: location isn’t allowed">${ic('close')}</button></div>`;
-  else if (n.st === 'locating' || n.st === 'loading') body = `<p class="ss-near__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}<span>${n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading}</span></p>`;
+  else if (n.st === 'locating' || n.st === 'loading') body = ''; // said by the busy toast (busyToast below), so the list stays where it is
   else if (n.st === 'denied-first') body = recovery('denied-first', NEAR_MSG.deniedFirst, P === 'android' && !n.askedTwice ? btn('near-start', 'Try again', 'secondary', 'data-again="1"') : btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'denied') body = recovery('denied', NEAR_MSG.denied, btn('open-settings', 'Open Settings', 'secondary', 'data-what="app"'));
   else if (n.st === 'services-off') body = recovery('services-off', { title: NEAR_MSG.servicesOff.title, body: NEAR_MSG.servicesOff[P] }, btn('open-settings', 'Open Settings', 'secondary', 'data-what="device"'));
@@ -9218,6 +9289,12 @@ function nearSection(r, ri) {
   snote('Error and status messages for location and nearby search are configurable (NEAR_MSG in stationmap.js).');
   const list = n.st === 'results' ? body : '', msg = n.st === 'results' ? '' : body;
   return `${msg ? `<section class="ss-near" aria-label="Stations near you">${msg}</section>` : ''}<!--near-split-->${list}`; // messages end the selector's top block; nearby results start the list
+}
+// While the device location or the nearby stations are being found, the List view shows a toast with a spinner (Figma ST.12)
+function busyToast() {
+  const r = selRoute(), n = r && r.u.near, sh = sheet();
+  if (!n || !['locating', 'loading'].includes(n.st) || r.u.view === 'map' || sh.stack[sh.stack.length - 1] !== r || nav().cover || nav().dialog || nav().info || nav().native) return null;
+  return { kind: 'busy', msg: n.st === 'locating' ? NEAR_MSG.locating : NEAR_MSG.loading };
 }
 // My Location: ask the OS only if permission hasn't been requested; otherwise use what's allowed
 A['near-start'] = (t, ri) => {
@@ -9386,7 +9463,17 @@ A['map-locate'] = t => {
   if (L.perm === 'denied') { dialog({ title: NEAR_MSG.denied.title, body: esc(NEAR_MSG.denied.body), actions: [['Not now', 'secondary', null], ['Open Settings', 'primary', () => A['open-settings']({ dataset: { what: 'app' } })]], returnFocus: '[data-a="map-locate"]' }); return; }
   nativePerm(ok => { if (ok && locKnown()) center(); else { pendingFocus = '[data-a="map-locate"]'; render(); } });
 };
-A['map-details'] = t => { const r = routeAt(selIndex()); track('map_station_details_opened', { code: t.dataset.code }); push('station-detail', { code: t.dataset.code, field: r.p.field }, selIndex()); };
+A['map-details'] = t => { const r = routeAt(selIndex()); track('map_station_details_opened', { code: t.dataset.code }); openInfo(`station:${t.dataset.code}`, `[data-a="map-details"][data-code="${t.dataset.code}"]`); };
+// The sheet also lists what the map knows about the station (facility, street address, parking) when the base details don't
+stationInfo = (base => code => {
+  const o = base(code), g = ST[code] && typeof geoOf === 'function' ? geoOf(code) : null; if (!g) return o;
+  return { title: o.title, body: () => {
+    let h = o.body(); const t = STATION_TYPES[g.type];
+    const row = (label, value, after) => { if (!value || h.includes(`<dt>${label}</dt>`)) return; const at = after ? h.indexOf(`<dt>${after}</dt>`) : -1, html = `<dt>${label}</dt><dd>${esc(value)}</dd>`; if (at >= 0) h = h.slice(0, at) + html + h.slice(at); else h = h.replace('</dl>', html + '</dl>'); };
+    row('Facility', t && t.label, 'Code'); row('Street address', g.address, 'City'); row('Parking', g.parking);
+    return h;
+  } };
+})(stationInfo);
 // Pan by dragging; keyboard arrows and +/- for the map region; wheel zoom
 let DRAG = null, SUPPRESS_CLICK = false;
 // A drag can start anywhere on the map, markers included; it only becomes a pan once the pointer moves, so a tap
