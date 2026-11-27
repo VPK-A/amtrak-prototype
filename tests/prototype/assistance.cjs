@@ -23,7 +23,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
 
   // ---- Entry point and the four types ----
   await scen('returning');
-  ok(await p.locator(D_ + '#tc-adult-1 button[data-a="assist-answer"]').count() === 1 && /Traveler with disability or need help\?/.test(await card('adult-1')) && /Add assistance/.test(await card('adult-1')) && await p.locator(D_ + '#tc-adult-1 input[type="checkbox"]').count() === 0, 'entry point: Add assistance button (no checkbox) in Traveler 1’s details');
+  ok(await p.locator(D_ + '#tc-adult-1 button[data-a="assist-answer"]').count() === 1 && /Are you a traveler with a disability, need to add help, or are a companion\?/.test(await card('adult-1')) && /Add assistance/.test(await card('adult-1')) && await p.locator(D_ + '#tc-adult-1 input[type="checkbox"]').count() === 0, 'entry point: Add assistance button (no checkbox) in Traveler 1’s details');
   await ask('adult-1'); await p.click(D_ + '[data-a="back"]'); await w(); ok(/Add assistance/.test(await card('adult-1')) && !(await ev(() => D().booking.ask['adult-1'])), 'leaving without confirming: nothing saved, Add stays');
   await ask('adult-1'); ok(await top() === 'assist' && await ev(() => document.querySelector("#device .assist-who").textContent.trim()) === 'Traveler 1', 'checking opens Traveler 1’s questionnaire, traveler named');
   ok(await ev(() => [...document.querySelectorAll('#device input[name$="-cat"]')].map(i => i.value).join()) === 'disability,station,companion' && !/I do not need assistance/.test(await txt()), 'three types, no “I do not need assistance”');

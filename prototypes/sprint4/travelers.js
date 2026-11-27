@@ -240,7 +240,7 @@ function assistAsk(b, t, r, summary = '', card = null) {
   // One call to action: Add assistance opens this traveler's questionnaire; once answers are confirmed it becomes
   // Edit assistance, with Remove beside it
   const btn = (act, label, kind, icon) => `<button class="ads-btn ads-btn--${kind} ads-btn--sm" type="button" data-a="${act}" data-t="${t.key}"${act === 'assist-answer' ? ` id="${id}"` : ''} aria-describedby="${id}-h">${icon ? ic(icon, 'ads-icon--sm') : ''}${label}<span class="ads-sr-only"> for ${esc(t.label)}</span></button>`;
-  const acts = busy ? `<span class="ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--tertiary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>`
+  const acts = busy ? `<span class="ads-btn ads-btn--secondary ads-btn--sm ffassist__busy" role="status">${ic('spinner-static', 'ads-icon--sm')}Opening questions</span><button class="ads-btn ads-btn--secondary ads-btn--sm" type="button" data-a="cancel-busy">Cancel</button>`
     : saved ? btn('assist-edit', C.editCta, 'secondary', 'edit') + btn('assist-remove', C.removeCta, 'tertiary') : btn('assist-answer', C.addCta, 'secondary', 'plus');
   // Content above traveler details (comparison setting): the copy is shown once above the section, not in each card
   if (assistAbove()) return `<div class="tassist tassist--bare">${saved ? summary : ''}<div class="tassist__acts">${acts.replace(/aria-describedby="[^"]*"/g, 'aria-describedby="tassist-intro"')}</div></div>`;

@@ -40,7 +40,7 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); console.log((c ? 'ok 
   ok((await bk()).prType === 'leisure' && await p.locator(D_ + '.ffc-riders input[type="checkbox"]').count() === 4 && await p.locator(D_ + '[data-a="pax"][data-k="comp"]').count() === 2, 'Leisure: named riders as checkboxes, Companions counter');
   await p.click(`${D_}label[for="prr-maya"]`); await w(250);
   await p.click(D_ + '#prt-business'); await w(300);
-  ok((await bk()).prType === 'business' && await p.locator(D_ + '.ffc-riders input').count() === 1 && await ev(() => { const i = document.querySelector('#device #prr-me'); return i.checked && i.disabled; }) && /for you alone/.test(await ev(() => document.querySelector('#device #prt-h').textContent)), 'Business: you alone, fixed');
+  ok((await bk()).prType === 'business' && await p.locator(D_ + '.ffc-riders input').count() === 1 && await ev(() => { const i = document.querySelector('#device #prr-me'); return i.checked && i.disabled; }) && /for you only/.test(await ev(() => document.querySelector('#device #prt-h').textContent)), 'Business: you alone, fixed');
   await p.click(D_ + '#prt-leisure'); await w(300);
   ok(await ev(() => document.querySelector('#device #prr-maya').checked) && await ev(() => document.activeElement.id) === 'prt-leisure', 'switching tabs keeps Leisure selections; focus stays on the tab');
   await axe('Leisure');

@@ -77,7 +77,7 @@ const REL = /\b(Employees?|Spouses?|Dependents?|Retirees?)\b/;
     // Business: the signed-in traveler alone, by name
     await go(v, 'passrider', 'business');
     ok(JSON.stringify(await chk('me')) === '{"on":true,"off":true}' && await p.locator(D_ + '.ffc-riders input').count() === 1, `${T} Business: signed-in traveler checked and fixed; no one else`);
-    const bt = await pane(); ok(/Alex Rivera/.test(bt) && /Business travel is for you alone/.test(bt) && !REL.test(bt) && await p.locator(D_ + '#ask-pr-you, ' + D_ + '[data-a="assist-edit"][data-t="pr-you"]').count() >= 1, `${T} Business: named, alone, assistance available`);
+    const bt = await pane(); ok(/Alex Rivera/.test(bt) && /Business travel is for you only/.test(bt) && !REL.test(bt) && await p.locator(D_ + '#ask-pr-you, ' + D_ + '[data-a="assist-edit"][data-t="pr-you"]').count() >= 1, `${T} Business: named, alone, assistance available`);
   }
   // name, subtext and counter aligned in every layout
   for (const [v, dev, or, type] of [[1, 'iphone', 'portrait', 'leisure'], [1, 'iphone', 'landscape', 'leisure'], [1, 'ipad', 'portrait', 'leisure'], [1, 'ipad', 'landscape', 'business'], [3, 'iphone', 'portrait', 'business'], [3, 'ipad', 'landscape', 'leisure']]) {
