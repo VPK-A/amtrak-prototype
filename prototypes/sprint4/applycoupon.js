@@ -1,6 +1,7 @@
 /* Sprint 4 prototype: "Apply code" (New booking › Coupon or promotional code), matched to Figma Sprint 4 node 3346:47066.
    - Header: icon-only Back (chevron) and the title; Back returns to Fare Finder with the booking unchanged. No X.
    - "Coupon or promotional code" field with the codes information beside the label, a clear button inside the field
+     (shown as soon as the field has text: always in the markup, hidden by CSS while the field is empty)
      and "Codes should be 4 or 14 characters long."
    - "Your coupons": one bordered list of the account's active, unused codes (no upgrade coupons, which are used from
      Profile and Modify). Choosing a row puts its code in the field; the row's info button opens its details.
@@ -27,7 +28,7 @@ SCR.dcode = (r, ri) => {
     : bad ? `<p class="ads-helper ads-helper--error" id="apc-in-h">${ic('alert-diamond')}<span>${esc(b.codeErr)}</span></p>`
     : `<p class="ads-helper" id="apc-in-h">Codes should be 4 or 14 characters long.</p>`;
   const field = `<div class="ads-field apc-field"><div class="apc-label"><label class="ads-field__label" for="apc-in">Coupon or promotional code</label><button class="ads-icon-btn ads-icon-btn--xs apc-labelinfo" type="button" data-a="code-info" aria-label="About coupon and promotion codes">${ic('info-circle')}</button></div>
-    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}>${val ? `<button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button>` : ''}</div>${help}</div>`;
+    <div class="ads-control${e || bad ? ' ads-control--error' : ''}"><input id="apc-in" type="text" data-f="add" data-nodirty data-hook="apcin" value="${esc(val)}" placeholder="Apply code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="apc-in-h"${e || bad ? ' aria-invalid="true"' : ''}><button class="ads-icon-btn ads-icon-btn--sm apc-clear" type="button" data-a="apc-clear" aria-label="Clear code">${ic('close')}</button></div>${help}</div>`;
   const load = couponLoad(r);
   let list;
   if (load === 'loading') list = `<div class="cpn-loading" role="status" aria-live="polite"><span class="ads-sr-only">Loading your coupons</span>${'<div class="cpn-skel" aria-hidden="true"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
@@ -35,7 +36,7 @@ SCR.dcode = (r, ri) => {
   else {
     const codes = bookingCodes();
     list = codes.length ? `<ul class="apc-list" aria-label="Your coupons">${codes.map(c => apcRow(c, (val || '').toUpperCase())).join('')}</ul>`
-      : `<div class="ads-summary ads-summary--empty"><p class="ads-summary__title">You don’t have any coupons</p><p class="ads-body-small">${d.signedIn ? 'Coupons saved to your account show up here. You can still enter a code above.' : 'Sign in to see coupons saved to your account. You can still enter a code above.'}</p></div>`;
+      : `<div class="ads-summary ads-summary--empty apc-empty"><p class="ads-summary__title">None saved</p><p class="ads-body-small">${d.signedIn ? 'Codes you add in My coupons will show here.' : 'Sign in to see codes saved in My coupons.'}</p></div>`;
   }
   tip('Choose a coupon or type a code, then Apply. 3 characters shows the format error; 60123456789012 has been used; 60555544443333 has expired.');
   const body = `${netAlert(r)}${field}<section class="apc-yours" aria-labelledby="apc-yours-h"><h3 class="apc-h" id="apc-yours-h">Your coupons</h3>${list}</section>`;
@@ -61,6 +62,6 @@ A['apc-save'] = (t, ri) => {
 };
 A['apc-details'] = (t, ri) => { const r = routeAt(ri), inp = document.querySelector('#apc-in'); if (inp && r) r.u.d.add = inp.value; push('apc-detail', { code: t.dataset.code }, +ri); };
 // Details: the coupon's full details (as in My coupons)
-SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail"><h3 class="ads-h4">${esc(info.title)}</h3>${info.body()}</div>` }; };
-// The information beside "Add a coupon or promotion code": the established codes copy, plus where codes are kept
-INFO.codes.body = (base => () => base() + '<p>Coupons saved to your account are in Account › My coupons, and they’re listed here.</p>')(INFO.codes.body);
+SCR['apc-detail'] = (r, ri) => { const info = couponInfo(r.p.code); return { title: 'Details', kind: 'push', body: `<div class="apc-detail">${info.body()}</div>` }; };
+// The information beside "Coupon or promotional code": the established codes copy under the Figma "Info" title (AP.6)
+INFO.codes.title = 'Info';
