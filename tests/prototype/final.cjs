@@ -158,5 +158,11 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   console.log('errors:', errs.length ? errs.join('\n') : 'none');
   console.log(`${res.filter(r => r[0]).length}/${res.length} passed`);
   require('fs').writeFileSync('final-results.json', JSON.stringify(res));
-  await br.close();
+    // Full screen view (no mockup frame)
+  await p.evaluate(() => { document.querySelector('#chromeToggle').click(); }); await p.waitForTimeout(300);
+  await p.locator('#tbView button[data-v="full"]').click(); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => { const d = document.querySelector('#device').getBoundingClientRect(); return TB.full && document.body.classList.contains('view-full') && Math.round(d.top) === 0 && Math.round(d.height) === window.innerHeight && getComputedStyle(document.querySelector('.dev-status')).display === 'none' && getComputedStyle(document.querySelector('#device')).borderRadius === '0px'; }), 'Full screen view: the app fills the window with no frame or fake status bar');
+  await p.locator('#fullExit').click(); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => !TB.full && !document.body.classList.contains('view-full') && getComputedStyle(document.querySelector('.dev-status')).display !== 'none'), 'Full screen view: Exit returns to the framed view');
+await br.close();
 })();

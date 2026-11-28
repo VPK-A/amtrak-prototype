@@ -507,7 +507,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); if ($('#tbView')) setSeg('#tbView', TB.full ? 'full' : 'frame'); setSeg('#tbTheme', TB.theme);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5v')) $('#tbS5v').value = s5v(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token; if ($('#tbCpn')) $('#tbCpn').value = TB.cpn;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -529,6 +529,14 @@ const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with C
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;
+  // Full screen view: no mockup frame, no status bar; the app fills the window (phone width is capped on wide screens)
+  document.body.classList.toggle('view-full', !!TB.full);
+  if (TB.full) {
+    const fw = TB.dev === 'ipad' ? window.innerWidth : Math.min(window.innerWidth, 430), fh = window.innerHeight;
+    dev.style.width = fw + 'px'; dev.style.height = fh + 'px'; dev.style.transform = 'none';
+    $('#deviceBox').style.width = fw + 'px'; $('#deviceBox').style.height = fh + 'px';
+    return;
+  }
   const dims = { iphone: [390, 844], ipad: [834, 1194] }[TB.dev];
   const [w, h] = TB.orient === 'portrait' ? dims : [dims[1], dims[0]];
   dev.style.width = w + 'px'; dev.style.height = h + 'px';
@@ -541,6 +549,12 @@ function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
+  const setFull = (on, viaUser) => { TB.full = on; if (on && typeof setChrome === 'function') setChrome(false, false); render(); if (viaUser) { const el = on ? $('#fullExit') : $('#chromeToggle'); if (el) el.focus(); } };
+  if ($('#tbView')) seg('#tbView', v => setFull(v === 'full', true));
+  if ($('#fullExit')) $('#fullExit').addEventListener('click', () => setFull(false, true));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && TB.full && !e.defaultPrevented && !nav().dialog && !nav().info && !nav().sheet) setFull(false, true); });
+  window.addEventListener('hashchange', () => { if (location.hash === '#full' && !TB.full) setFull(true); });
+  if (location.hash === '#full') TB.full = true; // a link ending in #full opens straight into the full screen view
   seg('#tbTheme', v => { TB.theme = v; render(); });
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
