@@ -574,6 +574,10 @@
 .ds-next .b2c__resend { appearance: none; -webkit-appearance: none; min-height: var(--ads-space-24); margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: inherit; font-size: var(--ads-type-body-size); line-height: 1.5; color: var(--ads-content-text-link); text-decoration: underline; cursor: pointer; }
 .ds-next .b2c__resend:hover { color: var(--ads-content-text-link-hover); }
 .ds-next .b2c__resend:focus-visible { outline: var(--ads-focus-ring-width) solid var(--ads-border-focus); outline-offset: 2px; }
+/* Link-styled buttons never show browser button chrome (the location "Change" control did) */
+.ds-next button.ads-link { appearance: none; background: none; border: 0; padding: 0; font-family: inherit; cursor: pointer; }
+.ds-next .ss-place { align-items: center; }
+.ds-next .ss-place__change { flex: none; min-height: var(--ads-size-interactive-sm, 32px); padding-inline: var(--ads-space-4); font-size: var(--ads-type-body-small-size); }
 /* SHARED-end */
 
 /* . */
