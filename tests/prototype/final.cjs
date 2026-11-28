@@ -162,6 +162,10 @@ const res = []; const ok = (c, m) => { res.push([!!c, m]); if (!c) console.log('
   await p.evaluate(() => { document.querySelector('#chromeToggle').click(); }); await p.waitForTimeout(300);
   await p.locator('#tbView button[data-v="full"]').click(); await p.waitForTimeout(400);
   ok(await p.evaluate(() => { const d = document.querySelector('#device').getBoundingClientRect(); return TB.full && document.body.classList.contains('view-full') && Math.round(d.top) === 0 && Math.round(d.height) === window.innerHeight && getComputedStyle(document.querySelector('.dev-status')).display === 'none' && getComputedStyle(document.querySelector('#device')).borderRadius === '0px'; }), 'Full screen view: the app fills the window with no frame or fake status bar');
+  await p.evaluate(() => { goLoc('tab:book'); A['open-booking'](); render(); }); await p.waitForTimeout(500);
+  await p.locator('#device #ff-from').click(); await p.waitForTimeout(700); await p.locator('#device #ss-q').click(); await p.waitForTimeout(700);
+  ok(await p.evaluate(() => { const k = document.querySelector('#device .ios-kb'); return !!document.querySelector('#device .is-kb') && (!k || getComputedStyle(k).display === 'none') && document.activeElement && document.activeElement.id === 'ss-q'; }), 'Full screen view: searching stations shows no mock keyboard and keeps the field focused');
+  await p.evaluate(() => { nav().sheet = null; render(); }); await p.waitForTimeout(300);
   await p.locator('#fullExit').click(); await p.waitForTimeout(300);
   ok(await p.evaluate(() => !TB.full && !document.body.classList.contains('view-full') && getComputedStyle(document.querySelector('.dev-status')).display !== 'none'), 'Full screen view: Exit returns to the framed view');
 await br.close();
