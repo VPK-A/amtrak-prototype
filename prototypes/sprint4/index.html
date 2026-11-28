@@ -3328,6 +3328,12 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .ds-next .ss-upd .ss-empty { gap: 0; padding: var(--ads-space-16) var(--ads-space-8); }
 .ds-next .ss-upd .ss-empty b { font-weight: var(--ads-font-weight-semibold); }
 .ds-next .ss-upd .ss-empty span { max-width: 290px; margin-inline: auto; line-height: 20px; }
+/* A chosen station looks like any other row in the list: no tint, bar, bold or checkmark (the From/To card shows the choice). aria-current stays for screen readers. */
+.ds-next .ads-stationrow[aria-current="true"] .ads-stationrow__select, .ds-next .ss-upd .ads-stationrow[aria-current="true"] .ads-stationrow__select { background: transparent; box-shadow: none; }
+.ds-next .ads-stationrow[aria-current="true"] .ss-check { display: none; }
+.ds-next .ads-stationrow[aria-current="true"] .ads-stationrow__select::after, .ds-next .ads-stationrow[aria-current="true"]::after, .ds-next .ads-stationrow[aria-current="true"] .ads-stationrow__check { display: none; content: none; }
+.ds-next .ads-stationrow[aria-current="true"] .ads-stationrow__name { font-weight: inherit; }
+.ds-next .ads-stationrow[aria-current="true"] .ads-stationrow__code { color: inherit; }
 /* ST-end */
 
 /* . */
