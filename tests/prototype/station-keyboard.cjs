@@ -19,7 +19,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(!(await p.locator('#tbSsl').count()), 'one layout (A): the layout switch is gone from Prototype controls');
   await go('from');
   ok(await ev(() => { const s = document.querySelector('#device .ss-search'), c = document.querySelector('#device .ss-collapse'); return !!(c.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'From / To card above the search field');
-  ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search station' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search station, departure', 'at rest the field reads “Search station” (Figma); its name starts with the visible text and names the end (WCAG 2.5.3)');
+  ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search departure stations' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search departure stations', 'at rest the field reads “Search station” (Figma); its name starts with the visible text and names the end (WCAG 2.5.3)');
   ok(!(await kb()) && await cardH() > 100 && !(await p.locator(D + '.ss-cancel').count()), 'at rest: no keyboard, card shown, no Cancel');
   const y0 = await top(D + '#ss-q');
   await p.click(D + '#ss-q'); await w();
@@ -44,7 +44,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   ok(!(await kb()) && await q() === 'Wash', 'dragging the results dismisses the keyboard; text and results stay');
   await p.click(D + '#ss-q'); await w(); await p.click(D + '[data-kb="ret"]'); await w(); ok(!(await kb()), 'Return ends search');
   await p.click(D + '#ss-q'); await w(); await p.click(D + '.ss-head__title', { force: true }); await w(); ok(!(await kb()), 'a tap outside ends search');
-  await go('to'); ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search station' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search station, arrival', 'To at rest: Search station, named for arrival');
+  await go('to'); ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search arrival stations' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search arrival stations', 'To at rest: Search station, named for arrival');
   await p.click(D + '#ss-q'); await w(); ok(await ev(() => document.querySelector('#ss-q').placeholder) === 'Search arrival stations' && await ev(() => document.querySelector('label[for="ss-q"]').textContent) === 'Search arrival stations', 'To while typing: Search arrival stations'); await p.click(D + '.ss-cancel'); await w();
   await ev(() => { TB.dev = 'ipad'; VS[1] = makeVS('returning'); goLoc('stations:from'); }); await w(800);
   ok(await p.locator(D + '.ios-kb').count() === 0, 'iPad: no simulated keyboard');
