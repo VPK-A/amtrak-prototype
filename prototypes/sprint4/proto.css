@@ -1107,3 +1107,6 @@ body.view-full .full-exit:hover, body.view-full .full-exit:focus-visible { opaci
 body.view-full .stage { padding: 0; margin: 0; }
 body.view-full #deviceBox { margin: 0 auto; padding: 0; flex: none; }
 body.view-full .device { top: 0; left: 0; margin: 0; }
+/* Full screen view: the device's own keyboard is used, so the mock iOS keyboard and the space reserved for it are dropped */
+body.view-full .ios-kb { display: none !important; }
+body.view-full .is-kb .pane__body { padding-bottom: var(--ads-space-16); }
