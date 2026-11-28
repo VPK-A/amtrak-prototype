@@ -12,12 +12,14 @@
 <body class="ads-root chrome-hidden">
 <button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoCtl" aria-label="Show prototype controls" title="Show prototype controls"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
 
+<button class="full-exit" type="button" id="fullExit" aria-label="Exit full screen view" title="Exit full screen view">Exit full screen</button>
 <div id="protoView">
   <div class="main">
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbView">View</span><div class="ads-segmented" id="tbView" role="group" aria-labelledby="lbView"><button type="button" data-v="frame" aria-pressed="true">With frame</button><button type="button" data-v="full" aria-pressed="false">Full screen</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5">Search outcome (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>

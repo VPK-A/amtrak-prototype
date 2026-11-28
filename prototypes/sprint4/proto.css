@@ -1090,3 +1090,20 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .mobq__card--field > .ads-choice { padding: var(--ads-space-12) var(--ads-space-16); }
 .mobq__inner { padding: var(--ads-space-12) var(--ads-space-16) var(--ads-space-16); background: var(--ads-background-surface-default); }
 .mobq__inner .ads-field { margin: 0; }
+
+/* ===== Full screen view: the app without the mockup frame (View > Full screen, or a link ending in #full) ===== */
+.full-exit { display: none; }
+body.view-full { overflow: hidden; background: var(--ads-background-surface-page); }
+body.view-full > *:not(#protoView):not(#fullExit):not(script):not(style) { display: none !important; }
+body.view-full #protoView > *:not(.main), body.view-full .main > *:not(.stage) { display: none !important; }
+body.view-full .main { display: block; padding: 0; }
+body.view-full .stage { position: fixed; inset: 0; display: flex; justify-content: center; align-items: flex-start; background: var(--ads-background-surface-sunken); }
+body.view-full #deviceBox { position: relative; }
+body.view-full .device { border-radius: 0; box-shadow: none; }
+body.view-full .dev-status { display: none; }
+body.view-full .app { inset: env(safe-area-inset-top, 0px) 0 0; }
+body.view-full .full-exit { display: block; position: fixed; z-index: 60; top: max(2px, env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); padding: 2px 10px; border: 0; border-radius: 999px; background: rgb(5 18 49 / 0.55); color: #fff; font: 600 11px/16px var(--ads-font-family); letter-spacing: 0.02em; opacity: 0.55; cursor: pointer; }
+body.view-full .full-exit:hover, body.view-full .full-exit:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 1px; }
+body.view-full .stage { padding: 0; margin: 0; }
+body.view-full #deviceBox { margin: 0 auto; padding: 0; flex: none; }
+body.view-full .device { top: 0; left: 0; margin: 0; }

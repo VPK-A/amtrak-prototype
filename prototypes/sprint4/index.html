@@ -2659,6 +2659,23 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 .mobq__inner { padding: var(--ads-space-12) var(--ads-space-16) var(--ads-space-16); background: var(--ads-background-surface-default); }
 .mobq__inner .ads-field { margin: 0; }
 
+/* ===== Full screen view: the app without the mockup frame (View > Full screen, or a link ending in #full) ===== */
+.full-exit { display: none; }
+body.view-full { overflow: hidden; background: var(--ads-background-surface-page); }
+body.view-full > *:not(#protoView):not(#fullExit):not(script):not(style) { display: none !important; }
+body.view-full #protoView > *:not(.main), body.view-full .main > *:not(.stage) { display: none !important; }
+body.view-full .main { display: block; padding: 0; }
+body.view-full .stage { position: fixed; inset: 0; display: flex; justify-content: center; align-items: flex-start; background: var(--ads-background-surface-sunken); }
+body.view-full #deviceBox { position: relative; }
+body.view-full .device { border-radius: 0; box-shadow: none; }
+body.view-full .dev-status { display: none; }
+body.view-full .app { inset: env(safe-area-inset-top, 0px) 0 0; }
+body.view-full .full-exit { display: block; position: fixed; z-index: 60; top: max(2px, env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); padding: 2px 10px; border: 0; border-radius: 999px; background: rgb(5 18 49 / 0.55); color: #fff; font: 600 11px/16px var(--ads-font-family); letter-spacing: 0.02em; opacity: 0.55; cursor: pointer; }
+body.view-full .full-exit:hover, body.view-full .full-exit:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 1px; }
+body.view-full .stage { padding: 0; margin: 0; }
+body.view-full #deviceBox { margin: 0 auto; padding: 0; flex: none; }
+body.view-full .device { top: 0; left: 0; margin: 0; }
+
 /* ADS Next: this branch's only design system
    The concept normalized against ADS Next (Global) and Mobile ADS. Every rule is scoped to .ds-next, which
    the device always carries on this branch; the shared ADS files underneath stay as they are.
@@ -4317,12 +4334,14 @@ button.ss-route__item:focus-visible { outline: var(--ads-focus-ring-width) solid
 <body class="ads-root chrome-hidden">
 <button class="chrome-toggle" type="button" id="chromeToggle" aria-expanded="false" aria-controls="protoCtl" aria-label="Show prototype controls" title="Show prototype controls"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="12" r="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
 
+<button class="full-exit" type="button" id="fullExit" aria-label="Exit full screen view" title="Exit full screen view">Exit full screen</button>
 <div id="protoView">
   <div class="main">
     <div class="stage" id="stage"><div id="deviceBox"><div id="device" class="device"></div></div></div>
     <aside class="ctl" id="protoCtl" aria-labelledby="ctlTitle" hidden>
       <p class="ads-body-small-emphasis ctl__title" id="ctlTitle" tabindex="-1">Prototype controls</p>
     <div class="ctl__group"><span class="ads-field__label" id="lbDevice">Device</span><div class="ads-segmented" id="tbDevice" role="group" aria-labelledby="lbDevice"><button type="button" data-v="iphone" aria-pressed="true">iPhone</button><button type="button" data-v="ipad" aria-pressed="false">iPad</button></div></div>
+    <div class="ctl__group"><span class="ads-field__label" id="lbView">View</span><div class="ads-segmented" id="tbView" role="group" aria-labelledby="lbView"><button type="button" data-v="frame" aria-pressed="true">With frame</button><button type="button" data-v="full" aria-pressed="false">Full screen</button></div></div>
     <div class="ctl__group"><span class="ads-field__label" id="lbOrient">Orientation</span><div class="ads-segmented" id="tbOrient" role="group" aria-labelledby="lbOrient"><button type="button" data-v="portrait" aria-pressed="true">Portrait</button><button type="button" data-v="landscape" aria-pressed="false">Landscape</button></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbScenario">Scenario</label><div class="ads-control ads-control--select"><select id="tbScenario"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
       <div class="ads-field ctl__group"><label class="ads-field__label" for="tbS5">Search outcome (Sprint 5)</label><div class="ads-control ads-control--select"><select id="tbS5"></select><span class="ads-icon ads-icon--chevron-down" aria-hidden="true"></span></div></div>
@@ -5924,7 +5943,7 @@ A['clear-recents'] = t => dialog(Object.assign(clearDialog(), t && t.dataset && 
 
 // ---------- Toolbar, notes panel, scaling (outside the device) ----------
 function renderChrome() {
-  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); setSeg('#tbTheme', TB.theme);
+  setSeg('#tbDevice', TB.dev); setSeg('#tbOrient', TB.orient); if ($('#tbView')) setSeg('#tbView', TB.full ? 'full' : 'frame'); setSeg('#tbTheme', TB.theme);
   $('#tbScenario').value = V().sc; $('#tbNet').value = V().net; if ($('#tbS5')) $('#tbS5').value = s5().outcome; if ($('#tbS5c')) $('#tbS5c').value = s5c(); if ($('#tbS5v')) $('#tbS5v').value = s5v(); if ($('#tbS5d')) $('#tbS5d').value = s5dm(); $('#tbToken').value = V().token; if ($('#tbCpn')) $('#tbCpn').value = TB.cpn;
   { const k = (V().outbox || []).length + ':' + TB.v; if (typeof renderEmails === 'function' && k !== window.__mailKey) { window.__mailKey = k; renderEmails(); } }
   // Reviewer notes (outside the device): stories on this screen, open questions and things to try
@@ -5946,6 +5965,14 @@ const VERSION_LINES = { 1: 'Follows Core Flow. Lists open focused editors with C
 function setSeg(sel, v) { $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v))); }
 function scaleDevice() {
   const dev = $('#device'), stage = $('#stage'); if (!dev || !stage) return;
+  // Full screen view: no mockup frame, no status bar; the app fills the window (phone width is capped on wide screens)
+  document.body.classList.toggle('view-full', !!TB.full);
+  if (TB.full) {
+    const fw = TB.dev === 'ipad' ? window.innerWidth : Math.min(window.innerWidth, 430), fh = window.innerHeight;
+    dev.style.width = fw + 'px'; dev.style.height = fh + 'px'; dev.style.transform = 'none';
+    $('#deviceBox').style.width = fw + 'px'; $('#deviceBox').style.height = fh + 'px';
+    return;
+  }
   const dims = { iphone: [390, 844], ipad: [834, 1194] }[TB.dev];
   const [w, h] = TB.orient === 'portrait' ? dims : [dims[1], dims[0]];
   dev.style.width = w + 'px'; dev.style.height = h + 'px';
@@ -5958,6 +5985,12 @@ function wireToolbar() {
   const seg = (sel, fn) => $(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
   seg('#tbDevice', v => { TB.dev = v; store.set('s4-dev', v); render(); });
   seg('#tbOrient', v => { TB.orient = v; render(); });
+  const setFull = (on, viaUser) => { TB.full = on; if (on && typeof setChrome === 'function') setChrome(false, false); render(); if (viaUser) { const el = on ? $('#fullExit') : $('#chromeToggle'); if (el) el.focus(); } };
+  if ($('#tbView')) seg('#tbView', v => setFull(v === 'full', true));
+  if ($('#fullExit')) $('#fullExit').addEventListener('click', () => setFull(false, true));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && TB.full && !e.defaultPrevented && !nav().dialog && !nav().info && !nav().sheet) setFull(false, true); });
+  window.addEventListener('hashchange', () => { if (location.hash === '#full' && !TB.full) setFull(true); });
+  if (location.hash === '#full') TB.full = true; // a link ending in #full opens straight into the full screen view
   seg('#tbTheme', v => { TB.theme = v; render(); });
   $('#tbScenario').addEventListener('change', e => { const loc = locOf(); const v = V(); const keep = { net: v.net, entry: v.entry, token: v.token }; VS[TB.v] = Object.assign(makeVS(e.target.value), keep); goLoc(loc.startsWith('verify') ? 'tab:book' : loc); });
   $('#tbReset').addEventListener('click', () => { VS = { 1: makeVS(), 2: makeVS(), 3: makeVS(), 4: makeVS() }; goLoc('tab:book'); toast('Demo reset: all four versions are back to the default scenario', 'info'); });
